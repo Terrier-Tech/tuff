@@ -10,5 +10,13 @@
     "sass": "^1.45.0",
     "typescript": "^4.4.4",
     "vite": "^2.7.0"
+  },
+  "main": "./dist/tuff.umd.js",
+  "module": "./dist/tuff.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/tuff.es.js",
+      "require": "./dist/tuff.umd.js"
+    }
   }
 }
