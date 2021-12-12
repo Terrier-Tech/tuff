@@ -58,11 +58,11 @@ export abstract class Part<StateType> {
         }
     }
 
-    createPart<PartType extends Part<PartStateType>, PartStateType>(
+    makePart<PartType extends Part<PartStateType>, PartStateType>(
         constructor: {new (p: PartParent, id: string, state: PartStateType): PartType},
         state: PartStateType): PartType 
     {
-        let part = this.assembly.createParentedPart(constructor, this, state)
+        let part = this.assembly.makeParentedPart(constructor, this, state)
         this.children[part.id] = part
         return part
     }
@@ -93,11 +93,12 @@ export abstract class Part<StateType> {
 
     /// Dirty Tracking
 
-    private _dirty = false
+    protected _dirty = false
 
     // mark this part as dirty
     dirty() {
         this._dirty = true
+        this.assembly.requestFrame()
     }
 
 
@@ -135,41 +136,47 @@ export abstract class Part<StateType> {
         this.listen("click", key, listener, passive)
     }
 
-    attachEventListeners(elem: HTMLElement) {
+    attachEventListeners() {
+        let elem = this.rootElement
         for (let type of ['click']) {
             let handlers = this.htmlHandlers.get(type)
             if (handlers?.size) {
                 this.addTypeListener(elem, type as (keyof HTMLElementEventMap), handlers)
             }
         }
+        this.eachChild(child => {
+            child.attachEventListeners()
+        })
     }
 
     addTypeListener(elem: HTMLElement, type: keyof HTMLElementEventMap, handlers: HTMLMessageHandlerMap) {
-        console.log(`attaching ${type} event listeners to`, elem)
+        console.log(`attaching ${handlers.size} ${type} event listeners to`, elem)
         elem.addEventListener(type, function(this: HTMLElement, evt: HTMLElementEventMap[typeof type]) {
-            console.log(`${type} event`, this, evt)
 
             // traverse the DOM path to find an event key
             let target: HTMLElement | null = null
-            let key: string | null = null
+            let keys: string[] | null = null
             for (let e of evt.composedPath()) {
-                if ((e as any).dataset[`__${type}`]) {
-                    key = (e as any).dataset[`__${type}`]
+                let data = (e as any).dataset
+                if (data && data[`__${type}__`]?.length) {
+                    keys = data[`__${type}__`].split(';')
                     target = e as HTMLElement
                     break
                 }
             }
 
-            if (!key?.length) return
-            console.log(`${type} event key: ${key}`)
-            let handler = handlers.get(key)
-            if (!handler) return
-            if (handler.callback({
-                type: type,
-                event: evt,
-                element: target!
-            })) {
-                evt.stopPropagation()
+            if (!keys?.length) return
+            console.log(`${type} event: ${keys.join(';')}`, this, evt)
+            for (let k of keys) {
+                let handler = handlers.get(k)
+                if (!handler) continue
+                if (handler.callback({
+                    type: type,
+                    event: evt,
+                    element: target!
+                })) {
+                    evt.stopPropagation()
+                }
             }
         })
     }
@@ -198,6 +205,7 @@ export abstract class Part<StateType> {
         if (this._dirty) {
             const root = this.rootElement
             console.time('Part.update')
+            console.log("Updating part", this)
             this._init()
             let parent = new Tag("")
             this.render(parent)
@@ -206,10 +214,10 @@ export abstract class Part<StateType> {
             console.timeEnd('Part.update')
             root.innerHTML = output.join('')
             this._dirty = false
-            this.attachEventListeners(root)
+            this.attachEventListeners()
+            
         }
         else {
-            console.log('skipping clean part update')
             this.eachChild(child => {
                 child.update()
             })
@@ -233,7 +241,7 @@ export abstract class Assembly<StateType> extends Part<StateType> {
     constructor(state: StateType) {
         super(null, 'assembly', state)
         this._assembly = this
-        this.dirty() // so that it renders the first time
+        this._dirty = true // so that it renders the first time
     }
 
     mount(root: HTMLElement | string) {
@@ -243,22 +251,16 @@ export abstract class Assembly<StateType> extends Part<StateType> {
         else {
             this.root = document.getElementById(root)!
         }
-        this.update()
-        this.eachGrandchild(child => {
-            let elem = document.getElementById(child.id)
-            if (elem) {
-                child.attachEventListeners(elem)
-            }
-        })
+        this.requestFrame()
     }
 
-    createParentedPart<PartType extends Part<PartStateType>, PartStateType>(
+    makeParentedPart<PartType extends Part<PartStateType>, PartStateType>(
         constructor: {new (p: PartParent, id: string, state: PartStateType): PartType}, 
         parent: PartParent, 
         state: PartStateType): PartType 
     {
         this.idCount += 1
-        let part = new constructor(parent || this, `__part-${this.idCount.toString()}`, state)
+        let part = new constructor(parent || this, `__part-${this.idCount.toString()}__`, state)
         this.grandchildren[part.id] = part
         if (parent) { // don't register as a root-level part if there's a different parent
             // part._assembly = this
@@ -273,6 +275,21 @@ export abstract class Assembly<StateType> extends Part<StateType> {
 
     get rootElement(): HTMLElement {
         return this.root!
+    }
+
+
+    // Frames
+
+    private frameRequested = false
+
+    requestFrame() {
+        if (this.frameRequested) return
+        this.frameRequested = true
+        requestAnimationFrame(t => {
+            console.log('frame', t)
+            this.frameRequested = false
+            this.update()
+        })
     }
 
 }

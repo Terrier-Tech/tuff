@@ -172,8 +172,30 @@ export class Tag<AttrsType extends Attrs> {
 
     /// Messages
 
+    private messageKeys: {[type: string]: MessageKey[]} | null = null
+
+    private addMessageKey(type: string, key: MessageKey) {
+        if (!this.messageKeys) {
+            this.messageKeys = {}
+        }
+        if (this.messageKeys[type]) {
+            this.messageKeys[type].push(key)
+        }
+        else {
+            this.messageKeys[type] = [key]
+        }
+    }
+
+    private addMessageKeys(output: string[]) {
+        if (!this.messageKeys) return
+        for (let typeKeys of Object.entries(this.messageKeys)) {
+            let keys = typeKeys[1].map(k => {return k.id}).join(';')
+            output.push(`data-__${typeKeys[0]}__="${keys}"`)
+        }
+    }
+
     emit(type: keyof HTMLElementEventMap, key: MessageKey): Tag<AttrsType> {
-        this.dataAttr(`__${type}`, key.id)
+        this.addMessageKey(type, key)
         return this
     }
 
@@ -200,6 +222,7 @@ export class Tag<AttrsType extends Attrs> {
         if (this._data) {
             buildDataAttrs(allAttrs, this._data)
         }
+        this.addMessageKeys(allAttrs)
         if (allAttrs.length) {
             output.push(` ${allAttrs.join(' ')}`)
         }

@@ -6,9 +6,9 @@ export type MessageKey = {
 
 let count = 0
 
-export const newMessageKey = () => {
+export const makeKey = () => {
     count += 1
     return {
-        id: `message-${count}`
+        id: `__message-${count}__`
     }
 }

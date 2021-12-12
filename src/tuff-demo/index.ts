@@ -1,7 +1,7 @@
 import './styles.scss'
 import {Div} from '../tuff/tags'
 import {Assembly, Part, ParentTag} from '../tuff/part'
-import { newMessageKey } from '../tuff/messages'
+import { makeKey } from '../tuff/messages'
 
 const range = (start: number, end: number) => Array.from(Array(end - start + 1).keys()).map(x => x + start)
 
@@ -9,9 +9,10 @@ type ButtonState = {
     text: string
 }
 
-const ResetKey = newMessageKey()
-const IncKey = newMessageKey()
-const HelloKey = newMessageKey()
+const ResetKey = makeKey()
+const IncKey = makeKey()
+const HelloKey = makeKey()
+const OutputKey = makeKey()
 
 class IncrementButton extends Part<ButtonState> {
     
@@ -19,6 +20,8 @@ class IncrementButton extends Part<ButtonState> {
         parent.a(this.state)
             .click(IncKey)
             .data({value: this.state.text})
+            .click(OutputKey)
+            .data({output: `Increment ${this.state.text} Clicked`})
     }    
 
 }
@@ -30,7 +33,7 @@ class Toolbar extends Part<{}> {
     init() {
         for (let i of range(0, 10)) {
             this.buttons.push(
-                this.createPart(IncrementButton, {text: i.toString()})
+                this.makePart(IncrementButton, {text: i.toString()})
             )
         }
 
@@ -45,6 +48,8 @@ class Toolbar extends Part<{}> {
         parent.div(d => {
             d.a({text: "Hello"})
              .click(HelloKey)
+             .click(OutputKey)
+             .data({output: "Hello Clicked"})
         })
         for (let button of this.buttons) {
             parent.part(button)
@@ -75,14 +80,42 @@ class Counter extends Part<CounterState> {
 
 }
 
+type OutputState = {
+    text: string
+}
+
+class Output extends Part<OutputState> {
+
+    init() {
+        this.onClick(OutputKey, m => {
+            this.write(m.element.dataset?.output || "")
+            return false
+        }, true)
+    }
+
+    write(t: string) {
+        console.log(`writing output: ${t}`)
+        this.state.text = t
+        this.dirty()
+    }
+    
+    render(parent: Div) {
+        parent.class('output')
+        parent.div({text: this.state.text})
+    }
+
+}
+
 class App extends Assembly<{}> {
     toolbar: Toolbar
     counter: Counter
+    output: Output
 
     constructor() {
         super({})
-        this.toolbar = this.createPart(Toolbar, {})
-        this.counter = this.createPart(Counter, {count: 0})
+        this.toolbar = this.makePart(Toolbar, {})
+        this.counter = this.makePart(Counter, {count: 0})
+        this.output = this.makePart(Output, {text: ""})
     }
 
     init() {
@@ -90,15 +123,15 @@ class App extends Assembly<{}> {
             let value = parseInt(m.element.dataset.value || '0')
             console.log(`increment by ${value}`)
             this.counter.incCount(value)
-            this.update()
             return true
         })
         this.onClick(ResetKey, _ => {
             console.log('clicked reset')
             this.counter.resetCount()
-            this.update()
             return true
         })
+
+        this.output.write("Initialized!")
     }
 
     render(parent: ParentTag) {
@@ -110,8 +143,11 @@ class App extends Assembly<{}> {
             d.div('.shrink', d => {
                 d.a({text: "Reset"})
                     .click(ResetKey)
+                    .click(OutputKey)
+                    .data({output: `Increment Reset Clicked`})
             })
         })
+        parent.part(this.output)
     }
 }
 
