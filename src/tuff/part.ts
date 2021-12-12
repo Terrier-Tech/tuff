@@ -5,8 +5,6 @@ export type ParentTag = Tag<Attrs>
 
 export type StatelessPart = Part<{}>
 
-export type StatelessAssembly = Assembly<{}>
-
 export type PartParent = StatelessPart | null
 
 type HTMLMessage<EventType extends keyof HTMLElementEventMap> = {
@@ -24,14 +22,15 @@ type HTMLMessageHandler<EventType extends keyof HTMLElementEventMap> = {
 type HTMLMessageHandlerMap = Map<string,HTMLMessageHandler<any>>
 
 export abstract class Part<StateType> {
-    /// Assembly
+    
+    /// Root
 
     // we can't set this in the constructor since the subclass Assembly 
     // can't pass *this* to *super*
-    protected _assembly?: StatelessAssembly
+    protected _root?: StatelessPart
 
-    protected get assembly(): StatelessAssembly {
-        return this._assembly!
+    protected get root(): StatelessPart {
+        return this._root || this
     }
 
 
@@ -53,8 +52,9 @@ export abstract class Part<StateType> {
         public readonly id: string,
         public readonly state: StateType
     ) {
+        this._dirty = true
         if (parent) {
-            this._assembly = parent.assembly
+            this._root = parent.root
         }
     }
 
@@ -62,8 +62,26 @@ export abstract class Part<StateType> {
         constructor: {new (p: PartParent, id: string, state: PartStateType): PartType},
         state: PartStateType): PartType 
     {
-        let part = this.assembly.makeParentedPart(constructor, this, state)
+        let part = this.root.makeParentedPart(constructor, this, state)
         this.children[part.id] = part
+        return part
+    }
+    
+    private _idCount = 0
+
+    makeParentedPart<PartType extends Part<PartStateType>, PartStateType>(
+        constructor: {new (p: PartParent, id: string, state: PartStateType): PartType}, 
+        parent: PartParent, 
+        state: PartStateType): PartType 
+    {
+        this._idCount += 1
+        let part = new constructor(parent || this, `__part-${this._idCount.toString()}__`, state)
+        if (parent) { // don't register as a root-level part if there's a different parent
+            // part._assembly = this
+        }
+        else { 
+            this.children[part.id] = part
+        }
         return part
     }
 
@@ -93,12 +111,24 @@ export abstract class Part<StateType> {
 
     /// Dirty Tracking
 
-    protected _dirty = false
+    private _dirty = false
 
     // mark this part as dirty
     dirty() {
         this._dirty = true
-        this.assembly.requestFrame()
+        this.root.requestFrame()
+    }
+
+    private _frameRequested = false
+
+    requestFrame() {
+        if (this._frameRequested) return
+        this._frameRequested = true
+        requestAnimationFrame(t => {
+            console.log('frame', t)
+            this._frameRequested = false
+            this.update()
+        })
     }
 
 
@@ -113,7 +143,7 @@ export abstract class Part<StateType> {
         passive: boolean = false)
     { 
         if (passive) {
-            this.assembly.listen(type, key, listener, false)
+            this.root.listen(type, key, listener, false)
             return
         }
         let handlers = this.htmlHandlers.get(type)
@@ -137,7 +167,7 @@ export abstract class Part<StateType> {
     }
 
     attachEventListeners() {
-        let elem = this.rootElement
+        let elem = this.element
         for (let type of ['click']) {
             let handlers = this.htmlHandlers.get(type)
             if (handlers?.size) {
@@ -181,6 +211,25 @@ export abstract class Part<StateType> {
         })
     }
 
+
+    /// Mounting
+    
+    private _element?: HTMLElement
+
+    get element(): HTMLElement {
+        return this._element || document.getElementById(this.id)!
+    }
+
+    mount(elem: HTMLElement | string) {
+        if (elem instanceof HTMLElement) {
+            this._element = elem!
+        }
+        else {
+            this._element = document.getElementById(elem)!
+        }
+        this.requestFrame()
+    }
+
     
     /// Rendering
 
@@ -196,14 +245,10 @@ export abstract class Part<StateType> {
 
     /// Updating
 
-    get rootElement(): HTMLElement {
-        return document.getElementById(this.id)!
-    }
-
     update() {
         this._init()
         if (this._dirty) {
-            const root = this.rootElement
+            const elem = this.element
             console.time('Part.update')
             console.log("Updating part", this)
             this._init()
@@ -212,7 +257,7 @@ export abstract class Part<StateType> {
             let output = Array<string>()
             parent.buildInner(output)
             console.timeEnd('Part.update')
-            root.innerHTML = output.join('')
+            elem.innerHTML = output.join('')
             this._dirty = false
             this.attachEventListeners()
             
@@ -222,74 +267,6 @@ export abstract class Part<StateType> {
                 child.update()
             })
         }
-    }
-
-}
-
-export abstract class Assembly<StateType> extends Part<StateType> {
-
-    private root?: HTMLElement
-    private idCount = 0
-    protected grandchildren: {[id: string]: StatelessPart} = {}
-
-    eachGrandchild(func: (child: StatelessPart) => void) {
-        for (let child of Object.values(this.grandchildren)) {
-            func(child)
-        }
-    }
-
-    constructor(state: StateType) {
-        super(null, 'assembly', state)
-        this._assembly = this
-        this._dirty = true // so that it renders the first time
-    }
-
-    mount(root: HTMLElement | string) {
-        if (root instanceof HTMLElement) {
-            this.root = root!
-        }
-        else {
-            this.root = document.getElementById(root)!
-        }
-        this.requestFrame()
-    }
-
-    makeParentedPart<PartType extends Part<PartStateType>, PartStateType>(
-        constructor: {new (p: PartParent, id: string, state: PartStateType): PartType}, 
-        parent: PartParent, 
-        state: PartStateType): PartType 
-    {
-        this.idCount += 1
-        let part = new constructor(parent || this, `__part-${this.idCount.toString()}__`, state)
-        this.grandchildren[part.id] = part
-        if (parent) { // don't register as a root-level part if there's a different parent
-            // part._assembly = this
-        }
-        else { 
-            this.children[part.id] = part
-        }
-        return part
-    }
-        
-    abstract render(parent: ParentTag): any
-
-    get rootElement(): HTMLElement {
-        return this.root!
-    }
-
-
-    // Frames
-
-    private frameRequested = false
-
-    requestFrame() {
-        if (this.frameRequested) return
-        this.frameRequested = true
-        requestAnimationFrame(t => {
-            console.log('frame', t)
-            this.frameRequested = false
-            this.update()
-        })
     }
 
 }

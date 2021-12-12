@@ -1,6 +1,6 @@
 import './styles.scss'
 import {Div} from '../tuff/tags'
-import {Assembly, Part, ParentTag} from '../tuff/part'
+import {Part, ParentTag} from '../tuff/part'
 import { makeKey } from '../tuff/messages'
 
 const range = (start: number, end: number) => Array.from(Array(end - start + 1).keys()).map(x => x + start)
@@ -106,13 +106,13 @@ class Output extends Part<OutputState> {
 
 }
 
-class App extends Assembly<{}> {
+class App extends Part<{}> {
     toolbar: Toolbar
     counter: Counter
     output: Output
 
-    constructor() {
-        super({})
+    constructor(id: string) {
+        super(null, id, {})
         this.toolbar = this.makePart(Toolbar, {})
         this.counter = this.makePart(Counter, {count: 0})
         this.output = this.makePart(Output, {text: ""})
@@ -151,4 +151,4 @@ class App extends Assembly<{}> {
     }
 }
 
-new App().mount('app')
+new App('app').mount('app')
