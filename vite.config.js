@@ -9,10 +9,10 @@ module.exports = defineConfig({
       fileName: (format) => `tuff.${format}.js`
     },
     rollupOptions: {
-      // make sure to externalize deps that shouldn't be bundled
-      // into your library
-      external: [],
-      output: {}
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        counter: path.resolve(__dirname, 'src/tuff-demo/counter.html')
+      }
     }
   }
 })

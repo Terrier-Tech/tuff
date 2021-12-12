@@ -17,7 +17,7 @@ const OutputKey = makeKey()
 class IncrementButton extends Part<ButtonState> {
     
     render(parent: Div) {
-        parent.a(this.state)
+        parent.a('.button', this.state)
             .click(IncKey)
             .data({value: this.state.text})
             .click(OutputKey)
@@ -46,7 +46,7 @@ class Toolbar extends Part<{}> {
     render(parent: Div) {
         parent.class('toolbar')
         parent.div(d => {
-            d.a({text: "Hello"})
+            d.a('.button', {text: "Hello"})
              .click(HelloKey)
              .click(OutputKey)
              .data({output: "Hello Clicked"})
@@ -141,7 +141,7 @@ class App extends Part<{}> {
                 d.part(this.counter)
             })
             d.div('.shrink', d => {
-                d.a({text: "Reset"})
+                d.a('.button', {text: "Reset"})
                     .click(ResetKey)
                     .click(OutputKey)
                     .data({output: `Increment Reset Clicked`})
