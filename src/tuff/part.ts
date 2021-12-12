@@ -16,7 +16,7 @@ type HTMLMessage<EventType extends keyof HTMLElementEventMap> = {
 type HTMLMessageHandler<EventType extends keyof HTMLElementEventMap> = {
     type: EventType
     key: MessageKey
-    callback: (m: HTMLMessage<EventType>) => boolean
+    callback: (m: HTMLMessage<EventType>) => void
 }
 
 type HTMLMessageHandlerMap = Map<string,HTMLMessageHandler<any>>
@@ -139,7 +139,7 @@ export abstract class Part<StateType> {
     listen<EventType extends keyof HTMLElementEventMap>(
         type: EventType, 
         key: MessageKey,
-        listener: (m: HTMLMessage<EventType>) => boolean,
+        listener: (m: HTMLMessage<EventType>) => void,
         passive: boolean = false)
     { 
         if (passive) {
@@ -160,7 +160,7 @@ export abstract class Part<StateType> {
 
     onClick(
         key: MessageKey,
-        listener: (m: HTMLMessage<"click">) => boolean,
+        listener: (m: HTMLMessage<"click">) => void,
         passive: boolean = false) 
     {
         this.listen("click", key, listener, passive)
@@ -200,13 +200,11 @@ export abstract class Part<StateType> {
             for (let k of keys) {
                 let handler = handlers.get(k)
                 if (!handler) continue
-                if (handler.callback({
+                handler.callback({
                     type: type,
                     event: evt,
                     element: target!
-                })) {
-                    evt.stopPropagation()
-                }
+                })
             }
         })
     }

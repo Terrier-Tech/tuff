@@ -89,7 +89,6 @@ class Output extends Part<OutputState> {
     init() {
         this.onClick(OutputKey, m => {
             this.write(m.element.dataset?.output || "")
-            return false
         }, true)
     }
 
@@ -123,12 +122,10 @@ class App extends Part<{}> {
             let value = parseInt(m.element.dataset.value || '0')
             console.log(`increment by ${value}`)
             this.counter.incCount(value)
-            return true
         })
         this.onClick(ResetKey, _ => {
             console.log('clicked reset')
             this.counter.resetCount()
-            return true
         })
 
         this.output.write("Initialized!")

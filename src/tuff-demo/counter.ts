@@ -49,15 +49,12 @@ class App extends Part<{}> {
     init() {
         this.onClick(IncKey, _ => {
             this.counter.increment()
-            return true
         })
         this.onClick(DecKey, _ => {
             this.counter.decrement()
-            return true
         })
         this.onClick(ResetKey, _ => {
             this.counter.resetCount()
-            return true
         })
     }
 
