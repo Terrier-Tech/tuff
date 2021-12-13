@@ -40,16 +40,19 @@ specifically a `div` element - where the part can build its UI.
 
 On each builder element, you can pass zero to many arguments that are one of:
 
-1. A string containing CSS selector-style classes and/or an id, e.g. `".foo.bar#foo1"` will generate `class="foo bar" id="foo-1"`
-2. An object literal containing attributes (like `title`, `href`, etc.) and/or a `text` value that will populate the literal body of the element
+1. A string containing CSS selector-style classes and/or an id, e.g. `".foo.bar#foo1"` will generate `class="foo bar" id="foo1"`
+2. An object literal containing attributes (like `title`, `href`, `class`, etc.) and/or a `text` value that will populate the literal body of the element
 3. A function literal that takes the element as an argument and allows you to specify children of the element in the function body
+
+The assignment of attributes from #2 is also exposed as methods on the element.
 
 For example, this element declaration:
 
 ```typescript
 render(parent: Div) {
     parent.div(".container", c => {
-        c.span(".value", {text: "Hello"})
+        c.span(".value")
+         .text("Hello")
         c.a(".link", {href: "#", text: "Click Me"})
     })
 }
@@ -61,6 +64,28 @@ will generate the following markup:
 <div class="container">
     <span class="value">Hello</span>
     <a class="link" href="#">Click Me</a>
+</div>
+```
+
+All attribute arguments are statically-typed and specific to the particular element (e.g. anchor tags can have an `href` attribute while input tags can have a `type` attribute, but not the other way around).
+
+In addition to the proper HTML element attributes, you can assign arbitrary and nested data-attributes using the `.data()` method:
+
+```typescript
+render(parent: Div) {
+    parent.a(".link")
+        .text("Click Me")
+        .data({foo: 'bar', nested: {hello: 'world'}})
+}
+```
+
+will generate:
+
+```html
+<div>
+    <a class="link" data-foo="bar" data-nested-hello="world">
+        Click Me
+    </a>
 </div>
 ```
 
