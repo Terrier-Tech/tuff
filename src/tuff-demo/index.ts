@@ -89,7 +89,7 @@ class Output extends Part<OutputState> {
     init() {
         this.onClick(OutputKey, m => {
             this.write(m.element.dataset?.output || "")
-        }, true)
+        }, "passive")
     }
 
     write(t: string) {

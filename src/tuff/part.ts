@@ -21,12 +21,13 @@ type HTMLMessageHandler<EventType extends keyof HTMLElementEventMap> = {
 
 type HTMLMessageHandlerMap = Map<string,HTMLMessageHandler<any>>
 
+type ActiveOrPassive = "active" | "passive"
+
 export abstract class Part<StateType> {
     
     /// Root
 
-    // we can't set this in the constructor since the subclass Assembly 
-    // can't pass *this* to *super*
+    // root parts themselves will not have a root
     protected _root?: StatelessPart
 
     protected get root(): StatelessPart {
@@ -140,10 +141,10 @@ export abstract class Part<StateType> {
         type: EventType, 
         key: MessageKey,
         listener: (m: HTMLMessage<EventType>) => void,
-        passive: boolean = false)
+        active: ActiveOrPassive = "active")
     { 
-        if (passive) {
-            this.root.listen(type, key, listener, false)
+        if (active == "passive") {
+            this.root.listen(type, key, listener, "active")
             return
         }
         let handlers = this.htmlHandlers.get(type)
@@ -161,9 +162,9 @@ export abstract class Part<StateType> {
     onClick(
         key: MessageKey,
         listener: (m: HTMLMessage<"click">) => void,
-        passive: boolean = false) 
+        active: ActiveOrPassive = "active") 
     {
-        this.listen("click", key, listener, passive)
+        this.listen("click", key, listener, active)
     }
 
     attachEventListeners() {
