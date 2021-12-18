@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "target": "ES2015",
+        "useDefineForClassFields": true,
+        "module": "nodenext",
+        "lib": [
+            "ES2015", "DOM"
+        ],
+        "moduleResolution": "Node",
+        "strict": true,
+        "sourceMap": true,
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "isolatedModules": true,
+        "plugins": [
+            {
+                "transform": "ts-transformer-keys/transformer"
+            }
+        ]
+    },
+    "include": [
+        "./"
+    ]
+}
