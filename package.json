@@ -6,7 +6,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tsc": "tsc",
-    "gen": "ts-node -C ttypescript --project gen/tsconfig.json gen/html.ts"
+    "gen": "ts-node -C ttypescript --project gen/tsconfig.json gen/dom.ts"
   },
   "devDependencies": {
     "@types/node": "^17.0.0",
