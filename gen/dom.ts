@@ -16,12 +16,12 @@ const main = async () => {
 
     tst.eachInterface(iface => {
         iface.forEachChild(child => {
-            let name = tst.text(iface.name)
+            const name = tst.text(iface.name)
 
             // see if it's the tag name map
             if (tst.nodeIs(child, 'Identifier') && name == 'HTMLElementTagNameMap') {
                 for (let prop of tst.getProperties(iface)) {
-                    let elem = elementTypes[prop.type]
+                    const elem = elementTypes[prop.type]
                     if (elem) {
                         console.log(`<${prop.name}> is ${prop.type}`)
                         taggedElements[prop.name] = elem
@@ -34,7 +34,7 @@ const main = async () => {
             }
             // see if it is HTMLElement
             else if (tst.nodeIs(child, 'Identifier') && name == 'HTMLElement') {
-                let elem = new meta.Element(name, iface, tst)
+                const elem = new meta.Element(name, iface, tst)
                 elementTypes[name] = elem
                 baseElement = elem
             }
@@ -44,7 +44,7 @@ const main = async () => {
                     if (tst.nodeIs(c, 'ExpressionWithTypeArguments') && tst.text(c) == 'HTMLElement') {
                         const comment = tst.fullText(iface).split('interface')[0]
                         if (!comment.includes('@deprecated')) { // skip deprecated elements
-                            let elem = new meta.Element(name, iface, tst)
+                            const elem = new meta.Element(name, iface, tst)
                             elementTypes[name] = elem
                         }
                     }
@@ -52,6 +52,10 @@ const main = async () => {
             }
         })
     })
+
+    if (!baseElement) {
+        throw "No HTMLElement declaration!"
+    }
 
     console.log(`Parsed ${Object.entries(taggedElements).length} tagged element types (skipped ${numSkipped})`)
 

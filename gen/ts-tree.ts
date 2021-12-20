@@ -1,4 +1,3 @@
-import { throws } from 'assert'
 import ts from 'typescript'
 
 export type Property = {
@@ -16,8 +15,8 @@ export default class TypescriptTree {
     }
     
     printTree(node: ts.Node, indent = 0) {
-        let start = new Array(indent+1).join('  ')
-        let kind = ts.SyntaxKind[node.kind]
+        const start = new Array(indent+1).join('  ')
+        const kind = ts.SyntaxKind[node.kind]
         if (node.getChildCount(this.source)) {
             console.log(`${start}(${kind})`)
             indent++
@@ -26,7 +25,7 @@ export default class TypescriptTree {
             });
         }
         else { // no children
-            console.log(`${start}(${kind}) ${node.getFullText(this.source)}`);
+            console.log(`${start}(${kind}) ${this.fullText(node)}`);
         }
     }
 
@@ -38,9 +37,8 @@ export default class TypescriptTree {
     eachInterface(cb: (iface: ts.InterfaceDeclaration) => void) {
         this.source.forEachChild(node => {
             if (this.nodeIs(node, 'InterfaceDeclaration')) {
-                let iface = node as ts.InterfaceDeclaration
+                const iface = node as ts.InterfaceDeclaration
                 cb(iface)
-
             }
         })
     }
@@ -57,7 +55,6 @@ export default class TypescriptTree {
     fullText(node: ts.Node): string {
         return node.getFullText(this.source)
     }
-
 
     parseProperty(sig: ts.PropertySignature): Property {
         let name: string | null = null
