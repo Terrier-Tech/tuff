@@ -1,40 +1,59 @@
 export {}
 
 import * as fs from 'fs/promises'
-import * as ts from 'typescript'
-import * as tsh from './ts-helpers'
-import ElementType from './element-type'
+import TypescriptTree from './ts-tree'
+import * as meta from './dom-meta'
 
-
-const elementTypes: {[name: string]: ElementType} = {}
+const elementTypes: {[name: string]: meta.Element} = {}
+const taggedElements: {[name: string]: meta.Element} = {}
 
 const main = async () => {
     const raw = await fs.readFile('node_modules/typescript/lib/lib.dom.d.ts', 'utf8')
     
-    const sourceFile = ts.createSourceFile('temp.ts', raw, ts.ScriptTarget.ESNext)
+    const tst = new TypescriptTree(raw)
+    let numSkipped = 0
+    let baseElement: meta.Element | null = null
 
-    sourceFile.forEachChild(node => {
-        if (tsh.nodeIs(node, 'InterfaceDeclaration')) {
-            let iface = node as ts.InterfaceDeclaration
+    tst.eachInterface(iface => {
+        iface.forEachChild(child => {
+            let name = tst.text(iface.name)
 
-            // see if it extends HTMLElement
-            iface.forEachChild(child => {
-                if (tsh.nodeIs(child, 'HeritageClause')) {
-                    child.forEachChild(c => {
-                        if (tsh.nodeIs(c, 'ExpressionWithTypeArguments') && c.getText(sourceFile) == 'HTMLElement') {
-                            const comment = iface.getFullText(sourceFile).split('interface')[0]
-                            if (!comment.includes('@deprecated')) { // skip deprecated elements
-                                let name = iface.name.getText(sourceFile)
-                                elementTypes[name] = new ElementType(name, iface, sourceFile)
-                            }
-                        }
-                    })
+            // see if it's the tag name map
+            if (tst.nodeIs(child, 'Identifier') && name == 'HTMLElementTagNameMap') {
+                for (let prop of tst.getProperties(iface)) {
+                    let elem = elementTypes[prop.type]
+                    if (elem) {
+                        console.log(`<${prop.name}> is ${prop.type}`)
+                        taggedElements[prop.name] = elem
+                    }
+                    else {
+                        console.log(`Skipping <${prop.name}> (${prop.type})`)
+                        numSkipped += 1
+                    }
                 }
-            })
-        }
+            }
+            // see if it is HTMLElement
+            else if (tst.nodeIs(child, 'Identifier') && name == 'HTMLElement') {
+                let elem = new meta.Element(name, iface, tst)
+                elementTypes[name] = elem
+                baseElement = elem
+            }
+            // see if it extends HTMLElement
+            else if (tst.nodeIs(child, 'HeritageClause')) {
+                child.forEachChild(c => {
+                    if (tst.nodeIs(c, 'ExpressionWithTypeArguments') && tst.text(c) == 'HTMLElement') {
+                        const comment = tst.fullText(iface).split('interface')[0]
+                        if (!comment.includes('@deprecated')) { // skip deprecated elements
+                            let elem = new meta.Element(name, iface, tst)
+                            elementTypes[name] = elem
+                        }
+                    }
+                })
+            }
+        })
     })
 
-    console.log(`Parsed ${Object.entries(elementTypes).length} element types`)
+    console.log(`Parsed ${Object.entries(taggedElements).length} tagged element types (skipped ${numSkipped})`)
 
 }
 main()
