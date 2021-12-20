@@ -43,6 +43,20 @@ export default class TypescriptTree {
         })
     }
 
+    interfaceExtends(iface: ts.InterfaceDeclaration, base: string): boolean {
+        let doesExtend = false
+        iface.forEachChild(child => {
+            if (this.nodeIs(child, 'HeritageClause')) {
+                child.forEachChild(c => {
+                    if (this.nodeIs(c, 'ExpressionWithTypeArguments') && this.text(c) == base) {
+                        doesExtend = true
+                    }
+                })
+            }
+        })
+        return doesExtend
+    }
+
 
     nodeIs(node: ts.Node, type: string): boolean {
         return ts.SyntaxKind[node.kind] == type

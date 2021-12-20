@@ -24,7 +24,7 @@ class Counter extends Part<CounterState> {
     
     // the render method accepts an HTML builder object that lets the 
     // part declaratively build the interface
-    render(parent: Div) {
+    render(parent: DivTag) {
         // the CounterState object passed to this part is 
         // accessible as this.state
         parent.span({text: `Count: ${this.state.count}`})
@@ -49,7 +49,7 @@ The assignment of attributes from #2 is also exposed as methods on the element.
 For example, this element declaration:
 
 ```typescript
-render(parent: Div) {
+render(parent: DivTag) {
     parent.div(".container", c => {
         c.span(".value")
          .text("Hello")
@@ -72,7 +72,7 @@ All attribute arguments are statically-typed and specific to the particular elem
 In addition to the proper HTML element attributes, you can assign arbitrary and nested data-attributes using the `.data()` method:
 
 ```typescript
-render(parent: Div) {
+render(parent: DivTag) {
     parent.a(".link")
         .text("Click Me")
         .data({foo: 'bar', nested: {hello: 'world'}})
@@ -92,7 +92,7 @@ will generate:
 Since the `render()` method is plain Typescript, it can incorporate arbitrary control flow and logic:
 
 ```typescript
-render(parent: Div) {
+render(parent: DivTag) {
     for (let s in ['Foo', 'Bar', 'Baz']) {
         parent.a({href: `/page/${s.toLowerCase()}`, text: s})
     }
@@ -116,7 +116,7 @@ class Counter extends Part<CounterState> {
     
     // this will get called at least once, but possibly many
     // times as the UI is updated
-    render(parent: Div) {
+    render(parent: DivTag) {
     }
 
 }
@@ -131,7 +131,7 @@ Each part can have nested _child_ parts such that the UI is composed of an arbit
 type ButtonState = {text: string}
 
 class Button extends Part<ButtonState> {
-    render(parent: Div) {
+    render(parent: DivTag) {
         parent.a(".button", {text: this.state.text})
     }
 }
@@ -150,7 +150,7 @@ class Toolbar extends Part<ToolbarState> {
         }
     }
 
-    render(parent: Div) {
+    render(parent: DivTag) {
         // render the button parts to the parent div
         for (let button of this.buttons) {
             parent.part(button)
@@ -190,7 +190,7 @@ New message keys are created with the `makeKey()` global function and are used t
 const FooKey = makeKey()
 
 class Button extends Part<ButtonState> {
-    render(parent: Div) {
+    render(parent: DivTag) {
         // .click(key) is a shortcut for 
         // .emit("click", key)
         parent.a(".button", {text: this.state.text})

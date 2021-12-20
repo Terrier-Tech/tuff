@@ -1,4 +1,4 @@
-import {Tag, Attrs, Div} from './tags'
+import {Tag, Attrs, DivTag} from './tags'
 import { MessageKey } from './messages'
 
 export type ParentTag = Tag<Attrs>
@@ -239,7 +239,7 @@ export abstract class Part<StateType> {
         })
     }
 
-    abstract render(parent: Div): any
+    abstract render(parent: DivTag): any
 
 
     /// Updating

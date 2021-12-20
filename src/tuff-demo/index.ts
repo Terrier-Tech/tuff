@@ -1,5 +1,5 @@
 import './styles.scss'
-import {Div} from '../tuff/tags'
+import {DivTag} from '../tuff/tags'
 import {Part, ParentTag} from '../tuff/part'
 import { makeKey } from '../tuff/messages'
 
@@ -16,12 +16,12 @@ const OutputKey = makeKey()
 
 class IncrementButton extends Part<ButtonState> {
     
-    render(parent: Div) {
+    render(parent: DivTag) {
         parent.a('.button', this.state)
             .click(IncKey)
             .data({value: this.state.text})
             .click(OutputKey)
-            .data({output: `Increment ${this.state.text} Clicked`})
+            .dataAttrs({output: `Increment ${this.state.text} Clicked`})
     }    
 
 }
@@ -43,13 +43,13 @@ class Toolbar extends Part<{}> {
         })
     }
     
-    render(parent: Div) {
+    render(parent: DivTag) {
         parent.class('toolbar')
         parent.div(d => {
             d.a('.button', {text: "Hello"})
              .click(HelloKey)
              .click(OutputKey)
-             .data({output: "Hello Clicked"})
+             .dataAttrs({output: "Hello Clicked"})
         })
         for (let button of this.buttons) {
             parent.part(button)
@@ -73,7 +73,7 @@ class Counter extends Part<CounterState> {
         this.dirty()
     }
     
-    render(parent: Div) {
+    render(parent: DivTag) {
         parent.class('counter')
         parent.span({text: `Count: ${this.state.count}`})
     }
@@ -98,7 +98,7 @@ class Output extends Part<OutputState> {
         this.dirty()
     }
     
-    render(parent: Div) {
+    render(parent: DivTag) {
         parent.class('output')
         parent.div({text: this.state.text})
     }
@@ -141,7 +141,7 @@ class App extends Part<{}> {
                 d.a('.button', {text: "Reset"})
                     .click(ResetKey)
                     .click(OutputKey)
-                    .data({output: `Increment Reset Clicked`})
+                    .dataAttrs({output: `Increment Reset Clicked`})
             })
         })
         parent.part(this.output)

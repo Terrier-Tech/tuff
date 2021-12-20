@@ -1,5 +1,5 @@
 import './styles.scss'
-import {Div} from '../tuff/tags'
+import {DivTag} from '../tuff/tags'
 import {Part, ParentTag} from '../tuff/part'
 import { makeKey } from '../tuff/messages'
 
@@ -30,7 +30,7 @@ class Counter extends Part<CounterState> {
         this.dirty()
     }
     
-    render(parent: Div) {
+    render(parent: DivTag) {
         parent.class('counter')
         parent.span({text: `Count: ${this.state.count}`})
     }
