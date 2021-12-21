@@ -6,14 +6,12 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tsc": "tsc",
-    "gen": "ts-node -C ttypescript --project gen/tsconfig.json gen/dom.ts"
+    "gen": "ts-node --project gen/tsconfig.json gen/dom.ts"
   },
   "devDependencies": {
     "@types/node": "^17.0.0",
     "sass": "^1.45.0",
     "ts-node": "^10.4.0",
-    "ts-transformer-keys": "^0.4.3",
-    "ttypescript": "^1.5.13",
     "typescript": "^4.4.4",
     "vite": "^2.7.0"
   },

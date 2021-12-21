@@ -4,7 +4,7 @@
         "useDefineForClassFields": true,
         "module": "CommonJS",
         "lib": [
-            "ES2015", "DOM"
+            "ES2015"
         ],
         "moduleResolution": "Node",
         "strict": true,
@@ -14,12 +14,7 @@
         "noUnusedLocals": false,
         "noUnusedParameters": false,
         "noImplicitReturns": true,
-        "isolatedModules": true,
-        "plugins": [
-            {
-                "transform": "ts-transformer-keys/transformer"
-            }
-        ]
+        "isolatedModules": true
     },
     "include": [
         "./"
