@@ -84,7 +84,7 @@ export class Tag<AttrsType extends Attrs> {
         return this
     }
 
-    dataAttrs(d: DataAttrs): Tag<AttrsType> {
+    data(d: DataAttrs): Tag<AttrsType> {
         if (this._data) {
             this._data = {...this._data, ...d}
         }
@@ -240,7 +240,7 @@ export class Tag<AttrsType extends Attrs> {
         return this.child(TableColTag, "colgroup", ...args)
     }
 
-    data(...args: Args<DataTag,DataTagAttrs>[]) : DataTag {
+    dataTag(...args: Args<DataTag,DataTagAttrs>[]) : DataTag {
         return this.child(DataTag, "data", ...args)
     }
 

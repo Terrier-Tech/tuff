@@ -80,7 +80,8 @@ export class Element {
 
     tagMethod(tag: string): string {
         const lines = Array<string>()
-        lines.push(`    ${tag}(...args: Args<${this.className},${this.attrsName}>[]) : ${this.className} {`)
+        const methodName = tag == 'data' ? 'dataTag' : tag // I'd rather use data() for assigning data attributes
+        lines.push(`    ${methodName}(...args: Args<${this.className},${this.attrsName}>[]) : ${this.className} {`)
         lines.push(`        return this.child(${this.className}, "${tag}", ...args)`)
         lines.push("    }\n")
         return lines.join("\n")

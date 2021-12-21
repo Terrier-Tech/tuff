@@ -21,7 +21,7 @@ class IncrementButton extends Part<ButtonState> {
             .click(IncKey)
             .data({value: this.state.text})
             .click(OutputKey)
-            .dataAttrs({output: `Increment ${this.state.text} Clicked`})
+            .data({output: `Increment ${this.state.text} Clicked`})
     }    
 
 }
@@ -49,7 +49,7 @@ class Toolbar extends Part<{}> {
             d.a('.button', {text: "Hello"})
              .click(HelloKey)
              .click(OutputKey)
-             .dataAttrs({output: "Hello Clicked"})
+             .data({output: "Hello Clicked"})
         })
         for (let button of this.buttons) {
             parent.part(button)
@@ -141,7 +141,7 @@ class App extends Part<{}> {
                 d.a('.button', {text: "Reset"})
                     .click(ResetKey)
                     .click(OutputKey)
-                    .dataAttrs({output: `Increment Reset Clicked`})
+                    .data({output: `Increment Reset Clicked`})
             })
         })
         parent.part(this.output)
