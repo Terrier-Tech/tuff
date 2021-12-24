@@ -15,12 +15,12 @@
     "typescript": "^4.4.4",
     "vite": "^2.7.0"
   },
-  "main": "./dist/tuff.umd.js",
+  "main": "./dist/tuff.amd.js",
   "module": "./dist/tuff.es.js",
   "exports": {
     ".": {
       "import": "./dist/tuff.es.js",
-      "require": "./dist/tuff.umd.js"
+      "require": "./dist/tuff.amd.js"
     }
   }
 }
