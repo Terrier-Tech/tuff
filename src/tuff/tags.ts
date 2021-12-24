@@ -632,11 +632,6 @@ export class Tag<AttrsType extends Attrs> {
         return this
     }
 
-    click(key: MessageKey): Tag<AttrsType> {
-        this.emit('click', key)
-        return this
-    }
-
     //// Begin Emit Methods
 
     emitAbort(key: MessageKey): Tag<AttrsType> {
