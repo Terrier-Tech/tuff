@@ -1,31 +1,33 @@
 import './styles.scss'
 import {DivTag} from '../tuff/tags'
 import {Part, ParentTag} from '../tuff/part'
-import { makeKey } from '../tuff/messages'
+import * as messages from '../tuff/messages'
 import Logger from '../tuff/logger'
 
 const log = new Logger("Demo")
 
 const range = (start: number, end: number) => Array.from(Array(end - start + 1).keys()).map(x => x + start)
 
-type ButtonState = {
-    text: string
+type OutputData = {
+    output: string
 }
 
-const ResetKey = makeKey()
-const IncKey = makeKey()
-const HelloKey = makeKey()
-const OutputKey = makeKey()
-const HoverKey = makeKey()
+type IncData = {
+    value: number
+}
 
-class IncrementButton extends Part<ButtonState> {
+const ResetKey = messages.untypedKey()
+const IncKey = messages.typedKey<IncData>()
+const HelloKey = messages.untypedKey()
+const OutputKey = messages.typedKey<OutputData>()
+const HoverKey = messages.untypedKey()
+
+class IncrementButton extends Part<IncData> {
     
     render(parent: DivTag) {
-        parent.a('.button', this.state)
-            .emitClick(IncKey)
-            .data({value: this.state.text})
-            .emitClick(OutputKey)
-            .data({output: `Increment ${this.state.text} Clicked`})
+        parent.a('.button', {text: this.state.value.toString()})
+            .emitClick(IncKey, this.state)
+            .emitClick(OutputKey, {output: `Increment ${this.state.value} Clicked`})
             .emitMouseOver(HoverKey)
     }    
 
@@ -38,7 +40,7 @@ class Toolbar extends Part<{}> {
     init() {
         for (let i of range(0, 10)) {
             this.buttons.push(
-                this.makePart(IncrementButton, {text: i.toString()})
+                this.makePart(IncrementButton, {value: i})
             )
         }
 
@@ -52,9 +54,8 @@ class Toolbar extends Part<{}> {
         parent.class('toolbar')
         parent.div(d => {
             d.a('.button', {text: "Hello"})
-             .emitClick(HelloKey)
-             .emitClick(OutputKey)
-             .data({output: "Hello Clicked"})
+             .emitClick(HelloKey, {})
+             .emitClick(OutputKey, {output: "Hello Clicked"})
         })
         for (let button of this.buttons) {
             parent.part(button)
@@ -85,27 +86,23 @@ class Counter extends Part<CounterState> {
 
 }
 
-type OutputState = {
-    text: string
-}
-
-class Output extends Part<OutputState> {
+class Output extends Part<OutputData> {
 
     init() {
         this.onClick(OutputKey, m => {
-            this.write(m.element.dataset?.output || "")
+            this.write(m.data.output)
         }, "passive")
     }
 
     write(t: string) {
         log.info(`Writing output: ${t}`)
-        this.state.text = t
+        this.state.output = t
         this.dirty()
     }
     
     render(parent: DivTag) {
         parent.class('output')
-        parent.div({text: this.state.text})
+        parent.div({text: this.state.output})
     }
 
 }
@@ -119,12 +116,12 @@ class App extends Part<{}> {
         super(null, id, {})
         this.toolbar = this.makePart(Toolbar, {})
         this.counter = this.makePart(Counter, {count: 0})
-        this.output = this.makePart(Output, {text: ""})
+        this.output = this.makePart(Output, {output: ""})
     }
 
     init() {
         this.onClick(IncKey, m => {
-            let value = parseInt(m.element.dataset.value || '0')
+            let value = m.data.value
             log.info(`Increment by ${value}`)
             this.counter.incCount(value)
         })
@@ -149,9 +146,8 @@ class App extends Part<{}> {
             })
             d.div('.shrink', d => {
                 d.a('.button', {text: "Reset"})
-                    .emitClick(ResetKey)
-                    .emitClick(OutputKey)
-                    .data({output: `Increment Reset Clicked`})
+                    .emitClick(ResetKey, {})
+                    .emitClick(OutputKey, {output: `Increment Reset Clicked`})
             })
         })
         parent.part(this.output)

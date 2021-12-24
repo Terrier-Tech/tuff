@@ -124,16 +124,20 @@ export class EventType {
 
     listenMethod(): string {
         return `
-    on${this.methodName}(key: MessageKey, listener: (m: HTMLMessage<"${this.name}">) => void, active: ActiveOrPassive = "active") {
-        this.listen("${this.name}", key, listener, active)
+    on${this.methodName}<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"${this.name}",DataType>) => void, active?: ActiveOrPassive): void
+    on${this.methodName}<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"${this.name}",DataType>) => void, active?: ActiveOrPassive): void
+    on${this.methodName}<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"${this.name}",DataType>) => void, active?: ActiveOrPassive): void {
+        this.listen<"${this.name}",DataType>("${this.name}", key, listener, active)
     }
     `
     }
 
     emitMethod(): string {
         return `
-    emit${this.methodName}(key: MessageKey): Tag<AttrsType> {
-        this.emit('${this.name}', key)
+    emit${this.methodName}<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emit${this.methodName}<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emit${this.methodName}<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('${this.name}', key, data)
         return this
     }
     `

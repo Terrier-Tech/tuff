@@ -1,5 +1,5 @@
 import { Part } from "./part"
-import { MessageKey } from "./messages"
+import * as messages from '../tuff/messages'
 
 type DataAttrs = {[key: string]: any}
 
@@ -605,9 +605,9 @@ export class Tag<AttrsType extends Attrs> {
 
     /// Messages
 
-    private messageKeys: {[type: string]: MessageKey[]} | null = null
+    private messageKeys: {[type: string]: string[]} | null = null
 
-    private addMessageKey(type: string, key: MessageKey) {
+    private addMessageKey(type: string, key: string) {
         if (!this.messageKeys) {
             this.messageKeys = {}
         }
@@ -622,510 +622,716 @@ export class Tag<AttrsType extends Attrs> {
     private addMessageKeys(output: string[]) {
         if (!this.messageKeys) return
         for (let typeKeys of Object.entries(this.messageKeys)) {
-            let keys = typeKeys[1].map(k => {return k.id}).join(';')
+            let keys = typeKeys[1].map(k => {return k}).join(';')
             output.push(`data-__${typeKeys[0]}__="${keys}"`)
         }
     }
 
-    emit(type: keyof HTMLElementEventMap, key: MessageKey): Tag<AttrsType> {
-        this.addMessageKey(type, key)
+    emit<DataType>(type: keyof messages.EventMap, key: messages.UntypedKey): Tag<AttrsType>
+    
+    // Force the caller to pass data if the message key is typed
+    emit<DataType>(type: keyof messages.EventMap, key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+
+    emit<DataType>(type: keyof messages.EventMap, key: messages.UntypedKey | messages.TypedKey<DataType>, data?: DataType): Tag<AttrsType> {
+        this.addMessageKey(type, key.id)
+        if (data) {
+            this.dataAttr(key.id, encodeURIComponent(JSON.stringify(data)))
+        }
         return this
     }
 
     //// Begin Emit Methods
 
-    emitAbort(key: MessageKey): Tag<AttrsType> {
-        this.emit('abort', key)
+    emitAbort<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitAbort<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitAbort<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('abort', key, data)
         return this
     }
     
-    emitAnimationCancel(key: MessageKey): Tag<AttrsType> {
-        this.emit('animationcancel', key)
+    emitAnimationCancel<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitAnimationCancel<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitAnimationCancel<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('animationcancel', key, data)
         return this
     }
     
-    emitAnimationEnd(key: MessageKey): Tag<AttrsType> {
-        this.emit('animationend', key)
+    emitAnimationEnd<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitAnimationEnd<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitAnimationEnd<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('animationend', key, data)
         return this
     }
     
-    emitAnimationIteration(key: MessageKey): Tag<AttrsType> {
-        this.emit('animationiteration', key)
+    emitAnimationIteration<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitAnimationIteration<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitAnimationIteration<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('animationiteration', key, data)
         return this
     }
     
-    emitAnimationStart(key: MessageKey): Tag<AttrsType> {
-        this.emit('animationstart', key)
+    emitAnimationStart<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitAnimationStart<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitAnimationStart<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('animationstart', key, data)
         return this
     }
     
-    emitAuxClick(key: MessageKey): Tag<AttrsType> {
-        this.emit('auxclick', key)
+    emitAuxClick<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitAuxClick<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitAuxClick<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('auxclick', key, data)
         return this
     }
     
-    emitBeforeInput(key: MessageKey): Tag<AttrsType> {
-        this.emit('beforeinput', key)
+    emitBeforeInput<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitBeforeInput<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitBeforeInput<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('beforeinput', key, data)
         return this
     }
     
-    emitBlur(key: MessageKey): Tag<AttrsType> {
-        this.emit('blur', key)
+    emitBlur<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitBlur<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitBlur<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('blur', key, data)
         return this
     }
     
-    emitCanPlay(key: MessageKey): Tag<AttrsType> {
-        this.emit('canplay', key)
+    emitCanPlay<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitCanPlay<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitCanPlay<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('canplay', key, data)
         return this
     }
     
-    emitCanPlayThrough(key: MessageKey): Tag<AttrsType> {
-        this.emit('canplaythrough', key)
+    emitCanPlayThrough<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitCanPlayThrough<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitCanPlayThrough<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('canplaythrough', key, data)
         return this
     }
     
-    emitChange(key: MessageKey): Tag<AttrsType> {
-        this.emit('change', key)
+    emitChange<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitChange<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitChange<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('change', key, data)
         return this
     }
     
-    emitClick(key: MessageKey): Tag<AttrsType> {
-        this.emit('click', key)
+    emitClick<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitClick<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitClick<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('click', key, data)
         return this
     }
     
-    emitClose(key: MessageKey): Tag<AttrsType> {
-        this.emit('close', key)
+    emitClose<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitClose<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitClose<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('close', key, data)
         return this
     }
     
-    emitCompositionEnd(key: MessageKey): Tag<AttrsType> {
-        this.emit('compositionend', key)
+    emitCompositionEnd<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitCompositionEnd<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitCompositionEnd<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('compositionend', key, data)
         return this
     }
     
-    emitCompositionStart(key: MessageKey): Tag<AttrsType> {
-        this.emit('compositionstart', key)
+    emitCompositionStart<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitCompositionStart<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitCompositionStart<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('compositionstart', key, data)
         return this
     }
     
-    emitCompositionUpdate(key: MessageKey): Tag<AttrsType> {
-        this.emit('compositionupdate', key)
+    emitCompositionUpdate<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitCompositionUpdate<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitCompositionUpdate<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('compositionupdate', key, data)
         return this
     }
     
-    emitContextMenu(key: MessageKey): Tag<AttrsType> {
-        this.emit('contextmenu', key)
+    emitContextMenu<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitContextMenu<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitContextMenu<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('contextmenu', key, data)
         return this
     }
     
-    emitCopy(key: MessageKey): Tag<AttrsType> {
-        this.emit('copy', key)
+    emitCopy<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitCopy<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitCopy<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('copy', key, data)
         return this
     }
     
-    emitCueChange(key: MessageKey): Tag<AttrsType> {
-        this.emit('cuechange', key)
+    emitCueChange<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitCueChange<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitCueChange<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('cuechange', key, data)
         return this
     }
     
-    emitCut(key: MessageKey): Tag<AttrsType> {
-        this.emit('cut', key)
+    emitCut<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitCut<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitCut<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('cut', key, data)
         return this
     }
     
-    emitDblClick(key: MessageKey): Tag<AttrsType> {
-        this.emit('dblclick', key)
+    emitDblClick<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitDblClick<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitDblClick<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('dblclick', key, data)
         return this
     }
     
-    emitDrag(key: MessageKey): Tag<AttrsType> {
-        this.emit('drag', key)
+    emitDrag<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitDrag<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitDrag<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('drag', key, data)
         return this
     }
     
-    emitDragEnd(key: MessageKey): Tag<AttrsType> {
-        this.emit('dragend', key)
+    emitDragEnd<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitDragEnd<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitDragEnd<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('dragend', key, data)
         return this
     }
     
-    emitDragEnter(key: MessageKey): Tag<AttrsType> {
-        this.emit('dragenter', key)
+    emitDragEnter<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitDragEnter<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitDragEnter<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('dragenter', key, data)
         return this
     }
     
-    emitDragLeave(key: MessageKey): Tag<AttrsType> {
-        this.emit('dragleave', key)
+    emitDragLeave<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitDragLeave<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitDragLeave<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('dragleave', key, data)
         return this
     }
     
-    emitDragOver(key: MessageKey): Tag<AttrsType> {
-        this.emit('dragover', key)
+    emitDragOver<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitDragOver<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitDragOver<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('dragover', key, data)
         return this
     }
     
-    emitDragStart(key: MessageKey): Tag<AttrsType> {
-        this.emit('dragstart', key)
+    emitDragStart<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitDragStart<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitDragStart<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('dragstart', key, data)
         return this
     }
     
-    emitDrop(key: MessageKey): Tag<AttrsType> {
-        this.emit('drop', key)
+    emitDrop<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitDrop<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitDrop<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('drop', key, data)
         return this
     }
     
-    emitDurationChange(key: MessageKey): Tag<AttrsType> {
-        this.emit('durationchange', key)
+    emitDurationChange<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitDurationChange<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitDurationChange<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('durationchange', key, data)
         return this
     }
     
-    emitEmptied(key: MessageKey): Tag<AttrsType> {
-        this.emit('emptied', key)
+    emitEmptied<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitEmptied<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitEmptied<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('emptied', key, data)
         return this
     }
     
-    emitEnded(key: MessageKey): Tag<AttrsType> {
-        this.emit('ended', key)
+    emitEnded<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitEnded<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitEnded<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('ended', key, data)
         return this
     }
     
-    emitError(key: MessageKey): Tag<AttrsType> {
-        this.emit('error', key)
+    emitError<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitError<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitError<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('error', key, data)
         return this
     }
     
-    emitFocus(key: MessageKey): Tag<AttrsType> {
-        this.emit('focus', key)
+    emitFocus<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitFocus<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitFocus<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('focus', key, data)
         return this
     }
     
-    emitFocusIn(key: MessageKey): Tag<AttrsType> {
-        this.emit('focusin', key)
+    emitFocusIn<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitFocusIn<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitFocusIn<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('focusin', key, data)
         return this
     }
     
-    emitFocusOut(key: MessageKey): Tag<AttrsType> {
-        this.emit('focusout', key)
+    emitFocusOut<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitFocusOut<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitFocusOut<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('focusout', key, data)
         return this
     }
     
-    emitFormData(key: MessageKey): Tag<AttrsType> {
-        this.emit('formdata', key)
+    emitFormData<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitFormData<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitFormData<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('formdata', key, data)
         return this
     }
     
-    emitFullscreenChange(key: MessageKey): Tag<AttrsType> {
-        this.emit('fullscreenchange', key)
+    emitFullscreenChange<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitFullscreenChange<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitFullscreenChange<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('fullscreenchange', key, data)
         return this
     }
     
-    emitFullscreenError(key: MessageKey): Tag<AttrsType> {
-        this.emit('fullscreenerror', key)
+    emitFullscreenError<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitFullscreenError<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitFullscreenError<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('fullscreenerror', key, data)
         return this
     }
     
-    emitGotPointerCapture(key: MessageKey): Tag<AttrsType> {
-        this.emit('gotpointercapture', key)
+    emitGotPointerCapture<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitGotPointerCapture<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitGotPointerCapture<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('gotpointercapture', key, data)
         return this
     }
     
-    emitInput(key: MessageKey): Tag<AttrsType> {
-        this.emit('input', key)
+    emitInput<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitInput<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitInput<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('input', key, data)
         return this
     }
     
-    emitInvalid(key: MessageKey): Tag<AttrsType> {
-        this.emit('invalid', key)
+    emitInvalid<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitInvalid<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitInvalid<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('invalid', key, data)
         return this
     }
     
-    emitKeyDown(key: MessageKey): Tag<AttrsType> {
-        this.emit('keydown', key)
+    emitKeyDown<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitKeyDown<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitKeyDown<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('keydown', key, data)
         return this
     }
     
-    emitKeyPress(key: MessageKey): Tag<AttrsType> {
-        this.emit('keypress', key)
+    emitKeyPress<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitKeyPress<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitKeyPress<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('keypress', key, data)
         return this
     }
     
-    emitKeyUp(key: MessageKey): Tag<AttrsType> {
-        this.emit('keyup', key)
+    emitKeyUp<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitKeyUp<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitKeyUp<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('keyup', key, data)
         return this
     }
     
-    emitLoad(key: MessageKey): Tag<AttrsType> {
-        this.emit('load', key)
+    emitLoad<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitLoad<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitLoad<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('load', key, data)
         return this
     }
     
-    emitLoadedData(key: MessageKey): Tag<AttrsType> {
-        this.emit('loadeddata', key)
+    emitLoadedData<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitLoadedData<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitLoadedData<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('loadeddata', key, data)
         return this
     }
     
-    emitLoadedMetadata(key: MessageKey): Tag<AttrsType> {
-        this.emit('loadedmetadata', key)
+    emitLoadedMetadata<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitLoadedMetadata<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitLoadedMetadata<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('loadedmetadata', key, data)
         return this
     }
     
-    emitLoadStart(key: MessageKey): Tag<AttrsType> {
-        this.emit('loadstart', key)
+    emitLoadStart<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitLoadStart<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitLoadStart<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('loadstart', key, data)
         return this
     }
     
-    emitLostPointerCapture(key: MessageKey): Tag<AttrsType> {
-        this.emit('lostpointercapture', key)
+    emitLostPointerCapture<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitLostPointerCapture<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitLostPointerCapture<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('lostpointercapture', key, data)
         return this
     }
     
-    emitMouseDown(key: MessageKey): Tag<AttrsType> {
-        this.emit('mousedown', key)
+    emitMouseDown<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitMouseDown<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitMouseDown<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('mousedown', key, data)
         return this
     }
     
-    emitMouseEnter(key: MessageKey): Tag<AttrsType> {
-        this.emit('mouseenter', key)
+    emitMouseEnter<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitMouseEnter<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitMouseEnter<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('mouseenter', key, data)
         return this
     }
     
-    emitMouseLeave(key: MessageKey): Tag<AttrsType> {
-        this.emit('mouseleave', key)
+    emitMouseLeave<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitMouseLeave<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitMouseLeave<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('mouseleave', key, data)
         return this
     }
     
-    emitMouseMove(key: MessageKey): Tag<AttrsType> {
-        this.emit('mousemove', key)
+    emitMouseMove<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitMouseMove<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitMouseMove<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('mousemove', key, data)
         return this
     }
     
-    emitMouseOut(key: MessageKey): Tag<AttrsType> {
-        this.emit('mouseout', key)
+    emitMouseOut<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitMouseOut<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitMouseOut<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('mouseout', key, data)
         return this
     }
     
-    emitMouseOver(key: MessageKey): Tag<AttrsType> {
-        this.emit('mouseover', key)
+    emitMouseOver<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitMouseOver<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitMouseOver<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('mouseover', key, data)
         return this
     }
     
-    emitMouseUp(key: MessageKey): Tag<AttrsType> {
-        this.emit('mouseup', key)
+    emitMouseUp<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitMouseUp<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitMouseUp<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('mouseup', key, data)
         return this
     }
     
-    emitPaste(key: MessageKey): Tag<AttrsType> {
-        this.emit('paste', key)
+    emitPaste<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitPaste<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitPaste<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('paste', key, data)
         return this
     }
     
-    emitPause(key: MessageKey): Tag<AttrsType> {
-        this.emit('pause', key)
+    emitPause<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitPause<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitPause<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('pause', key, data)
         return this
     }
     
-    emitPlay(key: MessageKey): Tag<AttrsType> {
-        this.emit('play', key)
+    emitPlay<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitPlay<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitPlay<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('play', key, data)
         return this
     }
     
-    emitPlaying(key: MessageKey): Tag<AttrsType> {
-        this.emit('playing', key)
+    emitPlaying<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitPlaying<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitPlaying<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('playing', key, data)
         return this
     }
     
-    emitPointerCancel(key: MessageKey): Tag<AttrsType> {
-        this.emit('pointercancel', key)
+    emitPointerCancel<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitPointerCancel<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitPointerCancel<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('pointercancel', key, data)
         return this
     }
     
-    emitPointerDown(key: MessageKey): Tag<AttrsType> {
-        this.emit('pointerdown', key)
+    emitPointerDown<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitPointerDown<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitPointerDown<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('pointerdown', key, data)
         return this
     }
     
-    emitPointerEnter(key: MessageKey): Tag<AttrsType> {
-        this.emit('pointerenter', key)
+    emitPointerEnter<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitPointerEnter<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitPointerEnter<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('pointerenter', key, data)
         return this
     }
     
-    emitPointerLeave(key: MessageKey): Tag<AttrsType> {
-        this.emit('pointerleave', key)
+    emitPointerLeave<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitPointerLeave<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitPointerLeave<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('pointerleave', key, data)
         return this
     }
     
-    emitPointerMove(key: MessageKey): Tag<AttrsType> {
-        this.emit('pointermove', key)
+    emitPointerMove<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitPointerMove<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitPointerMove<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('pointermove', key, data)
         return this
     }
     
-    emitPointerOut(key: MessageKey): Tag<AttrsType> {
-        this.emit('pointerout', key)
+    emitPointerOut<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitPointerOut<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitPointerOut<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('pointerout', key, data)
         return this
     }
     
-    emitPointerOver(key: MessageKey): Tag<AttrsType> {
-        this.emit('pointerover', key)
+    emitPointerOver<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitPointerOver<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitPointerOver<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('pointerover', key, data)
         return this
     }
     
-    emitPointerUp(key: MessageKey): Tag<AttrsType> {
-        this.emit('pointerup', key)
+    emitPointerUp<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitPointerUp<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitPointerUp<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('pointerup', key, data)
         return this
     }
     
-    emitProgress(key: MessageKey): Tag<AttrsType> {
-        this.emit('progress', key)
+    emitProgress<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitProgress<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitProgress<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('progress', key, data)
         return this
     }
     
-    emitRateChange(key: MessageKey): Tag<AttrsType> {
-        this.emit('ratechange', key)
+    emitRateChange<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitRateChange<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitRateChange<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('ratechange', key, data)
         return this
     }
     
-    emitReset(key: MessageKey): Tag<AttrsType> {
-        this.emit('reset', key)
+    emitReset<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitReset<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitReset<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('reset', key, data)
         return this
     }
     
-    emitResize(key: MessageKey): Tag<AttrsType> {
-        this.emit('resize', key)
+    emitResize<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitResize<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitResize<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('resize', key, data)
         return this
     }
     
-    emitScroll(key: MessageKey): Tag<AttrsType> {
-        this.emit('scroll', key)
+    emitScroll<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitScroll<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitScroll<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('scroll', key, data)
         return this
     }
     
-    emitSecurityPolicyViolation(key: MessageKey): Tag<AttrsType> {
-        this.emit('securitypolicyviolation', key)
+    emitSecurityPolicyViolation<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitSecurityPolicyViolation<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitSecurityPolicyViolation<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('securitypolicyviolation', key, data)
         return this
     }
     
-    emitSeeked(key: MessageKey): Tag<AttrsType> {
-        this.emit('seeked', key)
+    emitSeeked<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitSeeked<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitSeeked<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('seeked', key, data)
         return this
     }
     
-    emitSeeking(key: MessageKey): Tag<AttrsType> {
-        this.emit('seeking', key)
+    emitSeeking<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitSeeking<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitSeeking<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('seeking', key, data)
         return this
     }
     
-    emitSelect(key: MessageKey): Tag<AttrsType> {
-        this.emit('select', key)
+    emitSelect<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitSelect<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitSelect<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('select', key, data)
         return this
     }
     
-    emitSelectionChange(key: MessageKey): Tag<AttrsType> {
-        this.emit('selectionchange', key)
+    emitSelectionChange<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitSelectionChange<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitSelectionChange<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('selectionchange', key, data)
         return this
     }
     
-    emitSelectStart(key: MessageKey): Tag<AttrsType> {
-        this.emit('selectstart', key)
+    emitSelectStart<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitSelectStart<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitSelectStart<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('selectstart', key, data)
         return this
     }
     
-    emitStalled(key: MessageKey): Tag<AttrsType> {
-        this.emit('stalled', key)
+    emitStalled<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitStalled<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitStalled<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('stalled', key, data)
         return this
     }
     
-    emitSubmit(key: MessageKey): Tag<AttrsType> {
-        this.emit('submit', key)
+    emitSubmit<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitSubmit<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitSubmit<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('submit', key, data)
         return this
     }
     
-    emitSuspend(key: MessageKey): Tag<AttrsType> {
-        this.emit('suspend', key)
+    emitSuspend<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitSuspend<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitSuspend<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('suspend', key, data)
         return this
     }
     
-    emitTimeUpdate(key: MessageKey): Tag<AttrsType> {
-        this.emit('timeupdate', key)
+    emitTimeUpdate<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitTimeUpdate<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitTimeUpdate<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('timeupdate', key, data)
         return this
     }
     
-    emitToggle(key: MessageKey): Tag<AttrsType> {
-        this.emit('toggle', key)
+    emitToggle<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitToggle<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitToggle<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('toggle', key, data)
         return this
     }
     
-    emitTouchCancel(key: MessageKey): Tag<AttrsType> {
-        this.emit('touchcancel', key)
+    emitTouchCancel<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitTouchCancel<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitTouchCancel<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('touchcancel', key, data)
         return this
     }
     
-    emitTouchEnd(key: MessageKey): Tag<AttrsType> {
-        this.emit('touchend', key)
+    emitTouchEnd<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitTouchEnd<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitTouchEnd<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('touchend', key, data)
         return this
     }
     
-    emitTouchMove(key: MessageKey): Tag<AttrsType> {
-        this.emit('touchmove', key)
+    emitTouchMove<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitTouchMove<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitTouchMove<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('touchmove', key, data)
         return this
     }
     
-    emitTouchStart(key: MessageKey): Tag<AttrsType> {
-        this.emit('touchstart', key)
+    emitTouchStart<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitTouchStart<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitTouchStart<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('touchstart', key, data)
         return this
     }
     
-    emitTransitionCancel(key: MessageKey): Tag<AttrsType> {
-        this.emit('transitioncancel', key)
+    emitTransitionCancel<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitTransitionCancel<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitTransitionCancel<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('transitioncancel', key, data)
         return this
     }
     
-    emitTransitionEnd(key: MessageKey): Tag<AttrsType> {
-        this.emit('transitionend', key)
+    emitTransitionEnd<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitTransitionEnd<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitTransitionEnd<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('transitionend', key, data)
         return this
     }
     
-    emitTransitionRun(key: MessageKey): Tag<AttrsType> {
-        this.emit('transitionrun', key)
+    emitTransitionRun<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitTransitionRun<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitTransitionRun<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('transitionrun', key, data)
         return this
     }
     
-    emitTransitionStart(key: MessageKey): Tag<AttrsType> {
-        this.emit('transitionstart', key)
+    emitTransitionStart<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitTransitionStart<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitTransitionStart<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('transitionstart', key, data)
         return this
     }
     
-    emitVolumeChange(key: MessageKey): Tag<AttrsType> {
-        this.emit('volumechange', key)
+    emitVolumeChange<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitVolumeChange<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitVolumeChange<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('volumechange', key, data)
         return this
     }
     
-    emitWaiting(key: MessageKey): Tag<AttrsType> {
-        this.emit('waiting', key)
+    emitWaiting<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitWaiting<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitWaiting<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('waiting', key, data)
         return this
     }
     
-    emitWebkitAnimationEnd(key: MessageKey): Tag<AttrsType> {
-        this.emit('webkitanimationend', key)
+    emitWebkitAnimationEnd<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitWebkitAnimationEnd<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitWebkitAnimationEnd<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('webkitanimationend', key, data)
         return this
     }
     
-    emitWebkitAnimationIteration(key: MessageKey): Tag<AttrsType> {
-        this.emit('webkitanimationiteration', key)
+    emitWebkitAnimationIteration<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitWebkitAnimationIteration<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitWebkitAnimationIteration<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('webkitanimationiteration', key, data)
         return this
     }
     
-    emitWebkitAnimationStart(key: MessageKey): Tag<AttrsType> {
-        this.emit('webkitanimationstart', key)
+    emitWebkitAnimationStart<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitWebkitAnimationStart<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitWebkitAnimationStart<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('webkitanimationstart', key, data)
         return this
     }
     
-    emitWebkitTransitionEnd(key: MessageKey): Tag<AttrsType> {
-        this.emit('webkittransitionend', key)
+    emitWebkitTransitionEnd<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitWebkitTransitionEnd<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitWebkitTransitionEnd<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('webkittransitionend', key, data)
         return this
     }
     
-    emitWheel(key: MessageKey): Tag<AttrsType> {
-        this.emit('wheel', key)
+    emitWheel<DataType>(key: messages.UntypedKey): Tag<AttrsType>
+    emitWheel<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emitWheel<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        this.emit('wheel', key, data)
         return this
     }
     

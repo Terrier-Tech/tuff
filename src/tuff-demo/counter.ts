@@ -1,12 +1,14 @@
 import './styles.scss'
 import {DivTag} from '../tuff/tags'
 import {Part, ParentTag} from '../tuff/part'
-import { makeKey } from '../tuff/messages'
+import * as messages from '../tuff/messages'
 
+type ChangeData = {
+    by: number
+}
 
-const ResetKey = makeKey()
-const IncKey = makeKey()
-const DecKey = makeKey()
+const ResetKey = messages.untypedKey()
+const ChangeKey = messages.typedKey<ChangeData>()
 
 
 type CounterState = {
@@ -15,13 +17,8 @@ type CounterState = {
 
 class Counter extends Part<CounterState> {
 
-    increment() {
-        this.state.count += 1
-        this.dirty()
-    }
-
-    decrement() {
-        this.state.count -= 1
+    change(data: ChangeData) {
+        this.state.count += data.by
         this.dirty()
     }
 
@@ -47,11 +44,8 @@ class App extends Part<{}> {
     }
 
     init() {
-        this.onClick(IncKey, _ => {
-            this.counter.increment()
-        })
-        this.onClick(DecKey, _ => {
-            this.counter.decrement()
+        this.onClick(ChangeKey, (m) => {
+            this.counter.change(m.data)
         })
         this.onClick(ResetKey, _ => {
             this.counter.resetCount()
@@ -65,15 +59,15 @@ class App extends Part<{}> {
             })
             d.div('.shrink', d => {
                 d.a('.button', {text: "+"})
-                    .emitClick(IncKey)
+                    .emitClick(ChangeKey, {by: 1})
             })
             d.div('.shrink', d => {
                 d.a('.button', {text: "-"})
-                    .emitClick(DecKey)
+                .emitClick(ChangeKey, {by: -1})
             })
             d.div('.shrink', d => {
                 d.a('.button', {text: "Reset"})
-                    .emitClick(ResetKey)
+                    .emitClick(ResetKey, {})
             })
         })
     }

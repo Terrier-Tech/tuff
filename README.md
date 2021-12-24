@@ -182,19 +182,26 @@ Instead of traditional DOM event handlers, events in Tuff are handled through a 
 2. Easily attach multiple message keys to the same element and multiple handlers for the same message key
 3. Use a single handler for messages emitted from many different elements down the DOM tree (similar to jQuery's `.on()`)
 4. Decouple the emitting and handling of messages while leveraging the type system for correctness (message keys are statically typed and don't rely on strings)
+5. Force message emitters to pass strongly-typed data, which handlers can then receive
 
 Messages are identified by *keys* (instead of e.g. strings) to allow the type system to force correctness and avoid typos.
-New message keys are created with the `makeKey()` global function and are used to declare which messages are emitted from a particular element:
+New message keys are created with the `messages.untypedKey()` and `messages.typedKey<T>()` functions and are used to declare which messages are emitted from a particular element:
 
 ```typescript
-const FooKey = makeKey()
+const FooKey = messages.untypedKey()
+
+const type BarData = {
+    value: number
+}
+const BarKey = messages.typedKey<BarData>()
 
 class Button extends Part<ButtonState> {
     render(parent: DivTag) {
-        // .emitClick(key) is a shortcut for 
-        // .emit("click", key)
+        // .emitClick(key) is a shortcut for .emit("click", key)
+        // passing a typed key forces you to also pass that type
         parent.a(".button", {text: this.state.text})
             .emitClick(FooKey)
+            .emitClick(BarKey, {value: 42})
     }
 }
 ```
@@ -204,15 +211,18 @@ Then, either the same part or another part in the tree can declare that it will 
 ```typescript
 class Toolbar extends Part<ToolbarState> {
     init() {
-        // .onClick(key, ...) is a shortcut for 
-        // .handle("click", key, ...)
+        // .onClick(key, ...) is a shortcut for .handle("click", key, ...)
+        // the message argument contains:
+        //  type: the string event type ("click")
+        //  event: the raw HTMLElementEvent
+        //  element: the HTMLELement on which the event originated
+        //  data: the data passed if the key is typed
         this.onClick(FooKey, message => {
-            // the message argument contains:
-            //  type: the string event type ("click")
-            //  event: the raw HTMLElementEvent
-            //  element: the HTMLELement on which the event originated
             this.state.foo = 'bar'
             this.dirty()
+        })
+        this.onClick(BarKey, message => {
+            console.log(`Bar clicked with value ${message.data.value}`)
         })
     }
 }
