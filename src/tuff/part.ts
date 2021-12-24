@@ -1,5 +1,8 @@
 import {Tag, Attrs, DivTag} from './tags'
 import { MessageKey } from './messages'
+import Logger from './logger'
+
+const log = new Logger('Part')
 
 export type ParentTag = Tag<Attrs>
 
@@ -98,7 +101,7 @@ export abstract class Part<StateType> {
     protected _init() {
         if (!this._initialized) {
             this._initialized = true
-            console.log('Initializing', this)
+            log.info('Initializing', this)
             this.init()
         }
         this.eachChild(child => {
@@ -116,6 +119,7 @@ export abstract class Part<StateType> {
 
     // mark this part as dirty
     dirty() {
+        log.debug("Dirty", this)
         this._dirty = true
         this.root.requestFrame()
     }
@@ -126,7 +130,7 @@ export abstract class Part<StateType> {
         if (this._frameRequested) return
         this._frameRequested = true
         requestAnimationFrame(t => {
-            console.log('frame', t)
+            log.debug('Frame', t)
             this._frameRequested = false
             this.update()
         })
@@ -181,7 +185,7 @@ export abstract class Part<StateType> {
     }
 
     addTypeListener(elem: HTMLElement, type: keyof HTMLElementEventMap, handlers: HTMLMessageHandlerMap) {
-        console.log(`attaching ${handlers.size} ${type} event listeners to`, elem)
+        log.info(`Attaching ${handlers.size} ${type} event listeners to`, elem)
         elem.addEventListener(type, function(this: HTMLElement, evt: HTMLElementEventMap[typeof type]) {
 
             // traverse the DOM path to find an event key
@@ -248,15 +252,14 @@ export abstract class Part<StateType> {
         this._init()
         if (this._dirty) {
             const elem = this.element
-            console.time('Part.update')
-            console.log("Updating part", this)
-            this._init()
-            let parent = new Tag("")
-            this.render(parent)
-            let output = Array<string>()
-            parent.buildInner(output)
-            console.timeEnd('Part.update')
-            elem.innerHTML = output.join('')
+            log.time('Update', () => {
+                this._init()
+                let parent = new Tag("")
+                this.render(parent)
+                let output = Array<string>()
+                parent.buildInner(output)
+                elem.innerHTML = output.join('')
+            })
             this._dirty = false
             this.attachEventListeners()
             

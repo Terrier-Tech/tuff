@@ -2,6 +2,9 @@ import './styles.scss'
 import {DivTag} from '../tuff/tags'
 import {Part, ParentTag} from '../tuff/part'
 import { makeKey } from '../tuff/messages'
+import Logger from '../tuff/logger'
+
+const log = new Logger("Demo")
 
 const range = (start: number, end: number) => Array.from(Array(end - start + 1).keys()).map(x => x + start)
 
@@ -38,7 +41,7 @@ class Toolbar extends Part<{}> {
         }
 
         this.onClick(HelloKey, m => {
-            console.log("Hello!", m)
+            log.info("Hello!", m)
             return false
         })
     }
@@ -93,7 +96,7 @@ class Output extends Part<OutputState> {
     }
 
     write(t: string) {
-        console.log(`writing output: ${t}`)
+        log.info(`Writing output: ${t}`)
         this.state.text = t
         this.dirty()
     }
@@ -120,11 +123,11 @@ class App extends Part<{}> {
     init() {
         this.onClick(IncKey, m => {
             let value = parseInt(m.element.dataset.value || '0')
-            console.log(`increment by ${value}`)
+            log.info(`Increment by ${value}`)
             this.counter.incCount(value)
         })
         this.onClick(ResetKey, _ => {
-            console.log('clicked reset')
+            log.info('Clicked reset')
             this.counter.resetCount()
         })
 

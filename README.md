@@ -234,6 +234,39 @@ class OtherPart extends Part<OtherState> {
 ```
 
 
+## Logging
+
+Tuff comes with a very simple logging system that you can optionally use for your application. Simply create a `Logger` instance with an arbitrary prefix anywhere you'd like (Tuff libraries tend to do it at the top of the file) and call the usual logging methods (`debug`, `info`, `warn`, `error`):
+
+```typescript
+const logger = new Logger('MyThing')
+
+// regular log statements
+logger.info('hello')
+// [MyThing] hello
+
+// console-style extra args
+logger.warn('an object', {foo: 'bar'})
+// [MyThing] an object
+// {foo: 'bar'}
+
+// log the time it takes to execute a function
+logger.time('count things', () => {
+    // something that takes time to do
+})
+// [MyThing] count things: 0.312 ms
+
+// set the global minimum log level to filter output
+// (default is 'info')
+Logger.level = 'warn'
+logger.info('too much info')
+// (won't print anything)
+
+```
+
+
+
+
 ## Development
 
 Tuff uses <a href="https://pnpm.io/">pnpm</a> to manage dependencies and run scripts.
