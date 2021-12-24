@@ -1,6 +1,9 @@
 import ts from 'typescript'
 import TypescriptTree from './ts-tree'
 
+const capitalize = (s: string) => s = s.charAt(0).toUpperCase() + s.slice(1)
+
+// represents an HTML element type
 export class Element {
 
     attrTypes: {[name: string]: string} = {}
@@ -35,8 +38,6 @@ export class Element {
         else {
             this.attrsName = `${this.className}Attrs`
         }
-
-        this.print()
     }
 
     eachAttrType(fun: (name: string, type: string) => void) {
@@ -63,17 +64,17 @@ export class Element {
         const lines = Array<string>()
 
         if (this == base) {
-            lines.push(`type ${this.attrsName} = Attrs & {`)
+            lines.push(`\ntype ${this.attrsName} = Attrs & {`)
             this.attrsDeclaration(lines)
             lines.push("}\n")
         }
         else if (this.attrsName != base.attrsName) {
-            lines.push(`type ${this.attrsName} = ${base.attrsName} & {`)
+            lines.push(`\ntype ${this.attrsName} = ${base.attrsName} & {`)
             this.attrsDeclaration(lines)
             lines.push("}\n")
         }
 
-        lines.push(`export class ${this.className} extends Tag<${this.attrsName}> {}`)
+        lines.push(`export class ${this.className} extends Tag<${this.attrsName}> {}\n`)
 
         return lines.join("\n")
     }
@@ -81,10 +82,61 @@ export class Element {
     tagMethod(tag: string): string {
         const lines = Array<string>()
         const methodName = tag == 'data' ? 'dataTag' : tag // I'd rather use data() for assigning data attributes
-        lines.push(`    ${methodName}(...args: Args<${this.className},${this.attrsName}>[]) : ${this.className} {`)
+        lines.push(`\n    ${methodName}(...args: Args<${this.className},${this.attrsName}>[]) : ${this.className} {`)
         lines.push(`        return this.child(${this.className}, "${tag}", ...args)`)
         lines.push("    }\n")
         return lines.join("\n")
+    }
+
+}
+
+
+// list of event name components that should be capitalized
+// we want to write `.onMouseDown`, not `.onmousedown`
+const capitalEventNames = ['animation', 'cancel', 'capture', 'change', 'click', 'data', 'down', 'end', 'enter', 'error', 'input', 'iteration', 'leave', 'menu', 'move', 'out', 'over', 'play', 'pointer', 'policy', 'press', 'run', 'start', 'transition', 'through', 'up', 'violation']
+
+// these don't fit into our general capitalizations above
+const eventNameExceptions: {[name: string]: string} = {
+    focusin: 'FocusIn',
+    loadedmetadata: 'LoadedMetadata',
+    suspend: 'Suspend'
+}
+
+// represents a event type
+export class EventType {
+
+    constructor(readonly name: string, readonly type: string) {
+
+    }
+
+    // computes the name of the hanlder convenience method based on the event name, e.g.:
+    // 'DragEnd' from 'dragend'
+    get methodName(): string {
+        if (eventNameExceptions[this.name]) {
+            return eventNameExceptions[this.name]
+        }
+        let n = capitalize(this.name)
+        for (let s of capitalEventNames) {
+            n = n.replace(s, capitalize(s))
+        }
+        return n
+    }
+
+    listenMethod(): string {
+        return `
+    on${this.methodName}(key: MessageKey, listener: (m: HTMLMessage<"${this.name}">) => void, active: ActiveOrPassive = "active") {
+        this.listen("${this.name}", key, listener, active)
+    }
+    `
+    }
+
+    emitMethod(): string {
+        return `
+    emit${this.methodName}(key: MessageKey): Tag<AttrsType> {
+        this.emit('${this.name}', key)
+        return this
+    }
+    `
     }
 
 }

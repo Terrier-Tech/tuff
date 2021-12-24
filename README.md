@@ -191,10 +191,10 @@ const FooKey = makeKey()
 
 class Button extends Part<ButtonState> {
     render(parent: DivTag) {
-        // .click(key) is a shortcut for 
+        // .emitClick(key) is a shortcut for 
         // .emit("click", key)
         parent.a(".button", {text: this.state.text})
-            .click(FooKey)
+            .emitClick(FooKey)
     }
 }
 ```

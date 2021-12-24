@@ -637,6 +637,505 @@ export class Tag<AttrsType extends Attrs> {
         return this
     }
 
+    //// Begin Emit Methods
+
+    emitAbort(key: MessageKey): Tag<AttrsType> {
+        this.emit('abort', key)
+        return this
+    }
+    
+    emitAnimationCancel(key: MessageKey): Tag<AttrsType> {
+        this.emit('animationcancel', key)
+        return this
+    }
+    
+    emitAnimationEnd(key: MessageKey): Tag<AttrsType> {
+        this.emit('animationend', key)
+        return this
+    }
+    
+    emitAnimationIteration(key: MessageKey): Tag<AttrsType> {
+        this.emit('animationiteration', key)
+        return this
+    }
+    
+    emitAnimationStart(key: MessageKey): Tag<AttrsType> {
+        this.emit('animationstart', key)
+        return this
+    }
+    
+    emitAuxClick(key: MessageKey): Tag<AttrsType> {
+        this.emit('auxclick', key)
+        return this
+    }
+    
+    emitBeforeInput(key: MessageKey): Tag<AttrsType> {
+        this.emit('beforeinput', key)
+        return this
+    }
+    
+    emitBlur(key: MessageKey): Tag<AttrsType> {
+        this.emit('blur', key)
+        return this
+    }
+    
+    emitCanPlay(key: MessageKey): Tag<AttrsType> {
+        this.emit('canplay', key)
+        return this
+    }
+    
+    emitCanPlayThrough(key: MessageKey): Tag<AttrsType> {
+        this.emit('canplaythrough', key)
+        return this
+    }
+    
+    emitChange(key: MessageKey): Tag<AttrsType> {
+        this.emit('change', key)
+        return this
+    }
+    
+    emitClick(key: MessageKey): Tag<AttrsType> {
+        this.emit('click', key)
+        return this
+    }
+    
+    emitClose(key: MessageKey): Tag<AttrsType> {
+        this.emit('close', key)
+        return this
+    }
+    
+    emitCompositionEnd(key: MessageKey): Tag<AttrsType> {
+        this.emit('compositionend', key)
+        return this
+    }
+    
+    emitCompositionStart(key: MessageKey): Tag<AttrsType> {
+        this.emit('compositionstart', key)
+        return this
+    }
+    
+    emitCompositionUpdate(key: MessageKey): Tag<AttrsType> {
+        this.emit('compositionupdate', key)
+        return this
+    }
+    
+    emitContextMenu(key: MessageKey): Tag<AttrsType> {
+        this.emit('contextmenu', key)
+        return this
+    }
+    
+    emitCopy(key: MessageKey): Tag<AttrsType> {
+        this.emit('copy', key)
+        return this
+    }
+    
+    emitCueChange(key: MessageKey): Tag<AttrsType> {
+        this.emit('cuechange', key)
+        return this
+    }
+    
+    emitCut(key: MessageKey): Tag<AttrsType> {
+        this.emit('cut', key)
+        return this
+    }
+    
+    emitDblClick(key: MessageKey): Tag<AttrsType> {
+        this.emit('dblclick', key)
+        return this
+    }
+    
+    emitDrag(key: MessageKey): Tag<AttrsType> {
+        this.emit('drag', key)
+        return this
+    }
+    
+    emitDragEnd(key: MessageKey): Tag<AttrsType> {
+        this.emit('dragend', key)
+        return this
+    }
+    
+    emitDragEnter(key: MessageKey): Tag<AttrsType> {
+        this.emit('dragenter', key)
+        return this
+    }
+    
+    emitDragLeave(key: MessageKey): Tag<AttrsType> {
+        this.emit('dragleave', key)
+        return this
+    }
+    
+    emitDragOver(key: MessageKey): Tag<AttrsType> {
+        this.emit('dragover', key)
+        return this
+    }
+    
+    emitDragStart(key: MessageKey): Tag<AttrsType> {
+        this.emit('dragstart', key)
+        return this
+    }
+    
+    emitDrop(key: MessageKey): Tag<AttrsType> {
+        this.emit('drop', key)
+        return this
+    }
+    
+    emitDurationChange(key: MessageKey): Tag<AttrsType> {
+        this.emit('durationchange', key)
+        return this
+    }
+    
+    emitEmptied(key: MessageKey): Tag<AttrsType> {
+        this.emit('emptied', key)
+        return this
+    }
+    
+    emitEnded(key: MessageKey): Tag<AttrsType> {
+        this.emit('ended', key)
+        return this
+    }
+    
+    emitError(key: MessageKey): Tag<AttrsType> {
+        this.emit('error', key)
+        return this
+    }
+    
+    emitFocus(key: MessageKey): Tag<AttrsType> {
+        this.emit('focus', key)
+        return this
+    }
+    
+    emitFocusIn(key: MessageKey): Tag<AttrsType> {
+        this.emit('focusin', key)
+        return this
+    }
+    
+    emitFocusOut(key: MessageKey): Tag<AttrsType> {
+        this.emit('focusout', key)
+        return this
+    }
+    
+    emitFormData(key: MessageKey): Tag<AttrsType> {
+        this.emit('formdata', key)
+        return this
+    }
+    
+    emitFullscreenChange(key: MessageKey): Tag<AttrsType> {
+        this.emit('fullscreenchange', key)
+        return this
+    }
+    
+    emitFullscreenError(key: MessageKey): Tag<AttrsType> {
+        this.emit('fullscreenerror', key)
+        return this
+    }
+    
+    emitGotPointerCapture(key: MessageKey): Tag<AttrsType> {
+        this.emit('gotpointercapture', key)
+        return this
+    }
+    
+    emitInput(key: MessageKey): Tag<AttrsType> {
+        this.emit('input', key)
+        return this
+    }
+    
+    emitInvalid(key: MessageKey): Tag<AttrsType> {
+        this.emit('invalid', key)
+        return this
+    }
+    
+    emitKeyDown(key: MessageKey): Tag<AttrsType> {
+        this.emit('keydown', key)
+        return this
+    }
+    
+    emitKeyPress(key: MessageKey): Tag<AttrsType> {
+        this.emit('keypress', key)
+        return this
+    }
+    
+    emitKeyUp(key: MessageKey): Tag<AttrsType> {
+        this.emit('keyup', key)
+        return this
+    }
+    
+    emitLoad(key: MessageKey): Tag<AttrsType> {
+        this.emit('load', key)
+        return this
+    }
+    
+    emitLoadedData(key: MessageKey): Tag<AttrsType> {
+        this.emit('loadeddata', key)
+        return this
+    }
+    
+    emitLoadedMetadata(key: MessageKey): Tag<AttrsType> {
+        this.emit('loadedmetadata', key)
+        return this
+    }
+    
+    emitLoadStart(key: MessageKey): Tag<AttrsType> {
+        this.emit('loadstart', key)
+        return this
+    }
+    
+    emitLostPointerCapture(key: MessageKey): Tag<AttrsType> {
+        this.emit('lostpointercapture', key)
+        return this
+    }
+    
+    emitMouseDown(key: MessageKey): Tag<AttrsType> {
+        this.emit('mousedown', key)
+        return this
+    }
+    
+    emitMouseEnter(key: MessageKey): Tag<AttrsType> {
+        this.emit('mouseenter', key)
+        return this
+    }
+    
+    emitMouseLeave(key: MessageKey): Tag<AttrsType> {
+        this.emit('mouseleave', key)
+        return this
+    }
+    
+    emitMouseMove(key: MessageKey): Tag<AttrsType> {
+        this.emit('mousemove', key)
+        return this
+    }
+    
+    emitMouseOut(key: MessageKey): Tag<AttrsType> {
+        this.emit('mouseout', key)
+        return this
+    }
+    
+    emitMouseOver(key: MessageKey): Tag<AttrsType> {
+        this.emit('mouseover', key)
+        return this
+    }
+    
+    emitMouseUp(key: MessageKey): Tag<AttrsType> {
+        this.emit('mouseup', key)
+        return this
+    }
+    
+    emitPaste(key: MessageKey): Tag<AttrsType> {
+        this.emit('paste', key)
+        return this
+    }
+    
+    emitPause(key: MessageKey): Tag<AttrsType> {
+        this.emit('pause', key)
+        return this
+    }
+    
+    emitPlay(key: MessageKey): Tag<AttrsType> {
+        this.emit('play', key)
+        return this
+    }
+    
+    emitPlaying(key: MessageKey): Tag<AttrsType> {
+        this.emit('playing', key)
+        return this
+    }
+    
+    emitPointerCancel(key: MessageKey): Tag<AttrsType> {
+        this.emit('pointercancel', key)
+        return this
+    }
+    
+    emitPointerDown(key: MessageKey): Tag<AttrsType> {
+        this.emit('pointerdown', key)
+        return this
+    }
+    
+    emitPointerEnter(key: MessageKey): Tag<AttrsType> {
+        this.emit('pointerenter', key)
+        return this
+    }
+    
+    emitPointerLeave(key: MessageKey): Tag<AttrsType> {
+        this.emit('pointerleave', key)
+        return this
+    }
+    
+    emitPointerMove(key: MessageKey): Tag<AttrsType> {
+        this.emit('pointermove', key)
+        return this
+    }
+    
+    emitPointerOut(key: MessageKey): Tag<AttrsType> {
+        this.emit('pointerout', key)
+        return this
+    }
+    
+    emitPointerOver(key: MessageKey): Tag<AttrsType> {
+        this.emit('pointerover', key)
+        return this
+    }
+    
+    emitPointerUp(key: MessageKey): Tag<AttrsType> {
+        this.emit('pointerup', key)
+        return this
+    }
+    
+    emitProgress(key: MessageKey): Tag<AttrsType> {
+        this.emit('progress', key)
+        return this
+    }
+    
+    emitRateChange(key: MessageKey): Tag<AttrsType> {
+        this.emit('ratechange', key)
+        return this
+    }
+    
+    emitReset(key: MessageKey): Tag<AttrsType> {
+        this.emit('reset', key)
+        return this
+    }
+    
+    emitResize(key: MessageKey): Tag<AttrsType> {
+        this.emit('resize', key)
+        return this
+    }
+    
+    emitScroll(key: MessageKey): Tag<AttrsType> {
+        this.emit('scroll', key)
+        return this
+    }
+    
+    emitSecurityPolicyViolation(key: MessageKey): Tag<AttrsType> {
+        this.emit('securitypolicyviolation', key)
+        return this
+    }
+    
+    emitSeeked(key: MessageKey): Tag<AttrsType> {
+        this.emit('seeked', key)
+        return this
+    }
+    
+    emitSeeking(key: MessageKey): Tag<AttrsType> {
+        this.emit('seeking', key)
+        return this
+    }
+    
+    emitSelect(key: MessageKey): Tag<AttrsType> {
+        this.emit('select', key)
+        return this
+    }
+    
+    emitSelectionChange(key: MessageKey): Tag<AttrsType> {
+        this.emit('selectionchange', key)
+        return this
+    }
+    
+    emitSelectStart(key: MessageKey): Tag<AttrsType> {
+        this.emit('selectstart', key)
+        return this
+    }
+    
+    emitStalled(key: MessageKey): Tag<AttrsType> {
+        this.emit('stalled', key)
+        return this
+    }
+    
+    emitSubmit(key: MessageKey): Tag<AttrsType> {
+        this.emit('submit', key)
+        return this
+    }
+    
+    emitSuspend(key: MessageKey): Tag<AttrsType> {
+        this.emit('suspend', key)
+        return this
+    }
+    
+    emitTimeUpdate(key: MessageKey): Tag<AttrsType> {
+        this.emit('timeupdate', key)
+        return this
+    }
+    
+    emitToggle(key: MessageKey): Tag<AttrsType> {
+        this.emit('toggle', key)
+        return this
+    }
+    
+    emitTouchCancel(key: MessageKey): Tag<AttrsType> {
+        this.emit('touchcancel', key)
+        return this
+    }
+    
+    emitTouchEnd(key: MessageKey): Tag<AttrsType> {
+        this.emit('touchend', key)
+        return this
+    }
+    
+    emitTouchMove(key: MessageKey): Tag<AttrsType> {
+        this.emit('touchmove', key)
+        return this
+    }
+    
+    emitTouchStart(key: MessageKey): Tag<AttrsType> {
+        this.emit('touchstart', key)
+        return this
+    }
+    
+    emitTransitionCancel(key: MessageKey): Tag<AttrsType> {
+        this.emit('transitioncancel', key)
+        return this
+    }
+    
+    emitTransitionEnd(key: MessageKey): Tag<AttrsType> {
+        this.emit('transitionend', key)
+        return this
+    }
+    
+    emitTransitionRun(key: MessageKey): Tag<AttrsType> {
+        this.emit('transitionrun', key)
+        return this
+    }
+    
+    emitTransitionStart(key: MessageKey): Tag<AttrsType> {
+        this.emit('transitionstart', key)
+        return this
+    }
+    
+    emitVolumeChange(key: MessageKey): Tag<AttrsType> {
+        this.emit('volumechange', key)
+        return this
+    }
+    
+    emitWaiting(key: MessageKey): Tag<AttrsType> {
+        this.emit('waiting', key)
+        return this
+    }
+    
+    emitWebkitAnimationEnd(key: MessageKey): Tag<AttrsType> {
+        this.emit('webkitanimationend', key)
+        return this
+    }
+    
+    emitWebkitAnimationIteration(key: MessageKey): Tag<AttrsType> {
+        this.emit('webkitanimationiteration', key)
+        return this
+    }
+    
+    emitWebkitAnimationStart(key: MessageKey): Tag<AttrsType> {
+        this.emit('webkitanimationstart', key)
+        return this
+    }
+    
+    emitWebkitTransitionEnd(key: MessageKey): Tag<AttrsType> {
+        this.emit('webkittransitionend', key)
+        return this
+    }
+    
+    emitWheel(key: MessageKey): Tag<AttrsType> {
+        this.emit('wheel', key)
+        return this
+    }
+    
+//// End Emit Methods
+
 
     /// Building
 
@@ -1239,5 +1738,6 @@ type UnknownTagAttrs = DefaultTagAttrs & {
 }
 
 export class UnknownTag extends Tag<UnknownTagAttrs> {}
+
 //// End Tag Classes
 

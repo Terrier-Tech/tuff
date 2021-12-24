@@ -16,15 +16,17 @@ const ResetKey = makeKey()
 const IncKey = makeKey()
 const HelloKey = makeKey()
 const OutputKey = makeKey()
+const HoverKey = makeKey()
 
 class IncrementButton extends Part<ButtonState> {
     
     render(parent: DivTag) {
         parent.a('.button', this.state)
-            .click(IncKey)
+            .emitClick(IncKey)
             .data({value: this.state.text})
-            .click(OutputKey)
+            .emitClick(OutputKey)
             .data({output: `Increment ${this.state.text} Clicked`})
+            .emitMouseOver(HoverKey)
     }    
 
 }
@@ -50,8 +52,8 @@ class Toolbar extends Part<{}> {
         parent.class('toolbar')
         parent.div(d => {
             d.a('.button', {text: "Hello"})
-             .click(HelloKey)
-             .click(OutputKey)
+             .emitClick(HelloKey)
+             .emitClick(OutputKey)
              .data({output: "Hello Clicked"})
         })
         for (let button of this.buttons) {
@@ -126,9 +128,14 @@ class App extends Part<{}> {
             log.info(`Increment by ${value}`)
             this.counter.incCount(value)
         })
+
         this.onClick(ResetKey, _ => {
             log.info('Clicked reset')
             this.counter.resetCount()
+        })
+
+        this.onMouseOver(HoverKey, evt => {
+            log.info("Hover", evt.element)
         })
 
         this.output.write("Initialized!")
@@ -142,8 +149,8 @@ class App extends Part<{}> {
             })
             d.div('.shrink', d => {
                 d.a('.button', {text: "Reset"})
-                    .click(ResetKey)
-                    .click(OutputKey)
+                    .emitClick(ResetKey)
+                    .emitClick(OutputKey)
                     .data({output: `Increment Reset Clicked`})
             })
         })

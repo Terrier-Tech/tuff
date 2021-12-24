@@ -65,15 +65,15 @@ class App extends Part<{}> {
             })
             d.div('.shrink', d => {
                 d.a('.button', {text: "+"})
-                    .click(IncKey)
+                    .emitClick(IncKey)
             })
             d.div('.shrink', d => {
                 d.a('.button', {text: "-"})
-                    .click(DecKey)
+                    .emitClick(DecKey)
             })
             d.div('.shrink', d => {
                 d.a('.button', {text: "Reset"})
-                    .click(ResetKey)
+                    .emitClick(ResetKey)
             })
         })
     }

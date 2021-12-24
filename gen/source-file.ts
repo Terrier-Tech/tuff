@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 
+const info = console.log
 
 // abstracts making modifications to a file in the source tree
 export default class SourceFile {
@@ -8,14 +9,13 @@ export default class SourceFile {
 
     constructor(readonly path: string) {
         this.body = fs.readFileSync(path, {encoding:'utf8', flag:'r'})
-
     }
 
     print() {
-        console.log(`New body for ${this.path}`)
-        console.log('--------')
-        console.log(this.body)
-        console.log('--------')
+        info(`New body for ${this.path}`)
+        info('--------')
+        info(this.body)
+        info('--------')
     }
 
     // replaces everything between //// Begin <name> and //// End <name> with content
@@ -45,7 +45,9 @@ export default class SourceFile {
         }
         const tail = comps[1]
 
-        this.body = `${head}${begin}\n\n${content}\n${end}${tail}`
+        this.body = `${head}${begin}\n${content}\n${end}${tail}`
+
+        info(`[${this.path}] Replaced '${name}' region with ${content.split("\n").length} lines`)
     }
 
     write() {
