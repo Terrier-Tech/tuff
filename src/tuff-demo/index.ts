@@ -1,10 +1,11 @@
 import './styles.scss'
 import {DivTag} from '../tuff/tags'
-import {Part, ParentTag} from '../tuff/part'
+import {Part, ParentTag} from '../tuff/parts'
 import * as messages from '../tuff/messages'
 import Logger from '../tuff/logger'
 
 const log = new Logger("Demo")
+Logger.level = 'info'
 
 const range = (start: number, end: number) => Array.from(Array(end - start + 1).keys()).map(x => x + start)
 

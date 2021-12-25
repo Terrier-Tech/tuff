@@ -1,6 +1,6 @@
 import './styles.scss'
 import {DivTag} from '../tuff/tags'
-import {Part, ParentTag} from '../tuff/part'
+import {Part, ParentTag} from '../tuff/parts'
 import * as messages from '../tuff/messages'
 
 type ChangeData = {

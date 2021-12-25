@@ -1,5 +1,5 @@
 import {Tag, Attrs, DivTag} from './tags'
-import * as messages from '../tuff/messages'
+import * as messages from './messages'
 import Logger from './logger'
 
 const log = new Logger('Part')
@@ -87,7 +87,7 @@ export abstract class Part<StateType> {
     protected _init() {
         if (!this._initialized) {
             this._initialized = true
-            log.info('Initializing', this)
+            log.debug('Initializing', this)
             this.init()
         }
         this.eachChild(child => {
@@ -175,7 +175,7 @@ export abstract class Part<StateType> {
     }
 
     addTypeListener(elem: HTMLElement, type: keyof messages.EventMap, handlers: messages.HandlerMap) {
-        log.info(`Attaching ${handlers.size} ${type} event listeners to`, elem)
+        log.debug(`Attaching ${handlers.size} ${type} event listeners to`, elem)
         elem.addEventListener(type, function(this: HTMLElement, evt: messages.EventMap[typeof type]) {
 
             // traverse the DOM path to find an event key
@@ -847,7 +847,7 @@ export abstract class Part<StateType> {
         this._init()
         if (this._dirty) {
             const elem = this.element
-            log.time('Update', () => {
+            log.debugTime('Update', () => {
                 this._init()
                 let parent = new Tag("")
                 this.render(parent)

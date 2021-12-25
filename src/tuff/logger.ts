@@ -9,18 +9,21 @@ export default class Logger {
     // Only messages at or above this level will be shown
     static level: LogLevel = "info"
 
+    static shouldPrintLevel(l: LogLevel): boolean {
+        return levels.indexOf(l) <= levels.indexOf(Logger.level)
+    }
+
     constructor(public prefix: string) {
 
     }
 
     log(level: LogLevel, m: string, ...args: any[]) {
-        if (levels.indexOf(level) > levels.indexOf(Logger.level)) {
+        if (!Logger.shouldPrintLevel(level)) {
             return
         }
-        let s = this.prefixMessage(m)
+        let s = this.prefixMessage(m, level)
         switch (level) {
             case "debug":
-                s = `DEBUG ${s}`
             case "info":
                 console.log(s, ...args)
                 break
@@ -49,15 +52,36 @@ export default class Logger {
         this.log("error", m, ...args)
     }
 
+    // Prints the execution time of the passed function as info
     time(label: string, fun: () => any) {
-        const s = this.prefixMessage(label)
-        console.time(s)
-        fun()
-        console.timeEnd(s)
+        this.levelTime(label, 'info', fun)
     }
 
-    private prefixMessage(m: string): string {
-        return `[${this.prefix}] ${m}`
+    // Prints the execution time of the passed function as debug
+    debugTime(label: string, fun: () => any) {
+        this.levelTime(label, 'debug', fun)
+    }
+
+    // Prints the execution time of the passed function at the given level
+    levelTime(label: string, level: LogLevel, fun: () => any) {
+        if (Logger.shouldPrintLevel(level)) {
+            const s = this.prefixMessage(label, level)
+            console.time(s)
+            fun()
+            console.timeEnd(s)
+        }
+        else {
+            fun() // we still need to actually execute the function
+        }
+    }
+
+
+    private prefixMessage(m: string, level: LogLevel): string {
+        let s = `[${this.prefix}] ${m}`
+        if (level == 'debug') {
+            s = `DEBUG ${s}`
+        }
+        return s
     }
 
 }
