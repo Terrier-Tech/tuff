@@ -38,6 +38,7 @@ export interface Key {
 }
 
 export interface TypedKey<T extends {}> extends Key {
+    data?: T // not really sure what to do with this, but the compiler complains when we don't use T
 }
 
 export interface UntypedKey extends Key {
