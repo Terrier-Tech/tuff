@@ -1,7 +1,12 @@
 const path = require('path')
 const { defineConfig } = require('vite')
 
+import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
+
 module.exports = defineConfig({
+  plugins: [
+    vanillaExtractPlugin()
+  ],
   build: {
     lib: {
       entry: path.resolve(__dirname, 'src/tuff/main.ts'),

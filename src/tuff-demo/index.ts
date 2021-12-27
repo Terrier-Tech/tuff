@@ -1,8 +1,8 @@
-import './styles.scss'
 import {DivTag} from '../tuff/tags'
 import {Part, ParentTag} from '../tuff/parts'
 import * as messages from '../tuff/messages'
 import Logger from '../tuff/logger'
+import * as styles from './styles.css'
 
 const log = new Logger("Demo")
 Logger.level = 'info'
@@ -26,7 +26,9 @@ const HoverKey = messages.untypedKey()
 class IncrementButton extends Part<IncData> {
     
     render(parent: DivTag) {
-        parent.a('.button', {text: this.state.value.toString()})
+        parent.class(styles.flexStretch)
+        parent.a({text: this.state.value.toString()})
+            .class(styles.button)
             .emitClick(IncKey, this.state)
             .emitClick(OutputKey, {output: `Increment ${this.state.value} Clicked`})
             .emitMouseOver(HoverKey)
@@ -52,9 +54,10 @@ class Toolbar extends Part<{}> {
     }
     
     render(parent: DivTag) {
-        parent.class('toolbar')
+        parent.class(styles.flexRow)
         parent.div(d => {
-            d.a('.button', {text: "Hello"})
+            d.a({text: "Hello"})
+             .class(styles.button)
              .emitClick(HelloKey, {})
              .emitClick(OutputKey, {output: "Hello Clicked"})
         })
@@ -81,7 +84,7 @@ class Counter extends Part<CounterState> {
     }
     
     render(parent: DivTag) {
-        parent.class('counter')
+        parent.class(styles.output)
         parent.span({text: `Count: ${this.state.count}`})
     }
 
@@ -102,7 +105,7 @@ class Output extends Part<OutputData> {
     }
     
     render(parent: DivTag) {
-        parent.class('output')
+        parent.class(styles.output)
         parent.div({text: this.state.output})
     }
 
@@ -141,13 +144,13 @@ class App extends Part<{}> {
 
     render(parent: ParentTag) {
         parent.part(this.toolbar)
-        parent.div('.flex-row', d => {
-            d.div('.stretch', d => {
+        parent.div(styles.flexRow, d => {
+            d.div(styles.flexStretch, d => {
                 d.part(this.counter)
             })
-            d.div('.shrink', d => {
-                d.a('.button', {text: "Reset"})
-                    .emitClick(ResetKey, {})
+            d.div(styles.flexShrink, d => {
+                d.a(styles.button, {text: "Reset"})
+                    .emitClick(ResetKey)
                     .emitClick(OutputKey, {output: `Increment Reset Clicked`})
             })
         })

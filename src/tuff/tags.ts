@@ -62,8 +62,8 @@ export class Tag<AttrsType extends Attrs> {
                 case '#':
                     this._id = comp.substring(1)
                     break
-                default:
-                    throw `Don't know what to do with selector component '${comp}'`
+                default: // assume it's a class
+                    this._classes.push(comp)
             }
         }
         return this

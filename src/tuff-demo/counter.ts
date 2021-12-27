@@ -1,7 +1,7 @@
-import './styles.scss'
 import {DivTag} from '../tuff/tags'
 import {Part, ParentTag} from '../tuff/parts'
 import * as messages from '../tuff/messages'
+import * as styles from './styles.css'
 
 type ChangeData = {
     by: number
@@ -28,7 +28,7 @@ class Counter extends Part<CounterState> {
     }
     
     render(parent: DivTag) {
-        parent.class('counter')
+        parent.class(styles.output)
         parent.span({text: `Count: ${this.state.count}`})
     }
 
@@ -53,21 +53,25 @@ class App extends Part<{}> {
     }
 
     render(parent: ParentTag) {
-        parent.div('.flex-row', d => {
-            d.div('.stretch', d => {
+        parent.div(d => {
+            d.class(styles.flexRow)
+            d.div(styles.flexStretch, d => {
                 d.part(this.counter)
             })
-            d.div('.shrink', d => {
-                d.a('.button', {text: "+"})
+            d.div(styles.flexShrink, d => {
+                d.a({text: "+"})
+                    .class(styles.button)
                     .emitClick(ChangeKey, {by: 1})
             })
-            d.div('.shrink', d => {
-                d.a('.button', {text: "-"})
-                .emitClick(ChangeKey, {by: -1})
+            d.div(styles.flexShrink, d => {
+                d.a({text: "-"})
+                    .class(styles.button)
+                    .emitClick(ChangeKey, {by: -1})
             })
-            d.div('.shrink', d => {
-                d.a('.button', {text: "Reset"})
-                    .emitClick(ResetKey, {})
+            d.div(styles.flexShrink, d => {
+                d.a({text: "Reset"})
+                    .class(styles.button)
+                    .emitClick(ResetKey)
             })
         })
     }
