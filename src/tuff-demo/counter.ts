@@ -59,19 +59,16 @@ class App extends Part<{}> {
                 d.part(this.counter)
             })
             d.div(styles.flexShrink, d => {
-                d.a({text: "+"})
-                    .class(styles.button)
-                    .emitClick(ChangeKey, {by: 1})
+                d.a(styles.button, {text: "+"})
+                 .emitClick(ChangeKey, {by: 1})
             })
             d.div(styles.flexShrink, d => {
-                d.a({text: "-"})
-                    .class(styles.button)
-                    .emitClick(ChangeKey, {by: -1})
+                d.a(styles.button, {text: "-"})
+                 .emitClick(ChangeKey, {by: -1})
             })
             d.div(styles.flexShrink, d => {
-                d.a({text: "Reset"})
-                    .class(styles.button)
-                    .emitClick(ResetKey)
+                d.a(styles.button, {text: "Reset"})
+                 .emitClick(ResetKey)
             })
         })
     }

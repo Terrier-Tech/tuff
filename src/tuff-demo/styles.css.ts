@@ -54,3 +54,10 @@ export const output = style({
     padding: '0.5em',
     backgroundColor: colors.output
 })
+
+export const fixedBottom = style({
+    position: 'fixed',
+    left: 0,
+    right: 0,
+    bottom: 0
+})

@@ -69,8 +69,8 @@ export class Tag<AttrsType extends Attrs> {
         return this
     }
 
-    class(s: string): Tag<AttrsType> {
-        this._classes.push(s)
+    class(...s: string[]): Tag<AttrsType> {
+        this._classes = this._classes.concat(s)
         return this
     }
 
