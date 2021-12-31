@@ -1,7 +1,7 @@
 
-type LogLevel = "error" | "warn" | "info" | "debug"
+const levels = ["error", "warn", "info", "debug"]
 
-const levels: LogLevel[] = ["error", "warn", "info", "debug"]
+type LogLevel = typeof levels[number]
 
 // Encapsulates console logging with global level control
 export default class Logger {

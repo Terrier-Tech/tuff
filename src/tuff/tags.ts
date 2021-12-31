@@ -34,6 +34,9 @@ const _attrsBlacklist = ['id', 'class', 'classes', 'sel', 'text', 'data']
 type Args<TagType extends Tag<AttrsType>, AttrsType extends Attrs> =
     ((n: TagType) => any) | AttrsType | string | undefined
 
+// a general tag type when you don't care about the specifics
+export type ParentTag = Tag<Attrs>
+
 export class Tag<AttrsType extends Attrs> {
 
     private children: Tag<Attrs>[] = []
@@ -124,7 +127,10 @@ export class Tag<AttrsType extends Attrs> {
         }
         for (let key of Object.keys(attrs)) {
             if (!_attrsBlacklist.includes(key)) {
-                this._attrs[key] = (attrs as any)[key].toString()
+                const value = (attrs as any)[key]
+                if (value) {
+                    this._attrs[key] = value.toString()
+                }
             }
         }
         return this
@@ -1379,7 +1385,7 @@ export class Tag<AttrsType extends Attrs> {
 // DO NOT EDIT THE CODE BELOW!
 //// Begin Tag Classes
 
-type AnchorTagAttrs = DefaultTagAttrs & {
+export type AnchorTagAttrs = DefaultTagAttrs & {
     download?: string
     hreflang?: string
     ping?: string
@@ -1392,7 +1398,7 @@ type AnchorTagAttrs = DefaultTagAttrs & {
 
 export class AnchorTag extends Tag<AnchorTagAttrs> {}
 
-type AreaTagAttrs = DefaultTagAttrs & {
+export type AreaTagAttrs = DefaultTagAttrs & {
     alt?: string
     coords?: string
     download?: string
@@ -1405,24 +1411,24 @@ type AreaTagAttrs = DefaultTagAttrs & {
 
 export class AreaTag extends Tag<AreaTagAttrs> {}
 
-type BRTagAttrs = DefaultTagAttrs & {
+export type BRTagAttrs = DefaultTagAttrs & {
 }
 
 export class BRTag extends Tag<BRTagAttrs> {}
 
-type BaseTagAttrs = DefaultTagAttrs & {
+export type BaseTagAttrs = DefaultTagAttrs & {
     href?: string
     target?: string
 }
 
 export class BaseTag extends Tag<BaseTagAttrs> {}
 
-type BodyTagAttrs = DefaultTagAttrs & {
+export type BodyTagAttrs = DefaultTagAttrs & {
 }
 
 export class BodyTag extends Tag<BodyTagAttrs> {}
 
-type ButtonTagAttrs = DefaultTagAttrs & {
+export type ButtonTagAttrs = DefaultTagAttrs & {
     disabled?: boolean
     formAction?: string
     formEnctype?: string
@@ -1436,41 +1442,41 @@ type ButtonTagAttrs = DefaultTagAttrs & {
 
 export class ButtonTag extends Tag<ButtonTagAttrs> {}
 
-type CanvasTagAttrs = DefaultTagAttrs & {
+export type CanvasTagAttrs = DefaultTagAttrs & {
     height?: number
     width?: number
 }
 
 export class CanvasTag extends Tag<CanvasTagAttrs> {}
 
-type DListTagAttrs = DefaultTagAttrs & {
+export type DListTagAttrs = DefaultTagAttrs & {
 }
 
 export class DListTag extends Tag<DListTagAttrs> {}
 
-type DataTagAttrs = DefaultTagAttrs & {
+export type DataTagAttrs = DefaultTagAttrs & {
     value?: string
 }
 
 export class DataTag extends Tag<DataTagAttrs> {}
 
-type DataListTagAttrs = DefaultTagAttrs & {
+export type DataListTagAttrs = DefaultTagAttrs & {
 }
 
 export class DataListTag extends Tag<DataListTagAttrs> {}
 
-type DetailsTagAttrs = DefaultTagAttrs & {
+export type DetailsTagAttrs = DefaultTagAttrs & {
     open?: boolean
 }
 
 export class DetailsTag extends Tag<DetailsTagAttrs> {}
 
-type DivTagAttrs = DefaultTagAttrs & {
+export type DivTagAttrs = DefaultTagAttrs & {
 }
 
 export class DivTag extends Tag<DivTagAttrs> {}
 
-type DefaultTagAttrs = Attrs & {
+export type DefaultTagAttrs = Attrs & {
     accessKey?: string
     autocapitalize?: string
     dir?: string
@@ -1486,7 +1492,7 @@ type DefaultTagAttrs = Attrs & {
 
 export class DefaultTag extends Tag<DefaultTagAttrs> {}
 
-type EmbedTagAttrs = DefaultTagAttrs & {
+export type EmbedTagAttrs = DefaultTagAttrs & {
     height?: string
     src?: string
     type?: string
@@ -1495,14 +1501,14 @@ type EmbedTagAttrs = DefaultTagAttrs & {
 
 export class EmbedTag extends Tag<EmbedTagAttrs> {}
 
-type FieldSetTagAttrs = DefaultTagAttrs & {
+export type FieldSetTagAttrs = DefaultTagAttrs & {
     disabled?: boolean
     name?: string
 }
 
 export class FieldSetTag extends Tag<FieldSetTagAttrs> {}
 
-type FormTagAttrs = DefaultTagAttrs & {
+export type FormTagAttrs = DefaultTagAttrs & {
     acceptCharset?: string
     action?: string
     autocomplete?: string
@@ -1516,32 +1522,32 @@ type FormTagAttrs = DefaultTagAttrs & {
 
 export class FormTag extends Tag<FormTagAttrs> {}
 
-type FrameSetTagAttrs = DefaultTagAttrs & {
+export type FrameSetTagAttrs = DefaultTagAttrs & {
 }
 
 export class FrameSetTag extends Tag<FrameSetTagAttrs> {}
 
-type HRTagAttrs = DefaultTagAttrs & {
+export type HRTagAttrs = DefaultTagAttrs & {
 }
 
 export class HRTag extends Tag<HRTagAttrs> {}
 
-type HeadTagAttrs = DefaultTagAttrs & {
+export type HeadTagAttrs = DefaultTagAttrs & {
 }
 
 export class HeadTag extends Tag<HeadTagAttrs> {}
 
-type HeadingTagAttrs = DefaultTagAttrs & {
+export type HeadingTagAttrs = DefaultTagAttrs & {
 }
 
 export class HeadingTag extends Tag<HeadingTagAttrs> {}
 
-type HtmlTagAttrs = DefaultTagAttrs & {
+export type HtmlTagAttrs = DefaultTagAttrs & {
 }
 
 export class HtmlTag extends Tag<HtmlTagAttrs> {}
 
-type IFrameTagAttrs = DefaultTagAttrs & {
+export type IFrameTagAttrs = DefaultTagAttrs & {
     allow?: string
     allowFullscreen?: boolean
     height?: string
@@ -1554,7 +1560,7 @@ type IFrameTagAttrs = DefaultTagAttrs & {
 
 export class IFrameTag extends Tag<IFrameTagAttrs> {}
 
-type ImageTagAttrs = DefaultTagAttrs & {
+export type ImageTagAttrs = DefaultTagAttrs & {
     alt?: string
     crossOrigin?: string | null
     decoding?: "async" | "sync" | "auto"
@@ -1571,7 +1577,7 @@ type ImageTagAttrs = DefaultTagAttrs & {
 
 export class ImageTag extends Tag<ImageTagAttrs> {}
 
-type InputTagAttrs = DefaultTagAttrs & {
+export type InputTagAttrs = DefaultTagAttrs & {
     accept?: string
     alt?: string
     autocomplete?: string
@@ -1615,24 +1621,24 @@ type InputTagAttrs = DefaultTagAttrs & {
 
 export class InputTag extends Tag<InputTagAttrs> {}
 
-type LITagAttrs = DefaultTagAttrs & {
+export type LITagAttrs = DefaultTagAttrs & {
     value?: number
 }
 
 export class LITag extends Tag<LITagAttrs> {}
 
-type LabelTagAttrs = DefaultTagAttrs & {
+export type LabelTagAttrs = DefaultTagAttrs & {
     htmlFor?: string
 }
 
 export class LabelTag extends Tag<LabelTagAttrs> {}
 
-type LegendTagAttrs = DefaultTagAttrs & {
+export type LegendTagAttrs = DefaultTagAttrs & {
 }
 
 export class LegendTag extends Tag<LegendTagAttrs> {}
 
-type LinkTagAttrs = DefaultTagAttrs & {
+export type LinkTagAttrs = DefaultTagAttrs & {
     as?: string
     crossOrigin?: string | null
     disabled?: boolean
@@ -1649,13 +1655,13 @@ type LinkTagAttrs = DefaultTagAttrs & {
 
 export class LinkTag extends Tag<LinkTagAttrs> {}
 
-type MapTagAttrs = DefaultTagAttrs & {
+export type MapTagAttrs = DefaultTagAttrs & {
     name?: string
 }
 
 export class MapTag extends Tag<MapTagAttrs> {}
 
-type MediaTagAttrs = DefaultTagAttrs & {
+export type MediaTagAttrs = DefaultTagAttrs & {
     autoplay?: boolean
     controls?: boolean
     crossOrigin?: string | null
@@ -1676,12 +1682,12 @@ type MediaTagAttrs = DefaultTagAttrs & {
 
 export class MediaTag extends Tag<MediaTagAttrs> {}
 
-type MenuTagAttrs = DefaultTagAttrs & {
+export type MenuTagAttrs = DefaultTagAttrs & {
 }
 
 export class MenuTag extends Tag<MenuTagAttrs> {}
 
-type MetaTagAttrs = DefaultTagAttrs & {
+export type MetaTagAttrs = DefaultTagAttrs & {
     content?: string
     httpEquiv?: string
     name?: string
@@ -1689,7 +1695,7 @@ type MetaTagAttrs = DefaultTagAttrs & {
 
 export class MetaTag extends Tag<MetaTagAttrs> {}
 
-type MeterTagAttrs = DefaultTagAttrs & {
+export type MeterTagAttrs = DefaultTagAttrs & {
     high?: number
     low?: number
     max?: number
@@ -1700,14 +1706,14 @@ type MeterTagAttrs = DefaultTagAttrs & {
 
 export class MeterTag extends Tag<MeterTagAttrs> {}
 
-type ModTagAttrs = DefaultTagAttrs & {
+export type ModTagAttrs = DefaultTagAttrs & {
     cite?: string
     dateTime?: string
 }
 
 export class ModTag extends Tag<ModTagAttrs> {}
 
-type OListTagAttrs = DefaultTagAttrs & {
+export type OListTagAttrs = DefaultTagAttrs & {
     reversed?: boolean
     start?: number
     type?: string
@@ -1715,7 +1721,7 @@ type OListTagAttrs = DefaultTagAttrs & {
 
 export class OListTag extends Tag<OListTagAttrs> {}
 
-type ObjectTagAttrs = DefaultTagAttrs & {
+export type ObjectTagAttrs = DefaultTagAttrs & {
     data?: string
     height?: string
     name?: string
@@ -1726,14 +1732,14 @@ type ObjectTagAttrs = DefaultTagAttrs & {
 
 export class ObjectTag extends Tag<ObjectTagAttrs> {}
 
-type OptGroupTagAttrs = DefaultTagAttrs & {
+export type OptGroupTagAttrs = DefaultTagAttrs & {
     disabled?: boolean
     label?: string
 }
 
 export class OptGroupTag extends Tag<OptGroupTagAttrs> {}
 
-type OptionTagAttrs = DefaultTagAttrs & {
+export type OptionTagAttrs = DefaultTagAttrs & {
     defaultSelected?: boolean
     disabled?: boolean
     label?: string
@@ -1744,7 +1750,7 @@ type OptionTagAttrs = DefaultTagAttrs & {
 
 export class OptionTag extends Tag<OptionTagAttrs> {}
 
-type OutputTagAttrs = DefaultTagAttrs & {
+export type OutputTagAttrs = DefaultTagAttrs & {
     defaultValue?: string
     name?: string
     value?: string
@@ -1752,42 +1758,42 @@ type OutputTagAttrs = DefaultTagAttrs & {
 
 export class OutputTag extends Tag<OutputTagAttrs> {}
 
-type ParagraphTagAttrs = DefaultTagAttrs & {
+export type ParagraphTagAttrs = DefaultTagAttrs & {
 }
 
 export class ParagraphTag extends Tag<ParagraphTagAttrs> {}
 
-type ParamTagAttrs = DefaultTagAttrs & {
+export type ParamTagAttrs = DefaultTagAttrs & {
     name?: string
     value?: string
 }
 
 export class ParamTag extends Tag<ParamTagAttrs> {}
 
-type PictureTagAttrs = DefaultTagAttrs & {
+export type PictureTagAttrs = DefaultTagAttrs & {
 }
 
 export class PictureTag extends Tag<PictureTagAttrs> {}
 
-type PreTagAttrs = DefaultTagAttrs & {
+export type PreTagAttrs = DefaultTagAttrs & {
 }
 
 export class PreTag extends Tag<PreTagAttrs> {}
 
-type ProgressTagAttrs = DefaultTagAttrs & {
+export type ProgressTagAttrs = DefaultTagAttrs & {
     max?: number
     value?: number
 }
 
 export class ProgressTag extends Tag<ProgressTagAttrs> {}
 
-type QuoteTagAttrs = DefaultTagAttrs & {
+export type QuoteTagAttrs = DefaultTagAttrs & {
     cite?: string
 }
 
 export class QuoteTag extends Tag<QuoteTagAttrs> {}
 
-type ScriptTagAttrs = DefaultTagAttrs & {
+export type ScriptTagAttrs = DefaultTagAttrs & {
     async?: boolean
     crossOrigin?: string | null
     defer?: boolean
@@ -1801,7 +1807,7 @@ type ScriptTagAttrs = DefaultTagAttrs & {
 
 export class ScriptTag extends Tag<ScriptTagAttrs> {}
 
-type SelectTagAttrs = DefaultTagAttrs & {
+export type SelectTagAttrs = DefaultTagAttrs & {
     autocomplete?: string
     disabled?: boolean
     length?: number
@@ -1815,13 +1821,13 @@ type SelectTagAttrs = DefaultTagAttrs & {
 
 export class SelectTag extends Tag<SelectTagAttrs> {}
 
-type SlotTagAttrs = DefaultTagAttrs & {
+export type SlotTagAttrs = DefaultTagAttrs & {
     name?: string
 }
 
 export class SlotTag extends Tag<SlotTagAttrs> {}
 
-type SourceTagAttrs = DefaultTagAttrs & {
+export type SourceTagAttrs = DefaultTagAttrs & {
     media?: string
     sizes?: string
     src?: string
@@ -1831,23 +1837,23 @@ type SourceTagAttrs = DefaultTagAttrs & {
 
 export class SourceTag extends Tag<SourceTagAttrs> {}
 
-type SpanTagAttrs = DefaultTagAttrs & {
+export type SpanTagAttrs = DefaultTagAttrs & {
 }
 
 export class SpanTag extends Tag<SpanTagAttrs> {}
 
-type StyleTagAttrs = DefaultTagAttrs & {
+export type StyleTagAttrs = DefaultTagAttrs & {
     media?: string
 }
 
 export class StyleTag extends Tag<StyleTagAttrs> {}
 
-type TableCaptionTagAttrs = DefaultTagAttrs & {
+export type TableCaptionTagAttrs = DefaultTagAttrs & {
 }
 
 export class TableCaptionTag extends Tag<TableCaptionTagAttrs> {}
 
-type TableCellTagAttrs = DefaultTagAttrs & {
+export type TableCellTagAttrs = DefaultTagAttrs & {
     abbr?: string
     colSpan?: number
     headers?: string
@@ -1857,13 +1863,13 @@ type TableCellTagAttrs = DefaultTagAttrs & {
 
 export class TableCellTag extends Tag<TableCellTagAttrs> {}
 
-type TableColTagAttrs = DefaultTagAttrs & {
+export type TableColTagAttrs = DefaultTagAttrs & {
     span?: number
 }
 
 export class TableColTag extends Tag<TableColTagAttrs> {}
 
-type TableTagAttrs = DefaultTagAttrs & {
+export type TableTagAttrs = DefaultTagAttrs & {
     caption?: HTMLTableCaptionElement | null
     tFoot?: HTMLTableSectionElement | null
     tHead?: HTMLTableSectionElement | null
@@ -1871,22 +1877,22 @@ type TableTagAttrs = DefaultTagAttrs & {
 
 export class TableTag extends Tag<TableTagAttrs> {}
 
-type TableRowTagAttrs = DefaultTagAttrs & {
+export type TableRowTagAttrs = DefaultTagAttrs & {
 }
 
 export class TableRowTag extends Tag<TableRowTagAttrs> {}
 
-type TableSectionTagAttrs = DefaultTagAttrs & {
+export type TableSectionTagAttrs = DefaultTagAttrs & {
 }
 
 export class TableSectionTag extends Tag<TableSectionTagAttrs> {}
 
-type TemplateTagAttrs = DefaultTagAttrs & {
+export type TemplateTagAttrs = DefaultTagAttrs & {
 }
 
 export class TemplateTag extends Tag<TemplateTagAttrs> {}
 
-type TextAreaTagAttrs = DefaultTagAttrs & {
+export type TextAreaTagAttrs = DefaultTagAttrs & {
     autocomplete?: string
     cols?: number
     defaultValue?: string
@@ -1908,19 +1914,19 @@ type TextAreaTagAttrs = DefaultTagAttrs & {
 
 export class TextAreaTag extends Tag<TextAreaTagAttrs> {}
 
-type TimeTagAttrs = DefaultTagAttrs & {
+export type TimeTagAttrs = DefaultTagAttrs & {
     dateTime?: string
 }
 
 export class TimeTag extends Tag<TimeTagAttrs> {}
 
-type TitleTagAttrs = DefaultTagAttrs & {
+export type TitleTagAttrs = DefaultTagAttrs & {
     text?: string
 }
 
 export class TitleTag extends Tag<TitleTagAttrs> {}
 
-type TrackTagAttrs = DefaultTagAttrs & {
+export type TrackTagAttrs = DefaultTagAttrs & {
     default?: boolean
     kind?: string
     label?: string
@@ -1930,12 +1936,12 @@ type TrackTagAttrs = DefaultTagAttrs & {
 
 export class TrackTag extends Tag<TrackTagAttrs> {}
 
-type UListTagAttrs = DefaultTagAttrs & {
+export type UListTagAttrs = DefaultTagAttrs & {
 }
 
 export class UListTag extends Tag<UListTagAttrs> {}
 
-type UnknownTagAttrs = DefaultTagAttrs & {
+export type UnknownTagAttrs = DefaultTagAttrs & {
 }
 
 export class UnknownTag extends Tag<UnknownTagAttrs> {}

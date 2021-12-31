@@ -97,9 +97,9 @@ tagsFile.replaceRegion("Emit Methods", emitMethods)
 tagsFile.write()
 
 
-/// inject HTML element event types into part.ts
+/// inject HTML element event types into parts.ts
 
-const partsFile = new SourceFile('src/tuff/part.ts')
+const partsFile = new SourceFile('src/tuff/parts.ts')
 
 // event listen methods
 const listenMethods = eventNames.map(name => {

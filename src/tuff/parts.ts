@@ -1,10 +1,8 @@
-import {Tag, Attrs, DivTag} from './tags'
+import {Tag, ParentTag, DivTag} from './tags'
 import * as messages from './messages'
 import Logger from './logger'
 
 const log = new Logger('Part')
-
-export type ParentTag = Tag<Attrs>
 
 export type StatelessPart = Part<{}>
 

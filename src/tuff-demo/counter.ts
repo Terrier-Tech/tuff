@@ -1,5 +1,5 @@
-import {DivTag} from '../tuff/tags'
-import {Part, ParentTag} from '../tuff/parts'
+import {DivTag, ParentTag} from '../tuff/tags'
+import {Part} from '../tuff/parts'
 import * as messages from '../tuff/messages'
 import * as styles from './styles.css'
 
@@ -54,7 +54,7 @@ class App extends Part<{}> {
 
     render(parent: ParentTag) {
         parent.div(d => {
-            d.class(styles.flexRow)
+            d.class(styles.flexRow, styles.padded)
             d.div(styles.flexStretch, d => {
                 d.part(this.counter)
             })

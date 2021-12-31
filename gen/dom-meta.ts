@@ -64,12 +64,12 @@ export class Element {
         const lines = Array<string>()
 
         if (this == base) {
-            lines.push(`\ntype ${this.attrsName} = Attrs & {`)
+            lines.push(`\nexport type ${this.attrsName} = Attrs & {`)
             this.attrsDeclaration(lines)
             lines.push("}\n")
         }
         else if (this.attrsName != base.attrsName) {
-            lines.push(`\ntype ${this.attrsName} = ${base.attrsName} & {`)
+            lines.push(`\nexport type ${this.attrsName} = ${base.attrsName} & {`)
             this.attrsDeclaration(lines)
             lines.push("}\n")
         }
