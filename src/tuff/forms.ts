@@ -70,32 +70,42 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
         fun(tag)
     }
 
-    attachEventListeners() {
-        super.attachEventListeners()
-        const elem = this.element
-        const part = this
-        elem.addEventListener("change", function(this: HTMLElement, evt: Event) {
-            // debugger
-            if ((evt.target as HTMLElement).classList.contains(part.className)) {
-                const data = part.serialize()
-                log.debug("Input Changed", part, evt, data)
-            }
-        })
-    }
-
     // Serializes the form into a new copy of this.state
     serialize(): DataType {
         const root = this.element
         const data: DataType = {...this.state}
         const allElems = Array.from(root.getElementsByClassName(this.className))
-        for (let [name, elems] of Object.entries(arrays.groupBy(allElems, e => e.getAttribute('name')||''))) {
+        arrays.eachGroupBy(allElems, e => e.getAttribute('name')||'', (name, elems) => {
             const field = this.fields[name]
             if (field) {
                 const value = field.getValue(elems)
                 Object.assign(data, {[field.name]: value})
             }
-        }
+        })
         return data
+    }
+
+    // In addition to the regular part listeners, listen to change events on fields for this form
+    attachEventListeners() {
+        super.attachEventListeners()
+        const elem = this.element
+        const part = this
+        elem.addEventListener("change", function(this: HTMLElement, evt: Event) {
+            if ((evt.target as HTMLElement).classList.contains(part.className)) {
+                const data = part.serialize()
+                log.debug("Data Changed", part, evt, data)
+                if (part.shouldUpdateState(data)) {
+                    Object.assign(part.state, data)
+                }
+            }
+        })
+    }
+
+
+    // Return true (default) to assign the new data to the part's state
+    // and propagate it as a message
+    shouldUpdateState(_: DataType): boolean {
+        return true
     }
 
 }

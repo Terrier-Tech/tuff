@@ -2,6 +2,7 @@ import {DivTag, ParentTag} from '../tuff/tags'
 import {Part} from '../tuff/parts'
 import * as messages from '../tuff/messages'
 import * as styles from './styles.css'
+import * as demo from './demo'
 
 type ChangeData = {
     by: number
@@ -58,14 +59,17 @@ export class App extends Part<{}> {
             d.div(styles.flexShrink, d => {
                 d.a(styles.button, {text: "+"})
                  .emitClick(ChangeKey, {by: 1})
+                 .emitClick(demo.OutputKey, {output: "Increment Clicked"})
             })
             d.div(styles.flexShrink, d => {
                 d.a(styles.button, {text: "-"})
                  .emitClick(ChangeKey, {by: -1})
+                 .emitClick(demo.OutputKey, {output: "Decrement Clicked"})
             })
             d.div(styles.flexShrink, d => {
                 d.a(styles.button, {text: "Reset"})
                  .emitClick(ResetKey)
+                 .emitClick(demo.OutputKey, {output: "Reset Clicked"})
             })
         })
     }

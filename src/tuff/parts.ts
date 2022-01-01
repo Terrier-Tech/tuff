@@ -32,6 +32,10 @@ export abstract class Part<StateType> {
         }
     }
 
+    removeChild(child: StatelessPart) {
+        delete this.children[child.id]
+    }
+
 
     /// Construction
 

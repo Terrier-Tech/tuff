@@ -31,6 +31,10 @@ globalStyle('html, body', {
     margin: 0
 })
 
+globalStyle('body', {
+    paddingBottom: '4em'
+})
+
 globalStyle('*', {
     boxSizing: 'border-box'
 })
@@ -134,7 +138,8 @@ globalStyle('input[type=checkbox], input[type=radio]', {
     display: 'inline-block',
     height: 'initial',
     padding: 0,
-    transform: 'scale(1.25)'
+    margin: 0,
+    transform: 'scale(1.2)'
 })
 
 

@@ -1,24 +1,18 @@
 import {DivTag, ParentTag} from '../tuff/tags'
 import {Part, StatelessPart} from '../tuff/parts'
-import * as messages from '../tuff/messages'
 import Logger from '../tuff/logger'
 import * as styles from './styles.css'
 import * as counter from './counter'
 import * as contacts from './contacts'
+import * as demo from './demo'
 
 const log = new Logger("Demo")
 Logger.level = 'debug'
 
-type OutputData = {
-    output: string
-}
-
-const OutputKey = messages.typedKey<OutputData>()
-
-class OutputPart extends Part<OutputData> {
+class OutputPart extends Part<demo.OutputData> {
 
     init() {
-        this.onClick(OutputKey, m => {
+        this.onClick(demo.OutputKey, m => {
             this.write(m.data.output)
         }, "passive")
     }

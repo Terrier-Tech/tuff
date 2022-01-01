@@ -4,6 +4,7 @@ import * as forms from '../tuff/forms'
 import * as messages from '../tuff/messages'
 import * as styles from './styles.css'
 import * as strings from '../tuff/strings'
+import * as demo from './demo'
 
 
 const PhoneTypes = ["home", "mobile"]
@@ -11,9 +12,14 @@ const PhoneTypes = ["home", "mobile"]
 type PhoneType = typeof PhoneTypes[number]
 
 type PhoneState = {
+    id: string
     number?: string
     type: PhoneType
 }
+
+const newPhoneKey = messages.untypedKey()
+
+const deletePhoneKey = messages.typedKey<{id: string}>()
 
 class PhoneFormPart extends forms.FormPart<PhoneState> {
     
@@ -28,6 +34,11 @@ class PhoneFormPart extends forms.FormPart<PhoneState> {
                         })
                     })
                 }
+                row.div(styles.flexShrink, col => {
+                    col.a(styles.characterLink, {text: '-'})
+                       .emitClick(deletePhoneKey, {id: this.state.id})
+                       .emitClick(demo.OutputKey, {output: `Delete Phone ${this.state.id} Clicked`})
+                })
             })
             this.phoneInput(f, "number", {placeholder: "555-555-5555"})
         })
@@ -37,6 +48,7 @@ class PhoneFormPart extends forms.FormPart<PhoneState> {
 
 
 type ContactState = {
+    id: string
     name: string
     email?: string
     isAdmin: boolean
@@ -45,17 +57,23 @@ type ContactState = {
     phones: PhoneState[]
 }
 
-const newPhoneKey = messages.untypedKey()
-
 class ContactFormPart extends forms.FormPart<ContactState> {
 
-    phoneForms = new Array<PhoneFormPart>()
+    phoneForms: {[id: string]: PhoneFormPart} = {}
 
     init() {
         this.onClick(newPhoneKey, _ => {
-            this.phoneForms.push(this.makePart(PhoneFormPart, {
+            const part = this.makePart(PhoneFormPart, {
+                id: demo.newId(),
                 type: "home"
-            }))
+            })
+            this.phoneForms[part.state.id] = part
+            this.dirty()
+        })
+
+        this.onClick(deletePhoneKey, m => {
+            this.removeChild(this.phoneForms[m.data.id])
+            delete this.phoneForms[m.data.id]
             this.dirty()
         })
     }
@@ -72,8 +90,11 @@ class ContactFormPart extends forms.FormPart<ContactState> {
                 })
             })
         })
-        parent.label({text: 'Birthday'})
-        this.dateInput(parent, "birthday")
+
+        parent.div(row => {
+            row.label({text: 'Birthday'})
+            this.dateInput(row, "birthday")
+        })
         
         // phones
         parent.div(styles.flexRow, row => {
@@ -83,9 +104,10 @@ class ContactFormPart extends forms.FormPart<ContactState> {
             row.div(styles.flexShrink, col => {
                 col.a(styles.characterLink, {text: "+"})
                     .emitClick(newPhoneKey)
+                    .emitClick(demo.OutputKey, {output: "New Phone Clicked"})
             })
         })
-        for (let phoneForm of this.phoneForms) {
+        for (let [_, phoneForm] of Object.entries(this.phoneForms)) {
             parent.part(phoneForm)
         }
         
@@ -99,6 +121,7 @@ export class App extends Part<{}> {
 
     init() {
         this.forms.push(this.makePart(ContactFormPart, {
+            id: demo.newId(),
             name: "Bobby Tables", 
             isAdmin: true,
             birthday: '2021-12-01',
