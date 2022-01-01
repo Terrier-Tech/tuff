@@ -102,6 +102,8 @@ export abstract class Part<StateType> {
         })
     }
 
+    // Parts can override this to provide custom behavior that is run
+    // exactly once before the part is rendered for the first time
     init() {
     }
 
@@ -168,12 +170,26 @@ export abstract class Part<StateType> {
         })
     }
 
+    private _needsEventListeners = true
+
+    // Tell this element and its children that they need to attach event listeners
+    protected needsEventListeners() {
+        this._needsEventListeners = true
+        this.eachChild(child => {
+            child.needsEventListeners()
+        })
+    }
+
+    // Attaches event listeners to this.element (if needsEventListeners() has been called)
     attachEventListeners() {
-        let elem = this.element
-        for (let type of this.htmlHandlers.keys()) {
-            let handlers = this.htmlHandlers.get(type)
-            if (handlers?.size) {
-                this.addTypeListener(elem, type as (keyof messages.EventMap), handlers)
+        if (this._needsEventListeners) {
+            this._needsEventListeners = false
+            let elem = this.element
+            for (let type of this.htmlHandlers.keys()) {
+                let handlers = this.htmlHandlers.get(type)
+                if (handlers?.size) {
+                    this.addTypeListener(elem, type as (keyof messages.EventMap), handlers)
+                }
             }
         }
         this.eachChild(child => {
@@ -853,6 +869,7 @@ export abstract class Part<StateType> {
     update() {
         this._init()
         if (this._dirty) {
+            // stop the update chain, re-render the whole tree from here on down
             const elem = this.element
             log.debugTime('Update', () => {
                 this._init()
@@ -861,12 +878,15 @@ export abstract class Part<StateType> {
                 let output = Array<string>()
                 parent.buildInner(output)
                 elem.innerHTML = output.join('')
+                this.eachChild(child => {
+                    child.needsEventListeners()
+                })
             })
             this._dirty = false
             this.attachEventListeners()
-            
         }
         else {
+            // keep propagating through the tree to see if anyone else needs to be rendered
             this.eachChild(child => {
                 child.update()
             })
