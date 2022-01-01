@@ -1,11 +1,15 @@
 import { globalStyle, style } from '@vanilla-extract/css'
 
+const fontFamily = 'Arial, Helvetica, sans-serif'
+
 const colors = {
     fg: '#222',
     bg: '#f8f8f8',
     button: '#08a',
-    output: '#def',
-    border: '#ccc'
+    output: '#e8f0ff',
+    border: '#ccc',
+    preview: '#aaa',
+    contact: '#f8f8f8'
 }
 
 const sizes = {
@@ -17,7 +21,7 @@ const sizes = {
 }
 
 globalStyle('html, body', {
-    fontFamily: 'Arial, Helvetica, sans-serif',
+    fontFamily: fontFamily,
     WebkitFontSmoothing: 'antialiased',
     MozOsxFontSmoothing: 'grayscale',
     color: colors.fg,
@@ -39,7 +43,7 @@ export const button = style({
     borderRadius: sizes.borderRadius,
     fontWeight: 'bold',
     cursor: 'pointer',
-    padding: sizes.pad,
+    padding: `${sizes.pad}px ${sizes.pad*2}px`,
     textAlign: 'center',
     userSelect: 'none',
     textDecoration: 'none',
@@ -74,6 +78,10 @@ export const output = style({
     backgroundColor: colors.output
 })
 
+export const insetShadow = style({
+    boxShadow: 'inset 0 1px 6px rgba(0, 0, 0, 0.1)'
+})
+
 export const fixedBottom = style({
     position: 'fixed',
     left: 0,
@@ -82,20 +90,7 @@ export const fixedBottom = style({
 })
 
 
-// Forms
-
-globalStyle('form', {
-    padding: sizes.pad,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: sizes.pad,
-    backgroundColor: '#fff',
-    borderRadius: sizes.borderRadius,
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-    margin: '1em auto',
-    width: sizes.formWidth,
-    maxWidth: '90%'
-})
+// Inputs
 
 globalStyle('input, textarea', {
     fontSize: sizes.font,
@@ -107,7 +102,8 @@ globalStyle('input, textarea', {
     width: '100%'
 })
 globalStyle('textarea', {
-    height: 'initial'
+    height: 'initial',
+    fontFamily: fontFamily
 })
 
 globalStyle('input[type=checkbox], input[type=radio]', {
@@ -132,4 +128,41 @@ globalStyle('label', {
 globalStyle('label input', {
     flex: '0 0 auto',
     width: 'initial'
+})
+
+
+// Part List
+
+export const partPreview = style({
+    margin: `0 ${sizes.pad}px`,
+    backgroundColor: '#fff',
+    borderRadius: sizes.borderRadius,
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+})
+
+export const partPreviewTitle = style({
+    margin: `${sizes.pad*2}px 0 ${sizes.pad}px 0`,
+    color: colors.preview,
+    textAlign: 'center',
+    fontSize: 18
+})
+
+
+// Contacts
+
+export const contactsContainer = style({
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: sizes.pad,
+    padding: sizes.pad
+})
+
+export const contactForm = style({
+    flex: `0 0 240px`,
+    padding: sizes.pad,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: sizes.pad,
+    borderRadius: sizes.borderRadius,
+    backgroundColor: colors.contact
 })

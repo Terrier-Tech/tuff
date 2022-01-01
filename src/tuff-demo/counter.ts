@@ -28,22 +28,19 @@ class Counter extends Part<CounterState> {
     }
     
     render(parent: DivTag) {
-        parent.class(styles.output)
+        parent.class(styles.output, styles.insetShadow)
         parent.span({text: `Count: ${this.state.count}`})
     }
 
 }
 
 
-class App extends Part<{}> {
-    counter: Counter
-
-    constructor(id: string) {
-        super(null, id, {})
-        this.counter = this.makePart(Counter, {count: 0})
-    }
+export class App extends Part<{}> {
+    counter!: Counter
 
     init() {
+        this.counter = this.makePart(Counter, {count: 0})
+
         this.onClick(ChangeKey, (m) => {
             this.counter.change(m.data)
         })
@@ -75,4 +72,7 @@ class App extends Part<{}> {
 
 }
 
-new App('counter').mount('counter')
+const container = document.getElementById('counter')
+if (container) {
+    new App(null, 'counter', {}).mount(container)
+}

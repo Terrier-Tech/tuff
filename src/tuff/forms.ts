@@ -16,11 +16,8 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
 
     serializers: {[name: string]: FieldSerializer<any,Element>} = {}
 
-    className!: string
-
-    init() {
-        super._init()
-        this.className = `form-${this.id}`
+    get className(): string {
+        return `form-${this.id}`
     }
 
     protected input<Key extends KeyOfType<DataType,any> & string>(parent: tags.ParentTag, type: InputType, name: Key, serializerType: (new ()=> FieldSerializer<any, Element>), attrs: tags.InputTagAttrs={}): tags.InputTag {
@@ -56,7 +53,7 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
 
     // Create a form tag
     formTag(parent: tags.ParentTag, fun: ((n: tags.FormTag) => any)) {
-        const tag = parent.form({id: this.id}).class(this.className)
+        const tag = parent.form({id: `${this.id}_tag`}).class(this.className)
         fun(tag)
     }
 

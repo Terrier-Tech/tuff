@@ -46,26 +46,35 @@ export abstract class Part<StateType> {
         }
     }
 
+    makeStatelessPart<PartType extends StatelessPart>(
+        constructor: {new (p: PartParent, id: string, state: {}): PartType}): PartType 
+    {
+        let part = this.root._makeParentedPart(constructor, this, {})
+        this.children[part.id] = part
+        return part
+    }
+
+
     makePart<PartType extends Part<PartStateType>, PartStateType>(
         constructor: {new (p: PartParent, id: string, state: PartStateType): PartType},
         state: PartStateType): PartType 
     {
-        let part = this.root.makeParentedPart(constructor, this, state)
+        let part = this.root._makeParentedPart(constructor, this, state)
         this.children[part.id] = part
         return part
     }
     
     private _idCount = 0
 
-    makeParentedPart<PartType extends Part<PartStateType>, PartStateType>(
+    _makeParentedPart<PartType extends Part<PartStateType>, PartStateType>(
         constructor: {new (p: PartParent, id: string, state: PartStateType): PartType}, 
         parent: PartParent, 
         state: PartStateType): PartType 
     {
         this._idCount += 1
         let part = new constructor(parent || this, `__part-${this._idCount.toString()}__`, state)
-        if (parent) { // don't register as a root-level part if there's a different parent
-            // part._assembly = this
+        if (parent) { 
+            // don't register as a root-level part if there's a different parent
         }
         else { 
             this.children[part.id] = part
