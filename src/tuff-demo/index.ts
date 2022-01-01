@@ -30,7 +30,7 @@ class OutputPart extends Part<OutputData> {
     }
     
     render(parent: DivTag) {
-        parent.class(styles.output, styles.fixedBottom, styles.insetShadow)
+        parent.class(styles.output, styles.fixedBottom)
         parent.div({text: this.state.output})
     }
 

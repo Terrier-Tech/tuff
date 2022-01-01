@@ -1,11 +1,11 @@
 import * as tags from './tags'
 import {Part} from './parts'
-import Logger from '../tuff/logger'
+import Logger from './logger'
+import * as arrays from './arrays'
 
 const log = new Logger("Forms")
 
 type InputType = "button" | "checkbox" | "color" | "date" | "datetime-local" | "email" | "file" | "hidden" | "image" | "month" | "number" | "password" | "radio" | "range" | "reset" | "search" | "submit" | "tel" | "text" | "time" | "url" | "week"
-
 
 type KeyOfType<T, ValueType> = 
   { [Key in keyof T]-?: T[Key] extends ValueType | undefined ? Key : never }[keyof T]
@@ -14,41 +14,54 @@ export type FormData = Record<string, any>
 
 export abstract class FormPart<DataType extends FormData> extends Part<DataType> {
 
-    serializers: {[name: string]: FieldSerializer<any,Element>} = {}
+    fields: {[name: string]: Field<any,Element>} = {}
 
     get className(): string {
         return `form-${this.id}`
     }
 
-    protected input<Key extends KeyOfType<DataType,any> & string>(parent: tags.ParentTag, type: InputType, name: Key, serializerType: (new ()=> FieldSerializer<any, Element>), attrs: tags.InputTagAttrs={}): tags.InputTag {
+    protected input<Key extends KeyOfType<DataType,any> & string>(parent: tags.ParentTag, type: InputType, name: Key, serializerType: (new (name: string)=> Field<any, Element>), attrs: tags.InputTagAttrs={}): tags.InputTag {
         attrs.type = type
-        attrs.name = name
-        if (!this.serializers[name]) {
-            this.serializers[name] = new serializerType()
+        attrs.name = `${this.id}-${name}`
+        if (!this.fields[attrs.name]) {
+            this.fields[attrs.name] = new serializerType(name)
         }
-        this.serializers[name].assignAttrValue(attrs, this.state[name])
+        this.fields[attrs.name].assignAttrValue(attrs, this.state[name])
         return parent.input(attrs).class(this.className)
     }
 
     textInput<Key extends KeyOfType<DataType,string> & string>(parent: tags.ParentTag, name: Key, attrs: tags.InputTagAttrs={}): tags.InputTag {
-        return this.input<Key>(parent, "text", name, TextInputSerializer, attrs)
+        return this.input<Key>(parent, "text", name, TextInputField, attrs)
+    }
+
+    emailInput<Key extends KeyOfType<DataType,string> & string>(parent: tags.ParentTag, name: Key, attrs: tags.InputTagAttrs={}): tags.InputTag {
+        return this.input<Key>(parent, "email", name, TextInputField, attrs)
+    }
+
+    phoneInput<Key extends KeyOfType<DataType,string> & string>(parent: tags.ParentTag, name: Key, attrs: tags.InputTagAttrs={}): tags.InputTag {
+        return this.input<Key>(parent, "tel", name, TextInputField, attrs)
     }
 
     textArea<Key extends KeyOfType<DataType,string> & string>(parent: tags.ParentTag, name: Key, attrs: tags.TextAreaTagAttrs={}): tags.TextAreaTag {
-        attrs.name = name
-        if (!this.serializers[name]) {
-            this.serializers[name] = new TextAreaSerializer()
+        attrs.name = `${this.id}-${name}`
+        if (!this.fields[name]) {
+            this.fields[name] = new TextAreaField(name)
         }
-        this.serializers[name].assignAttrValue(attrs, this.state[name])
+        this.fields[name].assignAttrValue(attrs, this.state[name])
         return parent.textarea(attrs).class(this.className)
     }
 
     dateInput<Key extends KeyOfType<DataType,string> & string>(parent: tags.ParentTag, name: Key, attrs: tags.InputTagAttrs={}): tags.InputTag {
-        return this.input<Key>(parent, "date", name, TextInputSerializer, attrs)
+        return this.input<Key>(parent, "date", name, TextInputField, attrs)
     }
 
     checkbox<Key extends KeyOfType<DataType,boolean> & string>(parent: tags.ParentTag, name: Key, attrs: tags.InputTagAttrs={}): tags.InputTag {
-        return this.input<Key>(parent, "checkbox", name, CheckboxSerializer, attrs)
+        return this.input<Key>(parent, "checkbox", name, CheckboxField, attrs)
+    }
+
+    radio<Key extends KeyOfType<DataType,string> & string>(parent: tags.ParentTag, name: Key, value: string, attrs: tags.InputTagAttrs={}): tags.InputTag {
+        attrs.value = value
+        return this.input<Key>(parent, "radio", name, RadioField, attrs)
     }
 
     // Create a form tag
@@ -62,8 +75,11 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
         const elem = this.element
         const part = this
         elem.addEventListener("change", function(this: HTMLElement, evt: Event) {
-            const data = part.serialize()
-            log.debug("Input changed", evt, data)
+            // debugger
+            if ((evt.target as HTMLElement).classList.contains(part.className)) {
+                const data = part.serialize()
+                log.debug("Input Changed", part, evt, data)
+            }
         })
     }
 
@@ -71,14 +87,12 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
     serialize(): DataType {
         const root = this.element
         const data: DataType = {...this.state}
-        for (let elem of Array.from(root.getElementsByClassName(this.className))) {
-            const name = elem.getAttribute('name')
-            if (name) {
-                const serializer = this.serializers[name]
-                if (serializer) {
-                    const value = serializer.getValue(elem as Element)
-                    Object.assign(data, {[name]: value})
-                }
+        const allElems = Array.from(root.getElementsByClassName(this.className))
+        for (let [name, elems] of Object.entries(arrays.groupBy(allElems, e => e.getAttribute('name')||''))) {
+            const field = this.fields[name]
+            if (field) {
+                const value = field.getValue(elems)
+                Object.assign(data, {[field.name]: value})
             }
         }
         return data
@@ -87,47 +101,69 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
 }
 
 
-abstract class FieldSerializer<FieldType, ElementType extends Element> {
+abstract class Field<FieldType, ElementType extends Element> {
+
+    // name is the actual name of the property, not the element name attribute,
+    // which is mangled to ensure uniqueness between forms
+    constructor(readonly name: string) {
+
+    }
 
     // Assigns either the 'value' attribute or related attributes (like 'checked')
     abstract assignAttrValue(attrs: tags.InputTagAttrs, value?: FieldType): void
 
     // Gets the value from an actual element
-    abstract getValue(elem: ElementType): FieldType
+    abstract getValue(elem: ElementType[]): FieldType | null
 
 }
 
-class TextInputSerializer extends FieldSerializer<string, HTMLInputElement> {
+class TextInputField extends Field<string, HTMLInputElement> {
     
     assignAttrValue(attrs: tags.InputTagAttrs, value?: string) {
         attrs.value = value
     }
 
-    getValue(elem: HTMLInputElement): string {
-        return elem.value
+    getValue(elems: HTMLInputElement[]): string | null {
+        return elems[0].value
     }
 
 }
 
-class TextAreaSerializer extends FieldSerializer<string, HTMLTextAreaElement> {
+class TextAreaField extends Field<string, HTMLTextAreaElement> {
     
     assignAttrValue(attrs: tags.InputTagAttrs, value?: string) {
         attrs.value = value
     }
 
-    getValue(elem: HTMLTextAreaElement): string {
-        return elem.value
+    getValue(elems: HTMLTextAreaElement[]): string | null {
+        return elems[0].value
     }
 
 }
 
-class CheckboxSerializer extends FieldSerializer<boolean, HTMLInputElement> {
+class CheckboxField extends Field<boolean, HTMLInputElement> {
         
     assignAttrValue(attrs: tags.InputTagAttrs, value?: boolean) {
         attrs.checked = value
     }
 
-    getValue(elem: HTMLInputElement): boolean {
-        return elem.checked
+    getValue(elems: HTMLInputElement[]): boolean | null {
+        return elems[0].checked
+    }
+}
+
+class RadioField extends Field<string, HTMLInputElement> {
+        
+    assignAttrValue(attrs: tags.InputTagAttrs, value?: string) {
+        attrs.checked = attrs.value == value
+    }
+
+    getValue(elems: HTMLInputElement[]): string | null {
+        for (let elem of elems) {
+            if (elem.checked) {
+                return elem.value
+            }
+        }
+        return null
     }
 }

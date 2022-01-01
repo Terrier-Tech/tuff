@@ -28,7 +28,7 @@ class Counter extends Part<CounterState> {
     }
     
     render(parent: DivTag) {
-        parent.class(styles.output, styles.insetShadow)
+        parent.class(styles.output)
         parent.span({text: `Count: ${this.state.count}`})
     }
 

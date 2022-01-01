@@ -35,26 +35,6 @@ globalStyle('*', {
     boxSizing: 'border-box'
 })
 
-
-export const button = style({
-    display: 'block',
-    backgroundColor: colors.button,
-    color: '#fff',
-    borderRadius: sizes.borderRadius,
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    padding: `${sizes.pad}px ${sizes.pad*2}px`,
-    textAlign: 'center',
-    userSelect: 'none',
-    textDecoration: 'none',
-    ':hover': {
-        transform: 'scale(1.04)'
-    },
-    ':active': {
-        transform: 'scale(0.96)'
-    }
-})
-
 export const padded = style({
     padding: sizes.pad
 })
@@ -72,14 +52,19 @@ export const flexShrink = style({
     flex: '0 0 auto'
 })
 
+const frameShadow = {
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+}
+
+const insetShadow = {
+    boxShadow: 'inset 0 1px 6px rgba(0, 0, 0, 0.1)'
+}
+
 export const output = style({
     padding: sizes.pad,
     borderRadius: sizes.borderRadius,
-    backgroundColor: colors.output
-})
-
-export const insetShadow = style({
-    boxShadow: 'inset 0 1px 6px rgba(0, 0, 0, 0.1)'
+    backgroundColor: colors.output,
+    ...insetShadow
 })
 
 export const fixedBottom = style({
@@ -87,6 +72,44 @@ export const fixedBottom = style({
     left: 0,
     right: 0,
     bottom: 0
+})
+
+
+// Links
+
+globalStyle('a', {
+    color: colors.button,
+    cursor: 'pointer',
+    userSelect: 'none',
+    fontSize: sizes.font
+})
+
+const scalePush = {
+    ':hover': {
+        transform: 'scale(1.04)'
+    },
+    ':active': {
+        transform: 'scale(0.96)'
+    }
+}
+
+export const button = style({
+    display: 'block',
+    backgroundColor: colors.button,
+    color: '#fff',
+    borderRadius: sizes.borderRadius,
+    fontWeight: 'bold',
+    padding: `${sizes.pad}px ${sizes.pad*2}px`,
+    textAlign: 'center',
+    textDecoration: 'none',
+    ...scalePush
+})
+
+export const characterLink = style({
+    fontSize: '150%',
+    display: 'inline-block',
+    lineHeight: 0,
+    ...scalePush
 })
 
 
@@ -137,14 +160,15 @@ export const partPreview = style({
     margin: `0 ${sizes.pad}px`,
     backgroundColor: '#fff',
     borderRadius: sizes.borderRadius,
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+    ...frameShadow
 })
 
 export const partPreviewTitle = style({
     margin: `${sizes.pad*2}px 0 ${sizes.pad}px 0`,
     color: colors.preview,
     textAlign: 'center',
-    fontSize: 18
+    fontSize: 18,
+    textShadow: '0 1px 0 #fff'
 })
 
 
@@ -164,5 +188,16 @@ export const contactForm = style({
     flexDirection: 'column',
     gap: sizes.pad,
     borderRadius: sizes.borderRadius,
-    backgroundColor: colors.contact
+    backgroundColor: colors.contact,
+    ...insetShadow
+})
+
+export const phoneForm = style({
+    padding: sizes.pad,
+    borderRadius: sizes.borderRadius,
+    backgroundColor: '#fff',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: sizes.pad,
+    ...frameShadow
 })
