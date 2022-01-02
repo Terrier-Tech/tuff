@@ -14,6 +14,9 @@ export type ActiveOrPassive = "active" | "passive"
 // Whether or not a particular message emit should emit on the parents as well
 export type EmitScope = "single" | "bubble"
 
+// Parts can be mounted either directly to DOM elements or by id string
+export type MountPoint = HTMLElement | string
+
 export abstract class Part<StateType> {
     
     /// Root
@@ -858,7 +861,7 @@ export abstract class Part<StateType> {
         return this._element || document.getElementById(this.id)!
     }
 
-    mount(elem: HTMLElement | string) {
+    private mount(elem: MountPoint) {
         if (elem instanceof HTMLElement) {
             this._element = elem!
         }
@@ -866,6 +869,17 @@ export abstract class Part<StateType> {
             this._element = document.getElementById(elem)!
         }
         this.requestFrame()
+    }
+
+    // Mounts a part to a DOM element (by DOM object or id)
+    static mount<PartType extends Part<StateType>, StateType>(partType: {new (parent: PartParent, id: string, state: StateType): PartType}, mountPoint: MountPoint, state: StateType): PartType {
+        const id = typeof mountPoint == 'string' ? mountPoint : mountPoint.getAttribute("id")
+        if (!id) {
+            throw "You must either mount a part directly to a DOM node with id attribute or provide the id value as a string"
+        }
+        const part = new partType(null, id, state)
+        part.mount(mountPoint)
+        return part
     }
 
     

@@ -154,5 +154,5 @@ export class App extends Part<{}> {
 
 const container = document.getElementById('contacts')
 if (container) {
-    new App(null, 'contacts', {}).mount(container)
+    Part.mount(App, container, {})
 }

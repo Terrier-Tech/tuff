@@ -125,15 +125,15 @@ class Counter extends Part<CounterState> {
 
 ### Mounting
 
-The `mount()` method is used to attach parts to the DOM.
-It accepts either a DOM element or an id string:
+The `Part.mount()` method is used to attach parts to the DOM.
+It accepts either a DOM element or an id string as the mount point and an instance of the part's state:
 
 ```typescript
 // mounts to the element with id 'container':
-new Counter(null, 'counter', {}).mount('container')
+Part.mount(Counter, 'container', {count: 0})
 
 // which is the same as:
-new Counter(null, 'counter', {}).mount(document.getElementById('container')!)
+Part.mount(Counter, document.getElementById('container')!, {count: 0})
 ```
 
 

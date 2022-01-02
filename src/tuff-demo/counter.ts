@@ -78,5 +78,5 @@ export class App extends Part<{}> {
 
 const container = document.getElementById('counter')
 if (container) {
-    new App(null, 'counter', {}).mount(container)
+    Part.mount(App, container, {})
 }

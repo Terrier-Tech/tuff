@@ -17,7 +17,8 @@ module.exports = defineConfig({
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, 'index.html'),
-        counter: path.resolve(__dirname, 'counter.html')
+        counter: path.resolve(__dirname, 'counter.html'),
+        contacts: path.resolve(__dirname, 'contacts.html')
       }
     }
   }

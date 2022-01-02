@@ -31,16 +31,11 @@ class OutputPart extends Part<demo.OutputData> {
 }
 
 class App extends Part<{}> {
-    output: OutputPart
+    output!: OutputPart
     parts: {[name: string]: StatelessPart} = {}
 
-    constructor(id: string) {
-        super(null, id, {})
-        
-        this.output = this.makePart(OutputPart, {output: ""})
-    }
-
     init() {
+        this.output = this.makePart(OutputPart, {output: ""})
         this.parts['Counter'] = this.makeStatelessPart(counter.App)
         this.parts['Contacts'] = this.makeStatelessPart(contacts.App)
 
@@ -59,4 +54,4 @@ class App extends Part<{}> {
     }
 }
 
-new App('app').mount('app')
+Part.mount(App, 'app', {})
