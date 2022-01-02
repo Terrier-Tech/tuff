@@ -1,6 +1,5 @@
 
 
-
 // Maps event type strings to event types
 export interface EventMap extends HTMLElementEventMap {
 
@@ -10,7 +9,6 @@ export interface EventMap extends HTMLElementEventMap {
 export type Message<EventType extends keyof EventMap, DataType> = {
     type: EventType
     event: EventMap[EventType]
-    element: HTMLElement
     data: DataType
 }
 
@@ -21,8 +19,49 @@ export type Handler<EventType extends keyof EventMap, DataType> = {
     callback: (m: Message<EventType,DataType>) => void
 }
 
-// Associates handlers with their event keys
-export type HandlerMap = Map<string,Handler<any,any>>
+// Associates handlers with their event types and keys
+export class HandlerMap {
+    private _map = new Map<string,Handler<any,any>[]>()
+
+    private computeKey<EventType extends keyof EventMap>(type: EventType, key: Key): string {
+        return `${type}__${key.id}`
+    }
+
+    add<EventType extends keyof EventMap, DataType>(
+        handler: Handler<EventType, DataType>) 
+    {
+        const k = this.computeKey(handler.type, handler.key)
+        let handlers = this._map.get(k)
+        if (!handlers) {
+            handlers = new Array<Handler<any,any>>()
+            this._map.set(k, handlers)
+        }
+        handlers.push(handler)
+    }
+
+    each<EventType extends keyof EventMap, DataType>(
+        type: EventType,
+        key: TypedKey<DataType>, 
+        fun: (m: Handler<EventType, DataType>) => any)
+    {
+        const k = this.computeKey(type, key)
+        let handlers = this._map.get(k)
+        if (handlers) {
+            handlers.forEach(fun)
+        }
+    }
+
+    allTypes<EventType extends keyof EventMap>(): EventType[] {
+        const typeSet = new Set<EventType>()
+        for (let [k, handlers] of this._map) {
+            for (let handler of handlers) {
+                typeSet.add(handler.type)
+            }
+        }
+        return Array.from(typeSet.values())
+    }
+
+}
 
 
 let count = 0

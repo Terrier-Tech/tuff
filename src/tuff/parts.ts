@@ -138,7 +138,7 @@ export abstract class Part<StateType> {
 
     /// Messages
 
-    private htmlHandlers = new Map<string, messages.HandlerMap>()
+    private handlerMap = new messages.HandlerMap()
 
     listen<EventType extends keyof messages.EventMap, DataType>(
         type: EventType, 
@@ -162,12 +162,7 @@ export abstract class Part<StateType> {
             this.root.listen(type, key, listener, "active")
             return
         }
-        let handlers = this.htmlHandlers.get(type)
-        if (!handlers) {
-            handlers = new Map<string,messages.Handler<any,any>>()
-            this.htmlHandlers.set(type, handlers)
-        }
-        handlers.set(key.id, {
+        this.handlerMap.add({
             type: type,
             key: key,
             callback: listener
@@ -189,11 +184,8 @@ export abstract class Part<StateType> {
         if (this._needsEventListeners) {
             this._needsEventListeners = false
             let elem = this.element
-            for (let type of this.htmlHandlers.keys()) {
-                let handlers = this.htmlHandlers.get(type)
-                if (handlers?.size) {
-                    this.addTypeListener(elem, type as (keyof messages.EventMap), handlers)
-                }
+            for (let type of this.handlerMap.allTypes()) {
+                this.addTypeListener(elem, type as (keyof messages.EventMap))
             }
         }
         this.eachChild(child => {
@@ -201,8 +193,9 @@ export abstract class Part<StateType> {
         })
     }
 
-    addTypeListener(elem: HTMLElement, type: keyof messages.EventMap, handlers: messages.HandlerMap) {
-        log.debug(`Attaching ${handlers.size} ${type} event listeners to`, elem)
+    private addTypeListener(elem: HTMLElement, type: keyof messages.EventMap) {
+        log.debug(`Attaching ${type} event listeners to`, elem)
+        const part = this
         elem.addEventListener(type, function(this: HTMLElement, evt: messages.EventMap[typeof type]) {
 
             // traverse the DOM path to find an event key
@@ -221,19 +214,29 @@ export abstract class Part<StateType> {
 
             if (!keys?.length) return
             for (let k of keys) {
-                let handler = handlers.get(k)
-                if (!handler) continue
                 let data = {}
                 if (target.dataset[k]) {
                     data = JSON.parse(decodeURIComponent(target.dataset[k] as string))
                 }
-                handler.callback({
-                    type: type,
-                    event: evt,
-                    element: target!,
-                    data: data
-                })
+                part.emit(type, {id: k}, evt, data)
             }
+        })
+    }
+
+    // Creates and emits a message for the given type and key
+    emit<EventType extends keyof messages.EventMap, DataType>(
+        type: EventType, 
+        key: messages.Key, 
+        evt: messages.EventMap[typeof type],
+        data: DataType) 
+    {
+        const message = {
+            type: type,
+            event: evt,
+            data: data
+        }
+        this.handlerMap.each(type, key, handler => {
+            handler.callback(message)
         })
     }
 
