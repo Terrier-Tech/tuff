@@ -6,7 +6,7 @@ It is designed to create dynamic, client-side web applications driven by type-sa
 
 ## Usage
 
-Tuff has *no dependencies* dependencies and can be integrated into any new or existing Typescript project. 
+Tuff has *no dependencies* and can be integrated into any new or existing Typescript project. 
 
 ### Parts
 
