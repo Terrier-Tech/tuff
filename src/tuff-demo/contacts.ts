@@ -5,7 +5,9 @@ import * as messages from '../tuff/messages'
 import * as styles from './styles.css'
 import * as strings from '../tuff/strings'
 import * as demo from './demo'
+import Logger from '../tuff/logger'
 
+const log = new Logger('Contacts')
 
 const PhoneTypes = ["home", "mobile"]
 
@@ -63,12 +65,7 @@ class ContactFormPart extends forms.FormPart<ContactState> {
 
     init() {
         this.onClick(newPhoneKey, _ => {
-            const part = this.makePart(PhoneFormPart, {
-                id: demo.newId(),
-                type: "home"
-            })
-            this.phoneForms[part.state.id] = part
-            this.dirty()
+            this.addPhone()
         })
 
         this.onClick(deletePhoneKey, m => {
@@ -76,6 +73,22 @@ class ContactFormPart extends forms.FormPart<ContactState> {
             delete this.phoneForms[m.data.id]
             this.dirty()
         })
+
+        this.onDataChanged(this.dataChangedKey, m => {
+            log.info("Contact form data changed", m)
+        })
+    }
+
+    addPhone() {
+        const part = this.makePart(PhoneFormPart, {
+            id: demo.newId(),
+            type: "home"
+        })
+        this.phoneForms[part.state.id] = part
+        this.onDataChanged(part.dataChangedKey, m => {
+            log.info("Phone data changed", m)
+        })
+        this.dirty()
     }
 
     render(parent: DivTag) {

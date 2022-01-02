@@ -1,7 +1,7 @@
-
+import * as forms from './forms'
 
 // Maps event type strings to event types
-export interface EventMap extends HTMLElementEventMap {
+export interface EventMap extends HTMLElementEventMap, forms.EventMap {
 
 }
 
@@ -53,7 +53,7 @@ export class HandlerMap {
 
     allTypes<EventType extends keyof EventMap>(): EventType[] {
         const typeSet = new Set<EventType>()
-        for (let [k, handlers] of this._map) {
+        for (let [_, handlers] of this._map) {
             for (let handler of handlers) {
                 typeSet.add(handler.type)
             }

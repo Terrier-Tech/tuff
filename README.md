@@ -42,7 +42,7 @@ On each builder element, you can pass zero to many arguments that are one of:
 
 1. A string containing CSS selector-style classes and/or an id, e.g. `".foo.bar#foo1"` will generate `class="foo bar" id="foo1"`
 2. An object literal containing attributes (like `title`, `href`, `class`, etc.) and/or a `text` value that will populate the literal body of the element
-3. A function literal that takes the element as an argument and allows you to specify children of the element in the function body
+3. A function that takes the element as an argument and allows you to specify children of the element in the function body
 
 The assignment of attributes from #2 is also exposed as methods on the element.
 
@@ -120,6 +120,20 @@ class Counter extends Part<CounterState> {
     }
 
 }
+```
+
+
+### Mounting
+
+The `mount()` method is used to attach parts to the DOM.
+It accepts either a DOM element or an id string:
+
+```typescript
+// mounts to the element with id 'container':
+new Counter(null, 'counter', {}).mount('container')
+
+// which is the same as:
+new Counter(null, 'counter', {}).mount(document.getElementById('container')!)
 ```
 
 
@@ -214,8 +228,7 @@ class Toolbar extends Part<ToolbarState> {
         // .onClick(key, ...) is a shortcut for .handle("click", key, ...)
         // the message argument contains:
         //  type: the string event type ("click")
-        //  event: the raw HTMLElementEvent
-        //  element: the HTMLELement on which the event originated
+        //  event: the raw Event
         //  data: the data passed if the key is typed
         this.onClick(FooKey, message => {
             this.state.foo = 'bar'
@@ -244,24 +257,24 @@ class OtherPart extends Part<OtherState> {
 ```
 
 
-## Logging
+### Logging
 
 Tuff comes with a very simple logging system that you can optionally use for your application. Simply create a `Logger` instance with an arbitrary prefix anywhere you'd like (Tuff libraries tend to do it at the top of the file) and call the usual logging methods (`debug`, `info`, `warn`, `error`):
 
 ```typescript
-const logger = new Logger('MyThing')
+const log = new Logger('MyThing')
 
 // regular log statements
-logger.info('hello')
+log.info('hello')
 // [MyThing] hello
 
 // console-style extra args
-logger.warn('an object', {foo: 'bar'})
+log.warn('an object', {foo: 'bar'})
 // [MyThing] an object
 // {foo: 'bar'}
 
 // log the time it takes to execute a function
-logger.time('count things', () => {
+log.time('count things', () => {
     // something that takes time to do
 })
 // [MyThing] count things: 0.312 ms
@@ -269,12 +282,97 @@ logger.time('count things', () => {
 // set the global minimum log level to filter output
 // (default is 'info')
 Logger.level = 'warn'
-logger.info('too much info')
+log.info('too much info')
 // (won't print anything)
 
 ```
 
+### Forms
 
+Tuff provides a special `Part` class, `FormPart`, which provides special methods to generate HTML form elements that are bound directly the properties of its data type.
+
+Simply extend `FormPart` with your form-specific data type and then declare the form fields in the `render()` method with helpers like `textInput()`, `dateInput`, `radio`, and `checkbox`:
+
+```typescript
+type MyFormData = {
+    text: string
+    date: string
+    either: "a" | "b"
+    isChecked: boolean
+}
+
+class MyFormPart extends FormPart<MyFormData> {
+
+    render(parent: DivTag) {
+        this.textInput(parent, "text", {placeholder: "Enter Text Here"})
+        this.dateInput(parent, "date")
+        parent.label(label => {
+            this.radio(label, "either", "a")
+            label.span({text: "A"})
+        })
+        parent.label(label => {
+            this.radio(label, "either", "b")
+            label.span({text: "B"})
+        })
+        parent.label(label => {
+            this.checkbox(label, "isChecked")
+            label.span({text: "Is Checked?"})
+        })
+    }
+
+}
+```
+
+This part will render the given form elements and automatically assign the values from its `state` to them.
+
+Whenever an input on the form is changed, the `shouldUpdateState()` method will be called, allowing the part to decide whether or not the new data should override the existing state (default is true if not implement):
+
+```typescript
+class MyFormPart extends FormPart<MyFormData> {
+
+    // render() {...}
+
+    shouldUpdateState(newData: DataType): boolean {
+        if (newData.text.length) { // some validation
+            return true
+        }
+        else {
+            this.dirty()
+            return false
+        }
+    }
+
+}
+```
+
+This is a good place to perform validation and possibly return false and mark the part as dirty - forcing it to re-render.
+
+If `shouldUpdateState()` returns true, the new data is then emitted as a `"datachange"` event that other parts in the tree can handle. The event is keyed with a `TypedKey` called `dataChangeKey` specific to the part:
+
+```typescript
+
+class ParentPart extends Part<{}> {
+
+    myForm!: MyFormPart
+
+    init() {
+        this.myForm = this.makePart(MyFormPart, {
+            text: "New Form",
+            date: "2022-01-01",
+            either: "a",
+            isChecked: false
+        })
+
+        // this will get called whenever the form part's data changes
+        this.onDataChanged(this.myForm.dataChangeKey, m => {
+            // m.data has type MyFormData
+            log.info(`My form data changed with text=${m.data.text}`, m)
+        })
+    }
+
+}
+
+```
 
 
 ## Development
@@ -298,7 +396,7 @@ to start the development server, which will serve the demo application at http:/
 
 ## License (MIT)
 
-Copyright 2021 <a href="https://terrier.tech">Terrier Technologies LLC</a>
+&copy; 2022 <a href="https://terrier.tech">Terrier Technologies LLC</a>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

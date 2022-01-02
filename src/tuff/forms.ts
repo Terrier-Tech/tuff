@@ -1,7 +1,8 @@
 import * as tags from './tags'
-import {Part} from './parts'
+import {ActiveOrPassive, Part} from './parts'
 import Logger from './logger'
 import * as arrays from './arrays'
+import * as messages from '../tuff/messages'
 
 const log = new Logger("Forms")
 
@@ -12,9 +13,16 @@ type KeyOfType<T, ValueType> =
 
 export type FormData = Record<string, any>
 
+
+export interface EventMap {
+    "datachanged": Event
+}
+
 export abstract class FormPart<DataType extends FormData> extends Part<DataType> {
 
     fields: {[name: string]: Field<any,Element>} = {}
+
+    readonly dataChangedKey = messages.typedKey<DataType>()
 
     get className(): string {
         return `form-${this.id}`
@@ -96,17 +104,29 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
                 log.debug("Data Changed", part, evt, data)
                 if (part.shouldUpdateState(data)) {
                     Object.assign(part.state, data)
+                    part.emitDataChanged(evt, data)
                 }
             }
         })
     }
-
 
     // Return true (default) to assign the new data to the part's state
     // and propagate it as a message
     shouldUpdateState(_: DataType): boolean {
         return true
     }
+
+    // Emits the datachanged event for this form and the given data
+    emitDataChanged(evt: Event, data: DataType) {
+        log.debug("Emitting datachaged event", this, evt, data)
+        this.emit("datachanged", this.dataChangedKey, evt, data, "bubble")
+    }
+
+    // Listens for datachanged events on this or child forms
+    onDataChanged<EvtDataType>(key: messages.TypedKey<EvtDataType>, listener: (m: messages.Message<"datachanged",EvtDataType>) => void, active?: ActiveOrPassive) {
+        this.listen<"datachanged",EvtDataType>("datachanged", key, listener, active)
+    }
+
 
 }
 

@@ -8,7 +8,11 @@ export type StatelessPart = Part<{}>
 
 export type PartParent = StatelessPart | null
 
-type ActiveOrPassive = "active" | "passive"
+// Whether or not a particular event listener is on the current part or only when the event hits the root
+export type ActiveOrPassive = "active" | "passive"
+
+// Whether or not a particular message emit should emit on the parents as well
+export type EmitScope = "single" | "bubble"
 
 export abstract class Part<StateType> {
     
@@ -185,7 +189,7 @@ export abstract class Part<StateType> {
             this._needsEventListeners = false
             let elem = this.element
             for (let type of this.handlerMap.allTypes()) {
-                this.addTypeListener(elem, type as (keyof messages.EventMap))
+                this.addTypeListener(elem, type as (keyof HTMLElementEventMap))
             }
         }
         this.eachChild(child => {
@@ -193,10 +197,12 @@ export abstract class Part<StateType> {
         })
     }
 
-    private addTypeListener(elem: HTMLElement, type: keyof messages.EventMap) {
+    // Attaches an event listener for a particular type of HTML event.
+    // Only event types with Tuff listeners will have HTML listeners attached.
+    private addTypeListener(elem: HTMLElement, type: keyof HTMLElementEventMap) {
         log.debug(`Attaching ${type} event listeners to`, elem)
         const part = this
-        elem.addEventListener(type, function(this: HTMLElement, evt: messages.EventMap[typeof type]) {
+        elem.addEventListener(type, function(this: HTMLElement, evt: HTMLElementEventMap[typeof type]) {
 
             // traverse the DOM path to find an event key
             let maybeTarget: HTMLElement | null = null
@@ -226,9 +232,10 @@ export abstract class Part<StateType> {
     // Creates and emits a message for the given type and key
     emit<EventType extends keyof messages.EventMap, DataType>(
         type: EventType, 
-        key: messages.Key, 
+        key: messages.TypedKey<DataType>,
         evt: messages.EventMap[typeof type],
-        data: DataType) 
+        data: DataType,
+        scope: EmitScope = "single") 
     {
         const message = {
             type: type,
@@ -238,6 +245,9 @@ export abstract class Part<StateType> {
         this.handlerMap.each(type, key, handler => {
             handler.callback(message)
         })
+        if (scope == "bubble" && this.parent && this.parent != this) {
+            this.parent.emit(type, key, evt, data, scope)
+        }
     }
 
 
