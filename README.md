@@ -256,6 +256,28 @@ class OtherPart extends Part<OtherState> {
 }
 ```
 
+### Global Keyboard Events
+
+Unlike mouse and focus events, general keyboard presses bubble directly to the document (unless they're handled by a form input or contenteditable element).
+Additionally, the "keypress" event is deprecated in modern Javascript. 
+
+Therefore, Tuff overrides the "keypress" event to to actually handle global keydown events. 
+This provides a mechanism for any *Part* to handle global key press events in the same way that other, local events are handled.
+
+In order to ease cross-platform development, special message keys (*KeyPress* objects) are constructed for the global key press events.
+Each *KeyPress* takes the key being pressed as well as zero or more *KeyModifiers* that specify the modifier keys in a platform-indepependent manner.
+
+For example, the "control/command" modifier maps to the Command key on macOS and the Control key on other platforms:
+
+```typescript
+init() {
+    this.onKeyPress(messages.keyPress("z", "control/command"), m => {
+        // this gets called when command+z is pressed on macOS 
+        // and control+z if called on Windows and Linux
+    })
+}
+```
+
 
 ### Logging
 

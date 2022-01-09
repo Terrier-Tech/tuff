@@ -942,13 +942,6 @@ export class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitKeyPress<DataType>(key: messages.UntypedKey): Tag<AttrsType>
-    emitKeyPress<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitKeyPress<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
-        this.emit('keypress', key, data)
-        return this
-    }
-    
     emitKeyUp<DataType>(key: messages.UntypedKey): Tag<AttrsType>
     emitKeyUp<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
     emitKeyUp<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {

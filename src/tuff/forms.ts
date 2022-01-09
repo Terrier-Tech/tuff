@@ -81,6 +81,9 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
     // Serializes the form into a new copy of this.state
     serialize(): DataType {
         const root = this.element
+        if (!root) {
+            return {} as DataType
+        }
         const data: DataType = {...this.state}
         const allElems = Array.from(root.getElementsByClassName(this.className))
         arrays.eachGroupBy(allElems, e => e.getAttribute('name')||'', (name, elems) => {
@@ -97,6 +100,9 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
     attachEventListeners() {
         super.attachEventListeners()
         const elem = this.element
+        if (!elem) {
+            return
+        }
         const part = this
         elem.addEventListener("change", function(this: HTMLElement, evt: Event) {
             if ((evt.target as HTMLElement).classList.contains(part.className)) {

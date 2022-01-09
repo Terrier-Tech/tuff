@@ -5,6 +5,7 @@ import * as styles from './styles.css'
 import * as counter from './counter'
 import * as contacts from './contacts'
 import * as demo from './demo'
+import * as messages from '../tuff/messages'
 
 const log = new Logger("Demo")
 Logger.level = 'debug'
@@ -40,6 +41,10 @@ class App extends Part<{}> {
         this.parts['Contacts'] = this.makeStatelessPart(contacts.App)
 
         this.output.write("Initialized!")
+
+        this.onKeyPress(messages.keyPress("z", "control/command"), m => {
+            log.debug("Key press message", m)
+        })
     }
 
     render(parent: ParentTag) {

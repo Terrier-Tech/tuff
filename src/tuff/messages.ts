@@ -1,7 +1,13 @@
 import * as forms from './forms'
 
+/**
+ * Maps event keys that are used internally for tuff.
+ */
+interface InternalEventMap {
+}
+
 // Maps event type strings to event types
-export interface EventMap extends HTMLElementEventMap, forms.EventMap {
+export interface EventMap extends HTMLElementEventMap, forms.EventMap, InternalEventMap {
 
 }
 
@@ -84,7 +90,9 @@ export interface UntypedKey extends Key {
     typed: false // need this so that TypedKey is not compatible
 }
 
-// Creates a unique untyped message key
+/**
+ * Creates a unique untyped message key
+ */
 export function untypedKey(): UntypedKey {
     return {
         id: nextId(),
@@ -92,9 +100,63 @@ export function untypedKey(): UntypedKey {
     }
 }
 
-// Creates a unique typed message key that binds to a specific data type
+/**
+ *  Creates a unique typed message key that binds to a specific data type
+ */
 export function typedKey<T>(): TypedKey<T> {
     return {
         id: nextId()
     }
+}
+
+
+/// Key Presses
+
+/** 
+ * Platform-independent modifier key.
+ * 
+ * "control/command" maps to Command (⌘) on macOS and Control everywhere else, 
+ * whereas "control" maps to the Control key on all platforms.
+ * 
+ * "alt/option" maps to Option on macOS and Alt everywhere else, 
+ * whereas "meta" maps to the Command key on macOS and the meta (Windows) on Windows.
+ * 
+ * Therefore, it is not possible to map the Control key on macOS or the Windows key on Windows.
+ */ 
+export type KeyModifier = "control/command" | "alt/option" | "shift"
+
+/** 
+ * Represents a single key press with optional modifiers.
+ */
+export class KeyPress implements Key {
+
+    /** 
+     * The key modifiers associated with this press.
+     */
+    readonly modifiers: Array<KeyModifier>
+
+    /** 
+     * The lowercase key
+     */
+    readonly key: string
+
+    // Platform-indpendent code that uniquely identifies the key and modifier combination.
+    readonly id: string
+
+    constructor(key: string, ... modifiers: Array<KeyModifier>) {
+        this.key = key.toLowerCase()
+        this.modifiers = modifiers
+        this.id = key + '__' + modifiers.join('&')
+    }
+
+}
+
+/**
+ * Helper function to create a new KeyPress key.
+ * @param key The press key
+ * @param modifiers The press modifiers
+ * @returns A new KeyPress key
+ */
+export const keyPress = (key: string, ... modifiers: Array<KeyModifier>) => {
+    return new KeyPress(key, ...modifiers)
 }

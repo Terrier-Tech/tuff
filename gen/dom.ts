@@ -18,6 +18,13 @@ const tst = new TypescriptTree(raw)
 let numSkipped = 0
 let baseElement: meta.Element | null = null
 
+// Skip these event types because they're deprecated and/or used internally.
+const eventTypeBlacklist = ['keypress']
+const skipEventType: {[type: string]: boolean} = {}
+for (let t of eventTypeBlacklist) {
+    skipEventType[t] = true
+}
+
 tst.eachInterface(iface => {
     const name = tst.text(iface.name)
 
@@ -40,7 +47,9 @@ tst.eachInterface(iface => {
             name == 'GlobalEventHandlersEventMap') 
     {
         for (let prop of tst.getProperties(iface)) {
-            eventTypes[prop.name] = new meta.EventType(prop.name, prop.type)
+            if (!skipEventType[prop.name]) {
+                eventTypes[prop.name] = new meta.EventType(prop.name, prop.type)
+            }
         }
     }
     

@@ -1,6 +1,7 @@
 import {Tag, ParentTag, DivTag} from './tags'
 import * as messages from './messages'
 import Logger from './logger'
+import * as keyboard from './keyboard'
 
 const log = new Logger('Part')
 
@@ -24,7 +25,7 @@ export abstract class Part<StateType> {
     // root parts themselves will not have a root
     protected _root?: StatelessPart
 
-    protected get root(): StatelessPart {
+    public get root(): StatelessPart {
         return this._root || this
     }
 
@@ -191,8 +192,10 @@ export abstract class Part<StateType> {
         if (this._needsEventListeners) {
             this._needsEventListeners = false
             let elem = this.element
-            for (let type of this.handlerMap.allTypes()) {
-                this.addTypeListener(elem, type as (keyof HTMLElementEventMap))
+            if (elem) {
+                for (let type of this.handlerMap.allTypes()) {
+                    this.addTypeListener(elem, type as (keyof HTMLElementEventMap))
+                }
             }
         }
         this.eachChild(child => {
@@ -252,6 +255,33 @@ export abstract class Part<StateType> {
             this.parent.emit(type, key, evt, data, scope)
         }
     }
+
+
+    /// Key Press Events
+
+    // Register a hanlder for a global key press event.
+    onKeyPress(press: messages.KeyPress, listener: (m: messages.Message<"keypress",messages.KeyPress>) => void) {
+        keyboard.registerPart(this) // make sure we're registered to receive global keyboard events
+        this.listen<"keypress",messages.KeyPress>("keypress", press, listener, "active")
+    }
+
+    // Recursively possibly handles the given global key press, returning true if it does.
+    // Children are asked to handle the press first, so the event bubbles from the leaves down to the root.
+    // protected handleKeyPress(press: messages.KeyPress): boolean {
+    //     let childHandled = false
+    //     this.eachChild(child => {
+    //         if (!childHandled && child.handleKeyPress(press)) {
+    //             childHandled = true
+    //         }
+    //     })
+    //     if (childHandled) {
+    //         return true
+    //     }
+    //     if (this._keyMap && this._keyMap.handle(press)) {
+    //         return true
+    //     }
+    //     return false
+    // }
 
 
     //// Begin Listen Methods
@@ -506,12 +536,6 @@ export abstract class Part<StateType> {
     onKeyDown<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"keydown",DataType>) => void, active?: ActiveOrPassive): void
     onKeyDown<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"keydown",DataType>) => void, active?: ActiveOrPassive): void {
         this.listen<"keydown",DataType>("keydown", key, listener, active)
-    }
-    
-    onKeyPress<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"keypress",DataType>) => void, active?: ActiveOrPassive): void
-    onKeyPress<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"keypress",DataType>) => void, active?: ActiveOrPassive): void
-    onKeyPress<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"keypress",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"keypress",DataType>("keypress", key, listener, active)
     }
     
     onKeyUp<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"keyup",DataType>) => void, active?: ActiveOrPassive): void
@@ -855,23 +879,48 @@ export abstract class Part<StateType> {
 
     /// Mounting
     
-    private _element?: HTMLElement
+    // The DOM element to which which this part has been explicitly mounted.
+    // (Will be undefined for all except root parts)
+    private _mountElement?: HTMLElement
 
-    get element(): HTMLElement {
-        return this._element || document.getElementById(this.id)!
+    /**
+     * @returns Either this part's explicit mount element, or the element found by its id.
+     * This will return null if the part is un-attached parts, i.e.:
+     * - Root elements that have never been mounted
+     * - Child elements that have never been rendered
+     * - Child elements that have since been orphaned by their parents
+    */
+    get element(): HTMLElement | null {
+        return this._mountElement || document.getElementById(this.id) || null
+    }
+
+    /** 
+     * @returns Whether or not the part is currently in the DOM tree with either a parent or a valid DOM element mount point.
+    */
+    get isAttached(): boolean {
+        return !!this.element
+    }
+
+    /**
+     * @returns Whether the part is a root part (doesn't have a parent, is mounted directly to a DOM element).
+     */
+    get isRoot(): boolean {
+        return !!this._mountElement
     }
 
     private mount(elem: MountPoint) {
         if (elem instanceof HTMLElement) {
-            this._element = elem!
+            this._mountElement = elem!
         }
         else {
-            this._element = document.getElementById(elem)!
+            this._mountElement = document.getElementById(elem)!
         }
         this.requestFrame()
     }
 
-    // Mounts a part to a DOM element (by DOM object or id)
+    /** 
+     * Mounts a part to a DOM element (by DOM object or id).
+     */
     static mount<PartType extends Part<StateType>, StateType>(partType: {new (parent: PartParent, id: string, state: StateType): PartType}, mountPoint: MountPoint, state: StateType): PartType {
         const id = typeof mountPoint == 'string' ? mountPoint : mountPoint.getAttribute("id")
         if (!id) {
@@ -898,10 +947,13 @@ export abstract class Part<StateType> {
     /// Updating
 
     update() {
+        const elem = this.element
+        if (!elem) {
+            return
+        }
         this._init()
         if (this._dirty) {
             // stop the update chain, re-render the whole tree from here on down
-            const elem = this.element
             log.debugTime('Update', () => {
                 this._init()
                 let parent = new Tag("")
