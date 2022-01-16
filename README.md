@@ -347,7 +347,7 @@ class MyFormPart extends FormPart<MyFormData> {
 
 This part will render the given form elements and automatically assign the values from its `state` to them.
 
-Whenever an input on the form is changed, the `shouldUpdateState()` method will be called, allowing the part to decide whether or not the new data should override the existing state (default is true if not implement):
+Whenever an input on the form is changed, the `shouldUpdateState()` method will be called, allowing the part to decide whether or not the new data should override the existing state (default is true if not implemented):
 
 ```typescript
 class MyFormPart extends FormPart<MyFormData> {
