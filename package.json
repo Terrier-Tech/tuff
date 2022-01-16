@@ -1,9 +1,11 @@
 {
   "name": "tuff",
+  "type": "module",
+  "files": ["dist"],
   "version": "0.1.0",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && cp -r types/*.d.ts dist",
     "preview": "vite preview",
     "tsc": "tsc",
     "gen": "ts-node --project gen/tsconfig.json gen/dom.ts"
@@ -17,12 +19,11 @@
     "typescript": "^4.4.4",
     "vite": "^2.7.0"
   },
-  "main": "./dist/tuff.amd.js",
   "module": "./dist/tuff.es.js",
+  "types": "./dist/main.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/tuff.es.js",
-      "require": "./dist/tuff.amd.js"
+      "import": "./dist/tuff.es.js"
     }
   }
 }

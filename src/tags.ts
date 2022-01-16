@@ -1,5 +1,5 @@
 import { Part } from "./parts"
-import * as messages from '../tuff/messages'
+import * as messages from './messages'
 
 type DataAttrs = {[key: string]: any}
 

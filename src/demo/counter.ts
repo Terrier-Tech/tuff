@@ -1,6 +1,6 @@
-import {DivTag, ParentTag} from '../tuff/tags'
-import {Part} from '../tuff/parts'
-import * as messages from '../tuff/messages'
+import {DivTag, ParentTag} from '../tags'
+import {Part} from '../parts'
+import * as messages from '../messages'
 import * as styles from './styles.css'
 import * as demo from './demo'
 

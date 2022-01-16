@@ -1,11 +1,11 @@
-import {DivTag, ParentTag} from '../tuff/tags'
-import {Part, StatelessPart} from '../tuff/parts'
-import Logger from '../tuff/logger'
+import {DivTag, ParentTag} from '../tags'
+import {Part, StatelessPart} from '../parts'
+import Logger from '../logger'
 import * as styles from './styles.css'
 import * as counter from './counter'
 import * as contacts from './contacts'
 import * as demo from './demo'
-import * as messages from '../tuff/messages'
+import * as messages from '../messages'
 
 const log = new Logger("Demo")
 Logger.level = 'debug'

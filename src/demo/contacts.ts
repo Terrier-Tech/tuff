@@ -1,11 +1,11 @@
-import {DivTag} from '../tuff/tags'
-import {Part} from '../tuff/parts'
-import * as forms from '../tuff/forms'
-import * as messages from '../tuff/messages'
+import {DivTag} from '../tags'
+import {Part} from '../parts'
+import * as forms from '../forms'
+import * as messages from '../messages'
 import * as styles from './styles.css'
-import * as strings from '../tuff/strings'
+import * as strings from '../strings'
 import * as demo from './demo'
-import Logger from '../tuff/logger'
+import Logger from '../logger'
 
 const log = new Logger('Contacts')
 

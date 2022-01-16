@@ -2,7 +2,7 @@ import * as tags from './tags'
 import {ActiveOrPassive, Part} from './parts'
 import Logger from './logger'
 import * as arrays from './arrays'
-import * as messages from '../tuff/messages'
+import * as messages from './messages'
 
 const log = new Logger("Forms")
 

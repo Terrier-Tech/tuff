@@ -1,4 +1,4 @@
-import * as messages from '../tuff/messages'
+import * as messages from '../messages'
 
 let idCounter = 0
 
