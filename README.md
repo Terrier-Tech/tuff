@@ -9,7 +9,7 @@ It is designed to create dynamic, client-side web applications driven by type-sa
 Tuff has *no dependencies* and can be integrated into any new or existing Typescript project. Just install `tuff-core` with your favorite package manager:
 
 ```
-npm add tuff-core
+npm i tuff-core
 ```
 
 or 
@@ -430,6 +430,16 @@ pnpm run dev
 ```
 
 to start the development server, which will serve the demo application at http://localhost:3000/.
+
+
+### Source Generation
+
+Tuff parses the Typescript DOM type definitions to programmatically generate the tag and event handling code.
+In the event that such code needs to be regenerated, run:
+
+```
+pnpm run gen
+```
 
 
 ## License (MIT)

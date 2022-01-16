@@ -18,12 +18,5 @@ export default defineConfig({
       formats: ['es'],
       fileName: (format) => `tuff.${format}.js`
     }
-    // rollupOptions: {
-    //   input: {
-    //     main: path.resolve(dirname, 'index.html'),
-    //     counter: path.resolve(dirname, 'counter.html'),
-    //     contacts: path.resolve(dirname, 'contacts.html')
-    //   }
-    // }
   }
 })

@@ -83,7 +83,7 @@ const eventNames = Object.keys(eventTypes).sort()
 
 /// inject tag classes and methods into tags.ts
 
-const tagsFile = new SourceFile('src/tuff/tags.ts')
+const tagsFile = new SourceFile('src/tags.ts')
 
 // tag class declarations
 const classDeclarations = Object.values(elementTypes).map(elem => {
@@ -108,7 +108,7 @@ tagsFile.write()
 
 /// inject HTML element event types into parts.ts
 
-const partsFile = new SourceFile('src/tuff/parts.ts')
+const partsFile = new SourceFile('src/parts.ts')
 
 // event listen methods
 const listenMethods = eventNames.map(name => {
