@@ -1,5 +1,5 @@
 {
-  "name": "tuff",
+  "name": "tuff-core",
   "type": "module",
   "files": ["dist"],
   "version": "0.1.0",
