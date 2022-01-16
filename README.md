@@ -6,7 +6,23 @@ It is designed to create dynamic, client-side web applications driven by type-sa
 
 ## Usage
 
-Tuff has *no dependencies* and can be integrated into any new or existing Typescript project. 
+Tuff has *no dependencies* and can be integrated into any new or existing Typescript project. Just install `tuff-core` with your favorite package manager:
+
+```
+npm add tuff-core
+```
+
+or 
+
+```
+yarn add tuff-core
+```
+
+or
+
+```
+pnpm add tuff-core
+```
 
 ### Parts
 
