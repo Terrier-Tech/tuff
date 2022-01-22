@@ -1,6 +1,6 @@
 import * as tags from './tags'
 import {ActiveOrPassive, Part} from './parts'
-import Logger from './logger'
+import {Logger} from './logging'
 import * as arrays from './arrays'
 import * as messages from './messages'
 

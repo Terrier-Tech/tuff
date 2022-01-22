@@ -1,6 +1,6 @@
 import {DivTag, ParentTag} from '../tags'
 import {Part, StatelessPart} from '../parts'
-import Logger from '../logger'
+import {Logger} from '../logging'
 import * as styles from './styles.css'
 import * as counter from './counter'
 import * as contacts from './contacts'

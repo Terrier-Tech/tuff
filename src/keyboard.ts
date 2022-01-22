@@ -1,5 +1,5 @@
 import * as messages from './messages'
-import Logger from './logger'
+import {Logger} from './logging'
 import * as parts from './parts'
 
 const log = new Logger('Keyboard')

@@ -5,7 +5,7 @@ import * as messages from '../messages'
 import * as styles from './styles.css'
 import * as strings from '../strings'
 import * as demo from './demo'
-import Logger from '../logger'
+import {Logger} from '../logging'
 
 const log = new Logger('Contacts')
 

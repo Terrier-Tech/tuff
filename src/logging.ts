@@ -4,7 +4,7 @@ const levels = ["error", "warn", "info", "debug"]
 type LogLevel = typeof levels[number]
 
 // Encapsulates console logging with global level control
-export default class Logger {
+export class Logger {
 
     // Only messages at or above this level will be shown
     static level: LogLevel = "info"

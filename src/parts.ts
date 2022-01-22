@@ -1,6 +1,6 @@
 import {Tag, ParentTag, DivTag} from './tags'
 import * as messages from './messages'
-import Logger from './logger'
+import { Logger } from './logging'
 import * as keyboard from './keyboard'
 
 const log = new Logger('Part')
