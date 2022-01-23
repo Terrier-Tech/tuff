@@ -13,7 +13,6 @@
     "build": "tsc && vite build && cp -r types/*.d.ts dist",
     "preview": "vite preview",
     "tsc": "tsc",
-    "gen-old": "ts-node --project src/gen/tsconfig.json src/gen/dom.ts",
     "gen": "node --loader ts-node/esm  --experimental-modules --experimental-specifier-resolution=node src/gen/dom.ts"
   },
   "devDependencies": {

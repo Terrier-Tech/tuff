@@ -122,7 +122,7 @@ export const characterLink = style({
 globalStyle('input, textarea', {
     fontSize: sizes.font,
     height: sizes.fieldHeight,
-    padding: '6px 8px',
+    padding: '8px',
     display: 'block',
     border: `1px solid ${colors.border}`,
     borderRadius: sizes.borderRadius-1,
@@ -171,7 +171,6 @@ export const partPreview = style({
 export const partPreviewTitle = style({
     margin: `${sizes.pad*2}px 0 ${sizes.pad}px 0`,
     color: colors.preview,
-    textAlign: 'center',
     fontSize: 18,
     textShadow: '0 1px 0 #fff'
 })

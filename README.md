@@ -105,6 +105,23 @@ will generate:
 </div>
 ```
 
+You can specify inline styles with the `css()` method:
+
+```typescript
+render(parent: DivTag) {
+    parent.text("This is centered")
+        .css({textAlign: 'center'})
+}
+```
+
+will generate:
+
+```html
+<div style='text-align: center'>
+    This is centered
+</div>
+```
+
 Since the `render()` method is plain Typescript, it can incorporate arbitrary control flow and logic:
 
 ```typescript

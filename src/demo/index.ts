@@ -50,6 +50,7 @@ class App extends Part<{}> {
     render(parent: ParentTag) {
         for (let [name, part] of Object.entries(this.parts)) {
             parent.h2(styles.partPreviewTitle, {text: name})
+                .css({textAlign: 'center'}) // test inline styles
             parent.div(styles.partPreview, d => {
                 d.part(part)
             })

@@ -1,22 +1,47 @@
 import { Part } from "./parts"
 import * as messages from './messages'
+import * as strings from './strings'
 
 type DataAttrs = {[key: string]: any}
 
-// resursively constructs data attributes into key/value strings
-// nested keys are joined with dashes
-let buildDataAttrs = (builder: string[], data: DataAttrs, prefix='data-') => {
+/**
+ * Resursively constructs data attributes into key/value strings.
+ * Nested keys are joined with dashes.
+ * @param builder - An array of strings on which to append the attributes
+ * @param data - The data attributes object
+ * @param prefix - A prefix for each attribute name
+ */
+const buildDataAttrs = (builder: string[], data: DataAttrs, prefix='data-') => {
     for (let kv of Object.entries(data)) {
+        const k = strings.ropeCase(kv[0])
         if (typeof kv[1] == 'object') {
-            buildDataAttrs(builder, kv[1], `${prefix}${kv[0]}-`)
+            buildDataAttrs(builder, kv[1], `${prefix}${k}-`)
         }
         else {
-            builder.push(`${prefix}${kv[0]}="${kv[1]}"`)
+            builder.push(`${prefix}${k}="${kv[1]}"`)
         }
     }
 }
 
+/**
+ * An object containing inline style declarations.
+ */
+export type InlineStyle = Partial<CSSStyleDeclaration>
 
+/**
+ * Constructs a style attribute value from an {InlineStyle} object.
+ * @param styles - An object containing inline style definitions
+ * @returns An inline style string
+ */
+const buildStyleAttr = (styles: InlineStyle): string => {
+    return Object.entries(styles).map(([k, v]): string => {
+        return `${strings.ropeCase(k)}: ${v};`
+    }).join('; ')
+}
+
+/**
+ * Common attributes shared amongst all tags.
+ */
 export type Attrs = {
     id?: string
     class?: string
@@ -25,10 +50,11 @@ export type Attrs = {
     text?: string
     title?: string
     data?: DataAttrs
+    css?: InlineStyle
 }
 
 // don't add these attributes directly to the HTML, they're managed separately
-const _attrsBlacklist = ['id', 'class', 'classes', 'sel', 'text', 'data']
+const _attrsBlacklist = ['id', 'class', 'classes', 'sel', 'text', 'data', 'css']
 
 // each argument to a tag can be a callback, selector string, or attribute literal
 type Args<TagType extends Tag<AttrsType>, AttrsType extends Attrs> =
@@ -45,6 +71,7 @@ export class Tag<AttrsType extends Attrs> {
     private _classes: string[] = []
     private _attrs: {[key: string]: string} = {}
     private _data?: DataAttrs
+    private _css?: InlineStyle
 
     constructor(public readonly tag: string) {
     }
@@ -52,6 +79,11 @@ export class Tag<AttrsType extends Attrs> {
 
     /// Attributes
 
+    /**
+     * Assigns one or more classes and/or an id to the element.
+     * @param {string} s - A CSS selector containing classes (.-prefixed) and/or an id (#-prefixed)
+     * @returns this
+     */
     sel(selector: string): Tag<AttrsType> {
         if (!selector || selector.length == 0) {
             return this
@@ -72,21 +104,56 @@ export class Tag<AttrsType extends Attrs> {
         return this
     }
 
+    /**
+     * Assigns a single class to the element.
+     * @param {string} s - A single class name
+     * @returns this
+     */
     class(...s: string[]): Tag<AttrsType> {
         this._classes = this._classes.concat(s)
         return this
     }
 
+    /**
+     * Assigns the element's id attribute.
+     * @param s - an id
+     * @returns this
+     */
     id(s: string): Tag<AttrsType> {
         this._id = s
         return this
     }
 
+    /**
+     * Set the inner text content of the element.
+     * @param {string} s - The inner text of the element
+     * @returns this
+     */
     text(s: string): Tag<AttrsType> {
         this._text = s
         return this
     }
 
+    /**
+     * Apply an inline style using the +style+ attribute.
+     * @param {InlineStyle} s - An inline style to apply to the element
+     * @returns this
+     */
+    css(s: InlineStyle): Tag<AttrsType> {
+        if (this._css) {
+            this._css = {...this._css, ...s}
+        }
+        else {
+            this._css = {...s}
+        }
+        return this
+    }
+
+    /**
+     * Assign raw data- attributes to the element.
+     * @param {DataAttrs} d - Some raw data attributes
+     * @returns this
+     */
     data(d: DataAttrs): Tag<AttrsType> {
         if (this._data) {
             this._data = {...this._data, ...d}
@@ -124,6 +191,9 @@ export class Tag<AttrsType extends Attrs> {
         }
         if (attrs.data?.length) {
             this.data(attrs.data)
+        }
+        if (attrs.css) {
+            this.css(attrs.css)
         }
         for (let key of Object.keys(attrs)) {
             if (!_attrsBlacklist.includes(key)) {
@@ -1339,6 +1409,10 @@ export class Tag<AttrsType extends Attrs> {
 
     /// Building
 
+    /**
+     * Builds the resulting HTML by appending lines to the {output} array.
+     * @param output - A string array on which to append the output
+     */
     build(output: string[]) {
         output.push(`<${this.tag}`)
         let allAttrs = Array<string>()
@@ -1353,6 +1427,9 @@ export class Tag<AttrsType extends Attrs> {
         }
         if (this._data) {
             buildDataAttrs(allAttrs, this._data)
+        }
+        if (this._css) {
+            allAttrs.push(`style="${buildStyleAttr(this._css)}"`)
         }
         this.addMessageKeys(allAttrs)
         if (allAttrs.length) {
