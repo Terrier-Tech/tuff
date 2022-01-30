@@ -2,7 +2,7 @@
   "name": "tuff-core",
   "type": "module",
   "files": ["dist"],
-  "version": "0.1.6",
+  "version": "0.1.7",
   "repository": {
     "type": "git",
     "url": "https://github.com/Terrier-Tech/tuff"
@@ -29,13 +29,6 @@
   "exports": {
     ".": {
       "import": "./dist/tuff.es.js"
-    },
-    "./logging": "./dist/tuff.es.js",
-    "./parts": "./dist/tuff.es.js",
-    "./messages": "./dist/tuff.es.js",
-    "./tags": "./dist/tuff.es.js",
-    "./keyboard": "./dist/tuff.es.js",
-    "./strings": "./dist/tuff.es.js",
-    "./arrays": "./dist/tuff.es.js"
+    }
   }
 }
