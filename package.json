@@ -1,8 +1,11 @@
 {
   "name": "tuff-core",
   "type": "module",
-  "files": ["dist"],
-  "version": "0.1.9",
+  "files": [
+    "dist",
+    "parts.d.ts"
+  ],
+  "version": "0.1.10",
   "repository": {
     "type": "git",
     "url": "https://github.com/Terrier-Tech/tuff"
