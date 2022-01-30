@@ -9,14 +9,25 @@ export type StatelessPart = Part<{}>
 
 export type PartParent = StatelessPart | null
 
-// Whether or not a particular event listener is on the current part or only when the event hits the root
+/** 
+ * Whether or not a particular event listener is on the current part or only when the event hits the root
+ */
 export type ActiveOrPassive = "active" | "passive"
 
-// Whether or not a particular message emit should emit on the parents as well
+/** 
+ * Whether or not a particular message emit should emit on the parents as well
+ */
 export type EmitScope = "single" | "bubble"
 
-// Parts can be mounted either directly to DOM elements or by id string
+/** 
+ * Parts can be mounted either directly to DOM elements or by id string
+ */
 export type MountPoint = HTMLElement | string
+
+/**
+ * The type of the object that gets passed to a part's render method
+ */ 
+export interface PartTag extends DivTag {}
 
 export abstract class Part<StateType> {
     
@@ -941,7 +952,7 @@ export abstract class Part<StateType> {
         })
     }
 
-    abstract render(parent: DivTag): any
+    abstract render(parent: PartTag): any
 
 
     /// Updating

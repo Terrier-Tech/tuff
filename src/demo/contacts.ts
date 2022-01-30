@@ -1,5 +1,4 @@
-import {DivTag} from '../tags'
-import {Part} from '../parts'
+import {Part, PartTag} from '../parts'
 import * as forms from '../forms'
 import * as messages from '../messages'
 import * as styles from './styles.css'
@@ -25,7 +24,7 @@ const deletePhoneKey = messages.typedKey<{id: string}>()
 
 class PhoneFormPart extends forms.FormPart<PhoneState> {
     
-    render(parent: DivTag) {
+    render(parent: PartTag) {
         parent.div(styles.phoneForm, f => {
             f.div(styles.flexRow, row => {
                 for (let t of PhoneTypes) {
@@ -91,7 +90,7 @@ class ContactFormPart extends forms.FormPart<ContactState> {
         this.dirty()
     }
 
-    render(parent: DivTag) {
+    render(parent: PartTag) {
         parent.class(styles.contactForm)
         this.textInput(parent, "name", {placeholder: 'Name'})
         this.emailInput(parent, "email", {placeholder: 'E-Mail'})
@@ -142,7 +141,7 @@ export class App extends Part<{}> {
         }))
     }
 
-    render(parent: DivTag) {
+    render(parent: PartTag) {
         parent.class(styles.contactsContainer)
         for (let form of this.forms) {
             parent.part(form)

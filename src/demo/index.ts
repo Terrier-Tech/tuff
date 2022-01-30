@@ -1,5 +1,4 @@
-import {DivTag, ParentTag} from '../tags'
-import {Part, StatelessPart} from '../parts'
+import {Part, PartTag, StatelessPart} from '../parts'
 import {Logger} from '../logging'
 import * as styles from './styles.css'
 import * as counter from './counter'
@@ -24,7 +23,7 @@ class OutputPart extends Part<demo.OutputData> {
         this.dirty()
     }
     
-    render(parent: DivTag) {
+    render(parent: PartTag) {
         parent.class(styles.output, styles.fixedBottom)
         parent.div({text: this.state.output})
     }
@@ -47,7 +46,7 @@ class App extends Part<{}> {
         })
     }
 
-    render(parent: ParentTag) {
+    render(parent: PartTag) {
         for (let [name, part] of Object.entries(this.parts)) {
             parent.h2(styles.partPreviewTitle, {text: name})
                 .css({textAlign: 'center'}) // test inline styles

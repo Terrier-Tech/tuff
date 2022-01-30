@@ -40,7 +40,7 @@ class Counter extends Part<CounterState> {
     
     // the render method accepts an HTML builder object that lets the 
     // part declaratively build the interface
-    render(parent: DivTag) {
+    render(parent: PartTag) {
         // the CounterState object passed to this part is 
         // accessible as this.state
         parent.span({text: `Count: ${this.state.count}`})
@@ -51,8 +51,7 @@ class Counter extends Part<CounterState> {
 
 ### Declarative UI
 
-The argument of a Part's `render()` method is a HTML builder element -
-specifically a `div` element - where the part can build its UI.
+The argument of a Part's `render()` method is an HTML builder element where the part can build its UI.
 
 On each builder element, you can pass zero to many arguments that are one of:
 
@@ -65,7 +64,7 @@ The assignment of attributes from #2 is also exposed as methods on the element.
 For example, this element declaration:
 
 ```typescript
-render(parent: DivTag) {
+render(parent: PartTag) {
     parent.div(".container", c => {
         c.span(".value")
          .text("Hello")
@@ -88,7 +87,7 @@ All attribute arguments are statically-typed and specific to the particular elem
 In addition to the proper HTML element attributes, you can assign arbitrary and nested data-attributes using the `.data()` method:
 
 ```typescript
-render(parent: DivTag) {
+render(parent: PartTag) {
     parent.a(".link")
         .text("Click Me")
         .data({foo: 'bar', nested: {hello: 'world'}})
@@ -108,7 +107,7 @@ will generate:
 You can specify inline styles with the `css()` method:
 
 ```typescript
-render(parent: DivTag) {
+render(parent: PartTag) {
     parent.text("This is centered")
         .css({textAlign: 'center'})
 }
@@ -125,7 +124,7 @@ will generate:
 Since the `render()` method is plain Typescript, it can incorporate arbitrary control flow and logic:
 
 ```typescript
-render(parent: DivTag) {
+render(parent: PartTag) {
     for (let s in ['Foo', 'Bar', 'Baz']) {
         parent.a({href: `/page/${s.toLowerCase()}`, text: s})
     }
@@ -149,7 +148,7 @@ class Counter extends Part<CounterState> {
     
     // this will get called at least once, but possibly many
     // times as the UI is updated
-    render(parent: DivTag) {
+    render(parent: PartTag) {
     }
 
 }
@@ -178,7 +177,7 @@ Each part can have nested _child_ parts such that the UI is composed of an arbit
 type ButtonState = {text: string}
 
 class Button extends Part<ButtonState> {
-    render(parent: DivTag) {
+    render(parent: PartTag) {
         parent.a(".button", {text: this.state.text})
     }
 }
@@ -197,7 +196,7 @@ class Toolbar extends Part<ToolbarState> {
         }
     }
 
-    render(parent: DivTag) {
+    render(parent: PartTag) {
         // render the button parts to the parent div
         for (let button of this.buttons) {
             parent.part(button)
@@ -243,7 +242,7 @@ const type BarData = {
 const BarKey = messages.typedKey<BarData>()
 
 class Button extends Part<ButtonState> {
-    render(parent: DivTag) {
+    render(parent: PartTag) {
         // .emitClick(key) is a shortcut for .emit("click", key)
         // passing a typed key forces you to also pass that type
         parent.a(".button", {text: this.state.text})
@@ -358,7 +357,7 @@ type MyFormData = {
 
 class MyFormPart extends FormPart<MyFormData> {
 
-    render(parent: DivTag) {
+    render(parent: PartTag) {
         this.textInput(parent, "text", {placeholder: "Enter Text Here"})
         this.dateInput(parent, "date")
         parent.label(label => {

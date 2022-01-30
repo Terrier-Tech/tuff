@@ -1,5 +1,4 @@
-import {DivTag, ParentTag} from '../tags'
-import {Part} from '../parts'
+import {Part, PartTag} from '../parts'
 import * as messages from '../messages'
 import * as styles from './styles.css'
 import * as demo from './demo'
@@ -28,7 +27,7 @@ class Counter extends Part<CounterState> {
         this.dirty()
     }
     
-    render(parent: DivTag) {
+    render(parent: PartTag) {
         parent.class(styles.output)
         parent.span({text: `Count: ${this.state.count}`})
     }
@@ -50,7 +49,7 @@ export class App extends Part<{}> {
         })
     }
 
-    render(parent: ParentTag) {
+    render(parent: PartTag) {
         parent.div(d => {
             d.class(styles.flexRow, styles.padded)
             d.div(styles.flexStretch, d => {
