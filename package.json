@@ -2,7 +2,7 @@
   "name": "tuff-core",
   "type": "module",
   "files": ["dist"],
-  "version": "0.1.8",
+  "version": "0.1.9",
   "repository": {
     "type": "git",
     "url": "https://github.com/Terrier-Tech/tuff"
@@ -29,6 +29,7 @@
   "exports": {
     ".": {
       "import": "./dist/tuff.es.js"
-    }
+    },
+    "./parts": "./dist/parts"
   }
 }
