@@ -1,6 +1,7 @@
 import * as path from 'path'
 import {defineConfig} from 'vite'
 import { fileURLToPath } from 'url'
+import { folderInput } from 'rollup-plugin-folder-input'
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -17,6 +18,14 @@ export default defineConfig({
       name: 'Tuff',
       formats: ['es'],
       fileName: (format) => `tuff.${format}.js`
+    },
+    rollupOptions: {
+      input: 'src/*.ts',
+      output: {
+        entryFileNames: '[name].js',
+        dir: './dist'
+      },
+      plugins: [folderInput()]
     }
-  }
+  },
 })
