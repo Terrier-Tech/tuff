@@ -9,7 +9,9 @@ const colors = {
     output: '#e8f0ff',
     border: '#ccc',
     preview: '#aaa',
-    contact: '#f8f8f8'
+    contact: '#f8f8f8',
+    rect: '#0088aa',
+    ellipse: '#00aa88'
 }
 
 const sizes = {
@@ -204,4 +206,30 @@ export const phoneForm = style({
     flexDirection: 'column',
     gap: sizes.pad,
     ...frameShadow
+})
+
+
+// Shapes
+
+export const shapesSvg = style({
+    width: '100%',
+    height: 600,
+    backgroundColor: '#ffffff',
+    ...frameShadow
+})
+
+export const shape = style({
+    stroke: colors.button,
+    strokeWidth: 3,
+    cursor: 'move'
+})
+
+export const rect = style({
+    fill: `${colors.rect}22`,
+    stroke: colors.rect
+})
+
+export const ellipse = style({
+    fill: `${colors.ellipse}22`,
+    stroke: colors.ellipse
 })

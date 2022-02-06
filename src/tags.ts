@@ -205,6 +205,49 @@ export class Tag<AttrsType extends Attrs> {
         return this
     }
 
+    
+    /// Building
+
+    /**
+     * Builds the resulting HTML by appending lines to the {output} array.
+     * @param output - A string array on which to append the output
+     */
+    build(output: string[]) {
+        output.push(`<${this.tag}`)
+        let allAttrs = Array<string>()
+        if (this._classes.length) {
+            allAttrs.push(`class="${this._classes.join(' ')}"`)
+        }
+        if (this._id) {
+            allAttrs.push(`id="${this._id}"`)
+        }
+        for (let kv of Object.entries(this._attrs)) {
+            allAttrs.push(`${kv[0]}="${kv[1]}"`)
+        }
+        if (this._data) {
+            buildDataAttrs(allAttrs, this._data)
+        }
+        if (this._css) {
+            allAttrs.push(`style="${buildStyleAttr(this._css)}"`)
+        }
+        this.addMessageKeys(allAttrs)
+        if (allAttrs.length) {
+            output.push(` ${allAttrs.join(' ')}`)
+        }
+        output.push('>')
+        if (this._text) {
+            output.push(this._text)
+        }
+        this.buildInner(output)
+        output.push(`</${this.tag}>`)
+    }
+
+    buildInner(output: string[]) {
+        for (let child of this.children) {
+            child.build(output)
+        }
+    }
+
 
     /// Children
 
@@ -956,50 +999,6 @@ export class Tag<AttrsType extends Attrs> {
     }
     
 //// End Emit Methods
-
-
-    /// Building
-
-    /**
-     * Builds the resulting HTML by appending lines to the {output} array.
-     * @param output - A string array on which to append the output
-     */
-    build(output: string[]) {
-        output.push(`<${this.tag}`)
-        let allAttrs = Array<string>()
-        if (this._classes.length) {
-            allAttrs.push(`class="${this._classes.join(' ')}"`)
-        }
-        if (this._id) {
-            allAttrs.push(`id="${this._id}"`)
-        }
-        for (let kv of Object.entries(this._attrs)) {
-            allAttrs.push(`${kv[0]}="${kv[1]}"`)
-        }
-        if (this._data) {
-            buildDataAttrs(allAttrs, this._data)
-        }
-        if (this._css) {
-            allAttrs.push(`style="${buildStyleAttr(this._css)}"`)
-        }
-        this.addMessageKeys(allAttrs)
-        if (allAttrs.length) {
-            output.push(` ${allAttrs.join(' ')}`)
-        }
-        output.push('>')
-        if (this._text) {
-            output.push(this._text)
-        }
-        this.buildInner(output)
-        output.push(`</${this.tag}>`)
-    }
-
-    buildInner(output: string[]) {
-        for (let child of this.children) {
-            child.build(output)
-        }
-    }
-
 
 
 }

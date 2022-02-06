@@ -7,6 +7,9 @@ import { SVGTag } from "./svg"
  */
 export type HtmlParentTag = HtmlTagBase<Attrs>
 
+/**
+ * Base class for all HTML tags, parameterized on their attribute types.
+ */
 export abstract class HtmlTagBase<AttrsType extends Attrs> extends Tag<AttrsType> {
 
     /// Parts

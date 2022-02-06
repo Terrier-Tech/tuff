@@ -10,10 +10,11 @@ export class Element {
     readonly className!: string
     readonly attrsName!: string
 
-    constructor(readonly name: string, iface: ts.InterfaceDeclaration, tst: TypescriptTree) {
+    constructor(readonly type: string, readonly name: string, iface: ts.InterfaceDeclaration, tst: TypescriptTree) {
 
         // compute the class name
-        const cName = name.replace(/^HTML/, '').replace(/Element$/, '')
+        const nameRegex = new RegExp(`^${this.type.toUpperCase()}`)
+        const cName = name.replace(nameRegex, '').replace(/Element$/, '')
         if (cName.length) {
             this.className = `${cName}Tag`
         }
@@ -23,11 +24,29 @@ export class Element {
 
         // parse the attributes
         for (let prop of tst.getProperties(iface)) {
-            if (prop.isReadonly) {
-                // logic based on readonly properties
+            // svg and html attributes are handled differently
+            if (this.type == 'svg') {
+                // we don't need animated attributes in the builder
+                let type = prop.type
+                switch (type) {
+                    case 'SVGAnimatedString':
+                        type = 'string'
+                        break
+                    case 'SVGAnimatedLength':
+                        type = 'number'
+                        break
+                }
+                // for some reason, the SVG attributes are marked as readonly in the DOM types
+                this.attrTypes[prop.name] = type
             }
             else {
-                this.attrTypes[prop.name] = prop.type
+                if (prop.isReadonly) {
+                    // readonly html attributes don't seem too interesting
+                }
+                else {
+                    this.attrTypes[prop.name] = prop.type
+                
+                }
             }
         }
 

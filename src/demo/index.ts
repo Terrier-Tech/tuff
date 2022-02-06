@@ -3,6 +3,7 @@ import {Logger} from '../logging'
 import * as styles from './styles.css'
 import * as counter from './counter'
 import * as contacts from './contacts'
+import * as shapes from './shapes'
 import * as demo from './demo'
 import * as messages from '../messages'
 
@@ -38,6 +39,7 @@ class App extends Part<{}> {
         this.output = this.makePart(OutputPart, {output: ""})
         this.parts['Counter'] = this.makeStatelessPart(counter.App)
         this.parts['Contacts'] = this.makeStatelessPart(contacts.App)
+        this.parts['Shapes'] = this.makeStatelessPart(shapes.App)
 
         this.output.write("Initialized!")
 

@@ -34,7 +34,7 @@ const configs: {[type: string]: ConfigType} = {
         tagBaseClass: "HtmlTagBase"
     },
     "svg": {
-        elementBaseInterfaces: ["SVGElement", "SVGGraphicsElement"],
+        elementBaseInterfaces: ["SVGElement", "SVGGraphicsElement", "SVGGeometryElement"],
         tagBaseClass: "SvgTagBase"
     }
 } as const
@@ -72,7 +72,7 @@ tst.eachInterface(iface => {
     
         // base element
         else if (name == configs[t].elementBaseInterfaces[0]) {
-            const elem = new meta.Element(name, iface, tst)
+            const elem = new meta.Element(t, name, iface, tst)
             elementTypes[t][name] = elem
             baseElement[t] = elem
         }
@@ -81,7 +81,7 @@ tst.eachInterface(iface => {
         else if (configs[t].elementBaseInterfaces.some(i => tst.interfaceExtends(iface, i))) {
             const comment = tst.fullText(iface).split('interface')[0]
             if (!comment.includes('@deprecated')) { // skip deprecated elements
-                const elem = new meta.Element(name, iface, tst)
+                const elem = new meta.Element(t, name, iface, tst)
                 elementTypes[t][name] = elem
             }
         }
