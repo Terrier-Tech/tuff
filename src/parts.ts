@@ -1,7 +1,7 @@
-import {Tag, ParentTag, DivTag} from './tags'
 import * as messages from './messages'
 import { Logger } from './logging'
 import * as keyboard from './keyboard'
+import { DivTag, HtmlParentTag } from './html'
 
 const log = new Logger('Part')
 
@@ -945,7 +945,7 @@ export abstract class Part<StateType> {
     
     /// Rendering
 
-    renderInTag(container: ParentTag) {
+    renderInTag(container: HtmlParentTag) {
         this._dirty = false
         container.div({id: this.id}, parent => {
             this.render(parent)
@@ -967,7 +967,7 @@ export abstract class Part<StateType> {
             // stop the update chain, re-render the whole tree from here on down
             log.debugTime('Update', () => {
                 this._init()
-                let parent = new Tag("")
+                let parent = new DivTag("")
                 this.render(parent)
                 let output = Array<string>()
                 parent.buildInner(output)

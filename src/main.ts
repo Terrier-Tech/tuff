@@ -5,5 +5,6 @@ import * as tags from './tags'
 import * as keyboard from './keyboard'
 import * as strings from './strings'
 import * as arrays from './arrays'
+import * as svg from './svg'
 
-export {logging, parts, messages, tags, keyboard, strings, arrays}
+export {logging, parts, messages, tags, keyboard, strings, arrays, svg}

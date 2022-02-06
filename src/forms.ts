@@ -1,8 +1,8 @@
-import * as tags from './tags'
 import {ActiveOrPassive, Part} from './parts'
 import {Logger} from './logging'
 import * as arrays from './arrays'
 import * as messages from './messages'
+import { FormTag, HtmlParentTag, InputTag, InputTagAttrs, TextAreaTag, TextAreaTagAttrs } from './html'
 
 const log = new Logger("Forms")
 
@@ -28,53 +28,53 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
         return `form-${this.id}`
     }
 
-    protected input<Key extends KeyOfType<DataType,any> & string>(parent: tags.ParentTag, type: InputType, name: Key, serializerType: (new (name: string)=> Field<any, Element>), attrs: tags.InputTagAttrs={}): tags.InputTag {
+    protected input<Key extends KeyOfType<DataType,any> & string>(parent: HtmlParentTag, type: InputType, name: Key, serializerType: (new (name: string)=> Field<any, Element>), attrs: InputTagAttrs={}): InputTag {
         attrs.type = type
         attrs.name = `${this.id}-${name}`
         if (!this.fields[attrs.name]) {
             this.fields[attrs.name] = new serializerType(name)
         }
         this.fields[attrs.name].assignAttrValue(attrs, this.state[name])
-        return parent.input(attrs).class(this.className)
+        return parent.input(attrs, this.className)
     }
 
-    textInput<Key extends KeyOfType<DataType,string> & string>(parent: tags.ParentTag, name: Key, attrs: tags.InputTagAttrs={}): tags.InputTag {
+    textInput<Key extends KeyOfType<DataType,string> & string>(parent: HtmlParentTag, name: Key, attrs: InputTagAttrs={}): InputTag {
         return this.input<Key>(parent, "text", name, TextInputField, attrs)
     }
 
-    emailInput<Key extends KeyOfType<DataType,string> & string>(parent: tags.ParentTag, name: Key, attrs: tags.InputTagAttrs={}): tags.InputTag {
+    emailInput<Key extends KeyOfType<DataType,string> & string>(parent: HtmlParentTag, name: Key, attrs: InputTagAttrs={}): InputTag {
         return this.input<Key>(parent, "email", name, TextInputField, attrs)
     }
 
-    phoneInput<Key extends KeyOfType<DataType,string> & string>(parent: tags.ParentTag, name: Key, attrs: tags.InputTagAttrs={}): tags.InputTag {
+    phoneInput<Key extends KeyOfType<DataType,string> & string>(parent: HtmlParentTag, name: Key, attrs: InputTagAttrs={}): InputTag {
         return this.input<Key>(parent, "tel", name, TextInputField, attrs)
     }
 
-    textArea<Key extends KeyOfType<DataType,string> & string>(parent: tags.ParentTag, name: Key, attrs: tags.TextAreaTagAttrs={}): tags.TextAreaTag {
+    textArea<Key extends KeyOfType<DataType,string> & string>(parent: HtmlParentTag, name: Key, attrs: TextAreaTagAttrs={}): TextAreaTag {
         attrs.name = `${this.id}-${name}`
         if (!this.fields[name]) {
             this.fields[name] = new TextAreaField(name)
         }
         this.fields[name].assignAttrValue(attrs, this.state[name])
-        return parent.textarea(attrs).class(this.className)
+        return parent.textarea(attrs, this.className)
     }
 
-    dateInput<Key extends KeyOfType<DataType,string> & string>(parent: tags.ParentTag, name: Key, attrs: tags.InputTagAttrs={}): tags.InputTag {
+    dateInput<Key extends KeyOfType<DataType,string> & string>(parent: HtmlParentTag, name: Key, attrs: InputTagAttrs={}): InputTag {
         return this.input<Key>(parent, "date", name, TextInputField, attrs)
     }
 
-    checkbox<Key extends KeyOfType<DataType,boolean> & string>(parent: tags.ParentTag, name: Key, attrs: tags.InputTagAttrs={}): tags.InputTag {
+    checkbox<Key extends KeyOfType<DataType,boolean> & string>(parent: HtmlParentTag, name: Key, attrs: InputTagAttrs={}): InputTag {
         return this.input<Key>(parent, "checkbox", name, CheckboxField, attrs)
     }
 
-    radio<Key extends KeyOfType<DataType,string> & string>(parent: tags.ParentTag, name: Key, value: string, attrs: tags.InputTagAttrs={}): tags.InputTag {
+    radio<Key extends KeyOfType<DataType,string> & string>(parent: HtmlParentTag, name: Key, value: string, attrs: InputTagAttrs={}): InputTag {
         attrs.value = value
         return this.input<Key>(parent, "radio", name, RadioField, attrs)
     }
 
     // Create a form tag
-    formTag(parent: tags.ParentTag, fun: ((n: tags.FormTag) => any)) {
-        const tag = parent.form({id: `${this.id}_tag`}).class(this.className)
+    formTag(parent: HtmlParentTag, fun: ((n: FormTag) => any)) {
+        const tag = parent.form({id: `${this.id}_tag`}, this.className)
         fun(tag)
     }
 
@@ -146,7 +146,7 @@ abstract class Field<FieldType, ElementType extends Element> {
     }
 
     // Assigns either the 'value' attribute or related attributes (like 'checked')
-    abstract assignAttrValue(attrs: tags.InputTagAttrs, value?: FieldType): void
+    abstract assignAttrValue(attrs: InputTagAttrs, value?: FieldType): void
 
     // Gets the value from an actual element
     abstract getValue(elem: ElementType[]): FieldType | null
@@ -155,7 +155,7 @@ abstract class Field<FieldType, ElementType extends Element> {
 
 class TextInputField extends Field<string, HTMLInputElement> {
     
-    assignAttrValue(attrs: tags.InputTagAttrs, value?: string) {
+    assignAttrValue(attrs: InputTagAttrs, value?: string) {
         attrs.value = value
     }
 
@@ -167,7 +167,7 @@ class TextInputField extends Field<string, HTMLInputElement> {
 
 class TextAreaField extends Field<string, HTMLTextAreaElement> {
     
-    assignAttrValue(attrs: tags.InputTagAttrs, value?: string) {
+    assignAttrValue(attrs: InputTagAttrs, value?: string) {
         attrs.value = value
     }
 
@@ -179,7 +179,7 @@ class TextAreaField extends Field<string, HTMLTextAreaElement> {
 
 class CheckboxField extends Field<boolean, HTMLInputElement> {
         
-    assignAttrValue(attrs: tags.InputTagAttrs, value?: boolean) {
+    assignAttrValue(attrs: InputTagAttrs, value?: boolean) {
         attrs.checked = value
     }
 
@@ -190,7 +190,7 @@ class CheckboxField extends Field<boolean, HTMLInputElement> {
 
 class RadioField extends Field<string, HTMLInputElement> {
         
-    assignAttrValue(attrs: tags.InputTagAttrs, value?: string) {
+    assignAttrValue(attrs: InputTagAttrs, value?: string) {
         attrs.checked = attrs.value == value
     }
 

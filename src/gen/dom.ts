@@ -7,16 +7,11 @@ import SourceFile from './source-file'
 
 const info = console.log
 
-const elementTypes: {[name: string]: meta.Element} = {}
-const taggedElements: {[name: string]: meta.Element} = {}
-
 const eventTypes: {[name: string]: meta.EventType} = {}
 
 const raw = fs.readFileSync('node_modules/typescript/lib/lib.dom.d.ts', {encoding:'utf8', flag:'r'})
 
 const tst = new TypescriptTree(raw)
-let numSkipped = 0
-let baseElement: meta.Element | null = null
 
 // Skip these event types because they're deprecated and/or used internally.
 const eventTypeBlacklist = ['keypress']
@@ -25,24 +20,76 @@ for (let t of eventTypeBlacklist) {
     skipEventType[t] = true
 }
 
+interface ConfigType {
+    elementBaseInterfaces: ReadonlyArray<string>
+    tagBaseClass: string
+}
+
+
+type ElementMap = {[name: string]: meta.Element}
+
+const configs: {[type: string]: ConfigType} = {
+    "html": {
+        elementBaseInterfaces: ["HTMLElement"],
+        tagBaseClass: "HtmlTagBase"
+    },
+    "svg": {
+        elementBaseInterfaces: ["SVGElement", "SVGGraphicsElement"],
+        tagBaseClass: "SvgTagBase"
+    }
+} as const
+type TagType = keyof typeof configs
+const tagTypes = Object.keys(configs)
+const numSkipped: {[type: TagType]: number} = {}
+const taggedElements: {[type: TagType]: ElementMap} = {}
+const elementTypes: {[type: TagType]: ElementMap} = {}
+const baseElement: {[type: TagType]: meta.Element} = {}
+
+for (let t of tagTypes) {
+    taggedElements[t] = {}
+    elementTypes[t] = {}
+    numSkipped[t] = 0
+}
+
 tst.eachInterface(iface => {
     const name = tst.text(iface.name)
 
-    // tag name map
-    if (name == 'HTMLElementTagNameMap') {
-        for (let prop of tst.getProperties(iface)) {
-            const elem = elementTypes[prop.type]
-            if (elem) {
-                taggedElements[prop.name] = elem
-            }
-            else {
-                numSkipped += 1
+
+    for (let t of tagTypes) {
+
+        // tag name map
+        if (name == `${t.toUpperCase()}ElementTagNameMap`) {
+            for (let prop of tst.getProperties(iface)) {
+                const elem = elementTypes[t][prop.type]
+                if (elem) {
+                    taggedElements[t][prop.name] = elem
+                }
+                else {
+                    numSkipped[t] += 1
+                }
             }
         }
+    
+        // base element
+        else if (name == configs[t].elementBaseInterfaces[0]) {
+            const elem = new meta.Element(name, iface, tst)
+            elementTypes[t][name] = elem
+            baseElement[t] = elem
+        }
+
+        // element subclass
+        else if (configs[t].elementBaseInterfaces.some(i => tst.interfaceExtends(iface, i))) {
+            const comment = tst.fullText(iface).split('interface')[0]
+            if (!comment.includes('@deprecated')) { // skip deprecated elements
+                const elem = new meta.Element(name, iface, tst)
+                elementTypes[t][name] = elem
+            }
+        }
+
     }
 
     // event type map
-    else if (name == 'ElementEventMap' ||
+    if (name == 'ElementEventMap' ||
             name == 'DocumentAndElementEventHandlersEventMap' ||
             name == 'GlobalEventHandlersEventMap') 
     {
@@ -52,68 +99,51 @@ tst.eachInterface(iface => {
             }
         }
     }
-    
-    // HTMLElement
-    else if (name == 'HTMLElement') {
-        const elem = new meta.Element(name, iface, tst)
-        elementTypes[name] = elem
-        baseElement = elem
-    }
-    
-    // HTMLElement subclass
-    else if (tst.interfaceExtends(iface, 'HTMLElement')) {
-        const comment = tst.fullText(iface).split('interface')[0]
-        if (!comment.includes('@deprecated')) { // skip deprecated elements
-            const elem = new meta.Element(name, iface, tst)
-            elementTypes[name] = elem
-        }
-    }
 })
 
-if (!baseElement) {
-    throw "No HTMLElement declaration!"
-}
 
-info(`Parsed ${Object.entries(taggedElements).length} tagged element types (skipped ${numSkipped})`)
+for (let t of tagTypes) {
+    // ensure all the base interfaces were found
+    if (!baseElement[t]) {
+        throw `No ${configs[t].elementBaseInterfaces[0]} declaration!`
+    }
+
+    info(`Parsed ${Object.entries(taggedElements[t]).length} tagged ${t} element types (skipped ${numSkipped[t]})`)
+
+    const file = new SourceFile(`src/${t}.ts`)
+
+    // tag class declarations
+    const classDeclarations = Object.values(elementTypes[t]).map(elem => {
+        return elem.classDeclaration(baseElement[t], configs[t].tagBaseClass)
+    }).join("")
+    file.replaceRegion("Tag Classes", classDeclarations)
+    
+    // tag methods
+    const tagMethods = Object.entries(taggedElements[t]).map(([tag, elem]) => {
+        return elem.tagMethod(tag)
+    }).join("")
+    file.replaceRegion("Tag Methods", tagMethods)
+
+    file.write()
+}
 
 info(`Parsed ${Object.entries(eventTypes).length} event types`)
 
 const eventNames = Object.keys(eventTypes).sort()
 
-
-/// inject tag classes and methods into tags.ts
-
+// event emit methods in tags.ts
 const tagsFile = new SourceFile('src/tags.ts')
-
-// tag class declarations
-const classDeclarations = Object.values(elementTypes).map(elem => {
-    return elem.classDeclaration(baseElement!)
-}).join("")
-tagsFile.replaceRegion("Tag Classes", classDeclarations)
-
-// tag methods
-const tagMethods = Object.entries(taggedElements).map(([tag, elem]) => {
-    return elem.tagMethod(tag)
-}).join("")
-tagsFile.replaceRegion("Tag Methods", tagMethods)
-
-// event emit methods
 const emitMethods = eventNames.map(name => {
     return eventTypes[name].emitMethod()
 }).join("")
 tagsFile.replaceRegion("Emit Methods", emitMethods)
-
 tagsFile.write()
 
 
-/// inject HTML element event types into parts.ts
-
+/// event listen methods in parts.ts
 const partsFile = new SourceFile('src/parts.ts')
-
-// event listen methods
 const listenMethods = eventNames.map(name => {
     return eventTypes[name].listenMethod()
 }).join("")
 partsFile.replaceRegion("Listen Methods", listenMethods)
-
 partsFile.write()

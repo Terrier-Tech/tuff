@@ -60,7 +60,7 @@ export class Element {
         })
     }
 
-    classDeclaration(base: Element): string {
+    classDeclaration(base: Element, baseClass: string = 'Tag'): string {
         const lines = Array<string>()
 
         if (this == base) {
@@ -74,7 +74,7 @@ export class Element {
             lines.push("}\n")
         }
 
-        lines.push(`export class ${this.className} extends Tag<${this.attrsName}> {}\n`)
+        lines.push(`export class ${this.className} extends ${baseClass}<${this.attrsName}> {}\n`)
 
         return lines.join("\n")
     }
@@ -82,7 +82,7 @@ export class Element {
     tagMethod(tag: string): string {
         const lines = Array<string>()
         const methodName = tag == 'data' ? 'dataTag' : tag // I'd rather use data() for assigning data attributes
-        lines.push(`\n    ${methodName}(...args: Args<${this.className},${this.attrsName}>[]) : ${this.className} {`)
+        lines.push(`\n    ${methodName}(...args: TagArgs<${this.className},${this.attrsName}>[]) : ${this.className} {`)
         lines.push(`        return this.child(${this.className}, "${tag}", ...args)`)
         lines.push("    }\n")
         return lines.join("\n")
