@@ -4,7 +4,7 @@
   "files": [
     "dist"
   ],
-  "version": "0.2.0",
+  "version": "0.2.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/Terrier-Tech/tuff"
@@ -30,6 +30,8 @@
   "module": "./dist/tuff.es.js",
   "types": "./dist/main.d.ts",
   "exports": {
-    "./*": "./dist/*.js"
+    ".": {
+      "import": "./dist/tuff.es.js"
+    }
   }
 }
