@@ -1,6 +1,11 @@
 import { Attrs, Tag, TagArgs } from './tags'
 
 /**
+ * General SVG tag type with no specific attributes.
+ */
+export type SvgParentTag = SvgTagBase<Attrs>
+
+/**
  * Base class for all SVG tags, parameterized on their attribute types.
  */
 export abstract class SvgTagBase<AttrsType extends Attrs> extends Tag<AttrsType> {

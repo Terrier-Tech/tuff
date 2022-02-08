@@ -10,8 +10,7 @@ const colors = {
     border: '#ccc',
     preview: '#aaa',
     contact: '#f8f8f8',
-    rect: '#0088aa',
-    ellipse: '#00aa88'
+    selected: '#ffa500'
 }
 
 const sizes = {
@@ -211,6 +210,8 @@ export const phoneForm = style({
 
 // Shapes
 
+const shapeColors = ['#0088aa', '#00aa88', '#6600dd']
+
 export const shapesSvg = style({
     width: '100%',
     height: 600,
@@ -218,18 +219,16 @@ export const shapesSvg = style({
     ...frameShadow
 })
 
-export const shape = style({
-    stroke: colors.button,
-    strokeWidth: 3,
-    cursor: 'move'
+export const shapes = shapeColors.map(color => {
+    return style({
+        stroke: color,
+        strokeWidth: 3,
+        fill: `${color}44`,
+        cursor: 'move'
+    })
 })
 
-export const rect = style({
-    fill: `${colors.rect}22`,
-    stroke: colors.rect
-})
-
-export const ellipse = style({
-    fill: `${colors.ellipse}22`,
-    stroke: colors.ellipse
+export const selectedShape = style({
+    stroke: colors.selected,
+    fill: `${colors.selected}44`
 })

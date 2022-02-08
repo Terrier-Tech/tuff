@@ -5,54 +5,89 @@ import * as demo from './demo'
 
 import {Logger} from '../logging'
 import { arrays } from '../main'
+import { SvgParentTag } from '../svg'
 const log = new Logger('shapes')
 
-type ShapeDef = {
-    type: 'rect' | 'ellipse'
-    id: string
+const maxSize = 300 // the largest that any individual shape can be
+const areaSize = 1500 // how large of an area to cover with shapes
+const num = 200 // the number of each shape to generate
+
+function genPos(): number {
+    return (2*Math.random()-1)*areaSize
 }
 
-const clickKey = messages.typedKey<ShapeDef>()
-const maxSize = 300 // the largest that any individual shape can be
-const areaSize = 2000 // how large of an area to cover with shapes
-const num = 100 // the number of each shape to generate
+function genSize(): number {
+    return (Math.random()*0.75 + 0.25)*maxSize
+}
+
+function genStyle(): string {
+    return arrays.random(styles.shapes)
+}
+
+type ShapeType = 'rect' | 'ellipse'
+
+class Shape {
+    
+    x = genPos()
+    y = genPos()
+    width = genSize()
+    height = genSize()
+    
+    constructor(
+        readonly type: ShapeType,
+        readonly id = demo.newId()) {
+    }
+
+}
+
+const clickKey = messages.typedKey<Shape>()
 
 export class App extends Part<{}> {
+
+    selected?: Shape
+    shapes: {[id: string]: Shape} = {} 
 
     init() {
         this.onClick(clickKey, m => {
             log.info(`Clicked ${m.data.type} ${m.data.id}`)
+            if (this.selected) {
+                const elem = document.getElementById(this.selected.id)
+                elem?.classList.remove(styles.selectedShape)
+            }
+            this.selected = m.data
+            const elem = document.getElementById(this.selected.id)
+            elem?.classList.add(styles.selectedShape)
         })
+
+        // generate the shapes
+        for (let i of arrays.range(0, num)) {
+            const type = (i % 2) ? 'rect' : 'ellipse'
+            const shape = new Shape(type)
+            this.shapes[shape.id] = shape
+        }
     }
 
     render(parent: PartTag) {
         parent.div(styles.padded).svg(styles.shapesSvg, svg => {
 
-            // rectangles
-            for (let _ of arrays.range(0, num)) {
-                const def = {type: 'rect', id: demo.newId()}
-
-                const x = (2*Math.random()-1)*areaSize
-                const y = (2*Math.random()-1)*areaSize
-                const width = (Math.random()/2 + 0.5)*maxSize
-                const height = (Math.random()/2 + 0.5)*maxSize
-                svg.rect(styles.shape, styles.rect, {id: def.id, x: x, y: y, height: height, width: width})
-                    .emitClick(clickKey, def)
-                    .emitClick(demo.OutputKey, {output: `Clicked rectangle ${def.id}!`})
+            // render the shapes
+            for (let [_, shape] of Object.entries(this.shapes)) {
+                let tag: SvgParentTag | null = null
+                switch (shape.type) {
+                    case 'rect': 
+                        tag = svg.rect({id: shape.id, x: shape.x, y: shape.y, height: shape.height, width: shape.width})
+                        break
+                    case 'ellipse':
+                        tag = svg.ellipse({id: shape.id, cx: shape.x, cy: shape.y, rx: shape.width/2, ry: shape.height/2})
+                        break
+                }
+                if (tag) {
+                    tag.class(genStyle())
+                        .emitClick(clickKey, shape)
+                        .emitClick(demo.OutputKey, {output: `Clicked ${shape.type} ${shape.id}!`})
+                }
             }
 
-            // ellipses
-            for (let _ of arrays.range(0, num)) {
-                const def = {type: 'ellipse', id: demo.newId()}
-
-                const x = (2*Math.random()-1)*areaSize
-                const y = (2*Math.random()-1)*areaSize
-                const width = (Math.random()/2 + 0.5)*maxSize
-                const height = (Math.random()/2 + 0.5)*maxSize
-                svg.ellipse(styles.shape, styles.ellipse, {id: def.id, cx: x, cy: y, rx: width/2, ry: height/2})
-                    .emitClick(clickKey, def)
-                    .emitClick(demo.OutputKey, {output: `Clicked ellipse ${def.id}!`})
-            }
         })
     }
 

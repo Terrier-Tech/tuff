@@ -28,3 +28,12 @@ export function eachGroupBy<T, K extends keyof any>(list: T[], getKey: (item: T)
 export function range(start: number, end: number): number[] {
     return Array.from(Array(end - start + 1).keys()).map(x => x + start)
 }
+
+/**
+ * Picks a random value from an array.
+ * @param array an array of values
+ */
+export function random<T>(array: Array<T>): T {
+    const i = Math.floor(Math.random()*array.length)
+    return array[i]
+}
