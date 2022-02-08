@@ -33,7 +33,7 @@ export function range(start: number, end: number): number[] {
  * Picks a random value from an array.
  * @param array an array of values
  */
-export function random<T>(array: Array<T>): T {
+export function sample<T>(array: Array<T>): T {
     const i = Math.floor(Math.random()*array.length)
     return array[i]
 }

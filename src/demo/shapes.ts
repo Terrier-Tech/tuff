@@ -21,7 +21,7 @@ function genSize(): number {
 }
 
 function genStyle(): string {
-    return arrays.random(styles.shapes)
+    return arrays.sample(styles.shapes)
 }
 
 type ShapeType = 'rect' | 'ellipse'
@@ -32,6 +32,7 @@ class Shape {
     y = genPos()
     width = genSize()
     height = genSize()
+    style = genStyle()
     
     constructor(
         readonly type: ShapeType,
@@ -40,23 +41,49 @@ class Shape {
 
 }
 
-const clickKey = messages.typedKey<Shape>()
+const shapeKey = messages.typedKey<string>()
+const mouseKey = messages.untypedKey()
 
 export class App extends Part<{}> {
 
     selected?: Shape
     shapes: {[id: string]: Shape} = {} 
+    dragOffset = {x: 0, y: 0}
 
     init() {
-        this.onClick(clickKey, m => {
-            log.info(`Clicked ${m.data.type} ${m.data.id}`)
+        this.onMouseDown(shapeKey, m => {
+            log.info(`Mouse Down ${m.data}`)
             if (this.selected) {
                 const elem = document.getElementById(this.selected.id)
                 elem?.classList.remove(styles.selectedShape)
             }
-            this.selected = m.data
+            this.selected = this.shapes[m.data]
             const elem = document.getElementById(this.selected.id)
             elem?.classList.add(styles.selectedShape)
+            this.dragOffset = {x: 0, y: 0}
+        })
+
+        this.onMouseMove(mouseKey, m => {
+            if (!this.selected) {
+                return
+            }
+            log.info(`Mouse Move`, m)
+            this.dragOffset.x += m.event.movementX
+            this.dragOffset.y += m.event.movementY
+            const elem = document.getElementById(this.selected.id)!
+            elem.style.transform = `translate(${this.dragOffset.x}px, ${this.dragOffset.y}px)`
+        })
+
+        this.onMouseUp(mouseKey, m => {
+            if (!this.selected) {
+                return
+            }
+            log.info(`Mouse Up`, m)
+            this.selected.x += this.dragOffset.x
+            this.selected.y += this.dragOffset.y
+            this.dragOffset = {x: 0, y: 0}
+            this.selected = undefined
+            this.dirty()
         })
 
         // generate the shapes
@@ -69,6 +96,8 @@ export class App extends Part<{}> {
 
     render(parent: PartTag) {
         parent.div(styles.padded).svg(styles.shapesSvg, svg => {
+            svg.emitMouseMove(mouseKey)
+            svg.emitMouseUp(mouseKey)
 
             // render the shapes
             for (let [_, shape] of Object.entries(this.shapes)) {
@@ -82,8 +111,8 @@ export class App extends Part<{}> {
                         break
                 }
                 if (tag) {
-                    tag.class(genStyle())
-                        .emitClick(clickKey, shape)
+                    tag.class(shape.style)
+                        .emitMouseDown(shapeKey, shape.id)
                         .emitClick(demo.OutputKey, {output: `Clicked ${shape.type} ${shape.id}!`})
                 }
             }
