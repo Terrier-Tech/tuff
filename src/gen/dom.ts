@@ -54,7 +54,6 @@ for (let t of tagTypes) {
 tst.eachInterface(iface => {
     const name = tst.text(iface.name)
 
-
     for (let t of tagTypes) {
 
         // tag name map

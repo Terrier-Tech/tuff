@@ -1,6 +1,58 @@
 import { Attrs, Tag, TagArgs } from './tags'
 
 /**
+ * Adds SVG presentation attributes to the regular tag attributes.
+ * These aren't in the types since you can't directly assign them to SVG elements.
+ */
+export interface SvgBaseAttrs extends Attrs {
+    alignmentBaseline?: 'auto'|'baseline'|'before-edge'|'text-before-edge'|'middle'|'central'|'after-edge'|'text-after-edge'|'ideographic'|'alphabetic'|'hanging'|'mathematical'|'inherit'
+    baselineShift?: string
+    clip?: string
+    clipPath?: string
+    clipRule?: 'nonezero'|'evenodd'|'inherit'
+    colorInterpolation?: 'auto'|'sRGB'|'linearRGB'|'inherit'
+    colorInterpolationFilters?: 'auto'|'sRGB'|'linearRGB'|'inherit'
+    colorProfile?: string
+    colorRendering?: 'auto'|'optimizeSpeed'|'optimizeQuality'|'inherit'
+    cursor?: string
+    d?: string
+    direction?: 'ltr'|'rtl'|'inherit'
+    display?: string
+    dominantBaseline?: 'auto'|'text-bottom'|'alphabetic'|'ideographic'|'middle'|'central'|'mathematical'|'hanging'|'text-top'
+    fill?: string
+    fillOpacity?: number
+    fillRule?: 'nonzero'|'evenodd'
+    filter?: string
+    floodColor?: string
+    floodOpacity?: number
+    imageRendering?: 'auto'|'optimizeQuality'|'optimizeSpeed'
+    letterSpacing?: string
+    markerEnd?: string
+    markerMid?: string
+    markerStart?: string
+    mask?: string
+    opacity?: number
+    shapeRendering?: 'auto'|'optimizeSpeed'|'crispEdges'|'geometricPrecision'|'inherit'
+    stroke?: string
+    strokeDasharray?: string
+    strokeDashoffset?: number
+    strokeLinecap?: 'butt'|'round'|'square'
+    strokeLinejoin?: 'arcs'|'bevel'|'miter'|'miter-clip'|'round'
+    strokeMiterlimit?: number
+    strokeOpacity?: number
+    strokeWidth?: number
+    textAnchor?: 'start'|'middle'|'end'|'inherit'
+    textDecoration?: 'none'|'underline'|'overline'|'line-through'|'blink'|'inherit'
+    textRendering?: 'auto'|'optimizeSpeed'|'optimizeLegibility'|'geometricPrecision'|'inherit'
+    transform?: string
+    vectorOffset?: string
+    visibility?: 'visible'|'hidden'|'collapse'|'inherit'
+    writingMode?: 'lr-tb'|'rl-tb'|'tb-rl'|'lr'|'rl'|'tb'|'inherit'
+}
+
+
+
+/**
  * General SVG tag type with no specific attributes.
  */
 export type SvgParentTag = SvgTagBase<Attrs>
@@ -278,7 +330,7 @@ export type DescTagAttrs = DefaultTagAttrs & {
 
 export class DescTag extends SvgTagBase<DescTagAttrs> {}
 
-export type DefaultTagAttrs = Attrs & {
+export type DefaultTagAttrs = SvgBaseAttrs & {
     ownerSVGElement?: SVGSVGElement | null
     viewportElement?: SVGElement | null
 }
