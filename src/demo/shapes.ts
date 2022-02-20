@@ -24,7 +24,8 @@ function genStyle(): string {
     return arrays.sample(styles.shapes)
 }
 
-type ShapeType = 'rect' | 'ellipse'
+const ShapeTypes = ['rect', 'ellipse', 'diamond']
+type ShapeType = typeof ShapeTypes[number]
 
 class Shape {
     
@@ -88,7 +89,7 @@ export class App extends Part<{}> {
 
         // generate the shapes
         for (let i of arrays.range(0, num)) {
-            const type = (i % 2) ? 'rect' : 'ellipse'
+            const type = ShapeTypes[i % 3]
             const shape = new Shape(type)
             this.shapes[shape.id] = shape
         }
@@ -108,6 +109,10 @@ export class App extends Part<{}> {
                         break
                     case 'ellipse':
                         tag = svg.ellipse({id: shape.id, cx: shape.x, cy: shape.y, rx: shape.width/2, ry: shape.height/2})
+                        break
+                    case 'diamond':
+                        const d = `M ${shape.x},${shape.y+shape.height/2} L ${shape.x+shape.width/2},${shape.y} L ${shape.x+shape.width},${shape.y+shape.height/2} L ${shape.x+shape.width/2},${shape.y+shape.height} Z`
+                        tag = svg.path({id: shape.id, d: d})
                         break
                 }
                 if (tag) {

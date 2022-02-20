@@ -3,9 +3,17 @@ import { Attrs, Tag, TagArgs } from './tags'
 import { SVGTag } from "./svg"
 
 /**
+ * Any HTML-specific attributes that aren't in the types would go here.
+ */
+export interface HtmlBaseAttrs extends Attrs {
+
+}
+
+/**
  * General HTML tag type with no specific attributes.
  */
-export type HtmlParentTag = HtmlTagBase<Attrs>
+export type HtmlParentTag = HtmlTagBase<HtmlBaseAttrs>
+
 
 /**
  * Base class for all HTML tags, parameterized on their attribute types.
@@ -566,7 +574,7 @@ export type DivTagAttrs = DefaultTagAttrs & {
 
 export class DivTag extends HtmlTagBase<DivTagAttrs> {}
 
-export type DefaultTagAttrs = Attrs & {
+export type DefaultTagAttrs = HtmlBaseAttrs & {
     accessKey?: string
     autocapitalize?: string
     dir?: string
