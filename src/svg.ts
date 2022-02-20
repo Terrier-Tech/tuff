@@ -55,7 +55,7 @@ export interface SvgBaseAttrs extends Attrs {
 /**
  * General SVG tag type with no specific attributes.
  */
-export type SvgParentTag = SvgTagBase<Attrs>
+export type SvgParentTag = SvgTagBase<SvgBaseAttrs>
 
 /**
  * Base class for all SVG tags, parameterized on their attribute types.
