@@ -18,12 +18,6 @@ or
 yarn add tuff-core
 ```
 
-or
-
-```
-pnpm add tuff-core
-```
-
 ### Parts
 
 The basic building blocks of Tuff applications are **Parts**.
@@ -431,18 +425,16 @@ class ParentPart extends Part<{}> {
 
 ## Development
 
-Tuff uses <a href="https://pnpm.io/">pnpm</a> to manage dependencies and run scripts.
-
 To run the demo application, clone this repository and run:
 
 ```
-pnpm install
+npm install
 ```
 
 then:
 
 ```
-pnpm run dev
+npm run dev
 ```
 
 to start the development server, which will serve the demo application at http://localhost:3000/.
@@ -454,7 +446,7 @@ Tuff parses the Typescript DOM type definitions to programmatically generate the
 In the event that such code needs to be regenerated, run:
 
 ```
-pnpm run gen
+npm run gen
 ```
 
 
