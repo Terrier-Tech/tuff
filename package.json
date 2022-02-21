@@ -14,7 +14,7 @@
     "dev": "vite",
     "build": "tsc && vite build && cp -r types/*.d.ts dist",
     "preview": "vite preview",
-    "publish": "vite build && pnpm publish",
+    "prepare": "vite build && cp -r types/*.d.ts dist",
     "tsc": "tsc",
     "gen": "node --loader ts-node/esm  --experimental-modules --experimental-specifier-resolution=node src/gen/dom.ts"
   },
