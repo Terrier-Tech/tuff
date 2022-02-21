@@ -4,7 +4,7 @@
   "files": [
     "dist"
   ],
-  "version": "0.2.11",
+  "version": "0.2.12",
   "repository": {
     "type": "git",
     "url": "https://github.com/Terrier-Tech/tuff"
@@ -14,7 +14,7 @@
     "dev": "vite",
     "build": "tsc && vite build && cp -r types/*.d.ts dist",
     "preview": "vite preview",
-    "prepare": "vite build && cp -r types/*.d.ts dist",
+    "prepare": "tsc && vite build && cp -r types/*.d.ts dist",
     "tsc": "tsc",
     "gen": "node --loader ts-node/esm  --experimental-modules --experimental-specifier-resolution=node src/gen/dom.ts"
   },
