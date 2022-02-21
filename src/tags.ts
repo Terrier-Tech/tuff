@@ -222,7 +222,7 @@ export class Tag<AttrsType extends Attrs> {
             allAttrs.push(`id="${this._id}"`)
         }
         for (let kv of Object.entries(this._attrs)) {
-            allAttrs.push(`${kv[0]}="${kv[1]}"`)
+            allAttrs.push(`${strings.ropeCase(kv[0])}="${kv[1]}"`)
         }
         if (this._data) {
             buildDataAttrs(allAttrs, this._data)

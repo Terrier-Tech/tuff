@@ -6,11 +6,13 @@ import * as demo from './demo'
 import {Logger} from '../logging'
 import { arrays } from '../main'
 import { SvgParentTag } from '../svg'
-const log = new Logger('shapes')
+const log = new Logger('Shapes')
 
 const maxSize = 300 // the largest that any individual shape can be
 const areaSize = 1500 // how large of an area to cover with shapes
 const num = 200 // the number of each shape to generate
+
+const colors = ['#0088aa', '#00aa88', '#6600dd']
 
 function genPos(): number {
     return (2*Math.random()-1)*areaSize
@@ -20,8 +22,12 @@ function genSize(): number {
     return (Math.random()*0.75 + 0.25)*maxSize
 }
 
-function genStyle(): string {
-    return arrays.sample(styles.shapes)
+function genColor(): string {
+    return arrays.sample(colors)
+}
+
+function genStrokeWidth(): number {
+    return Math.ceil(Math.random()*2 + 1)
 }
 
 const ShapeTypes = ['rect', 'ellipse', 'diamond']
@@ -33,7 +39,12 @@ class Shape {
     y = genPos()
     width = genSize()
     height = genSize()
-    style = genStyle()
+    color = genColor()
+    strokeWidth = genStrokeWidth()
+
+    get fill(): string {
+        return this.color + '44'
+    }
     
     constructor(
         readonly type: ShapeType,
@@ -69,8 +80,9 @@ export class App extends Part<{}> {
                 return
             }
             log.info(`Mouse Move`, m)
-            this.dragOffset.x += m.event.movementX
-            this.dragOffset.y += m.event.movementY
+            const pixelRatio = window.devicePixelRatio || 1
+            this.dragOffset.x += m.event.movementX/pixelRatio
+            this.dragOffset.y += m.event.movementY/pixelRatio
             const elem = document.getElementById(this.selected.id)!
             elem.style.transform = `translate(${this.dragOffset.x}px, ${this.dragOffset.y}px)`
         })
@@ -116,7 +128,8 @@ export class App extends Part<{}> {
                         break
                 }
                 if (tag) {
-                    tag.class(shape.style)
+                    tag.class(styles.shape)
+                        .attrs({fill: shape.fill, stroke: shape.color, strokeWidth: shape.strokeWidth})
                         .emitMouseDown(shapeKey, shape.id)
                         .emitClick(demo.OutputKey, {output: `Clicked ${shape.type} ${shape.id}!`})
                 }

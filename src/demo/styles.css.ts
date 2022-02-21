@@ -210,7 +210,6 @@ export const phoneForm = style({
 
 // Shapes
 
-const shapeColors = ['#0088aa', '#00aa88', '#6600dd']
 
 export const shapesSvg = style({
     width: '100%',
@@ -219,16 +218,12 @@ export const shapesSvg = style({
     ...frameShadow
 })
 
-export const shapes = shapeColors.map(color => {
-    return style({
-        stroke: color,
-        strokeWidth: 3,
-        fill: `${color}44`,
-        cursor: 'move'
-    })
+export const shape = style({
+    cursor: 'move'
 })
 
 export const selectedShape = style({
     stroke: colors.selected,
-    fill: `${colors.selected}44`
+    fill: `${colors.selected}44`,
+    strokeWidth: 4
 })
