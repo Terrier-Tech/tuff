@@ -1,6 +1,7 @@
 import ts from 'typescript'
 import TypescriptTree from './ts-tree'
 import * as strings from '../strings'
+import { info } from 'console'
 
 const capitalize = (s: string) => s = s.charAt(0).toUpperCase() + s.slice(1)
 
@@ -12,7 +13,7 @@ export class Element {
     readonly attrsName!: string
     readonly typeName!: string // capitalized type name
 
-    constructor(readonly type: string, readonly name: string, iface: ts.InterfaceDeclaration, tst: TypescriptTree) {
+    constructor(readonly type: string, readonly name: string, readonly baseName: string, iface: ts.InterfaceDeclaration, tst: TypescriptTree) {
         this.typeName = strings.capitalize(type)
 
         // compute the class name
@@ -32,10 +33,24 @@ export class Element {
                 // we don't need animated attributes in the builder
                 let type = prop.type
                 switch (type) {
+                    case 'SVGAnimatedBoolean':
+                        type = 'boolean'
+                        break
+                    case 'SVGAnimatedEnumeration':
+                        type = 'string|number'
+                        break
+                    case 'SVGAnimatedTransformList':
                     case 'SVGAnimatedString':
+                    case 'SVGAnimatedPreserveAspectRatio':
                         type = 'string'
                         break
+                    case 'SVGAnimatedNumberList':
+                        type = 'Array<number>'
+                        break
+                    case 'SVGAnimatedNumber':
                     case 'SVGAnimatedLength':
+                    case 'SVGAnimatedInteger':
+                    case 'SVGAnimatedAngle':
                         type = 'number'
                         break
                 }
@@ -84,7 +99,7 @@ export class Element {
 
     classDeclaration(base: Element, baseClass: string = 'Tag'): string {
         const lines = Array<string>()
-
+        info(`${this.className} has base ${base.className}`)
         if (this == base) {
             lines.push(`\nexport type ${this.attrsName} = ${this.typeName}BaseAttrs & {`)
             this.attrsDeclaration(lines)

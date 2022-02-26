@@ -282,7 +282,7 @@ export abstract class SvgTagBase<AttrsType extends Attrs> extends Tag<AttrsType>
 // DO NOT EDIT THE CODE BELOW!
 //// Begin Tag Classes
 
-export type ATagAttrs = DefaultTagAttrs & {
+export type ATagAttrs = GraphicsTagAttrs & {
     rel?: string
     relList?: DOMTokenList
     target?: string
@@ -296,7 +296,7 @@ export type AnimationTagAttrs = DefaultTagAttrs & {
 
 export class AnimationTag extends SvgTagBase<AnimationTagAttrs> {}
 
-export type CircleTagAttrs = DefaultTagAttrs & {
+export type CircleTagAttrs = GeometryTagAttrs & {
     cx?: number
     cy?: number
     r?: number
@@ -305,20 +305,20 @@ export type CircleTagAttrs = DefaultTagAttrs & {
 export class CircleTag extends SvgTagBase<CircleTagAttrs> {}
 
 export type ClipPathTagAttrs = DefaultTagAttrs & {
-    clipPathUnits?: SVGAnimatedEnumeration
-    transform?: SVGAnimatedTransformList
+    clipPathUnits?: string|number
+    transform?: string
 }
 
 export class ClipPathTag extends SvgTagBase<ClipPathTagAttrs> {}
 
 export type ComponentTransferFunctionTagAttrs = DefaultTagAttrs & {
-    amplitude?: SVGAnimatedNumber
-    exponent?: SVGAnimatedNumber
-    intercept?: SVGAnimatedNumber
-    offset?: SVGAnimatedNumber
-    slope?: SVGAnimatedNumber
-    tableValues?: SVGAnimatedNumberList
-    type?: SVGAnimatedEnumeration
+    amplitude?: number
+    exponent?: number
+    intercept?: number
+    offset?: number
+    slope?: number
+    tableValues?: Array<number>
+    type?: string|number
     SVG_FECOMPONENTTRANSFER_TYPE_DISCRETE?: number
     SVG_FECOMPONENTTRANSFER_TYPE_GAMMA?: number
     SVG_FECOMPONENTTRANSFER_TYPE_IDENTITY?: number
@@ -329,7 +329,7 @@ export type ComponentTransferFunctionTagAttrs = DefaultTagAttrs & {
 
 export class ComponentTransferFunctionTag extends SvgTagBase<ComponentTransferFunctionTagAttrs> {}
 
-export type DefsTagAttrs = DefaultTagAttrs & {
+export type DefsTagAttrs = GraphicsTagAttrs & {
 }
 
 export class DefsTag extends SvgTagBase<DefsTagAttrs> {}
@@ -346,7 +346,7 @@ export type DefaultTagAttrs = SvgBaseAttrs & {
 
 export class DefaultTag extends SvgTagBase<DefaultTagAttrs> {}
 
-export type EllipseTagAttrs = DefaultTagAttrs & {
+export type EllipseTagAttrs = GeometryTagAttrs & {
     cx?: number
     cy?: number
     rx?: number
@@ -358,7 +358,7 @@ export class EllipseTag extends SvgTagBase<EllipseTagAttrs> {}
 export type FEBlendTagAttrs = DefaultTagAttrs & {
     in1?: string
     in2?: string
-    mode?: SVGAnimatedEnumeration
+    mode?: string|number
     SVG_FEBLEND_MODE_COLOR?: number
     SVG_FEBLEND_MODE_COLOR_BURN?: number
     SVG_FEBLEND_MODE_COLOR_DODGE?: number
@@ -382,8 +382,8 @@ export class FEBlendTag extends SvgTagBase<FEBlendTagAttrs> {}
 
 export type FEColorMatrixTagAttrs = DefaultTagAttrs & {
     in1?: string
-    type?: SVGAnimatedEnumeration
-    values?: SVGAnimatedNumberList
+    type?: string|number
+    values?: Array<number>
     SVG_FECOLORMATRIX_TYPE_HUEROTATE?: number
     SVG_FECOLORMATRIX_TYPE_LUMINANCETOALPHA?: number
     SVG_FECOLORMATRIX_TYPE_MATRIX?: number
@@ -402,11 +402,11 @@ export class FEComponentTransferTag extends SvgTagBase<FEComponentTransferTagAtt
 export type FECompositeTagAttrs = DefaultTagAttrs & {
     in1?: string
     in2?: string
-    k1?: SVGAnimatedNumber
-    k2?: SVGAnimatedNumber
-    k3?: SVGAnimatedNumber
-    k4?: SVGAnimatedNumber
-    operator?: SVGAnimatedEnumeration
+    k1?: number
+    k2?: number
+    k3?: number
+    k4?: number
+    operator?: string|number
     SVG_FECOMPOSITE_OPERATOR_ARITHMETIC?: number
     SVG_FECOMPOSITE_OPERATOR_ATOP?: number
     SVG_FECOMPOSITE_OPERATOR_IN?: number
@@ -419,18 +419,18 @@ export type FECompositeTagAttrs = DefaultTagAttrs & {
 export class FECompositeTag extends SvgTagBase<FECompositeTagAttrs> {}
 
 export type FEConvolveMatrixTagAttrs = DefaultTagAttrs & {
-    bias?: SVGAnimatedNumber
-    divisor?: SVGAnimatedNumber
-    edgeMode?: SVGAnimatedEnumeration
+    bias?: number
+    divisor?: number
+    edgeMode?: string|number
     in1?: string
-    kernelMatrix?: SVGAnimatedNumberList
-    kernelUnitLengthX?: SVGAnimatedNumber
-    kernelUnitLengthY?: SVGAnimatedNumber
-    orderX?: SVGAnimatedInteger
-    orderY?: SVGAnimatedInteger
-    preserveAlpha?: SVGAnimatedBoolean
-    targetX?: SVGAnimatedInteger
-    targetY?: SVGAnimatedInteger
+    kernelMatrix?: Array<number>
+    kernelUnitLengthX?: number
+    kernelUnitLengthY?: number
+    orderX?: number
+    orderY?: number
+    preserveAlpha?: boolean
+    targetX?: number
+    targetY?: number
     SVG_EDGEMODE_DUPLICATE?: number
     SVG_EDGEMODE_NONE?: number
     SVG_EDGEMODE_UNKNOWN?: number
@@ -440,11 +440,11 @@ export type FEConvolveMatrixTagAttrs = DefaultTagAttrs & {
 export class FEConvolveMatrixTag extends SvgTagBase<FEConvolveMatrixTagAttrs> {}
 
 export type FEDiffuseLightingTagAttrs = DefaultTagAttrs & {
-    diffuseConstant?: SVGAnimatedNumber
+    diffuseConstant?: number
     in1?: string
-    kernelUnitLengthX?: SVGAnimatedNumber
-    kernelUnitLengthY?: SVGAnimatedNumber
-    surfaceScale?: SVGAnimatedNumber
+    kernelUnitLengthX?: number
+    kernelUnitLengthY?: number
+    surfaceScale?: number
 }
 
 export class FEDiffuseLightingTag extends SvgTagBase<FEDiffuseLightingTagAttrs> {}
@@ -452,9 +452,9 @@ export class FEDiffuseLightingTag extends SvgTagBase<FEDiffuseLightingTagAttrs> 
 export type FEDisplacementMapTagAttrs = DefaultTagAttrs & {
     in1?: string
     in2?: string
-    scale?: SVGAnimatedNumber
-    xChannelSelector?: SVGAnimatedEnumeration
-    yChannelSelector?: SVGAnimatedEnumeration
+    scale?: number
+    xChannelSelector?: string|number
+    yChannelSelector?: string|number
     SVG_CHANNEL_A?: number
     SVG_CHANNEL_B?: number
     SVG_CHANNEL_G?: number
@@ -465,18 +465,18 @@ export type FEDisplacementMapTagAttrs = DefaultTagAttrs & {
 export class FEDisplacementMapTag extends SvgTagBase<FEDisplacementMapTagAttrs> {}
 
 export type FEDistantLightTagAttrs = DefaultTagAttrs & {
-    azimuth?: SVGAnimatedNumber
-    elevation?: SVGAnimatedNumber
+    azimuth?: number
+    elevation?: number
 }
 
 export class FEDistantLightTag extends SvgTagBase<FEDistantLightTagAttrs> {}
 
 export type FEDropShadowTagAttrs = DefaultTagAttrs & {
-    dx?: SVGAnimatedNumber
-    dy?: SVGAnimatedNumber
+    dx?: number
+    dy?: number
     in1?: string
-    stdDeviationX?: SVGAnimatedNumber
-    stdDeviationY?: SVGAnimatedNumber
+    stdDeviationX?: number
+    stdDeviationY?: number
 }
 
 export class FEDropShadowTag extends SvgTagBase<FEDropShadowTagAttrs> {}
@@ -488,14 +488,14 @@ export class FEFloodTag extends SvgTagBase<FEFloodTagAttrs> {}
 
 export type FEGaussianBlurTagAttrs = DefaultTagAttrs & {
     in1?: string
-    stdDeviationX?: SVGAnimatedNumber
-    stdDeviationY?: SVGAnimatedNumber
+    stdDeviationX?: number
+    stdDeviationY?: number
 }
 
 export class FEGaussianBlurTag extends SvgTagBase<FEGaussianBlurTagAttrs> {}
 
 export type FEImageTagAttrs = DefaultTagAttrs & {
-    preserveAspectRatio?: SVGAnimatedPreserveAspectRatio
+    preserveAspectRatio?: string
 }
 
 export class FEImageTag extends SvgTagBase<FEImageTagAttrs> {}
@@ -513,9 +513,9 @@ export class FEMergeNodeTag extends SvgTagBase<FEMergeNodeTagAttrs> {}
 
 export type FEMorphologyTagAttrs = DefaultTagAttrs & {
     in1?: string
-    operator?: SVGAnimatedEnumeration
-    radiusX?: SVGAnimatedNumber
-    radiusY?: SVGAnimatedNumber
+    operator?: string|number
+    radiusX?: number
+    radiusY?: number
     SVG_MORPHOLOGY_OPERATOR_DILATE?: number
     SVG_MORPHOLOGY_OPERATOR_ERODE?: number
     SVG_MORPHOLOGY_OPERATOR_UNKNOWN?: number
@@ -524,41 +524,41 @@ export type FEMorphologyTagAttrs = DefaultTagAttrs & {
 export class FEMorphologyTag extends SvgTagBase<FEMorphologyTagAttrs> {}
 
 export type FEOffsetTagAttrs = DefaultTagAttrs & {
-    dx?: SVGAnimatedNumber
-    dy?: SVGAnimatedNumber
+    dx?: number
+    dy?: number
     in1?: string
 }
 
 export class FEOffsetTag extends SvgTagBase<FEOffsetTagAttrs> {}
 
 export type FEPointLightTagAttrs = DefaultTagAttrs & {
-    x?: SVGAnimatedNumber
-    y?: SVGAnimatedNumber
-    z?: SVGAnimatedNumber
+    x?: number
+    y?: number
+    z?: number
 }
 
 export class FEPointLightTag extends SvgTagBase<FEPointLightTagAttrs> {}
 
 export type FESpecularLightingTagAttrs = DefaultTagAttrs & {
     in1?: string
-    kernelUnitLengthX?: SVGAnimatedNumber
-    kernelUnitLengthY?: SVGAnimatedNumber
-    specularConstant?: SVGAnimatedNumber
-    specularExponent?: SVGAnimatedNumber
-    surfaceScale?: SVGAnimatedNumber
+    kernelUnitLengthX?: number
+    kernelUnitLengthY?: number
+    specularConstant?: number
+    specularExponent?: number
+    surfaceScale?: number
 }
 
 export class FESpecularLightingTag extends SvgTagBase<FESpecularLightingTagAttrs> {}
 
 export type FESpotLightTagAttrs = DefaultTagAttrs & {
-    limitingConeAngle?: SVGAnimatedNumber
-    pointsAtX?: SVGAnimatedNumber
-    pointsAtY?: SVGAnimatedNumber
-    pointsAtZ?: SVGAnimatedNumber
-    specularExponent?: SVGAnimatedNumber
-    x?: SVGAnimatedNumber
-    y?: SVGAnimatedNumber
-    z?: SVGAnimatedNumber
+    limitingConeAngle?: number
+    pointsAtX?: number
+    pointsAtY?: number
+    pointsAtZ?: number
+    specularExponent?: number
+    x?: number
+    y?: number
+    z?: number
 }
 
 export class FESpotLightTag extends SvgTagBase<FESpotLightTagAttrs> {}
@@ -570,12 +570,12 @@ export type FETileTagAttrs = DefaultTagAttrs & {
 export class FETileTag extends SvgTagBase<FETileTagAttrs> {}
 
 export type FETurbulenceTagAttrs = DefaultTagAttrs & {
-    baseFrequencyX?: SVGAnimatedNumber
-    baseFrequencyY?: SVGAnimatedNumber
-    numOctaves?: SVGAnimatedInteger
-    seed?: SVGAnimatedNumber
-    stitchTiles?: SVGAnimatedEnumeration
-    type?: SVGAnimatedEnumeration
+    baseFrequencyX?: number
+    baseFrequencyY?: number
+    numOctaves?: number
+    seed?: number
+    stitchTiles?: string|number
+    type?: string|number
     SVG_STITCHTYPE_NOSTITCH?: number
     SVG_STITCHTYPE_STITCH?: number
     SVG_STITCHTYPE_UNKNOWN?: number
@@ -587,9 +587,9 @@ export type FETurbulenceTagAttrs = DefaultTagAttrs & {
 export class FETurbulenceTag extends SvgTagBase<FETurbulenceTagAttrs> {}
 
 export type FilterTagAttrs = DefaultTagAttrs & {
-    filterUnits?: SVGAnimatedEnumeration
+    filterUnits?: string|number
     height?: number
-    primitiveUnits?: SVGAnimatedEnumeration
+    primitiveUnits?: string|number
     width?: number
     x?: number
     y?: number
@@ -597,7 +597,7 @@ export type FilterTagAttrs = DefaultTagAttrs & {
 
 export class FilterTag extends SvgTagBase<FilterTagAttrs> {}
 
-export type ForeignObjectTagAttrs = DefaultTagAttrs & {
+export type ForeignObjectTagAttrs = GraphicsTagAttrs & {
     height?: number
     width?: number
     x?: number
@@ -606,21 +606,21 @@ export type ForeignObjectTagAttrs = DefaultTagAttrs & {
 
 export class ForeignObjectTag extends SvgTagBase<ForeignObjectTagAttrs> {}
 
-export type GTagAttrs = DefaultTagAttrs & {
+export type GTagAttrs = GraphicsTagAttrs & {
 }
 
 export class GTag extends SvgTagBase<GTagAttrs> {}
 
-export type GeometryTagAttrs = DefaultTagAttrs & {
-    pathLength?: SVGAnimatedNumber
+export type GeometryTagAttrs = SvgBaseAttrs & {
+    pathLength?: number
 }
 
 export class GeometryTag extends SvgTagBase<GeometryTagAttrs> {}
 
-export type GradientTagAttrs = DefaultTagAttrs & {
-    gradientTransform?: SVGAnimatedTransformList
-    gradientUnits?: SVGAnimatedEnumeration
-    spreadMethod?: SVGAnimatedEnumeration
+export type GradientTagAttrs = SvgBaseAttrs & {
+    gradientTransform?: string
+    gradientUnits?: string|number
+    spreadMethod?: string|number
     SVG_SPREADMETHOD_PAD?: number
     SVG_SPREADMETHOD_REFLECT?: number
     SVG_SPREADMETHOD_REPEAT?: number
@@ -629,15 +629,15 @@ export type GradientTagAttrs = DefaultTagAttrs & {
 
 export class GradientTag extends SvgTagBase<GradientTagAttrs> {}
 
-export type GraphicsTagAttrs = DefaultTagAttrs & {
-    transform?: SVGAnimatedTransformList
+export type GraphicsTagAttrs = SvgBaseAttrs & {
+    transform?: string
 }
 
 export class GraphicsTag extends SvgTagBase<GraphicsTagAttrs> {}
 
-export type ImageTagAttrs = DefaultTagAttrs & {
+export type ImageTagAttrs = GraphicsTagAttrs & {
     height?: number
-    preserveAspectRatio?: SVGAnimatedPreserveAspectRatio
+    preserveAspectRatio?: string
     width?: number
     x?: number
     y?: number
@@ -645,7 +645,7 @@ export type ImageTagAttrs = DefaultTagAttrs & {
 
 export class ImageTag extends SvgTagBase<ImageTagAttrs> {}
 
-export type LineTagAttrs = DefaultTagAttrs & {
+export type LineTagAttrs = GeometryTagAttrs & {
     x1?: number
     x2?: number
     y1?: number
@@ -654,7 +654,7 @@ export type LineTagAttrs = DefaultTagAttrs & {
 
 export class LineTag extends SvgTagBase<LineTagAttrs> {}
 
-export type LinearGradientTagAttrs = DefaultTagAttrs & {
+export type LinearGradientTagAttrs = GradientTagAttrs & {
     x1?: number
     x2?: number
     y1?: number
@@ -670,10 +670,10 @@ export class MPathTag extends SvgTagBase<MPathTagAttrs> {}
 
 export type MarkerTagAttrs = DefaultTagAttrs & {
     markerHeight?: number
-    markerUnits?: SVGAnimatedEnumeration
+    markerUnits?: string|number
     markerWidth?: number
-    orientAngle?: SVGAnimatedAngle
-    orientType?: SVGAnimatedEnumeration
+    orientAngle?: number
+    orientType?: string|number
     refX?: number
     refY?: number
     SVG_MARKERUNITS_STROKEWIDTH?: number
@@ -688,8 +688,8 @@ export class MarkerTag extends SvgTagBase<MarkerTagAttrs> {}
 
 export type MaskTagAttrs = DefaultTagAttrs & {
     height?: number
-    maskContentUnits?: SVGAnimatedEnumeration
-    maskUnits?: SVGAnimatedEnumeration
+    maskContentUnits?: string|number
+    maskUnits?: string|number
     width?: number
     x?: number
     y?: number
@@ -702,16 +702,16 @@ export type MetadataTagAttrs = DefaultTagAttrs & {
 
 export class MetadataTag extends SvgTagBase<MetadataTagAttrs> {}
 
-export type PathTagAttrs = DefaultTagAttrs & {
+export type PathTagAttrs = GeometryTagAttrs & {
 }
 
 export class PathTag extends SvgTagBase<PathTagAttrs> {}
 
 export type PatternTagAttrs = DefaultTagAttrs & {
     height?: number
-    patternContentUnits?: SVGAnimatedEnumeration
-    patternTransform?: SVGAnimatedTransformList
-    patternUnits?: SVGAnimatedEnumeration
+    patternContentUnits?: string|number
+    patternTransform?: string
+    patternUnits?: string|number
     width?: number
     x?: number
     y?: number
@@ -719,17 +719,17 @@ export type PatternTagAttrs = DefaultTagAttrs & {
 
 export class PatternTag extends SvgTagBase<PatternTagAttrs> {}
 
-export type PolygonTagAttrs = DefaultTagAttrs & {
+export type PolygonTagAttrs = GeometryTagAttrs & {
 }
 
 export class PolygonTag extends SvgTagBase<PolygonTagAttrs> {}
 
-export type PolylineTagAttrs = DefaultTagAttrs & {
+export type PolylineTagAttrs = GeometryTagAttrs & {
 }
 
 export class PolylineTag extends SvgTagBase<PolylineTagAttrs> {}
 
-export type RadialGradientTagAttrs = DefaultTagAttrs & {
+export type RadialGradientTagAttrs = GradientTagAttrs & {
     cx?: number
     cy?: number
     fr?: number
@@ -740,7 +740,7 @@ export type RadialGradientTagAttrs = DefaultTagAttrs & {
 
 export class RadialGradientTag extends SvgTagBase<RadialGradientTagAttrs> {}
 
-export type RectTagAttrs = DefaultTagAttrs & {
+export type RectTagAttrs = GeometryTagAttrs & {
     height?: number
     rx?: number
     ry?: number
@@ -751,7 +751,7 @@ export type RectTagAttrs = DefaultTagAttrs & {
 
 export class RectTag extends SvgTagBase<RectTagAttrs> {}
 
-export type SVGTagAttrs = DefaultTagAttrs & {
+export type SVGTagAttrs = GraphicsTagAttrs & {
     currentScale?: number
     currentTranslate?: DOMPointReadOnly
     height?: number
@@ -769,7 +769,7 @@ export type ScriptTagAttrs = DefaultTagAttrs & {
 export class ScriptTag extends SvgTagBase<ScriptTagAttrs> {}
 
 export type StopTagAttrs = DefaultTagAttrs & {
-    offset?: SVGAnimatedNumber
+    offset?: number
 }
 
 export class StopTag extends SvgTagBase<StopTagAttrs> {}
@@ -783,7 +783,7 @@ export type StyleTagAttrs = DefaultTagAttrs & {
 
 export class StyleTag extends SvgTagBase<StyleTagAttrs> {}
 
-export type SwitchTagAttrs = DefaultTagAttrs & {
+export type SwitchTagAttrs = GraphicsTagAttrs & {
 }
 
 export class SwitchTag extends SvgTagBase<SwitchTagAttrs> {}
@@ -793,8 +793,8 @@ export type SymbolTagAttrs = DefaultTagAttrs & {
 
 export class SymbolTag extends SvgTagBase<SymbolTagAttrs> {}
 
-export type TextContentTagAttrs = DefaultTagAttrs & {
-    lengthAdjust?: SVGAnimatedEnumeration
+export type TextContentTagAttrs = GraphicsTagAttrs & {
+    lengthAdjust?: string|number
     textLength?: number
     LENGTHADJUST_SPACING?: number
     LENGTHADJUST_SPACINGANDGLYPHS?: number
@@ -808,7 +808,7 @@ export type TitleTagAttrs = DefaultTagAttrs & {
 
 export class TitleTag extends SvgTagBase<TitleTagAttrs> {}
 
-export type UseTagAttrs = DefaultTagAttrs & {
+export type UseTagAttrs = GraphicsTagAttrs & {
     height?: number
     width?: number
     x?: number

@@ -43,7 +43,6 @@ const tagTypes = Object.keys(configs)
 const numSkipped: {[type: TagType]: number} = {}
 const taggedElements: {[type: TagType]: ElementMap} = {}
 const elementTypes: {[type: TagType]: ElementMap} = {}
-const baseElement: {[type: TagType]: meta.Element} = {}
 
 for (let t of tagTypes) {
     taggedElements[t] = {}
@@ -70,17 +69,17 @@ tst.eachInterface(iface => {
         }
     
         // base element
-        else if (name == configs[t].elementBaseInterfaces[0]) {
-            const elem = new meta.Element(t, name, iface, tst)
+        else if (configs[t].elementBaseInterfaces.includes(name)) {
+            const elem = new meta.Element(t, name, name, iface, tst)
             elementTypes[t][name] = elem
-            baseElement[t] = elem
         }
 
         // element subclass
         else if (configs[t].elementBaseInterfaces.some(i => tst.interfaceExtends(iface, i))) {
             const comment = tst.fullText(iface).split('interface')[0]
             if (!comment.includes('@deprecated')) { // skip deprecated elements
-                const elem = new meta.Element(t, name, iface, tst)
+                const baseName = configs[t].elementBaseInterfaces.filter(i => tst.interfaceExtends(iface, i))[0]
+                const elem = new meta.Element(t, name, baseName, iface, tst)
                 elementTypes[t][name] = elem
             }
         }
@@ -102,18 +101,13 @@ tst.eachInterface(iface => {
 
 
 for (let t of tagTypes) {
-    // ensure all the base interfaces were found
-    if (!baseElement[t]) {
-        throw `No ${configs[t].elementBaseInterfaces[0]} declaration!`
-    }
-
     info(`Parsed ${Object.entries(taggedElements[t]).length} tagged ${t} element types (skipped ${numSkipped[t]})`)
 
     const file = new SourceFile(`src/${t}.ts`)
 
     // tag class declarations
     const classDeclarations = Object.values(elementTypes[t]).map(elem => {
-        return elem.classDeclaration(baseElement[t], configs[t].tagBaseClass)
+        return elem.classDeclaration(elementTypes[t][elem.baseName], configs[t].tagBaseClass)
     }).join("")
     file.replaceRegion("Tag Classes", classDeclarations)
     
