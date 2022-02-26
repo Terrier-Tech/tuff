@@ -10,6 +10,7 @@ export interface SvgBaseAttrs extends Attrs {
     clip?: string
     clipPath?: string
     clipRule?: 'nonezero'|'evenodd'|'inherit'
+    color?: string // used for gradient stops
     colorInterpolation?: 'auto'|'sRGB'|'linearRGB'|'inherit'
     colorInterpolationFilters?: 'auto'|'sRGB'|'linearRGB'|'inherit'
     colorProfile?: string
