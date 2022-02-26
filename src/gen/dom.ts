@@ -34,7 +34,7 @@ const configs: {[type: string]: ConfigType} = {
         tagBaseClass: "HtmlTagBase"
     },
     "svg": {
-        elementBaseInterfaces: ["SVGElement", "SVGGraphicsElement", "SVGGeometryElement"],
+        elementBaseInterfaces: ["SVGElement", "SVGGraphicsElement", "SVGGeometryElement", "SVGGradientElement"],
         tagBaseClass: "SvgTagBase"
     }
 } as const

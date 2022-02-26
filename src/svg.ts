@@ -193,6 +193,10 @@ export abstract class SvgTagBase<AttrsType extends Attrs> extends Tag<AttrsType>
         return this.child(LineTag, "line", ...args)
     }
 
+    linearGradient(...args: TagArgs<LinearGradientTag,LinearGradientTagAttrs>[]) : LinearGradientTag {
+        return this.child(LinearGradientTag, "linearGradient", ...args)
+    }
+
     marker(...args: TagArgs<MarkerTag,MarkerTagAttrs>[]) : MarkerTag {
         return this.child(MarkerTag, "marker", ...args)
     }
@@ -223,6 +227,10 @@ export abstract class SvgTagBase<AttrsType extends Attrs> extends Tag<AttrsType>
 
     polyline(...args: TagArgs<PolylineTag,PolylineTagAttrs>[]) : PolylineTag {
         return this.child(PolylineTag, "polyline", ...args)
+    }
+
+    radialGradient(...args: TagArgs<RadialGradientTag,RadialGradientTagAttrs>[]) : RadialGradientTag {
+        return this.child(RadialGradientTag, "radialGradient", ...args)
     }
 
     rect(...args: TagArgs<RectTag,RectTagAttrs>[]) : RectTag {
@@ -645,6 +653,15 @@ export type LineTagAttrs = DefaultTagAttrs & {
 
 export class LineTag extends SvgTagBase<LineTagAttrs> {}
 
+export type LinearGradientTagAttrs = DefaultTagAttrs & {
+    x1?: number
+    x2?: number
+    y1?: number
+    y2?: number
+}
+
+export class LinearGradientTag extends SvgTagBase<LinearGradientTagAttrs> {}
+
 export type MPathTagAttrs = DefaultTagAttrs & {
 }
 
@@ -710,6 +727,17 @@ export type PolylineTagAttrs = DefaultTagAttrs & {
 }
 
 export class PolylineTag extends SvgTagBase<PolylineTagAttrs> {}
+
+export type RadialGradientTagAttrs = DefaultTagAttrs & {
+    cx?: number
+    cy?: number
+    fr?: number
+    fx?: number
+    fy?: number
+    r?: number
+}
+
+export class RadialGradientTag extends SvgTagBase<RadialGradientTagAttrs> {}
 
 export type RectTagAttrs = DefaultTagAttrs & {
     height?: number
