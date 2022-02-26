@@ -34,6 +34,8 @@ export interface SvgBaseAttrs extends Attrs {
     mask?: string
     opacity?: number
     shapeRendering?: 'auto'|'optimizeSpeed'|'crispEdges'|'geometricPrecision'|'inherit'
+    stopColor?: string
+    stopOpacity?: number
     stroke?: string
     strokeDasharray?: string
     strokeDashoffset?: number
