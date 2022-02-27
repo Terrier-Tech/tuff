@@ -1,6 +1,7 @@
 import { Part } from './parts'
 import { Attrs, Tag, TagArgs } from './tags'
 import { SVGTag } from "./svg"
+import * as strings from './strings'
 
 /**
  * Any HTML-specific attributes that aren't in the types would go here.
@@ -19,6 +20,10 @@ export type HtmlParentTag = HtmlTagBase<HtmlBaseAttrs>
  * Base class for all HTML tags, parameterized on their attribute types.
  */
 export abstract class HtmlTagBase<AttrsType extends Attrs> extends Tag<AttrsType> {
+    
+    serializeAttribute(name: string, value: string): string {
+        return `${strings.ropeCase(name)}="${value}"`
+    }
 
     /// Parts
 

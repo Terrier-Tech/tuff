@@ -62,7 +62,7 @@ const _attrsBlacklist = ['id', 'class', 'classes', 'sel', 'text', 'data', 'css']
 export type TagArgs<TagType extends Tag<AttrsType>, AttrsType extends Attrs> =
     ((n: TagType) => any) | AttrsType | string | undefined
 
-export class Tag<AttrsType extends Attrs> {
+export abstract class Tag<AttrsType extends Attrs> {
 
     private children: Tag<Attrs>[] = []
     private _text?: string
@@ -209,6 +209,13 @@ export class Tag<AttrsType extends Attrs> {
     /// Building
 
     /**
+     * It's up to subclasses to serialize attributes since HTML and SVG handle the names differently.
+     * @param name the attribute name
+     * @param value the attribute value
+     */
+    abstract serializeAttribute(name: string, value: string): string
+
+    /**
      * Builds the resulting HTML by appending lines to the {output} array.
      * @param output - A string array on which to append the output
      */
@@ -222,7 +229,7 @@ export class Tag<AttrsType extends Attrs> {
             allAttrs.push(`id="${this._id}"`)
         }
         for (let kv of Object.entries(this._attrs)) {
-            allAttrs.push(`${strings.ropeCase(kv[0])}="${kv[1]}"`)
+            allAttrs.push(this.serializeAttribute(kv[0], kv[1]))
         }
         if (this._data) {
             buildDataAttrs(allAttrs, this._data)

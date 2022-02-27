@@ -1,4 +1,5 @@
 import { Attrs, Tag, TagArgs } from './tags'
+import * as strings from './strings'
 
 /**
  * Adds SVG presentation attributes to the regular tag attributes.
@@ -53,7 +54,44 @@ export interface SvgBaseAttrs extends Attrs {
     writingMode?: 'lr-tb'|'rl-tb'|'tb-rl'|'lr'|'rl'|'tb'|'inherit'
 }
 
-
+/**
+ * SVG presentaion attributes are rope-case but all others are camelCase.
+ * I can't think of a better way to handle this. 
+ */
+const ropeCaseAttributes: Record<string, boolean> = {
+    alignmentBaseline: true,
+    baselineShift: true,
+    clipPath: true,
+    clipRule: true,
+    colorInterpolation: true,
+    colorInterpolationFilters: true,
+    colorProfile: true,
+    colorRendering: true,
+    dominantBaseline: true,
+    fillOpacity: true,
+    fillRule: true,
+    floodColor: true,
+    floodOpacity: true,
+    imageRendering: true,
+    letterSpacing: true,
+    markerEnd: true,
+    markerMid: true,
+    markerStart: true,
+    shapeRendering: true,
+    stopColor: true,
+    stopOpacity: true,
+    strokeDasharray: true,
+    strokeLinecap: true,
+    strokeLinejoin: true,
+    strokeMiterlimit: true,
+    strokeOpacity: true,
+    strokeWidth: true,
+    textAnchor: true,
+    textDecoration: true,
+    textRendering: true,
+    vectorOffset: true,
+    writingMode: true
+}
 
 /**
  * General SVG tag type with no specific attributes.
@@ -65,6 +103,14 @@ export type SvgParentTag = SvgTagBase<SvgBaseAttrs>
  */
 export abstract class SvgTagBase<AttrsType extends Attrs> extends Tag<AttrsType> {
 
+    serializeAttribute(name: string, value: string): string {
+        if (ropeCaseAttributes[name]) {
+            return `${strings.ropeCase(name)}="${value}"`
+        }
+        else {
+            return `${name}="${value}"`
+        }
+    }
 
     //// Begin Tag Methods
 
