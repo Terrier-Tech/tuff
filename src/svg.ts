@@ -27,6 +27,7 @@ export interface SvgBaseAttrs extends Attrs {
     filter?: string
     floodColor?: string
     floodOpacity?: number
+    href?: string
     imageRendering?: 'auto'|'optimizeQuality'|'optimizeSpeed'
     letterSpacing?: string
     markerEnd?: string
