@@ -102,6 +102,7 @@ export abstract class Part<StateType> {
         else { 
             this.children[part.id] = part
         }
+        part._init()
         return part
     }
 
