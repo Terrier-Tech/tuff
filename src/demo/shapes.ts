@@ -80,7 +80,7 @@ export class App extends Part<{}> {
                 return
             }
             log.info(`Mouse Move`, m)
-            const pixelRatio = window.devicePixelRatio || 1
+            const pixelRatio = 1 // don't know why we don't need this anymore: window.devicePixelRatio || 1
             this.dragOffset.x += m.event.movementX/pixelRatio
             this.dragOffset.y += m.event.movementY/pixelRatio
             const elem = document.getElementById(this.selected.id)!

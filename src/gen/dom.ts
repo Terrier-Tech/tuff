@@ -34,7 +34,7 @@ const configs: {[type: string]: ConfigType} = {
         tagBaseClass: "HtmlTagBase"
     },
     "svg": {
-        elementBaseInterfaces: ["SVGElement", "SVGGraphicsElement", "SVGGeometryElement", "SVGGradientElement"],
+        elementBaseInterfaces: ["SVGElement", "SVGGraphicsElement", "SVGGeometryElement", "SVGGradientElement", "SVGFitToViewBox"],
         tagBaseClass: "SvgTagBase"
     }
 } as const
@@ -70,7 +70,7 @@ tst.eachInterface(iface => {
     
         // base element
         else if (configs[t].elementBaseInterfaces.includes(name)) {
-            const elem = new meta.Element(t, name, name, iface, tst)
+            const elem = new meta.Element(t, name, [name], iface, tst)
             elementTypes[t][name] = elem
         }
 
@@ -78,8 +78,8 @@ tst.eachInterface(iface => {
         else if (configs[t].elementBaseInterfaces.some(i => tst.interfaceExtends(iface, i))) {
             const comment = tst.fullText(iface).split('interface')[0]
             if (!comment.includes('@deprecated')) { // skip deprecated elements
-                const baseName = configs[t].elementBaseInterfaces.filter(i => tst.interfaceExtends(iface, i))[0]
-                const elem = new meta.Element(t, name, baseName, iface, tst)
+                const baseNames = configs[t].elementBaseInterfaces.filter(i => tst.interfaceExtends(iface, i))
+                const elem = new meta.Element(t, name, baseNames, iface, tst)
                 elementTypes[t][name] = elem
             }
         }
@@ -107,7 +107,7 @@ for (let t of tagTypes) {
 
     // tag class declarations
     const classDeclarations = Object.values(elementTypes[t]).map(elem => {
-        return elem.classDeclaration(elementTypes[t][elem.baseName], configs[t].tagBaseClass)
+        return elem.classDeclaration(elem.baseNames.map(n => {return elementTypes[t][n]}), configs[t].tagBaseClass)
     }).join("")
     file.replaceRegion("Tag Classes", classDeclarations)
     

@@ -7,6 +7,16 @@ import * as strings from './strings'
 type DataAttrs = {[key: string]: any}
 
 /**
+ * Sanitizes the given data-attribute key based on the rules described here:
+ * https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset#:~:text=Using%20data%20attributes.-,Name%20conversion,-dash%2Dstyle%20to
+ * @param k a data-attribute key
+ */
+function sanitizeDataKey(k: string): string {
+    // Add a dash before any ASCII uppercase letter A to Z, then lowercase the letter
+    return k.replaceAll(/-[A-Z]/g, m => {return m.slice(1).toLowerCase()})
+}
+
+/**
  * Resursively constructs data attributes into key/value strings.
  * Nested keys are joined with dashes.
  * @param builder - An array of strings on which to append the attributes
@@ -15,7 +25,7 @@ type DataAttrs = {[key: string]: any}
  */
 const buildDataAttrs = (builder: string[], data: DataAttrs, prefix='data-') => {
     for (let kv of Object.entries(data)) {
-        const k = strings.ropeCase(kv[0])
+        const k = sanitizeDataKey(kv[0])
         if (typeof kv[1] == 'object') {
             buildDataAttrs(builder, kv[1], `${prefix}${k}-`)
         }
@@ -29,6 +39,16 @@ const buildDataAttrs = (builder: string[], data: DataAttrs, prefix='data-') => {
  * An object containing inline style declarations.
  */
 export type InlineStyle = Partial<CSSStyleDeclaration>
+
+/**
+ * General rectangle interface, used in place of SVGAnimatedRect.
+ */
+export interface IRect {
+    height: number
+    width: number
+    x: number
+    y: number
+}
 
 /**
  * Constructs a style attribute value from an {InlineStyle} object.

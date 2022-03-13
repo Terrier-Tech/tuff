@@ -13,7 +13,7 @@ export class Element {
     readonly attrsName!: string
     readonly typeName!: string // capitalized type name
 
-    constructor(readonly type: string, readonly name: string, readonly baseName: string, iface: ts.InterfaceDeclaration, tst: TypescriptTree) {
+    constructor(readonly type: string, readonly name: string, readonly baseNames: string[], iface: ts.InterfaceDeclaration, tst: TypescriptTree) {
         this.typeName = strings.capitalize(type)
 
         // compute the class name
@@ -52,6 +52,9 @@ export class Element {
                     case 'SVGAnimatedInteger':
                     case 'SVGAnimatedAngle':
                         type = 'number'
+                        break
+                    case 'SVGAnimatedRect':
+                        type = 'IRect'
                         break
                 }
                 // for some reason, the SVG attributes are marked as readonly in the DOM types
@@ -97,8 +100,9 @@ export class Element {
         })
     }
 
-    classDeclaration(base: Element, baseClass: string = 'Tag'): string {
+    classDeclaration(bases: Element[], baseClass: string = 'Tag'): string {
         const lines = Array<string>()
+        const base = bases[0]
         info(`${this.className} has base ${base.className}`)
         if (this == base) {
             lines.push(`\nexport type ${this.attrsName} = ${this.typeName}BaseAttrs & {`)
@@ -108,6 +112,13 @@ export class Element {
         else if (this.attrsName != base.attrsName) {
             lines.push(`\nexport type ${this.attrsName} = ${base.attrsName} & {`)
             this.attrsDeclaration(lines)
+            if (bases.length > 1) { 
+                // this element has more than one base class, 
+                // so we need to copy the attributes from the other bases
+                for (let b of bases.slice(1)) {
+                    b.attrsDeclaration(lines)
+                }
+            }
             lines.push("}\n")
         }
 

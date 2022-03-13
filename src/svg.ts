@@ -1,4 +1,4 @@
-import { Attrs, Tag, TagArgs } from './tags'
+import { Attrs, IRect, Tag, TagArgs } from './tags'
 import * as strings from './strings'
 
 /**
@@ -646,6 +646,13 @@ export type FilterTagAttrs = DefaultTagAttrs & {
 
 export class FilterTag extends SvgTagBase<FilterTagAttrs> {}
 
+export type FitToViewBoxTagAttrs = SvgBaseAttrs & {
+    preserveAspectRatio?: string
+    viewBox?: IRect
+}
+
+export class FitToViewBoxTag extends SvgTagBase<FitToViewBoxTagAttrs> {}
+
 export type ForeignObjectTagAttrs = GraphicsTagAttrs & {
     height?: number
     width?: number
@@ -731,6 +738,8 @@ export type MarkerTagAttrs = DefaultTagAttrs & {
     SVG_MARKER_ORIENT_ANGLE?: number
     SVG_MARKER_ORIENT_AUTO?: number
     SVG_MARKER_ORIENT_UNKNOWN?: number
+    preserveAspectRatio?: string
+    viewBox?: IRect
 }
 
 export class MarkerTag extends SvgTagBase<MarkerTagAttrs> {}
@@ -764,6 +773,8 @@ export type PatternTagAttrs = DefaultTagAttrs & {
     width?: number
     x?: number
     y?: number
+    preserveAspectRatio?: string
+    viewBox?: IRect
 }
 
 export class PatternTag extends SvgTagBase<PatternTagAttrs> {}
@@ -807,6 +818,8 @@ export type SVGTagAttrs = GraphicsTagAttrs & {
     width?: number
     x?: number
     y?: number
+    preserveAspectRatio?: string
+    viewBox?: IRect
 }
 
 export class SVGTag extends SvgTagBase<SVGTagAttrs> {}
@@ -838,6 +851,8 @@ export type SwitchTagAttrs = GraphicsTagAttrs & {
 export class SwitchTag extends SvgTagBase<SwitchTagAttrs> {}
 
 export type SymbolTagAttrs = DefaultTagAttrs & {
+    preserveAspectRatio?: string
+    viewBox?: IRect
 }
 
 export class SymbolTag extends SvgTagBase<SymbolTagAttrs> {}
@@ -867,6 +882,8 @@ export type UseTagAttrs = GraphicsTagAttrs & {
 export class UseTag extends SvgTagBase<UseTagAttrs> {}
 
 export type ViewTagAttrs = DefaultTagAttrs & {
+    preserveAspectRatio?: string
+    viewBox?: IRect
 }
 
 export class ViewTag extends SvgTagBase<ViewTagAttrs> {}
