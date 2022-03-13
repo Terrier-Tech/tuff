@@ -2,6 +2,9 @@ import { Part } from './parts'
 import { Attrs, Tag, TagArgs } from './tags'
 import { SVGTag } from "./svg"
 import * as strings from './strings'
+import {Logger} from './logging'
+
+const log = new Logger('HTML')
 
 /**
  * Any HTML-specific attributes that aren't in the types would go here.
@@ -21,7 +24,8 @@ export type HtmlParentTag = HtmlTagBase<HtmlBaseAttrs>
  */
 export abstract class HtmlTagBase<AttrsType extends Attrs> extends Tag<AttrsType> {
     
-    serializeAttribute(name: string, value: string): string {
+    serializeAttribute(name: string, value: any): string {
+        log.warn(`Don't know how to serialize value for key ${name}`, value)
         return `${strings.ropeCase(name)}="${value}"`
     }
 

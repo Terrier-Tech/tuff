@@ -109,6 +109,7 @@ export class App extends Part<{}> {
 
     render(parent: PartTag) {
         parent.div(styles.padded).svg(styles.shapesSvg, svg => {
+            svg.attrs({viewBox: {x: 0, y: 0, width: maxSize*2, height: maxSize*2}})
             svg.emitMouseMove(mouseKey)
             svg.emitMouseUp(mouseKey)
 

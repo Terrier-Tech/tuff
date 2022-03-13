@@ -1,5 +1,8 @@
 import { Attrs, IRect, Tag, TagArgs } from './tags'
 import * as strings from './strings'
+import {Logger} from './logging'
+
+const log = new Logger('SVG')
 
 /**
  * Adds SVG presentation attributes to the regular tag attributes.
@@ -104,7 +107,15 @@ export type SvgParentTag = SvgTagBase<SvgBaseAttrs>
  */
 export abstract class SvgTagBase<AttrsType extends Attrs> extends Tag<AttrsType> {
 
-    serializeAttribute(name: string, value: string): string {
+    serializeAttribute(name: string, value: any): string {
+        if (typeof value == 'object') {
+            if (name == 'viewBox') {
+                return `viewBox="${value.x||0} ${value.y||0} ${value.width||0} ${value.height||0}"`
+            }
+            else {
+                log.warn(`Don't know how to serialize value for key ${name}`, value)
+            }
+        }
         if (ropeCaseAttributes[name]) {
             return `${strings.ropeCase(name)}="${value}"`
         }

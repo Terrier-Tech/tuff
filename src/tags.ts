@@ -88,7 +88,7 @@ export abstract class Tag<AttrsType extends Attrs> {
     private _text?: string
     private _id?: string
     private _classes: string[] = []
-    private _attrs: {[key: string]: string} = {}
+    private _attrs: {[key: string]: any} = {}
     private _data?: DataAttrs
     private _css?: InlineStyle
 
@@ -218,7 +218,7 @@ export abstract class Tag<AttrsType extends Attrs> {
             if (!_attrsBlacklist.includes(key)) {
                 const value = (attrs as any)[key]
                 if (value) {
-                    this._attrs[key] = value.toString()
+                    this._attrs[key] = value
                 }
             }
         }
@@ -233,7 +233,7 @@ export abstract class Tag<AttrsType extends Attrs> {
      * @param name the attribute name
      * @param value the attribute value
      */
-    abstract serializeAttribute(name: string, value: string): string
+    abstract serializeAttribute(name: string, value: any): string
 
     /**
      * Builds the resulting HTML by appending lines to the {output} array.
