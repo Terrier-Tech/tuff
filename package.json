@@ -16,7 +16,8 @@
     "preview": "vite preview",
     "prepare": "tsc && vite build && cp -r types/*.d.ts dist",
     "tsc": "tsc",
-    "gen": "node --loader ts-node/esm  --experimental-modules --experimental-specifier-resolution=node src/gen/dom.ts"
+    "gen": "node --loader ts-node/esm  --experimental-modules --experimental-specifier-resolution=node src/gen/dom.ts",
+    "test": "vitest"
   },
   "devDependencies": {
     "@types/node": "^17.0.0",
@@ -26,7 +27,8 @@
     "sass": "^1.45.0",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.5",
-    "vite": "^2.7.0"
+    "vite": "^2.7.0",
+    "vitest": "^0.6.0"
   },
   "module": "./dist/tuff.es.js",
   "types": "./dist/main.d.ts",
