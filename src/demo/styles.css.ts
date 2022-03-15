@@ -211,9 +211,13 @@ export const phoneForm = style({
 // Shapes
 
 
-export const shapesSvg = style({
+export const shapesScroller = style({
     width: '100%',
     height: 600,
+    overflow: 'scroll'
+})
+
+export const shapesSvg = style({
     backgroundColor: '#ffffff',
     ...frameShadow
 })

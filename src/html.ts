@@ -25,8 +25,10 @@ export type HtmlParentTag = HtmlTagBase<HtmlBaseAttrs>
 export abstract class HtmlTagBase<AttrsType extends Attrs> extends Tag<AttrsType> {
     
     serializeAttribute(name: string, value: any): string {
-        log.warn(`Don't know how to serialize value for key ${name}`, value)
-        return `${strings.ropeCase(name)}="${value}"`
+        if (typeof value == 'object') {
+            log.warn(`Don't know how to serialize value for key ${name}`, value)
+        }
+        return `${strings.ropeCase(name)}="${value.toString()}"`
     }
 
     /// Parts

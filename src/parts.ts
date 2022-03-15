@@ -19,6 +19,15 @@ export type ActiveOrPassive = "active" | "passive"
  */
 export type EmitScope = "single" | "bubble"
 
+type EventKey = keyof HTMLElementEventMap
+
+/**
+ * These event types do not bubble and thus should be handled in the capture phase
+ */
+const nonBubblingEvents: EventKey[] = [
+    'blur', 'focus', 'load', 'scroll'
+]
+
 /** 
  * Parts can be mounted either directly to DOM elements or by id string
  */
@@ -206,7 +215,7 @@ export abstract class Part<StateType> {
             let elem = this.element
             if (elem) {
                 for (let type of this.handlerMap.allTypes()) {
-                    this.addTypeListener(elem, type as (keyof HTMLElementEventMap))
+                    this.addTypeListener(elem, type as EventKey)
                 }
             }
         }
@@ -217,9 +226,13 @@ export abstract class Part<StateType> {
 
     // Attaches an event listener for a particular type of HTML event.
     // Only event types with Tuff listeners will have HTML listeners attached.
-    private addTypeListener(elem: HTMLElement, type: keyof HTMLElementEventMap) {
-        log.debug(`Attaching ${type} event listeners to`, elem)
+    private addTypeListener(elem: HTMLElement, type: EventKey) {
         const part = this
+        let opts: AddEventListenerOptions | undefined = undefined
+        if (nonBubblingEvents.includes(type)) {
+            opts = {capture: true, passive: true}
+        }
+        log.debug(`Attaching ${type} event listeners to`, elem, opts)
         elem.addEventListener(type, function(this: HTMLElement, evt: HTMLElementEventMap[typeof type]) {
 
             // traverse the DOM path to find an event key
@@ -244,7 +257,7 @@ export abstract class Part<StateType> {
                 }
                 part.emit(type, {id: k}, evt, data)
             }
-        })
+        }, opts)
     }
 
     // Creates and emits a message for the given type and key

@@ -61,6 +61,7 @@ export class App extends Part<{}> {
     selected?: Shape
     shapes: {[id: string]: Shape} = {} 
     dragOffset = {x: 0, y: 0}
+    scrollKey = messages.untypedKey()
 
     init() {
         this.onMouseDown(shapeKey, m => {
@@ -99,6 +100,10 @@ export class App extends Part<{}> {
             this.dirty()
         })
 
+        this.onScroll(this.scrollKey, m => {
+            log.info("onScroll", m)
+        })
+
         // generate the shapes
         for (let i of arrays.range(0, num)) {
             const type = ShapeTypes[i % 3]
@@ -108,34 +113,37 @@ export class App extends Part<{}> {
     }
 
     render(parent: PartTag) {
-        parent.div(styles.padded).svg(styles.shapesSvg, svg => {
-            svg.attrs({viewBox: {x: 0, y: 0, width: maxSize*2, height: maxSize*2}})
-            svg.emitMouseMove(mouseKey)
-            svg.emitMouseUp(mouseKey)
+        parent.div(styles.shapesScroller, scroller => {
+            scroller.svg(styles.shapesSvg, svg => {
+                scroller.emitScroll(this.scrollKey)
+                svg.attrs({width: areaSize, height: areaSize, viewBox: {x: 0, y: 0, width: areaSize, height: areaSize}})
+                svg.emitMouseMove(mouseKey)
+                svg.emitMouseUp(mouseKey)
 
-            // render the shapes
-            for (let [_, shape] of Object.entries(this.shapes)) {
-                let tag: SvgParentTag | null = null
-                switch (shape.type) {
-                    case 'rect': 
-                        tag = svg.rect({id: shape.id, x: shape.x, y: shape.y, height: shape.height, width: shape.width})
-                        break
-                    case 'ellipse':
-                        tag = svg.ellipse({id: shape.id, cx: shape.x, cy: shape.y, rx: shape.width/2, ry: shape.height/2})
-                        break
-                    case 'diamond':
-                        const d = `M ${shape.x},${shape.y+shape.height/2} L ${shape.x+shape.width/2},${shape.y} L ${shape.x+shape.width},${shape.y+shape.height/2} L ${shape.x+shape.width/2},${shape.y+shape.height} Z`
-                        tag = svg.path({id: shape.id, d: d})
-                        break
+                // render the shapes
+                for (let [_, shape] of Object.entries(this.shapes)) {
+                    let tag: SvgParentTag | null = null
+                    switch (shape.type) {
+                        case 'rect': 
+                            tag = svg.rect({id: shape.id, x: shape.x, y: shape.y, height: shape.height, width: shape.width})
+                            break
+                        case 'ellipse':
+                            tag = svg.ellipse({id: shape.id, cx: shape.x, cy: shape.y, rx: shape.width/2, ry: shape.height/2})
+                            break
+                        case 'diamond':
+                            const d = `M ${shape.x},${shape.y+shape.height/2} L ${shape.x+shape.width/2},${shape.y} L ${shape.x+shape.width},${shape.y+shape.height/2} L ${shape.x+shape.width/2},${shape.y+shape.height} Z`
+                            tag = svg.path({id: shape.id, d: d})
+                            break
+                    }
+                    if (tag) {
+                        tag.class(styles.shape)
+                            .attrs({fill: shape.fill, stroke: shape.color, strokeWidth: shape.strokeWidth})
+                            .emitMouseDown(shapeKey, shape.id)
+                            .emitClick(demo.OutputKey, {output: `Clicked ${shape.type} ${shape.id}!`})
+                    }
                 }
-                if (tag) {
-                    tag.class(styles.shape)
-                        .attrs({fill: shape.fill, stroke: shape.color, strokeWidth: shape.strokeWidth})
-                        .emitMouseDown(shapeKey, shape.id)
-                        .emitClick(demo.OutputKey, {output: `Clicked ${shape.type} ${shape.id}!`})
-                }
-            }
 
+            })
         })
     }
 
