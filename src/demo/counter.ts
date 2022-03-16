@@ -2,6 +2,9 @@ import {Part, PartTag} from '../parts'
 import * as messages from '../messages'
 import * as styles from './styles.css'
 import * as demo from './demo'
+import * as logging from '../logging'
+
+const log = new logging.Logger('Counter')
 
 type ChangeData = {
     by: number
@@ -30,6 +33,10 @@ class Counter extends Part<CounterState> {
     render(parent: PartTag) {
         parent.class(styles.output)
         parent.span({text: `Count: ${this.state.count}`})
+    }
+
+    afterRender(elem: HTMLElement): void {
+        log.info("After Render", elem)
     }
 
 }

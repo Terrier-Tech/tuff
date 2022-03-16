@@ -968,9 +968,31 @@ export abstract class Part<StateType> {
 
     abstract render(parent: PartTag): any
 
+    /**
+     * Gets called every time the part is rendered.
+     * @param _elem the actual DOM element containing the part
+     */
+    afterRender(_elem: HTMLElement) {
+
+    }
+
+    /**
+     * Recursively calls `afterRender()` on this part and all of its children.
+     */
+    _afterRender() {
+        const elem = this.element!
+        this.afterRender(elem)
+        this.eachChild(child => {
+            child._afterRender()
+        })
+    }
+
 
     /// Updating
 
+    /**
+     * Recursively crawls the children to see if any is dirty, then renders their entire branch.
+     */
     update() {
         const elem = this.element
         if (!elem) {
@@ -986,6 +1008,7 @@ export abstract class Part<StateType> {
                 let output = Array<string>()
                 parent.buildInner(output)
                 elem.innerHTML = output.join('')
+                this._afterRender()
                 this.eachChild(child => {
                     child.needsEventListeners()
                 })
