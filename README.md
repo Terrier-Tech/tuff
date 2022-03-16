@@ -149,6 +149,27 @@ class Counter extends Part<CounterState> {
 ```
 
 
+## After Render
+
+Each time a Part is actually rendered to the DOM, the `afterRender()` method will get called and passed the corresponding DOM element.
+This is useful for executing code that depends on the DOM itself.
+
+```typescript
+class Counter extends Part<CounterState> {
+    
+    render(parent: PartTag) {
+        parent.class('foo')
+    }
+
+    // elem will be the .foo element created by the render() method
+    afterRender(elem: HTMLElement) {
+        // this gets called once for every call of render()
+    }
+
+}
+```
+
+
 ### Mounting
 
 The `Part.mount()` method is used to attach parts to the DOM.
