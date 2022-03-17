@@ -10,14 +10,18 @@ export type StatelessPart = Part<{}>
 export type PartParent = StatelessPart | null
 
 /** 
- * Whether or not a particular event listener is on the current part or only when the event hits the root
- */
-export type ActiveOrPassive = "active" | "passive"
-
-/** 
  * Whether or not a particular message emit should emit on the parents as well
  */
 export type EmitScope = "single" | "bubble"
+
+type EmitOptions = {
+    scope?: EmitScope
+}
+
+/**
+ * Whether the part needs to be rendered (dirty), updated (stale), or neither (clean).
+ */
+type RenderState = "clean" | "stale" | "dirty"
 
 type EventKey = keyof HTMLElementEventMap
 
@@ -43,7 +47,7 @@ export abstract class Part<StateType> {
     /// Root
 
     // root parts themselves will not have a root
-    protected _root?: StatelessPart
+    private _root?: StatelessPart
 
     public get root(): StatelessPart {
         return this._root || this
@@ -52,7 +56,7 @@ export abstract class Part<StateType> {
 
     /// Children
     
-    protected children: {[id: string]: StatelessPart} = {}
+    private children: {[id: string]: StatelessPart} = {}
 
     eachChild(func: (child: StatelessPart) => void) {
         for (let child of Object.values(this.children)) {
@@ -68,11 +72,11 @@ export abstract class Part<StateType> {
     /// Construction
 
     constructor(
-        protected readonly parent: PartParent,
+        private readonly parent: PartParent,
         public readonly id: string,
         public readonly state: StateType
     ) {
-        this._dirty = true
+        this._renderState = "dirty"
         if (parent) {
             this._root = parent.root
         }
@@ -98,7 +102,7 @@ export abstract class Part<StateType> {
     
     private _idCount = 0
 
-    _makeParentedPart<PartType extends Part<PartStateType>, PartStateType>(
+    private _makeParentedPart<PartType extends Part<PartStateType>, PartStateType>(
         constructor: {new (p: PartParent, id: string, state: PartStateType): PartType}, 
         parent: PartParent, 
         state: PartStateType): PartType 
@@ -124,7 +128,7 @@ export abstract class Part<StateType> {
         return this._initialized
     }
 
-    protected _init() {
+    private _init() {
         if (!this._initialized) {
             this._initialized = true
             log.debug('Initializing', this)
@@ -143,90 +147,125 @@ export abstract class Part<StateType> {
 
     /// Dirty Tracking
 
-    private _dirty = false
+    private _renderState: RenderState = "dirty"
 
-    // mark this part as dirty
+    /**
+     * Mark this part as dirty, meaning it needs to be fully re-rendered.
+     */
     dirty() {
         log.debug("Dirty", this)
-        this._dirty = true
-        this.root.requestFrame()
+        this._renderState = "dirty"
+        this.root._requestFrame()
+    }
+
+    /**
+     * Mark this part as stale, meaning it needs to be updated but not rendered.
+     */
+    stale() {
+        log.debug("Stale", this)
+        if (this._renderState == "clean") {
+            this._renderState = "stale"
+            this.root._requestFrame()
+        }
     }
 
     private _frameRequested = false
 
-    requestFrame() {
+    /**
+     * Requests the next animation frame to render the part.
+     */
+    private _requestFrame() {
         if (this._frameRequested) return
         this._frameRequested = true
         requestAnimationFrame(t => {
             log.debug('Frame', t)
+            this._markClean()
+            this._attachEventListeners()
             this._frameRequested = false
-            this.update()
         })
     }
 
 
-    /// Messages
+    /// DOM Messages
 
     private handlerMap = new messages.HandlerMap()
 
     listen<EventType extends keyof messages.EventMap, DataType>(
         type: EventType, 
         key: messages.UntypedKey,
-        listener: (m: messages.Message<EventType,DataType>) => void,
-        active?: ActiveOrPassive): void
+        handler: (m: messages.Message<EventType,DataType>) => void,
+        options: messages.ListenOptions): void
 
     listen<EventType extends keyof messages.EventMap, DataType>(
         type: EventType, 
         key: messages.TypedKey<DataType>,
-        listener: (m: messages.Message<EventType,DataType>) => void,
-        active?: ActiveOrPassive): void
+        handler: (m: messages.Message<EventType,DataType>) => void,
+        options?: messages.ListenOptions): void
 
+    /**
+     * Registers a message handler to listen for messages.
+     * @param type the event type
+     * @param key the message key
+     * @param handler the function to get called in response to the message
+     * @param options configures how the handler listens for the messages
+     */
     listen<EventType extends keyof messages.EventMap, DataType>(
         type: EventType, 
         key: messages.UntypedKey | messages.TypedKey<DataType>,
-        listener: (m: messages.Message<EventType,DataType>) => void,
-        active?: ActiveOrPassive): void
+        handler: (m: messages.Message<EventType,DataType>) => void,
+        options: messages.ListenOptions={}): void
     { 
-        if (active == "passive") {
-            this.root.listen(type, key, listener, "active")
+        if (options?.attach == "passive") {
+            const newOptions = {activeOrPassive: "active" as messages.ListenAttach, ...options}
+            this.root.listen(type, key, handler, newOptions)
             return
         }
         this.handlerMap.add({
             type: type,
             key: key,
-            callback: listener
+            options: options,
+            callback: handler
         })
     }
 
     private _needsEventListeners = true
 
-    // Tell this element and its children that they need to attach event listeners
-    protected needsEventListeners() {
+    /**
+     * Tell this element and its children that they need to attach event listeners
+     */
+    private _childrenNeedEventListeners() {
         this._needsEventListeners = true
         this.eachChild(child => {
-            child.needsEventListeners()
+            child._childrenNeedEventListeners()
         })
     }
 
-    // Attaches event listeners to this.element (if needsEventListeners() has been called)
-    attachEventListeners() {
+    /**
+     * Attaches event listeners to this.element (if needsEventListeners() has been called)
+     */
+    private _attachEventListeners() {
         if (this._needsEventListeners) {
             this._needsEventListeners = false
             let elem = this.element
             if (elem) {
                 for (let type of this.handlerMap.allTypes()) {
-                    this.addTypeListener(elem, type as EventKey)
+                    this.addDomListener(elem, type as EventKey)
                 }
+            }
+            else {
+                log.warn("Trying to attach event listeners to a part without an element", this)
             }
         }
         this.eachChild(child => {
-            child.attachEventListeners()
+            child._attachEventListeners()
         })
     }
 
-    // Attaches an event listener for a particular type of HTML event.
-    // Only event types with Tuff listeners will have HTML listeners attached.
-    private addTypeListener(elem: HTMLElement, type: EventKey) {
+    /**
+     * Attaches an event listener for a particular type of HTML event.
+     * Only event types with Tuff listeners will have HTML listeners attached.
+     */
+    private addDomListener(elem: HTMLElement, type: EventKey) {
         const part = this
         let opts: AddEventListenerOptions | undefined = undefined
         if (nonBubblingEvents.includes(type)) {
@@ -260,13 +299,15 @@ export abstract class Part<StateType> {
         }, opts)
     }
 
-    // Creates and emits a message for the given type and key
+    /** 
+     * Creates and emits a message for the given type and key.
+     */ 
     emit<EventType extends keyof messages.EventMap, DataType>(
         type: EventType, 
         key: messages.TypedKey<DataType>,
         evt: messages.EventMap[typeof type],
         data: DataType,
-        scope: EmitScope = "single") 
+        options: EmitOptions={}) 
     {
         const message = {
             type: type,
@@ -276,9 +317,23 @@ export abstract class Part<StateType> {
         this.handlerMap.each(type, key, handler => {
             handler.callback(message)
         })
-        if (scope == "bubble" && this.parent && this.parent != this) {
-            this.parent.emit(type, key, evt, data, scope)
+        if (options.scope == "bubble" && this.parent && this.parent != this) {
+            this.parent.emit(type, key, evt, data, options)
         }
+    }
+
+    /**
+     * Emits a generic message associated with the part (as opposed to a DOM event).
+     * @param key the message key
+     * @param data data associated with the message
+     * @param options configures how the message is emitted 
+     */
+    emitMessage<DataType>(
+        key: messages.TypedKey<DataType>,
+        data: DataType,
+        options?: EmitOptions)
+    {
+        this.emit("message", key, {part: this}, data, options)
     }
 
 
@@ -287,626 +342,21 @@ export abstract class Part<StateType> {
     // Register a hanlder for a global key press event.
     onKeyPress(press: messages.KeyPress, listener: (m: messages.Message<"keypress",messages.KeyPress>) => void) {
         keyboard.registerPart(this) // make sure we're registered to receive global keyboard events
-        this.listen<"keypress",messages.KeyPress>("keypress", press, listener, "active")
+        this.listen<"keypress",messages.KeyPress>("keypress", press, listener, {attach: "active"})
     }
-
-    // Recursively possibly handles the given global key press, returning true if it does.
-    // Children are asked to handle the press first, so the event bubbles from the leaves down to the root.
-    // protected handleKeyPress(press: messages.KeyPress): boolean {
-    //     let childHandled = false
-    //     this.eachChild(child => {
-    //         if (!childHandled && child.handleKeyPress(press)) {
-    //             childHandled = true
-    //         }
-    //     })
-    //     if (childHandled) {
-    //         return true
-    //     }
-    //     if (this._keyMap && this._keyMap.handle(press)) {
-    //         return true
-    //     }
-    //     return false
-    // }
-
-
-    //// Begin Listen Methods
-
-    onAbort<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"abort",DataType>) => void, active?: ActiveOrPassive): void
-    onAbort<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"abort",DataType>) => void, active?: ActiveOrPassive): void
-    onAbort<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"abort",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"abort",DataType>("abort", key, listener, active)
-    }
-    
-    onAnimationCancel<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"animationcancel",DataType>) => void, active?: ActiveOrPassive): void
-    onAnimationCancel<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"animationcancel",DataType>) => void, active?: ActiveOrPassive): void
-    onAnimationCancel<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"animationcancel",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"animationcancel",DataType>("animationcancel", key, listener, active)
-    }
-    
-    onAnimationEnd<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"animationend",DataType>) => void, active?: ActiveOrPassive): void
-    onAnimationEnd<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"animationend",DataType>) => void, active?: ActiveOrPassive): void
-    onAnimationEnd<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"animationend",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"animationend",DataType>("animationend", key, listener, active)
-    }
-    
-    onAnimationIteration<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"animationiteration",DataType>) => void, active?: ActiveOrPassive): void
-    onAnimationIteration<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"animationiteration",DataType>) => void, active?: ActiveOrPassive): void
-    onAnimationIteration<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"animationiteration",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"animationiteration",DataType>("animationiteration", key, listener, active)
-    }
-    
-    onAnimationStart<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"animationstart",DataType>) => void, active?: ActiveOrPassive): void
-    onAnimationStart<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"animationstart",DataType>) => void, active?: ActiveOrPassive): void
-    onAnimationStart<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"animationstart",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"animationstart",DataType>("animationstart", key, listener, active)
-    }
-    
-    onAuxClick<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"auxclick",DataType>) => void, active?: ActiveOrPassive): void
-    onAuxClick<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"auxclick",DataType>) => void, active?: ActiveOrPassive): void
-    onAuxClick<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"auxclick",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"auxclick",DataType>("auxclick", key, listener, active)
-    }
-    
-    onBeforeInput<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"beforeinput",DataType>) => void, active?: ActiveOrPassive): void
-    onBeforeInput<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"beforeinput",DataType>) => void, active?: ActiveOrPassive): void
-    onBeforeInput<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"beforeinput",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"beforeinput",DataType>("beforeinput", key, listener, active)
-    }
-    
-    onBlur<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"blur",DataType>) => void, active?: ActiveOrPassive): void
-    onBlur<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"blur",DataType>) => void, active?: ActiveOrPassive): void
-    onBlur<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"blur",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"blur",DataType>("blur", key, listener, active)
-    }
-    
-    onCanPlay<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"canplay",DataType>) => void, active?: ActiveOrPassive): void
-    onCanPlay<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"canplay",DataType>) => void, active?: ActiveOrPassive): void
-    onCanPlay<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"canplay",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"canplay",DataType>("canplay", key, listener, active)
-    }
-    
-    onCanPlayThrough<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"canplaythrough",DataType>) => void, active?: ActiveOrPassive): void
-    onCanPlayThrough<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"canplaythrough",DataType>) => void, active?: ActiveOrPassive): void
-    onCanPlayThrough<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"canplaythrough",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"canplaythrough",DataType>("canplaythrough", key, listener, active)
-    }
-    
-    onChange<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"change",DataType>) => void, active?: ActiveOrPassive): void
-    onChange<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"change",DataType>) => void, active?: ActiveOrPassive): void
-    onChange<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"change",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"change",DataType>("change", key, listener, active)
-    }
-    
-    onClick<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"click",DataType>) => void, active?: ActiveOrPassive): void
-    onClick<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"click",DataType>) => void, active?: ActiveOrPassive): void
-    onClick<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"click",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"click",DataType>("click", key, listener, active)
-    }
-    
-    onClose<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"close",DataType>) => void, active?: ActiveOrPassive): void
-    onClose<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"close",DataType>) => void, active?: ActiveOrPassive): void
-    onClose<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"close",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"close",DataType>("close", key, listener, active)
-    }
-    
-    onCompositionEnd<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"compositionend",DataType>) => void, active?: ActiveOrPassive): void
-    onCompositionEnd<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"compositionend",DataType>) => void, active?: ActiveOrPassive): void
-    onCompositionEnd<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"compositionend",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"compositionend",DataType>("compositionend", key, listener, active)
-    }
-    
-    onCompositionStart<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"compositionstart",DataType>) => void, active?: ActiveOrPassive): void
-    onCompositionStart<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"compositionstart",DataType>) => void, active?: ActiveOrPassive): void
-    onCompositionStart<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"compositionstart",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"compositionstart",DataType>("compositionstart", key, listener, active)
-    }
-    
-    onCompositionUpdate<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"compositionupdate",DataType>) => void, active?: ActiveOrPassive): void
-    onCompositionUpdate<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"compositionupdate",DataType>) => void, active?: ActiveOrPassive): void
-    onCompositionUpdate<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"compositionupdate",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"compositionupdate",DataType>("compositionupdate", key, listener, active)
-    }
-    
-    onContextMenu<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"contextmenu",DataType>) => void, active?: ActiveOrPassive): void
-    onContextMenu<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"contextmenu",DataType>) => void, active?: ActiveOrPassive): void
-    onContextMenu<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"contextmenu",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"contextmenu",DataType>("contextmenu", key, listener, active)
-    }
-    
-    onCopy<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"copy",DataType>) => void, active?: ActiveOrPassive): void
-    onCopy<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"copy",DataType>) => void, active?: ActiveOrPassive): void
-    onCopy<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"copy",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"copy",DataType>("copy", key, listener, active)
-    }
-    
-    onCueChange<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"cuechange",DataType>) => void, active?: ActiveOrPassive): void
-    onCueChange<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"cuechange",DataType>) => void, active?: ActiveOrPassive): void
-    onCueChange<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"cuechange",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"cuechange",DataType>("cuechange", key, listener, active)
-    }
-    
-    onCut<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"cut",DataType>) => void, active?: ActiveOrPassive): void
-    onCut<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"cut",DataType>) => void, active?: ActiveOrPassive): void
-    onCut<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"cut",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"cut",DataType>("cut", key, listener, active)
-    }
-    
-    onDblClick<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"dblclick",DataType>) => void, active?: ActiveOrPassive): void
-    onDblClick<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"dblclick",DataType>) => void, active?: ActiveOrPassive): void
-    onDblClick<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"dblclick",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"dblclick",DataType>("dblclick", key, listener, active)
-    }
-    
-    onDrag<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"drag",DataType>) => void, active?: ActiveOrPassive): void
-    onDrag<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"drag",DataType>) => void, active?: ActiveOrPassive): void
-    onDrag<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"drag",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"drag",DataType>("drag", key, listener, active)
-    }
-    
-    onDragEnd<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"dragend",DataType>) => void, active?: ActiveOrPassive): void
-    onDragEnd<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"dragend",DataType>) => void, active?: ActiveOrPassive): void
-    onDragEnd<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"dragend",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"dragend",DataType>("dragend", key, listener, active)
-    }
-    
-    onDragEnter<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"dragenter",DataType>) => void, active?: ActiveOrPassive): void
-    onDragEnter<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"dragenter",DataType>) => void, active?: ActiveOrPassive): void
-    onDragEnter<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"dragenter",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"dragenter",DataType>("dragenter", key, listener, active)
-    }
-    
-    onDragLeave<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"dragleave",DataType>) => void, active?: ActiveOrPassive): void
-    onDragLeave<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"dragleave",DataType>) => void, active?: ActiveOrPassive): void
-    onDragLeave<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"dragleave",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"dragleave",DataType>("dragleave", key, listener, active)
-    }
-    
-    onDragOver<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"dragover",DataType>) => void, active?: ActiveOrPassive): void
-    onDragOver<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"dragover",DataType>) => void, active?: ActiveOrPassive): void
-    onDragOver<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"dragover",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"dragover",DataType>("dragover", key, listener, active)
-    }
-    
-    onDragStart<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"dragstart",DataType>) => void, active?: ActiveOrPassive): void
-    onDragStart<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"dragstart",DataType>) => void, active?: ActiveOrPassive): void
-    onDragStart<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"dragstart",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"dragstart",DataType>("dragstart", key, listener, active)
-    }
-    
-    onDrop<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"drop",DataType>) => void, active?: ActiveOrPassive): void
-    onDrop<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"drop",DataType>) => void, active?: ActiveOrPassive): void
-    onDrop<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"drop",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"drop",DataType>("drop", key, listener, active)
-    }
-    
-    onDurationChange<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"durationchange",DataType>) => void, active?: ActiveOrPassive): void
-    onDurationChange<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"durationchange",DataType>) => void, active?: ActiveOrPassive): void
-    onDurationChange<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"durationchange",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"durationchange",DataType>("durationchange", key, listener, active)
-    }
-    
-    onEmptied<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"emptied",DataType>) => void, active?: ActiveOrPassive): void
-    onEmptied<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"emptied",DataType>) => void, active?: ActiveOrPassive): void
-    onEmptied<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"emptied",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"emptied",DataType>("emptied", key, listener, active)
-    }
-    
-    onEnded<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"ended",DataType>) => void, active?: ActiveOrPassive): void
-    onEnded<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"ended",DataType>) => void, active?: ActiveOrPassive): void
-    onEnded<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"ended",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"ended",DataType>("ended", key, listener, active)
-    }
-    
-    onError<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"error",DataType>) => void, active?: ActiveOrPassive): void
-    onError<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"error",DataType>) => void, active?: ActiveOrPassive): void
-    onError<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"error",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"error",DataType>("error", key, listener, active)
-    }
-    
-    onFocus<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"focus",DataType>) => void, active?: ActiveOrPassive): void
-    onFocus<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"focus",DataType>) => void, active?: ActiveOrPassive): void
-    onFocus<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"focus",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"focus",DataType>("focus", key, listener, active)
-    }
-    
-    onFocusIn<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"focusin",DataType>) => void, active?: ActiveOrPassive): void
-    onFocusIn<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"focusin",DataType>) => void, active?: ActiveOrPassive): void
-    onFocusIn<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"focusin",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"focusin",DataType>("focusin", key, listener, active)
-    }
-    
-    onFocusOut<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"focusout",DataType>) => void, active?: ActiveOrPassive): void
-    onFocusOut<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"focusout",DataType>) => void, active?: ActiveOrPassive): void
-    onFocusOut<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"focusout",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"focusout",DataType>("focusout", key, listener, active)
-    }
-    
-    onFormData<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"formdata",DataType>) => void, active?: ActiveOrPassive): void
-    onFormData<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"formdata",DataType>) => void, active?: ActiveOrPassive): void
-    onFormData<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"formdata",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"formdata",DataType>("formdata", key, listener, active)
-    }
-    
-    onFullscreenChange<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"fullscreenchange",DataType>) => void, active?: ActiveOrPassive): void
-    onFullscreenChange<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"fullscreenchange",DataType>) => void, active?: ActiveOrPassive): void
-    onFullscreenChange<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"fullscreenchange",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"fullscreenchange",DataType>("fullscreenchange", key, listener, active)
-    }
-    
-    onFullscreenError<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"fullscreenerror",DataType>) => void, active?: ActiveOrPassive): void
-    onFullscreenError<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"fullscreenerror",DataType>) => void, active?: ActiveOrPassive): void
-    onFullscreenError<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"fullscreenerror",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"fullscreenerror",DataType>("fullscreenerror", key, listener, active)
-    }
-    
-    onGotPointerCapture<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"gotpointercapture",DataType>) => void, active?: ActiveOrPassive): void
-    onGotPointerCapture<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"gotpointercapture",DataType>) => void, active?: ActiveOrPassive): void
-    onGotPointerCapture<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"gotpointercapture",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"gotpointercapture",DataType>("gotpointercapture", key, listener, active)
-    }
-    
-    onInput<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"input",DataType>) => void, active?: ActiveOrPassive): void
-    onInput<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"input",DataType>) => void, active?: ActiveOrPassive): void
-    onInput<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"input",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"input",DataType>("input", key, listener, active)
-    }
-    
-    onInvalid<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"invalid",DataType>) => void, active?: ActiveOrPassive): void
-    onInvalid<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"invalid",DataType>) => void, active?: ActiveOrPassive): void
-    onInvalid<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"invalid",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"invalid",DataType>("invalid", key, listener, active)
-    }
-    
-    onKeyDown<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"keydown",DataType>) => void, active?: ActiveOrPassive): void
-    onKeyDown<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"keydown",DataType>) => void, active?: ActiveOrPassive): void
-    onKeyDown<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"keydown",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"keydown",DataType>("keydown", key, listener, active)
-    }
-    
-    onKeyUp<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"keyup",DataType>) => void, active?: ActiveOrPassive): void
-    onKeyUp<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"keyup",DataType>) => void, active?: ActiveOrPassive): void
-    onKeyUp<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"keyup",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"keyup",DataType>("keyup", key, listener, active)
-    }
-    
-    onLoad<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"load",DataType>) => void, active?: ActiveOrPassive): void
-    onLoad<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"load",DataType>) => void, active?: ActiveOrPassive): void
-    onLoad<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"load",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"load",DataType>("load", key, listener, active)
-    }
-    
-    onLoadedData<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"loadeddata",DataType>) => void, active?: ActiveOrPassive): void
-    onLoadedData<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"loadeddata",DataType>) => void, active?: ActiveOrPassive): void
-    onLoadedData<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"loadeddata",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"loadeddata",DataType>("loadeddata", key, listener, active)
-    }
-    
-    onLoadedMetadata<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"loadedmetadata",DataType>) => void, active?: ActiveOrPassive): void
-    onLoadedMetadata<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"loadedmetadata",DataType>) => void, active?: ActiveOrPassive): void
-    onLoadedMetadata<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"loadedmetadata",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"loadedmetadata",DataType>("loadedmetadata", key, listener, active)
-    }
-    
-    onLoadStart<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"loadstart",DataType>) => void, active?: ActiveOrPassive): void
-    onLoadStart<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"loadstart",DataType>) => void, active?: ActiveOrPassive): void
-    onLoadStart<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"loadstart",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"loadstart",DataType>("loadstart", key, listener, active)
-    }
-    
-    onLostPointerCapture<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"lostpointercapture",DataType>) => void, active?: ActiveOrPassive): void
-    onLostPointerCapture<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"lostpointercapture",DataType>) => void, active?: ActiveOrPassive): void
-    onLostPointerCapture<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"lostpointercapture",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"lostpointercapture",DataType>("lostpointercapture", key, listener, active)
-    }
-    
-    onMouseDown<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"mousedown",DataType>) => void, active?: ActiveOrPassive): void
-    onMouseDown<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"mousedown",DataType>) => void, active?: ActiveOrPassive): void
-    onMouseDown<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"mousedown",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"mousedown",DataType>("mousedown", key, listener, active)
-    }
-    
-    onMouseEnter<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"mouseenter",DataType>) => void, active?: ActiveOrPassive): void
-    onMouseEnter<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseenter",DataType>) => void, active?: ActiveOrPassive): void
-    onMouseEnter<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseenter",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"mouseenter",DataType>("mouseenter", key, listener, active)
-    }
-    
-    onMouseLeave<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"mouseleave",DataType>) => void, active?: ActiveOrPassive): void
-    onMouseLeave<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseleave",DataType>) => void, active?: ActiveOrPassive): void
-    onMouseLeave<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseleave",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"mouseleave",DataType>("mouseleave", key, listener, active)
-    }
-    
-    onMouseMove<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"mousemove",DataType>) => void, active?: ActiveOrPassive): void
-    onMouseMove<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"mousemove",DataType>) => void, active?: ActiveOrPassive): void
-    onMouseMove<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"mousemove",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"mousemove",DataType>("mousemove", key, listener, active)
-    }
-    
-    onMouseOut<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"mouseout",DataType>) => void, active?: ActiveOrPassive): void
-    onMouseOut<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseout",DataType>) => void, active?: ActiveOrPassive): void
-    onMouseOut<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseout",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"mouseout",DataType>("mouseout", key, listener, active)
-    }
-    
-    onMouseOver<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"mouseover",DataType>) => void, active?: ActiveOrPassive): void
-    onMouseOver<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseover",DataType>) => void, active?: ActiveOrPassive): void
-    onMouseOver<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseover",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"mouseover",DataType>("mouseover", key, listener, active)
-    }
-    
-    onMouseUp<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"mouseup",DataType>) => void, active?: ActiveOrPassive): void
-    onMouseUp<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseup",DataType>) => void, active?: ActiveOrPassive): void
-    onMouseUp<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseup",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"mouseup",DataType>("mouseup", key, listener, active)
-    }
-    
-    onPaste<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"paste",DataType>) => void, active?: ActiveOrPassive): void
-    onPaste<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"paste",DataType>) => void, active?: ActiveOrPassive): void
-    onPaste<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"paste",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"paste",DataType>("paste", key, listener, active)
-    }
-    
-    onPause<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"pause",DataType>) => void, active?: ActiveOrPassive): void
-    onPause<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pause",DataType>) => void, active?: ActiveOrPassive): void
-    onPause<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pause",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"pause",DataType>("pause", key, listener, active)
-    }
-    
-    onPlay<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"play",DataType>) => void, active?: ActiveOrPassive): void
-    onPlay<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"play",DataType>) => void, active?: ActiveOrPassive): void
-    onPlay<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"play",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"play",DataType>("play", key, listener, active)
-    }
-    
-    onPlaying<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"playing",DataType>) => void, active?: ActiveOrPassive): void
-    onPlaying<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"playing",DataType>) => void, active?: ActiveOrPassive): void
-    onPlaying<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"playing",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"playing",DataType>("playing", key, listener, active)
-    }
-    
-    onPointerCancel<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"pointercancel",DataType>) => void, active?: ActiveOrPassive): void
-    onPointerCancel<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointercancel",DataType>) => void, active?: ActiveOrPassive): void
-    onPointerCancel<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointercancel",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"pointercancel",DataType>("pointercancel", key, listener, active)
-    }
-    
-    onPointerDown<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"pointerdown",DataType>) => void, active?: ActiveOrPassive): void
-    onPointerDown<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerdown",DataType>) => void, active?: ActiveOrPassive): void
-    onPointerDown<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerdown",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"pointerdown",DataType>("pointerdown", key, listener, active)
-    }
-    
-    onPointerEnter<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"pointerenter",DataType>) => void, active?: ActiveOrPassive): void
-    onPointerEnter<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerenter",DataType>) => void, active?: ActiveOrPassive): void
-    onPointerEnter<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerenter",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"pointerenter",DataType>("pointerenter", key, listener, active)
-    }
-    
-    onPointerLeave<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"pointerleave",DataType>) => void, active?: ActiveOrPassive): void
-    onPointerLeave<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerleave",DataType>) => void, active?: ActiveOrPassive): void
-    onPointerLeave<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerleave",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"pointerleave",DataType>("pointerleave", key, listener, active)
-    }
-    
-    onPointerMove<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"pointermove",DataType>) => void, active?: ActiveOrPassive): void
-    onPointerMove<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointermove",DataType>) => void, active?: ActiveOrPassive): void
-    onPointerMove<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointermove",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"pointermove",DataType>("pointermove", key, listener, active)
-    }
-    
-    onPointerOut<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"pointerout",DataType>) => void, active?: ActiveOrPassive): void
-    onPointerOut<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerout",DataType>) => void, active?: ActiveOrPassive): void
-    onPointerOut<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerout",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"pointerout",DataType>("pointerout", key, listener, active)
-    }
-    
-    onPointerOver<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"pointerover",DataType>) => void, active?: ActiveOrPassive): void
-    onPointerOver<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerover",DataType>) => void, active?: ActiveOrPassive): void
-    onPointerOver<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerover",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"pointerover",DataType>("pointerover", key, listener, active)
-    }
-    
-    onPointerUp<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"pointerup",DataType>) => void, active?: ActiveOrPassive): void
-    onPointerUp<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerup",DataType>) => void, active?: ActiveOrPassive): void
-    onPointerUp<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerup",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"pointerup",DataType>("pointerup", key, listener, active)
-    }
-    
-    onProgress<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"progress",DataType>) => void, active?: ActiveOrPassive): void
-    onProgress<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"progress",DataType>) => void, active?: ActiveOrPassive): void
-    onProgress<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"progress",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"progress",DataType>("progress", key, listener, active)
-    }
-    
-    onRateChange<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"ratechange",DataType>) => void, active?: ActiveOrPassive): void
-    onRateChange<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"ratechange",DataType>) => void, active?: ActiveOrPassive): void
-    onRateChange<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"ratechange",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"ratechange",DataType>("ratechange", key, listener, active)
-    }
-    
-    onReset<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"reset",DataType>) => void, active?: ActiveOrPassive): void
-    onReset<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"reset",DataType>) => void, active?: ActiveOrPassive): void
-    onReset<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"reset",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"reset",DataType>("reset", key, listener, active)
-    }
-    
-    onResize<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"resize",DataType>) => void, active?: ActiveOrPassive): void
-    onResize<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"resize",DataType>) => void, active?: ActiveOrPassive): void
-    onResize<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"resize",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"resize",DataType>("resize", key, listener, active)
-    }
-    
-    onScroll<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"scroll",DataType>) => void, active?: ActiveOrPassive): void
-    onScroll<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"scroll",DataType>) => void, active?: ActiveOrPassive): void
-    onScroll<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"scroll",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"scroll",DataType>("scroll", key, listener, active)
-    }
-    
-    onSecurityPolicyViolation<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"securitypolicyviolation",DataType>) => void, active?: ActiveOrPassive): void
-    onSecurityPolicyViolation<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"securitypolicyviolation",DataType>) => void, active?: ActiveOrPassive): void
-    onSecurityPolicyViolation<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"securitypolicyviolation",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"securitypolicyviolation",DataType>("securitypolicyviolation", key, listener, active)
-    }
-    
-    onSeeked<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"seeked",DataType>) => void, active?: ActiveOrPassive): void
-    onSeeked<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"seeked",DataType>) => void, active?: ActiveOrPassive): void
-    onSeeked<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"seeked",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"seeked",DataType>("seeked", key, listener, active)
-    }
-    
-    onSeeking<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"seeking",DataType>) => void, active?: ActiveOrPassive): void
-    onSeeking<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"seeking",DataType>) => void, active?: ActiveOrPassive): void
-    onSeeking<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"seeking",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"seeking",DataType>("seeking", key, listener, active)
-    }
-    
-    onSelect<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"select",DataType>) => void, active?: ActiveOrPassive): void
-    onSelect<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"select",DataType>) => void, active?: ActiveOrPassive): void
-    onSelect<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"select",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"select",DataType>("select", key, listener, active)
-    }
-    
-    onSelectionChange<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"selectionchange",DataType>) => void, active?: ActiveOrPassive): void
-    onSelectionChange<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"selectionchange",DataType>) => void, active?: ActiveOrPassive): void
-    onSelectionChange<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"selectionchange",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"selectionchange",DataType>("selectionchange", key, listener, active)
-    }
-    
-    onSelectStart<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"selectstart",DataType>) => void, active?: ActiveOrPassive): void
-    onSelectStart<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"selectstart",DataType>) => void, active?: ActiveOrPassive): void
-    onSelectStart<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"selectstart",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"selectstart",DataType>("selectstart", key, listener, active)
-    }
-    
-    onStalled<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"stalled",DataType>) => void, active?: ActiveOrPassive): void
-    onStalled<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"stalled",DataType>) => void, active?: ActiveOrPassive): void
-    onStalled<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"stalled",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"stalled",DataType>("stalled", key, listener, active)
-    }
-    
-    onSubmit<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"submit",DataType>) => void, active?: ActiveOrPassive): void
-    onSubmit<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"submit",DataType>) => void, active?: ActiveOrPassive): void
-    onSubmit<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"submit",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"submit",DataType>("submit", key, listener, active)
-    }
-    
-    onSuspend<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"suspend",DataType>) => void, active?: ActiveOrPassive): void
-    onSuspend<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"suspend",DataType>) => void, active?: ActiveOrPassive): void
-    onSuspend<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"suspend",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"suspend",DataType>("suspend", key, listener, active)
-    }
-    
-    onTimeUpdate<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"timeupdate",DataType>) => void, active?: ActiveOrPassive): void
-    onTimeUpdate<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"timeupdate",DataType>) => void, active?: ActiveOrPassive): void
-    onTimeUpdate<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"timeupdate",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"timeupdate",DataType>("timeupdate", key, listener, active)
-    }
-    
-    onToggle<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"toggle",DataType>) => void, active?: ActiveOrPassive): void
-    onToggle<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"toggle",DataType>) => void, active?: ActiveOrPassive): void
-    onToggle<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"toggle",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"toggle",DataType>("toggle", key, listener, active)
-    }
-    
-    onTouchCancel<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"touchcancel",DataType>) => void, active?: ActiveOrPassive): void
-    onTouchCancel<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"touchcancel",DataType>) => void, active?: ActiveOrPassive): void
-    onTouchCancel<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"touchcancel",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"touchcancel",DataType>("touchcancel", key, listener, active)
-    }
-    
-    onTouchEnd<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"touchend",DataType>) => void, active?: ActiveOrPassive): void
-    onTouchEnd<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"touchend",DataType>) => void, active?: ActiveOrPassive): void
-    onTouchEnd<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"touchend",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"touchend",DataType>("touchend", key, listener, active)
-    }
-    
-    onTouchMove<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"touchmove",DataType>) => void, active?: ActiveOrPassive): void
-    onTouchMove<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"touchmove",DataType>) => void, active?: ActiveOrPassive): void
-    onTouchMove<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"touchmove",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"touchmove",DataType>("touchmove", key, listener, active)
-    }
-    
-    onTouchStart<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"touchstart",DataType>) => void, active?: ActiveOrPassive): void
-    onTouchStart<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"touchstart",DataType>) => void, active?: ActiveOrPassive): void
-    onTouchStart<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"touchstart",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"touchstart",DataType>("touchstart", key, listener, active)
-    }
-    
-    onTransitionCancel<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"transitioncancel",DataType>) => void, active?: ActiveOrPassive): void
-    onTransitionCancel<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"transitioncancel",DataType>) => void, active?: ActiveOrPassive): void
-    onTransitionCancel<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"transitioncancel",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"transitioncancel",DataType>("transitioncancel", key, listener, active)
-    }
-    
-    onTransitionEnd<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"transitionend",DataType>) => void, active?: ActiveOrPassive): void
-    onTransitionEnd<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"transitionend",DataType>) => void, active?: ActiveOrPassive): void
-    onTransitionEnd<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"transitionend",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"transitionend",DataType>("transitionend", key, listener, active)
-    }
-    
-    onTransitionRun<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"transitionrun",DataType>) => void, active?: ActiveOrPassive): void
-    onTransitionRun<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"transitionrun",DataType>) => void, active?: ActiveOrPassive): void
-    onTransitionRun<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"transitionrun",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"transitionrun",DataType>("transitionrun", key, listener, active)
-    }
-    
-    onTransitionStart<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"transitionstart",DataType>) => void, active?: ActiveOrPassive): void
-    onTransitionStart<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"transitionstart",DataType>) => void, active?: ActiveOrPassive): void
-    onTransitionStart<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"transitionstart",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"transitionstart",DataType>("transitionstart", key, listener, active)
-    }
-    
-    onVolumeChange<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"volumechange",DataType>) => void, active?: ActiveOrPassive): void
-    onVolumeChange<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"volumechange",DataType>) => void, active?: ActiveOrPassive): void
-    onVolumeChange<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"volumechange",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"volumechange",DataType>("volumechange", key, listener, active)
-    }
-    
-    onWaiting<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"waiting",DataType>) => void, active?: ActiveOrPassive): void
-    onWaiting<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"waiting",DataType>) => void, active?: ActiveOrPassive): void
-    onWaiting<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"waiting",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"waiting",DataType>("waiting", key, listener, active)
-    }
-    
-    onWebkitAnimationEnd<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"webkitanimationend",DataType>) => void, active?: ActiveOrPassive): void
-    onWebkitAnimationEnd<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"webkitanimationend",DataType>) => void, active?: ActiveOrPassive): void
-    onWebkitAnimationEnd<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"webkitanimationend",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"webkitanimationend",DataType>("webkitanimationend", key, listener, active)
-    }
-    
-    onWebkitAnimationIteration<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"webkitanimationiteration",DataType>) => void, active?: ActiveOrPassive): void
-    onWebkitAnimationIteration<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"webkitanimationiteration",DataType>) => void, active?: ActiveOrPassive): void
-    onWebkitAnimationIteration<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"webkitanimationiteration",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"webkitanimationiteration",DataType>("webkitanimationiteration", key, listener, active)
-    }
-    
-    onWebkitAnimationStart<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"webkitanimationstart",DataType>) => void, active?: ActiveOrPassive): void
-    onWebkitAnimationStart<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"webkitanimationstart",DataType>) => void, active?: ActiveOrPassive): void
-    onWebkitAnimationStart<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"webkitanimationstart",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"webkitanimationstart",DataType>("webkitanimationstart", key, listener, active)
-    }
-    
-    onWebkitTransitionEnd<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"webkittransitionend",DataType>) => void, active?: ActiveOrPassive): void
-    onWebkitTransitionEnd<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"webkittransitionend",DataType>) => void, active?: ActiveOrPassive): void
-    onWebkitTransitionEnd<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"webkittransitionend",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"webkittransitionend",DataType>("webkittransitionend", key, listener, active)
-    }
-    
-    onWheel<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"wheel",DataType>) => void, active?: ActiveOrPassive): void
-    onWheel<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"wheel",DataType>) => void, active?: ActiveOrPassive): void
-    onWheel<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"wheel",DataType>) => void, active?: ActiveOrPassive): void {
-        this.listen<"wheel",DataType>("wheel", key, listener, active)
-    }
-    
-//// End Listen Methods
-
 
     /// Mounting
     
-    // The DOM element to which which this part has been explicitly mounted.
-    // (Will be undefined for all except root parts)
+    /**
+     * The DOM element to which which this part has been explicitly mounted.
+     * (Will be undefined for all except root parts)
+     */
     private _mountElement?: HTMLElement
+    
+    /**
+     * The DOM element to which this part was last rendered.
+     */
+    private _attachedElement?: HTMLElement
 
     /**
      * @returns Either this part's explicit mount element, or the element found by its id.
@@ -916,7 +366,7 @@ export abstract class Part<StateType> {
      * - Child elements that have since been orphaned by their parents
     */
     get element(): HTMLElement | null {
-        return this._mountElement || document.getElementById(this.id) || null
+        return this._attachedElement || this._mountElement || null
     }
 
     /** 
@@ -940,7 +390,7 @@ export abstract class Part<StateType> {
         else {
             this._mountElement = document.getElementById(elem)!
         }
-        this.requestFrame()
+        this._requestFrame()
     }
 
     /** 
@@ -960,7 +410,7 @@ export abstract class Part<StateType> {
     /// Rendering
 
     renderInTag(container: HtmlParentTag) {
-        this._dirty = false
+        this._renderState = "clean"
         container.div({id: this.id}, parent => {
             this.render(parent)
         })
@@ -969,59 +419,664 @@ export abstract class Part<StateType> {
     abstract render(parent: PartTag): any
 
     /**
-     * Gets called every time the part is rendered.
-     * @param _elem the actual DOM element containing the part
-     */
-    afterRender(_elem: HTMLElement) {
-
-    }
-
-    /**
-     * Recursively calls `afterRender()` on this part and all of its children.
-     */
-    _afterRender() {
-        const elem = this.element!
-        this.afterRender(elem)
-        this.eachChild(child => {
-            child._afterRender()
-        })
-    }
-
-
-    /// Updating
-
-    /**
      * Recursively crawls the children to see if any is dirty, then renders their entire branch.
+     * If they're only stale, calls the update() method.
      */
-    update() {
-        const elem = this.element
-        if (!elem) {
-            return
-        }
+    private _markClean() {
         this._init()
-        if (this._dirty) {
-            // stop the update chain, re-render the whole tree from here on down
+        if (this._renderState == "dirty") {
+            // stop the chain, re-render the whole tree from here on down
             log.debugTime('Update', () => {
                 this._init()
                 let parent = new DivTag("")
                 this.render(parent)
                 let output = Array<string>()
                 parent.buildInner(output)
-                elem.innerHTML = output.join('')
-                this._afterRender()
-                this.eachChild(child => {
-                    child.needsEventListeners()
-                })
+                const elem = this.element
+                if (elem) {
+                    elem.innerHTML = output.join('')
+                }
+                else {
+                    throw(`Trying to render a part with no element!`)
+                }
+                this._childrenNeedEventListeners()
+                this._update()
             })
-            this._dirty = false
-            this.attachEventListeners()
+        }
+        else if (this._renderState == "stale") {
+            this._update()
         }
         else {
-            // keep propagating through the tree to see if anyone else needs to be rendered
+            // keep propagating through the tree to see if anyone else needs to be rendered or updated
             this.eachChild(child => {
-                child.update()
+                child._markClean()
             })
         }
     }
+
+
+    /// Updating
+
+    /**
+     * Gets called every time the part is rendered.
+     * @param _elem the actual DOM element containing the part
+     */
+    update(_elem: HTMLElement) {
+
+    }
+
+    /**
+     * Recursively calls `update()` on this part and all of its children.
+     */
+    private _update() {
+        let elem = this.element
+        if (!elem) {
+            elem = document.getElementById(this.id)
+            this._attachedElement = elem!
+        }
+        if (!elem) {
+            throw(`Trying to update a part with no element!`)
+        }
+        this.update(elem)
+        this._renderState = "clean"
+        this.eachChild(child => {
+            child._update()
+        })
+    }
+
+
+
+    //// Begin Listen Methods
+
+    onAbort<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"abort",DataType>) => void, options?: messages.ListenOptions): void
+    onAbort<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"abort",DataType>) => void, options?: messages.ListenOptions): void
+    onAbort<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"abort",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"abort",DataType>("abort", key, listener, options)
+    }
+    
+    onAnimationCancel<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"animationcancel",DataType>) => void, options?: messages.ListenOptions): void
+    onAnimationCancel<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"animationcancel",DataType>) => void, options?: messages.ListenOptions): void
+    onAnimationCancel<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"animationcancel",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"animationcancel",DataType>("animationcancel", key, listener, options)
+    }
+    
+    onAnimationEnd<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"animationend",DataType>) => void, options?: messages.ListenOptions): void
+    onAnimationEnd<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"animationend",DataType>) => void, options?: messages.ListenOptions): void
+    onAnimationEnd<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"animationend",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"animationend",DataType>("animationend", key, listener, options)
+    }
+    
+    onAnimationIteration<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"animationiteration",DataType>) => void, options?: messages.ListenOptions): void
+    onAnimationIteration<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"animationiteration",DataType>) => void, options?: messages.ListenOptions): void
+    onAnimationIteration<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"animationiteration",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"animationiteration",DataType>("animationiteration", key, listener, options)
+    }
+    
+    onAnimationStart<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"animationstart",DataType>) => void, options?: messages.ListenOptions): void
+    onAnimationStart<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"animationstart",DataType>) => void, options?: messages.ListenOptions): void
+    onAnimationStart<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"animationstart",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"animationstart",DataType>("animationstart", key, listener, options)
+    }
+    
+    onAuxClick<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"auxclick",DataType>) => void, options?: messages.ListenOptions): void
+    onAuxClick<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"auxclick",DataType>) => void, options?: messages.ListenOptions): void
+    onAuxClick<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"auxclick",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"auxclick",DataType>("auxclick", key, listener, options)
+    }
+    
+    onBeforeInput<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"beforeinput",DataType>) => void, options?: messages.ListenOptions): void
+    onBeforeInput<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"beforeinput",DataType>) => void, options?: messages.ListenOptions): void
+    onBeforeInput<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"beforeinput",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"beforeinput",DataType>("beforeinput", key, listener, options)
+    }
+    
+    onBlur<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"blur",DataType>) => void, options?: messages.ListenOptions): void
+    onBlur<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"blur",DataType>) => void, options?: messages.ListenOptions): void
+    onBlur<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"blur",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"blur",DataType>("blur", key, listener, options)
+    }
+    
+    onCanPlay<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"canplay",DataType>) => void, options?: messages.ListenOptions): void
+    onCanPlay<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"canplay",DataType>) => void, options?: messages.ListenOptions): void
+    onCanPlay<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"canplay",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"canplay",DataType>("canplay", key, listener, options)
+    }
+    
+    onCanPlayThrough<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"canplaythrough",DataType>) => void, options?: messages.ListenOptions): void
+    onCanPlayThrough<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"canplaythrough",DataType>) => void, options?: messages.ListenOptions): void
+    onCanPlayThrough<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"canplaythrough",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"canplaythrough",DataType>("canplaythrough", key, listener, options)
+    }
+    
+    onChange<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"change",DataType>) => void, options?: messages.ListenOptions): void
+    onChange<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"change",DataType>) => void, options?: messages.ListenOptions): void
+    onChange<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"change",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"change",DataType>("change", key, listener, options)
+    }
+    
+    onClick<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"click",DataType>) => void, options?: messages.ListenOptions): void
+    onClick<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"click",DataType>) => void, options?: messages.ListenOptions): void
+    onClick<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"click",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"click",DataType>("click", key, listener, options)
+    }
+    
+    onClose<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"close",DataType>) => void, options?: messages.ListenOptions): void
+    onClose<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"close",DataType>) => void, options?: messages.ListenOptions): void
+    onClose<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"close",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"close",DataType>("close", key, listener, options)
+    }
+    
+    onCompositionEnd<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"compositionend",DataType>) => void, options?: messages.ListenOptions): void
+    onCompositionEnd<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"compositionend",DataType>) => void, options?: messages.ListenOptions): void
+    onCompositionEnd<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"compositionend",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"compositionend",DataType>("compositionend", key, listener, options)
+    }
+    
+    onCompositionStart<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"compositionstart",DataType>) => void, options?: messages.ListenOptions): void
+    onCompositionStart<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"compositionstart",DataType>) => void, options?: messages.ListenOptions): void
+    onCompositionStart<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"compositionstart",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"compositionstart",DataType>("compositionstart", key, listener, options)
+    }
+    
+    onCompositionUpdate<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"compositionupdate",DataType>) => void, options?: messages.ListenOptions): void
+    onCompositionUpdate<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"compositionupdate",DataType>) => void, options?: messages.ListenOptions): void
+    onCompositionUpdate<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"compositionupdate",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"compositionupdate",DataType>("compositionupdate", key, listener, options)
+    }
+    
+    onContextMenu<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"contextmenu",DataType>) => void, options?: messages.ListenOptions): void
+    onContextMenu<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"contextmenu",DataType>) => void, options?: messages.ListenOptions): void
+    onContextMenu<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"contextmenu",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"contextmenu",DataType>("contextmenu", key, listener, options)
+    }
+    
+    onCopy<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"copy",DataType>) => void, options?: messages.ListenOptions): void
+    onCopy<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"copy",DataType>) => void, options?: messages.ListenOptions): void
+    onCopy<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"copy",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"copy",DataType>("copy", key, listener, options)
+    }
+    
+    onCueChange<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"cuechange",DataType>) => void, options?: messages.ListenOptions): void
+    onCueChange<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"cuechange",DataType>) => void, options?: messages.ListenOptions): void
+    onCueChange<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"cuechange",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"cuechange",DataType>("cuechange", key, listener, options)
+    }
+    
+    onCut<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"cut",DataType>) => void, options?: messages.ListenOptions): void
+    onCut<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"cut",DataType>) => void, options?: messages.ListenOptions): void
+    onCut<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"cut",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"cut",DataType>("cut", key, listener, options)
+    }
+    
+    onDblClick<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"dblclick",DataType>) => void, options?: messages.ListenOptions): void
+    onDblClick<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"dblclick",DataType>) => void, options?: messages.ListenOptions): void
+    onDblClick<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"dblclick",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"dblclick",DataType>("dblclick", key, listener, options)
+    }
+    
+    onDrag<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"drag",DataType>) => void, options?: messages.ListenOptions): void
+    onDrag<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"drag",DataType>) => void, options?: messages.ListenOptions): void
+    onDrag<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"drag",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"drag",DataType>("drag", key, listener, options)
+    }
+    
+    onDragEnd<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"dragend",DataType>) => void, options?: messages.ListenOptions): void
+    onDragEnd<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"dragend",DataType>) => void, options?: messages.ListenOptions): void
+    onDragEnd<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"dragend",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"dragend",DataType>("dragend", key, listener, options)
+    }
+    
+    onDragEnter<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"dragenter",DataType>) => void, options?: messages.ListenOptions): void
+    onDragEnter<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"dragenter",DataType>) => void, options?: messages.ListenOptions): void
+    onDragEnter<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"dragenter",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"dragenter",DataType>("dragenter", key, listener, options)
+    }
+    
+    onDragLeave<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"dragleave",DataType>) => void, options?: messages.ListenOptions): void
+    onDragLeave<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"dragleave",DataType>) => void, options?: messages.ListenOptions): void
+    onDragLeave<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"dragleave",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"dragleave",DataType>("dragleave", key, listener, options)
+    }
+    
+    onDragOver<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"dragover",DataType>) => void, options?: messages.ListenOptions): void
+    onDragOver<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"dragover",DataType>) => void, options?: messages.ListenOptions): void
+    onDragOver<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"dragover",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"dragover",DataType>("dragover", key, listener, options)
+    }
+    
+    onDragStart<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"dragstart",DataType>) => void, options?: messages.ListenOptions): void
+    onDragStart<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"dragstart",DataType>) => void, options?: messages.ListenOptions): void
+    onDragStart<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"dragstart",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"dragstart",DataType>("dragstart", key, listener, options)
+    }
+    
+    onDrop<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"drop",DataType>) => void, options?: messages.ListenOptions): void
+    onDrop<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"drop",DataType>) => void, options?: messages.ListenOptions): void
+    onDrop<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"drop",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"drop",DataType>("drop", key, listener, options)
+    }
+    
+    onDurationChange<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"durationchange",DataType>) => void, options?: messages.ListenOptions): void
+    onDurationChange<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"durationchange",DataType>) => void, options?: messages.ListenOptions): void
+    onDurationChange<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"durationchange",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"durationchange",DataType>("durationchange", key, listener, options)
+    }
+    
+    onEmptied<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"emptied",DataType>) => void, options?: messages.ListenOptions): void
+    onEmptied<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"emptied",DataType>) => void, options?: messages.ListenOptions): void
+    onEmptied<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"emptied",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"emptied",DataType>("emptied", key, listener, options)
+    }
+    
+    onEnded<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"ended",DataType>) => void, options?: messages.ListenOptions): void
+    onEnded<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"ended",DataType>) => void, options?: messages.ListenOptions): void
+    onEnded<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"ended",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"ended",DataType>("ended", key, listener, options)
+    }
+    
+    onError<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"error",DataType>) => void, options?: messages.ListenOptions): void
+    onError<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"error",DataType>) => void, options?: messages.ListenOptions): void
+    onError<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"error",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"error",DataType>("error", key, listener, options)
+    }
+    
+    onFocus<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"focus",DataType>) => void, options?: messages.ListenOptions): void
+    onFocus<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"focus",DataType>) => void, options?: messages.ListenOptions): void
+    onFocus<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"focus",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"focus",DataType>("focus", key, listener, options)
+    }
+    
+    onFocusIn<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"focusin",DataType>) => void, options?: messages.ListenOptions): void
+    onFocusIn<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"focusin",DataType>) => void, options?: messages.ListenOptions): void
+    onFocusIn<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"focusin",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"focusin",DataType>("focusin", key, listener, options)
+    }
+    
+    onFocusOut<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"focusout",DataType>) => void, options?: messages.ListenOptions): void
+    onFocusOut<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"focusout",DataType>) => void, options?: messages.ListenOptions): void
+    onFocusOut<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"focusout",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"focusout",DataType>("focusout", key, listener, options)
+    }
+    
+    onFormData<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"formdata",DataType>) => void, options?: messages.ListenOptions): void
+    onFormData<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"formdata",DataType>) => void, options?: messages.ListenOptions): void
+    onFormData<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"formdata",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"formdata",DataType>("formdata", key, listener, options)
+    }
+    
+    onFullscreenChange<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"fullscreenchange",DataType>) => void, options?: messages.ListenOptions): void
+    onFullscreenChange<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"fullscreenchange",DataType>) => void, options?: messages.ListenOptions): void
+    onFullscreenChange<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"fullscreenchange",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"fullscreenchange",DataType>("fullscreenchange", key, listener, options)
+    }
+    
+    onFullscreenError<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"fullscreenerror",DataType>) => void, options?: messages.ListenOptions): void
+    onFullscreenError<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"fullscreenerror",DataType>) => void, options?: messages.ListenOptions): void
+    onFullscreenError<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"fullscreenerror",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"fullscreenerror",DataType>("fullscreenerror", key, listener, options)
+    }
+    
+    onGotPointerCapture<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"gotpointercapture",DataType>) => void, options?: messages.ListenOptions): void
+    onGotPointerCapture<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"gotpointercapture",DataType>) => void, options?: messages.ListenOptions): void
+    onGotPointerCapture<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"gotpointercapture",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"gotpointercapture",DataType>("gotpointercapture", key, listener, options)
+    }
+    
+    onInput<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"input",DataType>) => void, options?: messages.ListenOptions): void
+    onInput<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"input",DataType>) => void, options?: messages.ListenOptions): void
+    onInput<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"input",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"input",DataType>("input", key, listener, options)
+    }
+    
+    onInvalid<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"invalid",DataType>) => void, options?: messages.ListenOptions): void
+    onInvalid<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"invalid",DataType>) => void, options?: messages.ListenOptions): void
+    onInvalid<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"invalid",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"invalid",DataType>("invalid", key, listener, options)
+    }
+    
+    onKeyDown<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"keydown",DataType>) => void, options?: messages.ListenOptions): void
+    onKeyDown<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"keydown",DataType>) => void, options?: messages.ListenOptions): void
+    onKeyDown<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"keydown",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"keydown",DataType>("keydown", key, listener, options)
+    }
+    
+    onKeyUp<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"keyup",DataType>) => void, options?: messages.ListenOptions): void
+    onKeyUp<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"keyup",DataType>) => void, options?: messages.ListenOptions): void
+    onKeyUp<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"keyup",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"keyup",DataType>("keyup", key, listener, options)
+    }
+    
+    onLoad<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"load",DataType>) => void, options?: messages.ListenOptions): void
+    onLoad<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"load",DataType>) => void, options?: messages.ListenOptions): void
+    onLoad<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"load",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"load",DataType>("load", key, listener, options)
+    }
+    
+    onLoadedData<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"loadeddata",DataType>) => void, options?: messages.ListenOptions): void
+    onLoadedData<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"loadeddata",DataType>) => void, options?: messages.ListenOptions): void
+    onLoadedData<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"loadeddata",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"loadeddata",DataType>("loadeddata", key, listener, options)
+    }
+    
+    onLoadedMetadata<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"loadedmetadata",DataType>) => void, options?: messages.ListenOptions): void
+    onLoadedMetadata<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"loadedmetadata",DataType>) => void, options?: messages.ListenOptions): void
+    onLoadedMetadata<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"loadedmetadata",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"loadedmetadata",DataType>("loadedmetadata", key, listener, options)
+    }
+    
+    onLoadStart<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"loadstart",DataType>) => void, options?: messages.ListenOptions): void
+    onLoadStart<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"loadstart",DataType>) => void, options?: messages.ListenOptions): void
+    onLoadStart<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"loadstart",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"loadstart",DataType>("loadstart", key, listener, options)
+    }
+    
+    onLostPointerCapture<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"lostpointercapture",DataType>) => void, options?: messages.ListenOptions): void
+    onLostPointerCapture<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"lostpointercapture",DataType>) => void, options?: messages.ListenOptions): void
+    onLostPointerCapture<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"lostpointercapture",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"lostpointercapture",DataType>("lostpointercapture", key, listener, options)
+    }
+    
+    onMouseDown<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"mousedown",DataType>) => void, options?: messages.ListenOptions): void
+    onMouseDown<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"mousedown",DataType>) => void, options?: messages.ListenOptions): void
+    onMouseDown<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"mousedown",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"mousedown",DataType>("mousedown", key, listener, options)
+    }
+    
+    onMouseEnter<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"mouseenter",DataType>) => void, options?: messages.ListenOptions): void
+    onMouseEnter<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseenter",DataType>) => void, options?: messages.ListenOptions): void
+    onMouseEnter<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseenter",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"mouseenter",DataType>("mouseenter", key, listener, options)
+    }
+    
+    onMouseLeave<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"mouseleave",DataType>) => void, options?: messages.ListenOptions): void
+    onMouseLeave<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseleave",DataType>) => void, options?: messages.ListenOptions): void
+    onMouseLeave<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseleave",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"mouseleave",DataType>("mouseleave", key, listener, options)
+    }
+    
+    onMouseMove<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"mousemove",DataType>) => void, options?: messages.ListenOptions): void
+    onMouseMove<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"mousemove",DataType>) => void, options?: messages.ListenOptions): void
+    onMouseMove<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"mousemove",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"mousemove",DataType>("mousemove", key, listener, options)
+    }
+    
+    onMouseOut<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"mouseout",DataType>) => void, options?: messages.ListenOptions): void
+    onMouseOut<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseout",DataType>) => void, options?: messages.ListenOptions): void
+    onMouseOut<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseout",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"mouseout",DataType>("mouseout", key, listener, options)
+    }
+    
+    onMouseOver<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"mouseover",DataType>) => void, options?: messages.ListenOptions): void
+    onMouseOver<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseover",DataType>) => void, options?: messages.ListenOptions): void
+    onMouseOver<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseover",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"mouseover",DataType>("mouseover", key, listener, options)
+    }
+    
+    onMouseUp<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"mouseup",DataType>) => void, options?: messages.ListenOptions): void
+    onMouseUp<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseup",DataType>) => void, options?: messages.ListenOptions): void
+    onMouseUp<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseup",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"mouseup",DataType>("mouseup", key, listener, options)
+    }
+    
+    onPaste<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"paste",DataType>) => void, options?: messages.ListenOptions): void
+    onPaste<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"paste",DataType>) => void, options?: messages.ListenOptions): void
+    onPaste<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"paste",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"paste",DataType>("paste", key, listener, options)
+    }
+    
+    onPause<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"pause",DataType>) => void, options?: messages.ListenOptions): void
+    onPause<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pause",DataType>) => void, options?: messages.ListenOptions): void
+    onPause<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pause",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"pause",DataType>("pause", key, listener, options)
+    }
+    
+    onPlay<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"play",DataType>) => void, options?: messages.ListenOptions): void
+    onPlay<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"play",DataType>) => void, options?: messages.ListenOptions): void
+    onPlay<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"play",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"play",DataType>("play", key, listener, options)
+    }
+    
+    onPlaying<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"playing",DataType>) => void, options?: messages.ListenOptions): void
+    onPlaying<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"playing",DataType>) => void, options?: messages.ListenOptions): void
+    onPlaying<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"playing",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"playing",DataType>("playing", key, listener, options)
+    }
+    
+    onPointerCancel<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"pointercancel",DataType>) => void, options?: messages.ListenOptions): void
+    onPointerCancel<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointercancel",DataType>) => void, options?: messages.ListenOptions): void
+    onPointerCancel<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointercancel",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"pointercancel",DataType>("pointercancel", key, listener, options)
+    }
+    
+    onPointerDown<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"pointerdown",DataType>) => void, options?: messages.ListenOptions): void
+    onPointerDown<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerdown",DataType>) => void, options?: messages.ListenOptions): void
+    onPointerDown<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerdown",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"pointerdown",DataType>("pointerdown", key, listener, options)
+    }
+    
+    onPointerEnter<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"pointerenter",DataType>) => void, options?: messages.ListenOptions): void
+    onPointerEnter<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerenter",DataType>) => void, options?: messages.ListenOptions): void
+    onPointerEnter<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerenter",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"pointerenter",DataType>("pointerenter", key, listener, options)
+    }
+    
+    onPointerLeave<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"pointerleave",DataType>) => void, options?: messages.ListenOptions): void
+    onPointerLeave<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerleave",DataType>) => void, options?: messages.ListenOptions): void
+    onPointerLeave<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerleave",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"pointerleave",DataType>("pointerleave", key, listener, options)
+    }
+    
+    onPointerMove<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"pointermove",DataType>) => void, options?: messages.ListenOptions): void
+    onPointerMove<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointermove",DataType>) => void, options?: messages.ListenOptions): void
+    onPointerMove<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointermove",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"pointermove",DataType>("pointermove", key, listener, options)
+    }
+    
+    onPointerOut<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"pointerout",DataType>) => void, options?: messages.ListenOptions): void
+    onPointerOut<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerout",DataType>) => void, options?: messages.ListenOptions): void
+    onPointerOut<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerout",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"pointerout",DataType>("pointerout", key, listener, options)
+    }
+    
+    onPointerOver<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"pointerover",DataType>) => void, options?: messages.ListenOptions): void
+    onPointerOver<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerover",DataType>) => void, options?: messages.ListenOptions): void
+    onPointerOver<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerover",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"pointerover",DataType>("pointerover", key, listener, options)
+    }
+    
+    onPointerUp<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"pointerup",DataType>) => void, options?: messages.ListenOptions): void
+    onPointerUp<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerup",DataType>) => void, options?: messages.ListenOptions): void
+    onPointerUp<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerup",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"pointerup",DataType>("pointerup", key, listener, options)
+    }
+    
+    onProgress<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"progress",DataType>) => void, options?: messages.ListenOptions): void
+    onProgress<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"progress",DataType>) => void, options?: messages.ListenOptions): void
+    onProgress<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"progress",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"progress",DataType>("progress", key, listener, options)
+    }
+    
+    onRateChange<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"ratechange",DataType>) => void, options?: messages.ListenOptions): void
+    onRateChange<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"ratechange",DataType>) => void, options?: messages.ListenOptions): void
+    onRateChange<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"ratechange",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"ratechange",DataType>("ratechange", key, listener, options)
+    }
+    
+    onReset<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"reset",DataType>) => void, options?: messages.ListenOptions): void
+    onReset<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"reset",DataType>) => void, options?: messages.ListenOptions): void
+    onReset<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"reset",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"reset",DataType>("reset", key, listener, options)
+    }
+    
+    onResize<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"resize",DataType>) => void, options?: messages.ListenOptions): void
+    onResize<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"resize",DataType>) => void, options?: messages.ListenOptions): void
+    onResize<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"resize",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"resize",DataType>("resize", key, listener, options)
+    }
+    
+    onScroll<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"scroll",DataType>) => void, options?: messages.ListenOptions): void
+    onScroll<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"scroll",DataType>) => void, options?: messages.ListenOptions): void
+    onScroll<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"scroll",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"scroll",DataType>("scroll", key, listener, options)
+    }
+    
+    onSecurityPolicyViolation<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"securitypolicyviolation",DataType>) => void, options?: messages.ListenOptions): void
+    onSecurityPolicyViolation<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"securitypolicyviolation",DataType>) => void, options?: messages.ListenOptions): void
+    onSecurityPolicyViolation<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"securitypolicyviolation",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"securitypolicyviolation",DataType>("securitypolicyviolation", key, listener, options)
+    }
+    
+    onSeeked<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"seeked",DataType>) => void, options?: messages.ListenOptions): void
+    onSeeked<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"seeked",DataType>) => void, options?: messages.ListenOptions): void
+    onSeeked<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"seeked",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"seeked",DataType>("seeked", key, listener, options)
+    }
+    
+    onSeeking<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"seeking",DataType>) => void, options?: messages.ListenOptions): void
+    onSeeking<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"seeking",DataType>) => void, options?: messages.ListenOptions): void
+    onSeeking<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"seeking",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"seeking",DataType>("seeking", key, listener, options)
+    }
+    
+    onSelect<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"select",DataType>) => void, options?: messages.ListenOptions): void
+    onSelect<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"select",DataType>) => void, options?: messages.ListenOptions): void
+    onSelect<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"select",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"select",DataType>("select", key, listener, options)
+    }
+    
+    onSelectionChange<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"selectionchange",DataType>) => void, options?: messages.ListenOptions): void
+    onSelectionChange<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"selectionchange",DataType>) => void, options?: messages.ListenOptions): void
+    onSelectionChange<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"selectionchange",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"selectionchange",DataType>("selectionchange", key, listener, options)
+    }
+    
+    onSelectStart<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"selectstart",DataType>) => void, options?: messages.ListenOptions): void
+    onSelectStart<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"selectstart",DataType>) => void, options?: messages.ListenOptions): void
+    onSelectStart<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"selectstart",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"selectstart",DataType>("selectstart", key, listener, options)
+    }
+    
+    onStalled<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"stalled",DataType>) => void, options?: messages.ListenOptions): void
+    onStalled<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"stalled",DataType>) => void, options?: messages.ListenOptions): void
+    onStalled<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"stalled",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"stalled",DataType>("stalled", key, listener, options)
+    }
+    
+    onSubmit<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"submit",DataType>) => void, options?: messages.ListenOptions): void
+    onSubmit<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"submit",DataType>) => void, options?: messages.ListenOptions): void
+    onSubmit<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"submit",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"submit",DataType>("submit", key, listener, options)
+    }
+    
+    onSuspend<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"suspend",DataType>) => void, options?: messages.ListenOptions): void
+    onSuspend<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"suspend",DataType>) => void, options?: messages.ListenOptions): void
+    onSuspend<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"suspend",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"suspend",DataType>("suspend", key, listener, options)
+    }
+    
+    onTimeUpdate<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"timeupdate",DataType>) => void, options?: messages.ListenOptions): void
+    onTimeUpdate<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"timeupdate",DataType>) => void, options?: messages.ListenOptions): void
+    onTimeUpdate<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"timeupdate",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"timeupdate",DataType>("timeupdate", key, listener, options)
+    }
+    
+    onToggle<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"toggle",DataType>) => void, options?: messages.ListenOptions): void
+    onToggle<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"toggle",DataType>) => void, options?: messages.ListenOptions): void
+    onToggle<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"toggle",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"toggle",DataType>("toggle", key, listener, options)
+    }
+    
+    onTouchCancel<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"touchcancel",DataType>) => void, options?: messages.ListenOptions): void
+    onTouchCancel<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"touchcancel",DataType>) => void, options?: messages.ListenOptions): void
+    onTouchCancel<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"touchcancel",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"touchcancel",DataType>("touchcancel", key, listener, options)
+    }
+    
+    onTouchEnd<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"touchend",DataType>) => void, options?: messages.ListenOptions): void
+    onTouchEnd<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"touchend",DataType>) => void, options?: messages.ListenOptions): void
+    onTouchEnd<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"touchend",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"touchend",DataType>("touchend", key, listener, options)
+    }
+    
+    onTouchMove<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"touchmove",DataType>) => void, options?: messages.ListenOptions): void
+    onTouchMove<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"touchmove",DataType>) => void, options?: messages.ListenOptions): void
+    onTouchMove<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"touchmove",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"touchmove",DataType>("touchmove", key, listener, options)
+    }
+    
+    onTouchStart<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"touchstart",DataType>) => void, options?: messages.ListenOptions): void
+    onTouchStart<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"touchstart",DataType>) => void, options?: messages.ListenOptions): void
+    onTouchStart<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"touchstart",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"touchstart",DataType>("touchstart", key, listener, options)
+    }
+    
+    onTransitionCancel<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"transitioncancel",DataType>) => void, options?: messages.ListenOptions): void
+    onTransitionCancel<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"transitioncancel",DataType>) => void, options?: messages.ListenOptions): void
+    onTransitionCancel<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"transitioncancel",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"transitioncancel",DataType>("transitioncancel", key, listener, options)
+    }
+    
+    onTransitionEnd<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"transitionend",DataType>) => void, options?: messages.ListenOptions): void
+    onTransitionEnd<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"transitionend",DataType>) => void, options?: messages.ListenOptions): void
+    onTransitionEnd<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"transitionend",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"transitionend",DataType>("transitionend", key, listener, options)
+    }
+    
+    onTransitionRun<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"transitionrun",DataType>) => void, options?: messages.ListenOptions): void
+    onTransitionRun<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"transitionrun",DataType>) => void, options?: messages.ListenOptions): void
+    onTransitionRun<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"transitionrun",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"transitionrun",DataType>("transitionrun", key, listener, options)
+    }
+    
+    onTransitionStart<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"transitionstart",DataType>) => void, options?: messages.ListenOptions): void
+    onTransitionStart<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"transitionstart",DataType>) => void, options?: messages.ListenOptions): void
+    onTransitionStart<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"transitionstart",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"transitionstart",DataType>("transitionstart", key, listener, options)
+    }
+    
+    onVolumeChange<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"volumechange",DataType>) => void, options?: messages.ListenOptions): void
+    onVolumeChange<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"volumechange",DataType>) => void, options?: messages.ListenOptions): void
+    onVolumeChange<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"volumechange",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"volumechange",DataType>("volumechange", key, listener, options)
+    }
+    
+    onWaiting<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"waiting",DataType>) => void, options?: messages.ListenOptions): void
+    onWaiting<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"waiting",DataType>) => void, options?: messages.ListenOptions): void
+    onWaiting<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"waiting",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"waiting",DataType>("waiting", key, listener, options)
+    }
+    
+    onWebkitAnimationEnd<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"webkitanimationend",DataType>) => void, options?: messages.ListenOptions): void
+    onWebkitAnimationEnd<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"webkitanimationend",DataType>) => void, options?: messages.ListenOptions): void
+    onWebkitAnimationEnd<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"webkitanimationend",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"webkitanimationend",DataType>("webkitanimationend", key, listener, options)
+    }
+    
+    onWebkitAnimationIteration<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"webkitanimationiteration",DataType>) => void, options?: messages.ListenOptions): void
+    onWebkitAnimationIteration<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"webkitanimationiteration",DataType>) => void, options?: messages.ListenOptions): void
+    onWebkitAnimationIteration<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"webkitanimationiteration",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"webkitanimationiteration",DataType>("webkitanimationiteration", key, listener, options)
+    }
+    
+    onWebkitAnimationStart<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"webkitanimationstart",DataType>) => void, options?: messages.ListenOptions): void
+    onWebkitAnimationStart<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"webkitanimationstart",DataType>) => void, options?: messages.ListenOptions): void
+    onWebkitAnimationStart<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"webkitanimationstart",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"webkitanimationstart",DataType>("webkitanimationstart", key, listener, options)
+    }
+    
+    onWebkitTransitionEnd<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"webkittransitionend",DataType>) => void, options?: messages.ListenOptions): void
+    onWebkitTransitionEnd<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"webkittransitionend",DataType>) => void, options?: messages.ListenOptions): void
+    onWebkitTransitionEnd<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"webkittransitionend",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"webkittransitionend",DataType>("webkittransitionend", key, listener, options)
+    }
+    
+    onWheel<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"wheel",DataType>) => void, options?: messages.ListenOptions): void
+    onWheel<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"wheel",DataType>) => void, options?: messages.ListenOptions): void
+    onWheel<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"wheel",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"wheel",DataType>("wheel", key, listener, options)
+    }
+    
+//// End Listen Methods
+
 
 }

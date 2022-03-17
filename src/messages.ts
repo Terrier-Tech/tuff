@@ -1,31 +1,51 @@
 import * as forms from './forms'
+import { Part } from './parts'
+
+/**
+ * "Event" object that gets passed along to generic part-related handlers.
+ */
+export type PartEvent = {
+    part: Part<any>
+}
 
 /**
  * Maps event keys that are used internally for tuff.
  */
 interface InternalEventMap {
+    "message": PartEvent // generic message associated with a part
 }
 
-// Maps event type strings to event types
-export interface EventMap extends HTMLElementEventMap, forms.EventMap, InternalEventMap {
+/**
+ * Maps event type strings to DOM event types
+ */ 
+export interface EventMap extends HTMLElementEventMap, 
+    forms.EventMap, 
+    InternalEventMap {
 
 }
 
-// The actual payload that gets delivered when a message is handled
+/**
+ * The actual payload that gets delivered when a DOM message is handled
+ */ 
 export type Message<EventType extends keyof EventMap, DataType> = {
     type: EventType
     event: EventMap[EventType]
     data: DataType
 }
 
-// Stores a handler for a specific event type and key
+/**
+ * Stores a handler for a specific event type and key
+ */ 
 export type Handler<EventType extends keyof EventMap, DataType> = {
     type: EventType
     key: TypedKey<DataType>
+    options?: ListenOptions
     callback: (m: Message<EventType,DataType>) => void
 }
 
-// Associates handlers with their event types and keys
+/** 
+ * Associates handlers with their event types and keys
+ */
 export class HandlerMap {
     private _map = new Map<string,Handler<any,any>[]>()
 
@@ -67,6 +87,19 @@ export class HandlerMap {
         return Array.from(typeSet.values())
     }
 
+}
+
+
+/** 
+ * Whether or not a particular event listener attaches to the current part or the root
+ */
+export type ListenAttach = "active" | "passive"
+
+/**
+ * Options that get passed to the Part#listen() method.
+ */
+export type ListenOptions = {
+    attach?: ListenAttach
 }
 
 

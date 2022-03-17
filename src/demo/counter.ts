@@ -35,7 +35,7 @@ class Counter extends Part<CounterState> {
         parent.span({text: `Count: ${this.state.count}`})
     }
 
-    afterRender(elem: HTMLElement): void {
+    update(elem: HTMLElement): void {
         log.info("After Render", elem)
     }
 
@@ -49,9 +49,11 @@ export class App extends Part<{}> {
         this.counter = this.makePart(Counter, {count: 0})
 
         this.onClick(ChangeKey, (m) => {
+            log.info("Change", m.data)
             this.counter.change(m.data)
         })
         this.onClick(ResetKey, _ => {
+            log.info("Reset")
             this.counter.resetCount()
         })
     }

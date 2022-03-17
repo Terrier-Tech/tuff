@@ -149,21 +149,32 @@ class Counter extends Part<CounterState> {
 ```
 
 
-## After Render
+## Update
 
-Each time a Part is actually rendered to the DOM, the `afterRender()` method will get called and passed the corresponding DOM element.
-This is useful for executing code that depends on the DOM itself.
+Each time a Part is actually rendered to the DOM, the `update()` method will get called and passed the corresponding DOM element.
+The `update()` method may also get called when a part is marked as `stale`. 
+
+This is useful for executing code that depends on the DOM itself, needs to be called whenever the part's DOM element changes, and possibly more often (e.g. rendering a canvas element based on user input).
 
 ```typescript
 class Counter extends Part<CounterState> {
+
+    fooKey = messages.untypedKey()
+
+    init() {
+        this.onClick(m => {
+            this.stale() // don't force a re-render, only update
+        })
+    }
     
     render(parent: PartTag) {
-        parent.class('foo')
+        parent.class('foo').a().emitClick(this.fooKey)
     }
 
     // elem will be the .foo element created by the render() method
-    afterRender(elem: HTMLElement) {
+    update(elem: HTMLElement) {
         // this gets called once for every call of render()
+        // as well as any time the anchor is clicked
     }
 
 }

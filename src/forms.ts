@@ -1,4 +1,4 @@
-import {ActiveOrPassive, Part} from './parts'
+import {Part} from './parts'
 import {Logger} from './logging'
 import * as arrays from './arrays'
 import * as messages from './messages'
@@ -97,8 +97,8 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
     }
 
     // In addition to the regular part listeners, listen to change events on fields for this form
-    attachEventListeners() {
-        super.attachEventListeners()
+    _attachEventListeners() {
+        super._attachEventListeners()
         const elem = this.element
         if (!elem) {
             return
@@ -125,12 +125,15 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
     // Emits the datachanged event for this form and the given data
     emitDataChanged(evt: Event, data: DataType) {
         log.debug("Emitting datachaged event", this, evt, data)
-        this.emit("datachanged", this.dataChangedKey, evt, data, "bubble")
+        this.emit("datachanged", this.dataChangedKey, evt, data, {scope: "bubble"})
     }
 
     // Listens for datachanged events on this or child forms
-    onDataChanged<EvtDataType>(key: messages.TypedKey<EvtDataType>, listener: (m: messages.Message<"datachanged",EvtDataType>) => void, active?: ActiveOrPassive) {
-        this.listen<"datachanged",EvtDataType>("datachanged", key, listener, active)
+    onDataChanged<EvtDataType>(
+        key: messages.TypedKey<EvtDataType>, 
+        listener: (m: messages.Message<"datachanged",EvtDataType>) => void, 
+        options?: messages.ListenOptions) {
+        this.listen<"datachanged",EvtDataType>("datachanged", key, listener, options)
     }
 
 
