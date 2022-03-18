@@ -178,10 +178,10 @@ export abstract class Part<StateType> {
         if (this._frameRequested) return
         this._frameRequested = true
         requestAnimationFrame(t => {
+            this._frameRequested = false
             log.debug('Frame', t)
             this._markClean()
             this._attachEventListeners()
-            this._frameRequested = false
         })
     }
 
