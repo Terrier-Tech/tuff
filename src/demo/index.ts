@@ -15,7 +15,7 @@ class OutputPart extends Part<demo.OutputData> {
     init() {
         this.onClick(demo.OutputKey, m => {
             this.write(m.data.output)
-        }, "passive")
+        }, {attach: "passive"})
     }
 
     write(t: string) {
