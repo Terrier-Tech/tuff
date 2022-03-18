@@ -485,7 +485,7 @@ export abstract class Part<StateType> {
      */
     private _update() {
         let elem = this.element
-        if (!elem) {
+        if (!elem || !elem.isConnected) {
             elem = document.getElementById(this.id)
             this._attachedElement = elem!
         }
