@@ -215,8 +215,8 @@ export abstract class Part<StateType> {
         handler: (m: messages.Message<EventType,DataType>) => void,
         options: messages.ListenOptions={}): void
     { 
-        if (options?.attach == "passive") {
-            const newOptions = {activeOrPassive: "active" as messages.ListenAttach, ...options}
+        if (options?.attach == "passive" && this != this.root) {
+            const newOptions = {attach: "active" as messages.ListenAttach, ...options}
             this.root.listen(type, key, handler, newOptions)
             return
         }
