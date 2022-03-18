@@ -228,6 +228,20 @@ export abstract class Part<StateType> {
         })
     }
 
+    /**
+     * Listens for a generic message on the part (emitted with emitMessage()).
+     * @param key the message key
+     * @param handler the message handler
+     * @param options message handling options
+     */
+    listenMessage<DataType>(
+        key: messages.UntypedKey | messages.TypedKey<DataType>,
+        handler: (m: messages.Message<"message",DataType>) => void,
+        options: messages.ListenOptions={})
+    {
+        this.listen("message", key, handler, options)
+    }
+
     private _needsEventListeners = true
 
     /**
