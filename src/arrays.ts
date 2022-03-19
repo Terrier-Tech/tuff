@@ -37,3 +37,17 @@ export function sample<T>(array: Array<T>): T {
     const i = Math.floor(Math.random()*array.length)
     return array[i]
 }
+
+/**
+ * Returns the minimum value in an array of numbers.
+ */
+export function min(array: Array<number>): number {
+    return Math.min.apply(Math, array)
+}
+
+/**
+ * Returns the maximum value in an array of numbers.
+ */
+export function max(array: Array<number>): number {
+    return Math.max.apply(Math, array)
+}
