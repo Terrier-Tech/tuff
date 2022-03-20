@@ -51,3 +51,21 @@ export function min(array: Array<number>): number {
 export function max(array: Array<number>): number {
     return Math.max.apply(Math, array)
 }
+
+/**
+ * Returns a new array with the unique values in `array`, 
+ * using an optional function to return the key.
+ * @param array an array of values
+ * @param by an optional function that returns a unique key for each value
+ * @returns the unique values in `array`
+ */
+export function unique<T>(array: Array<T>, by?: (a: T) => number|string): Array<T> {
+    if (by) {
+        const map: {[id: number|string]: T} = {}
+        array.forEach(a => map[by(a)] = a)
+        return Object.values(map)
+    }
+    else {
+        return [... new Set(array)]
+    }
+}
