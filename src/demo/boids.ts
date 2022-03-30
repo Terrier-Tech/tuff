@@ -8,11 +8,15 @@ import {arrays} from "../main";
 
 const log = new logging.Logger('Counter')
 
+const colors = ['#0088aa', '#00aa88', '#6600dd']
 const areaSize = 500 // how large of an area to cover with shapes
 const num = 200 // the number of each shape to generate
 
 function genPos(): number {
     return (2*Math.random()-1)*areaSize
+}
+function genRotation(): number {
+    return (2*Math.random()-1)*10
 }
 
 // TODO
@@ -20,19 +24,21 @@ class Boid  {
 
     x = genPos()
     y = genPos()
+    rotation = genRotation()
+    color= arrays.sample(colors)
 
     constructor(
         readonly id = demo.newId()
     ) {}
 
     svgAttributes = () => ({
-        id: "001",
-        stroke: 'blue',
+        id: this.id,
+        stroke: this.color,
         strokeWidth:'2',
         fill:'none',
+        transform: `rotate(${ this.rotation })`,
         d: `M${ this.x } ${ this.y }, h40, l-10 2, v-4 l10 2`
     })
-
 }
 
 export class App extends Part<{}> {
@@ -60,9 +66,9 @@ export class App extends Part<{}> {
             d.svg(styles.flexStretch, styles.contentInset, svg => {
                 svg.attrs({width: areaSize, height: areaSize, viewBox: {x: 0, y: 0, width: areaSize, height: areaSize}})
 
-                for (let [_, boid] of Object.entries(this.boids)) {
+                Object.entries(this.boids).forEach(([_, boid]) =>
                     svg.path(boid.svgAttributes())
-                }
+                )
             })
         })
     }
