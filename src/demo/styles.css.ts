@@ -2,7 +2,7 @@ import { globalStyle, style } from '@vanilla-extract/css'
 
 const fontFamily = 'Arial, Helvetica, sans-serif'
 
-const colors = {
+ const colors = {
     fg: '#222',
     bg: '#f8f8f8',
     button: '#08a',
@@ -64,6 +64,11 @@ const frameShadow = {
 const insetShadow = {
     boxShadow: 'inset 0 1px 6px rgba(0, 0, 0, 0.1)'
 }
+
+export const contentInset = style({
+    borderRadius: sizes.borderRadius,
+    ...insetShadow
+})
 
 export const output = style({
     padding: sizes.pad,
@@ -230,4 +235,11 @@ export const selectedShape = style({
     stroke: colors.selected,
     fill: `${colors.selected}44`,
     strokeWidth: 4
+})
+
+// Boids
+
+export const boidsSvg = style({
+    backgroundColor: '#ffffff',
+    ...insetShadow
 })

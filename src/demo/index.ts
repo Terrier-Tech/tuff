@@ -1,6 +1,7 @@
 import {Part, PartTag, StatelessPart} from '../parts'
 import {Logger} from '../logging'
 import * as styles from './styles.css'
+import * as boids from './boids'
 import * as counter from './counter'
 import * as contacts from './contacts'
 import * as shapes from './shapes'
@@ -23,7 +24,7 @@ class OutputPart extends Part<demo.OutputData> {
         this.state.output = t
         this.dirty()
     }
-    
+
     render(parent: PartTag) {
         parent.class(styles.output, styles.fixedBottom)
         parent.div({text: this.state.output})
@@ -37,6 +38,7 @@ class App extends Part<{}> {
 
     init() {
         this.output = this.makePart(OutputPart, {output: ""})
+        this.parts['Boids'] = this.makeStatelessPart(boids.App)
         this.parts['Counter'] = this.makeStatelessPart(counter.App)
         this.parts['Contacts'] = this.makeStatelessPart(contacts.App)
         this.parts['Shapes'] = this.makeStatelessPart(shapes.App)
