@@ -18,13 +18,21 @@ function genPos(): number {
 // TODO
 class Boid  {
 
-    r=5; // radius
     x = genPos()
     y = genPos()
 
     constructor(
         readonly id = demo.newId()
     ) {}
+
+    svgAttributes = () => ({
+        id: "001",
+        stroke: 'blue',
+        strokeWidth:'2',
+        fill:'none',
+        d: `M${ this.x } ${ this.y }, h40, l-10 2, v-4 l10 2`
+    })
+
 }
 
 export class App extends Part<{}> {
@@ -48,13 +56,12 @@ export class App extends Part<{}> {
             d.div(styles.contentInset, styles.padded, d => {
                 d.h1().text("INPUTS")
             })
-
             // CONTENT CONTAINER BOIDS (OUTPUTS)
             d.svg(styles.flexStretch, styles.contentInset, svg => {
                 svg.attrs({width: areaSize, height: areaSize, viewBox: {x: 0, y: 0, width: areaSize, height: areaSize}})
 
                 for (let [_, boid] of Object.entries(this.boids)) {
-                    svg.circle({id: boid.id, cx: boid.x, cy: boid.y, r: boid.r})
+                    svg.path(boid.svgAttributes())
                 }
             })
         })
