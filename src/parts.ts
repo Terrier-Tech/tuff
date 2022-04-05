@@ -9,6 +9,11 @@ export type StatelessPart = Part<{}>
 
 export type PartParent = StatelessPart | null
 
+/**
+ * Generic type for a function that constructs a part.
+ */
+export type PartConstructor<PartType extends Part<StateType>, StateType> = {new (parent: PartParent, id: string, state: StateType): PartType}
+
 /** 
  * Whether or not a particular message emit should emit on the parents as well
  */
@@ -411,7 +416,7 @@ export abstract class Part<StateType> {
     /** 
      * Mounts a part to a DOM element (by DOM object or id).
      */
-    static mount<PartType extends Part<StateType>, StateType>(partType: {new (parent: PartParent, id: string, state: StateType): PartType}, mountPoint: MountPoint, state: StateType): PartType {
+    static mount<PartType extends Part<StateType>, StateType>(partType: PartConstructor<PartType,StateType>, mountPoint: MountPoint, state: StateType): PartType {
         const id = typeof mountPoint == 'string' ? mountPoint : mountPoint.getAttribute("id")
         if (!id) {
             throw "You must either mount a part directly to a DOM node with id attribute or provide the id value as a string"
