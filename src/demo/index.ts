@@ -9,7 +9,7 @@ import * as demo from './demo'
 import * as messages from '../messages'
 
 const log = new Logger("Demo")
-Logger.level = 'debug'
+Logger.level = 'info'
 
 class OutputPart extends Part<demo.OutputData> {
 
