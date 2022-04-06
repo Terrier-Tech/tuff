@@ -8,7 +8,8 @@ const log = new logging.Logger('Boids')
 
 const colors = ['#0088aa', '#00aa88', '#6600dd']
 const areaSize = 500 // how large of an area to cover with shapes
-const num = 5 // the number of each shape to generate
+const num = 50 // the number of each shape to generate
+const origin= [200, 200]
 
 function genPos(): number {
     return (2*Math.random()-1)*areaSize
@@ -22,7 +23,7 @@ class Boid  {
 
     x = genPos()
     y = genPos()
-    step=10
+    step=3
     rotation = genRotation()
     color= arrays.sample(colors)
 
@@ -35,8 +36,8 @@ class Boid  {
     }
 
     nextPos = () => {
-        this.x += Math.cos(this.rotationRadians()) * this.step
-        this.y += Math.sin(this.rotationRadians()) * this.step
+        this.x = (this.x + Math.cos(this.rotationRadians()) * this.step) % 300
+        this.y = (this.y + Math.sin(this.rotationRadians()) * this.step) % 150
     }
 
     svgAttributes = () => ({
@@ -61,12 +62,10 @@ export class App extends Part<{}> {
         // generate the boids
         for (let i of arrays.range(0, num - 1)) {
             const boid = new Boid()
-            boid.x=20
-            boid.y=200
             this.boids.push(boid)
         }
 
-        setInterval(this.mainLoop, 100)
+        setInterval(this.mainLoop, 10)
     }
 
     mainLoop = ()=>{
@@ -78,9 +77,6 @@ export class App extends Part<{}> {
         this.meanX = this.boids.reduce((sum, b) => sum + b.x, 0) / this.boids.length
         this.meanY = this.boids.reduce((sum, b) => sum + b.y, 0) / this.boids.length
         log.info(`MeanX ${ this.meanX }, MeanY ${ this.meanY }`)
-
-        document.getElementById('svg-container')
-
         this.dirty()
     }
 
@@ -93,12 +89,12 @@ export class App extends Part<{}> {
             })
             // CONTENT CONTAINER BOIDS (OUTPUTS)
             d.svg('#svg-container',styles.flexStretch, styles.contentInset, svg => {
-                svg.attrs({width: areaSize, height: areaSize, viewBox: {x: 0, y: 0, width: areaSize, height: areaSize}})
+                svg.attrs({width: areaSize, height: areaSize, viewBox: {x: -origin[0], y: -origin[1], width: areaSize, height: areaSize}})
                 Object.entries(this.boids).forEach(([_, boid]) =>
                     svg.path(boid.svgAttributes())
                 )
-                svg.circle({cx: 0, cy: 0, r: 10})
-                svg.circle({cx: this.meanX, cy: this.meanY, r: 5}).css({opacity: 0.75, backgroundColor: 'red'})
+                svg.circle({cx: 0, cy: 0, r: 10, stroke: 'cyan', fill: 'cyan'})
+                svg.circle({cx: this.meanX, cy: this.meanY, r: 5, fill: 'magenta'}).css({opacity: 0.75})
             })
         })
     }
