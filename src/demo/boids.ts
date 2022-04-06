@@ -43,7 +43,7 @@ class Boid  {
 
 export class App extends Part<{}> {
 
-    boids: {[id: string]: Boid} = {}
+    boids: Boid[] = []
 
     // TODO INITIALIZE BOIDS HERE
     init() {
@@ -51,8 +51,15 @@ export class App extends Part<{}> {
         // generate the boids
         for (let i of arrays.range(0, num)) {
             const boid = new Boid()
-            this.boids[boid.id] = boid
+            this.boids.push(boid)
         }
+
+        setInterval(this.mainLoop, 1000)
+    }
+
+    mainLoop = ()=>{
+        this.boids[0].x+=20
+        this.dirty()
     }
 
     render(parent: PartTag) {
