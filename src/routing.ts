@@ -1,5 +1,5 @@
 import {Logger} from './logging'
-import { route, stringParser, RouteNode, InferParamGroups, Parser, MergeParamGroups } from "typesafe-routes"
+import { route, ExtractParserReturnTypes, RouteNode, InferParamGroups, Parser, MergeParamGroups } from "typesafe-routes"
 import {pathToRegexp} from 'path-to-regexp'
 import {Part, MountPoint, PartConstructor} from './parts'
 
@@ -12,101 +12,18 @@ interface IRoute {
     template: string
 }
 
-// const ParamTypes = ['static', 'string', 'number'] as const
-
-// type ParamType = typeof ParamTypes[number]
-
-// type RouteComp = {
-//     type: ParamType
-//     value: string
-// }
-
-// function matchComp(comp: RouteComp, s: string): boolean {
-//     switch (comp.type) {
-//         case 'static':
-//             return s == comp.value
-//         case 'number':
-//             return !!s.match(/^\d+\.*\d*/)
-//         default:
-//             return true
-//     }
-// }
-
-
-// /**
-//  * Splits a path string by / with optional leading slashes, then downcases each component.
-//  * @param path a path of pattern string
-//  */
-// function splitPath(path: string): string[] {
-//     let p = path
-//     if (p.indexOf('/')==0) {
-//         p = p.slice(1)
-//     }
-//     return p.split('/').map(c => c.toLowerCase())
-// }
-
-
-// /**
-//  * Maps a single path pattern to a {Part}.
-//  */
-// export class Route<PartType extends Part<StateType>, StateType> implements IRoute {
-
-//     readonly comps = Array<RouteComp>()
-
-//     constructor(readonly partType: PartConstructor<PartType,StateType>, readonly pattern: string) {
-//         for (let raw of splitPath(pattern)) {
-//             this.parseComp(raw)
-//         }
-//     }
-
-//     private parseComp(raw: string) {
-//         if (raw[0] == '{' && raw[raw.length-1] == '}') {
-//             const elems = raw.slice(1, raw.length-1).split(':')
-//             switch (elems.length) {
-//                 case 1:
-//                     this.comps.push({type: 'string', value: elems[0]})
-//                     break
-//                 case 2:
-//                     if ((ParamTypes as readonly string[]).includes(elems[1])) {
-//                         this.comps.push({type: elems[1] as ParamType, value: elems[0]})
-//                     }
-//                     else {
-//                         throw `Invalid param type ${elems[1]}, must be ${ParamTypes.join('|')}`
-//                     }
-//                     break
-//                 default:
-//                     throw `A param component definition must contain 1 or 2 (colon-separated) elements, not ${elems.length}`
-//             }
-//         }
-//         else {
-//             this.comps.push({type: 'static', value: raw})
-//         }
-//     }
-
-//     /**
-//      * @param path a test path
-//      * @returns true if `path` matches this route
-//      */
-//     match(path: string): boolean {
-//         const comps = splitPath(path)
-//         if (comps.length != this.comps.length) {
-//             return false
-//         }
-//         for (let i = 0; i<comps.length; i++) {
-//             if (!matchComp(this.comps[i], comps[i])) {
-//                 return false
-//             }
-//         }
-//         return true
-//     }
-// }
-
+/**
+ * This isn't exported from typesafe-routes for some reason.
+ */
 declare type ParserMap<K extends string> = Record<K, Parser<any>>;
 
-export class Route<PartType extends Part<StateType>, StateType, T extends string, PM extends ParserMap<MergeParamGroups<InferParamGroups<T>>>> 
+export class Route<PartType extends Part<StateType>, 
+        StateType extends ExtractParserReturnTypes<PM, keyof PM>, 
+        T extends string, 
+        PM extends ParserMap<MergeParamGroups<InferParamGroups<T>>> > 
         implements IRoute {
 
-    readonly routeNode!: RouteNode<string,any,{},false>
+    readonly routeNode!: RouteNode<string,PM,{},false>
     readonly regExp!: RegExp
     readonly paramNames!: Array<string>
 
@@ -142,7 +59,7 @@ export class Route<PartType extends Part<StateType>, StateType, T extends string
         for (let n=0; n<res.length; n++) {
             raw[this.paramNames[n-1]] = res[n]
         }
-        return this.routeNode.parseParams(raw as unknown)
+        return this.routeNode.parseParams(raw as unknown as Record<T, string>) as StateType
     }
 }
 
