@@ -8,8 +8,8 @@ const log = new logging.Logger('Boids')
 
 const colors= ['#0088aa', '#00aa88', '#6600dd']
 const areaHeight= '500px' // Height of svg container
-const numBoids= 1 // the number of each boid to generate
-const boidVelocity=20; // in px per second
+const numBoids= 5 // the number of each boid to generate
+const boidVelocity=1; // in px per second
 
 // TODO
 class Boid  {
@@ -17,7 +17,7 @@ class Boid  {
     x: number
     y: number
     velocity=boidVelocity
-    rotation = Math.random()*360
+    rotation = 60 // Math.random()*360
     color= arrays.sample(colors)
     containerEl: HTMLElement
 
@@ -32,21 +32,41 @@ class Boid  {
     nextPos = () => {
         this.x = (this.x + Math.cos(this.rotationRadians()) * this.velocity)
         this.y = (this.y + Math.sin(this.rotationRadians()) * this.velocity)
-        if (this.x < 0) this.x += this.containerEl.offsetWidth;
-        if (this.y < 0) this.y += this.containerEl.offsetWidth;
+
+        // WRAP-AROUND OPTION (CAUSES SOME ISSUES WITH CENTROIDS)
+        // if (this.x < 0) this.x += this.containerEl.offsetWidth;
+        // if (this.y < 0) this.y += this.containerEl.offsetWidth;
+        // this.x = Math.floor(this.x % this.containerEl.offsetWidth );
+        // this.y = Math.floor( this.y % this.containerEl.offsetHeight );
+
+        // COLLISION REBOUND OPTION
+        if (this.x > this.containerEl.offsetWidth) {
+            this.x = this.containerEl.offsetWidth;
+            this.rotation = -1 * this.rotation + 180;
+        } else if (this.x < 0) {
+            this.x=0
+            this.rotation = -1 * this.rotation + 180;
+        }
+
+        if (this.y > this.containerEl.offsetHeight) {
+            this.y = this.containerEl.offsetHeight;
+            this.rotation *= -1;
+        } else if (this.y < 0) {
+            this.y=0
+            this.rotation *= -1;
+        }
     }
 
     render = (svg: SVGElement) => {
         // to wrap boids around on collision with boundary
-        const renderX= Math.floor(this.x % this.containerEl.offsetWidth );
-        const renderY= Math.floor(this.y % this.containerEl.offsetHeight );
+
         svg.path({
             id: this.id,
             fill:this.color,
             stroke: this.color,
             strokeWidth: '2',
-            d: `M${ renderX  } ${ renderY }, l-10 2, v-4 l10 2`,
-            transform: `rotate(${ this.rotation }, ${ renderX }, ${ renderY })`,
+            d: `M${ this.x  } ${ this.y }, l-10 2, v-4 l10 2`,
+            transform: `rotate(${ this.rotation }, ${ this.x }, ${ this.y })`,
         })
     }
 }
@@ -63,7 +83,7 @@ export class SVG extends Part<{containerEl: HTMLElement}> {
 
     init() {
         this.boids= arrays.range(0, numBoids-1).map( () => new Boid(this.state.containerEl) )
-        setInterval(this.mainLoop, 1000 / boidVelocity)
+        setInterval(this.mainLoop, 1)
     }
 
     mainLoop = () => {
