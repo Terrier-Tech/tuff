@@ -6,16 +6,17 @@ import {arrays} from "../main";
 
 const log = new logging.Logger('Boids')
 
-const colors = ['#0088aa', '#00aa88', '#6600dd']
-const areaSize = 500 // how large of an area to cover with shapes
-const num = 50 // the number of each shape to generate
-const origin= [200, 200]
+const colors= ['#0088aa', '#00aa88', '#6600dd']
+const areaHeight= 500 // Height of svg container
+const numBoids= 1 // the number of each boid to generate
+const fps= 10;
 
 function genPos(): number {
-    return (2*Math.random()-1)*areaSize
+    return 0
 }
+
 function genRotation(): number {
-    return (2*Math.random()-1)*50
+    return 0// Math.random()*360
 }
 
 // TODO
@@ -23,7 +24,7 @@ class Boid  {
 
     x = genPos()
     y = genPos()
-    step=3
+    velocity=3
     rotation = genRotation()
     color= arrays.sample(colors)
 
@@ -36,71 +37,113 @@ class Boid  {
     }
 
     nextPos = () => {
-        this.x = (this.x + Math.cos(this.rotationRadians()) * this.step) % 300
-        this.y = (this.y + Math.sin(this.rotationRadians()) * this.step) % 150
+        this.x = (this.x + Math.cos(this.rotationRadians()) * this.velocity)
+        this.y = (this.y + Math.sin(this.rotationRadians()) * this.velocity)
     }
 
-    svgAttributes = () => ({
-        id: this.id,
-        stroke: this.color,
-        strokeWidth:'2',
-        fill:this.color,
-        transform: `rotate(${ this.rotation }, ${ this.x }, ${ this.y })`,
-        d: `M${ this.x } ${ this.y }, l-10 2, v-4 l10 2`
-    })
+    render = (svg) => {
+        const parentEl= document.getElementById('svg-container')
+        if (!parentEl) { return svg.path({})}
+
+        // to wrap boids around on collision with boundary
+        const modX= parentEl.offsetWidth / 2; // divide by 2 because svg origin is centered
+        const modY= parentEl.offsetHeight / 2; // divide by 2 because svg origin is centered
+
+        console.log(`${this.x}, ${this.y}`)
+        console.log(`${modX}, ${modY}`)
+        console.log(``)
+
+        svg.path({
+            id: this.id,
+            fill:this.color,
+            stroke: this.color,
+            strokeWidth: '2',
+            transform: `rotate(${ this.rotation }, ${ this.x }, ${ this.y })`,
+            d: `M${ this.x } ${ this.y }, l-10 2, v-4 l10 2`
+        })
+    }
+
+}
+
+export class Inputs extends Part<{}> {
+
+    render(parent: PartTag) {
+        parent.h1().text("INPUTS")
+    }
+}
+
+export class SVG extends Part<{}> {
+
+    boids: Boid[] = arrays.range(0, numBoids-1).map( () => new Boid() )
+
+    init() {
+        setInterval(this.mainLoop, 1000 / fps)
+    }
+
+    mainLoop = () => {
+        for (let boid of this.boids) boid.nextPos()
+        this.dirty()
+    }
+
+    svgAttrs = () => {
+        const parentEl= document.getElementById('svg-container')
+        if (!parentEl) { return { height: areaHeight} }
+
+        let width = parentEl.offsetWidth;
+        let height = parentEl.offsetHeight;
+
+        return {
+            width: '100%',
+            height: areaHeight,
+            viewBox: {
+                width: width,
+                height: height,
+                // center svg origin
+                x: -1 * width / 2,
+                y: -1 * height / 2,
+            }
+        }
+    }
+
+    renderCentroid = (svg) => {
+        const x= this.boids.reduce((sum, b) => sum + b.x, 0) / this.boids.length
+        const y= this.boids.reduce((sum, b) => sum + b.y, 0) / this.boids.length
+        return svg.circle({cx: x, cy: y, r: 5, fill: 'magenta'}).css({opacity: '0.75'})
+    }
+
+    renderOrigin = (svg) =>
+        svg.circle({cx: 0, cy: 0, r: 10, stroke: 'cyan', fill: 'cyan'})
+
+    render(parent: PartTag) {
+        parent.svg( svg => {
+            // svg.css({backgroundColor: 'blue'})
+            svg.attrs(this.svgAttrs())
+            this.boids.forEach(b => b.render(svg))
+            this.renderCentroid(svg)
+            this.renderOrigin(svg)
+        })
+    }
 }
 
 export class App extends Part<{}> {
 
-    boids: Boid[] = []
-    meanX: number=-1000
-    meanY: number=-1000
+    svg!: SVG
+    inputs!: Inputs
 
-    // TODO INITIALIZE BOIDS HERE
     init() {
-
-        // generate the boids
-        for (let i of arrays.range(0, num - 1)) {
-            const boid = new Boid()
-            this.boids.push(boid)
-        }
-
-        setInterval(this.mainLoop, 10)
-    }
-
-    mainLoop = ()=>{
-
-        for (let boid of this.boids) {
-            boid.nextPos()
-        }
-
-        this.meanX = this.boids.reduce((sum, b) => sum + b.x, 0) / this.boids.length
-        this.meanY = this.boids.reduce((sum, b) => sum + b.y, 0) / this.boids.length
-        log.info(`MeanX ${ this.meanX }, MeanY ${ this.meanY }`)
-        this.dirty()
+        this.svg= this.makePart(SVG, {})
+        this.inputs= this.makePart(Inputs, {})
     }
 
     render(parent: PartTag) {
-        // MAIN ROW
         parent.div(styles.flexRow, styles.padded, d => {
-            // CONTENT CONTAINER INPUTS
-            d.div(styles.contentInset, styles.padded, d => {
-                d.h1().text("INPUTS")
-            })
-            // CONTENT CONTAINER BOIDS (OUTPUTS)
-            d.svg('#svg-container',styles.flexStretch, styles.contentInset, svg => {
-                svg.attrs({width: areaSize, height: areaSize, viewBox: {x: -origin[0], y: -origin[1], width: areaSize, height: areaSize}})
-                Object.entries(this.boids).forEach(([_, boid]) =>
-                    svg.path(boid.svgAttributes())
-                )
-                svg.circle({cx: 0, cy: 0, r: 10, stroke: 'cyan', fill: 'cyan'})
-                svg.circle({cx: this.meanX, cy: this.meanY, r: 5, fill: 'magenta'}).css({opacity: 0.75})
-            })
+            d.div('#input-container', styles.contentInset, styles.padded, d => {
+                d.part(this.inputs) })
+            d.div('#svg-container',styles.contentInset, styles.flexStretch, d => {
+                d.part(this.svg) })
         })
     }
 }
 
 const container = document.getElementById('boids')
-if (container) {
-    Part.mount(App, container, {})
-}
+if (container) { Part.mount(App, container, {}) }
