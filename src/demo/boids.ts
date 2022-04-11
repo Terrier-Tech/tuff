@@ -8,7 +8,7 @@ const log = new logging.Logger('Boids')
 
 const colors= ['#0088aa', '#00aa88', '#6600dd']
 const areaHeight= '500px' // Height of svg container
-const numBoids= 100 // the number of each boid to generate
+const numBoids= 10 // the number of each boid to generate
 const boidVelocity=1; // in px per second
 
 class Boid  {
@@ -16,11 +16,10 @@ class Boid  {
     x: number
     y: number
     velocity=boidVelocity
-    heading = Math.random()*360
+    heading = Math.random()*360* Math.PI/180 // to radians
     color= arrays.sample(colors)
     containerEl: HTMLElement
-
-    headingRadians = () => this.heading * Math.PI / 180.0
+    personalBubble= 10
 
     constructor(containerEl: HTMLElement, readonly id = demo.newId()) {
         this.containerEl=containerEl;
@@ -29,53 +28,42 @@ class Boid  {
     }
 
     turnToward = (centerX: number, centerY: number) => {
-
         // centerX=this.containerEl.offsetWidth / 2;
         // centerY=this.containerEl.offsetHeight / 2;
-
-        const headingRadians= this.heading * (Math.PI/180);
-        const headingVectorX=Math.cos(headingRadians)
-        const headingVectorY=Math.sin(headingRadians)
+        const headingVectorX=Math.cos(this.heading)
+        const headingVectorY=Math.sin(this.heading)
         const terminalVectorX=centerX - this.x
         const terminalVectorY=centerY - this.y
         const angleDifference= Math.atan2(
             headingVectorX*terminalVectorY-headingVectorY*terminalVectorX, // x1*y2-y1*x2
             headingVectorX*terminalVectorX+headingVectorY*terminalVectorY) // x1*x2+y1*y2
-            * (180/Math.PI) // radians
-        // make sure small steps don't truncate to 0
-        const step= Math.ceil(Math.abs(angleDifference / 100)) * Math.sign(angleDifference)
+        const step= angleDifference / 100;
         this.heading += step
     }
 
     nextPos = () => {
-        this.x = (this.x + Math.cos(this.headingRadians()) * this.velocity)
-        this.y = (this.y + Math.sin(this.headingRadians()) * this.velocity)
 
-        // WRAP-AROUND OPTION (CAUSES SOME ISSUES WITH CENTROIDS)
-        // if (this.x < 0) this.x += this.containerEl.offsetWidth;
-        // if (this.y < 0) this.y += this.containerEl.offsetWidth;
-        // this.x = Math.floor(this.x % this.containerEl.offsetWidth );
-        // this.y = Math.floor( this.y % this.containerEl.offsetHeight );
+        // Do step
+        this.x = (this.x + Math.cos(this.heading) * this.velocity)
+        this.y = (this.y + Math.sin(this.heading) * this.velocity)
 
-        // COLLISION REBOUND OPTION
-        if (this.x > this.containerEl.offsetWidth) {
-            this.x = this.containerEl.offsetWidth;
-            this.heading = -1 * this.heading + 180;
-        } else if (this.x <= 0) {
-            this.x=0
-            this.heading = -1 * this.heading + 180;
-        }
-
-        if (this.y > this.containerEl.offsetHeight) {
-            this.y = this.containerEl.offsetHeight;
-            this.heading *= -1;
-        } else if (this.y <= 0) {
-            this.y=0
-            this.heading *= -1;
-        }
-
-        // keep headings represented as POS integers, makes math reliable
-        if (this.heading < 0) this.heading+= 360
+        // Handle collisions
+        // if (this.x > this.containerEl.offsetWidth) {
+        //     this.x = this.containerEl.offsetWidth;
+        //     this.heading = -1 * this.heading + 180;
+        //
+        // } else if (this.x <= 0) {
+        //     this.x=0
+        //     this.heading = -1 * this.heading + 180;
+        // }
+        //
+        // if (this.y > this.containerEl.offsetHeight) {
+        //     this.y = this.containerEl.offsetHeight;
+        //     this.heading *= -1;
+        // } else if (this.y <= 0) {
+        //     this.y=0
+        //     this.heading *= -1;
+        // }
     }
 
     render = (svg: SVGElement) => {
@@ -87,7 +75,7 @@ class Boid  {
             stroke: this.color,
             strokeWidth: '2',
             d: `M${ this.x  } ${ this.y }, l-10 2, v-4 l10 2`,
-            transform: `rotate(${ this.heading }, ${ this.x }, ${ this.y })`,
+            transform: `rotate(${ this.heading * (180/Math.PI) }, ${ this.x }, ${ this.y })`,
         })
     }
 }
@@ -117,6 +105,7 @@ export class SVG extends Part<{containerEl: HTMLElement}> {
 
         this.boids.forEach(b =>{
             b.turnToward(this.centroidX, this.centroidY)
+
             b.nextPos()})
         if (this.frameNumber < 3000)
             this.frameNumber+=1
