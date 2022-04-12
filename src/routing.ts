@@ -1,7 +1,7 @@
 import {Logger} from './logging'
 import { route, ExtractParserReturnTypes, RouteNode, InferParamGroups, Parser, MergeParamGroups } from "typesafe-routes"
 import {pathToRegexp} from 'path-to-regexp'
-import {Part, MountPoint, PartConstructor} from './parts'
+import {Part, PartConstructor} from './parts'
 
 const log = new Logger('Routing')
 Logger.level = "debug"
@@ -59,7 +59,7 @@ export class Route<PartType extends Part<StateType>,
         for (let n=0; n<res.length; n++) {
             raw[this.paramNames[n-1]] = res[n]
         }
-        return this.routeNode.parseParams(raw as unknown as Record<T, string>) as StateType
+        return this.routeNode.parseParams(raw as Record<T, string>) as StateType
     }
 }
 
@@ -97,28 +97,28 @@ export class Route<PartType extends Part<StateType>,
 /**
  * Mounts to a point in the DOM and matches a set of routes to it.
  */
-class Router {
+// class Router {
 
-    constructor(readonly routes: Array<IRoute>) {
+//     constructor(readonly routes: Array<IRoute>) {
 
-    }
+//     }
 
-    mount(mountPoint: MountPoint) {
+//     mount(mountPoint: MountPoint) {
 
-    }
+//     }
 
-    /**
-     * @param path a raw URL path
-     * @returns the matching route, if any
-     */
-    match(path: string): IRoute | null {
-        for (let route of this.routes) {
-            if (route.match(path)) {
-                log.debug(`Matched "${path}" to '${route.template}'`)
-                return route
-            }
-        }
-        return null
-    }
+//     /**
+//      * @param path a raw URL path
+//      * @returns the matching route, if any
+//      */
+//     match(path: string): IRoute | null {
+//         for (let route of this.routes) {
+//             if (route.match(path)) {
+//                 log.debug(`Matched "${path}" to '${route.template}'`)
+//                 return route
+//             }
+//         }
+//         return null
+//     }
 
-}
+// }

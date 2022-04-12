@@ -1,15 +1,13 @@
 import { expect, test } from 'vitest'
 import { Part, PartTag } from '../parts'
 import * as routing from '../routing'
-import { intParser, stringParser} from "typesafe-routes"
+import * as state from '../state'
 
-type FooState = {
-    id: string
+const FooStateMap = {
+    id: state.string
 }
 
-// const fooRoute = route("/foo/:id", {
-//     id: stringParser
-// }, {})
+type FooState = state.MapParser<typeof FooStateMap>
 
 class FooPart extends Part<FooState> {
     render(_: PartTag) {
@@ -17,10 +15,12 @@ class FooPart extends Part<FooState> {
     }
 }
 
-type BarState = {
-    id: string
-    num: number
+const BarStateMap = {
+    id: state.string,
+    num: state.int
 }
+
+type BarState = state.MapParser<typeof BarStateMap>
 
 class BarPart extends Part<BarState> {
     render(_: PartTag) {
@@ -29,9 +29,7 @@ class BarPart extends Part<BarState> {
 }
 
 test("route parsing", () => {
-    const fooRoute = new routing.Route(FooPart, "/foo/:id", {
-        id: stringParser
-    })
+    const fooRoute = new routing.Route(FooPart, "/foo/:id",FooStateMap)
     expect(fooRoute.template).eq("/foo/:id")
     expect(fooRoute.match("/foo/hello")).eq(true)
     expect(fooRoute.match("/foo")).eq(false)
@@ -41,16 +39,13 @@ test("route parsing", () => {
     const fooState = fooRoute.parse("/foo/hello")
     expect(fooState?.id).eq("hello")
 
-    const barRoute = new routing.Route(BarPart, "/bar/:id/:num", {
-        id: stringParser,
-        num: intParser
-    })
+    const barRoute = new routing.Route(BarPart, "/bar/:id/:num", BarStateMap)
     expect(barRoute.match("/bar/hello")).eq(false)
     expect(barRoute.match("/bar/hello/123")).eq(true)
     expect(barRoute.paramNames).toMatchObject(['id', 'num'])
-    const barState = barRoute.parse("/bar/hello/123")!
-    expect(barState.id).eq("hello")
-    expect(barState.num).eq(123)
+    const barState = barRoute.parse("/bar/hello/123")
+    expect(barState?.id).eq("hello")
+    expect(barState?.num).eq(123)
 })
 
 // test("basic routing", () => {
