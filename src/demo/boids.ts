@@ -8,74 +8,207 @@ const log = new logging.Logger('Boids')
 
 const colors= ['#0088aa', '#00aa88', '#6600dd']
 const areaHeight= '500px' // Height of svg container
-const numBoids= 10 // the number of each boid to generate
-const boidVelocity=1; // in px per second
+const numBoids= 20 // the number of each boid to generate
 
-class Boid  {
+class Vector extends Array {
 
-    x: number
-    y: number
-    velocity=boidVelocity
-    heading = Math.random()*360* Math.PI/180 // to radians
-    color= arrays.sample(colors)
-    containerEl: HTMLElement
-    personalBubble= 10
+    x=(): number=>this[0]
+    y=(): number=>this[1]
+    setX=(n:number): this=>{this[0]=n; return this}
+    setY=(n:number): this=>{this[1]=n; return this}
 
-    constructor(containerEl: HTMLElement, readonly id = demo.newId()) {
-        this.containerEl=containerEl;
-        this.x = containerEl.offsetWidth / 2;
-        this.y =  containerEl.offsetHeight / 2;
+    constructor(...nums: number[]) {
+        super()
+        for (let n of nums) this.push(n)
+        return this
     }
 
-    turnToward = (centerX: number, centerY: number) => {
-        // centerX=this.containerEl.offsetWidth / 2;
-        // centerY=this.containerEl.offsetHeight / 2;
-        const headingVectorX=Math.cos(this.heading)
-        const headingVectorY=Math.sin(this.heading)
-        const terminalVectorX=centerX - this.x
-        const terminalVectorY=centerY - this.y
-        const angleDifference= Math.atan2(
-            headingVectorX*terminalVectorY-headingVectorY*terminalVectorX, // x1*y2-y1*x2
-            headingVectorX*terminalVectorX+headingVectorY*terminalVectorY) // x1*x2+y1*y2
-        const step= angleDifference / 100;
-        this.heading += step
+    initRandUnitVector(dims: number){
+        for (let _ of arrays.range(0, dims-1)) this.push(2*Math.random()-1)
+        const mag= this.mag()
+        for (let i of arrays.range(0, dims-1)) this[i]=this[i]/mag
+        return this
+    }
+
+    initUnitRadians(deg: number) {
+        this.push(Math.cos(deg))
+        this.push(Math.sin(deg))
+        return this
+    }
+
+    initUnitDegrees(deg: number) {
+        return this.initUnitRadians(deg* (Math.PI/180))
+    }
+
+    add(v: Vector | number){
+        if ( typeof(v) === 'number' ) {
+            const multiplied: number[] = this.map((e) => e + v)
+            return new Vector(...multiplied)
+        } else if ( typeof v == 'object' ) {
+            const multiplied : number[] = this.map((e,i) => e + v[i])
+            return new Vector(...multiplied)
+        } else {
+            throw("Wat?")
+        }
+        return this
+    }
+
+    mul(v: Vector | number){
+        if ( typeof(v) === 'number' ) {
+            const multiplied: number[] = this.map((e) => e * v)
+            return new Vector(...multiplied)
+        } else if ( typeof v == 'object' ) {
+            const multiplied : number[] = this.map((e,i) => e * v[i])
+            return new Vector(...multiplied)
+        } else {
+            throw("Wat?")
+        }
+        return this
+    }
+
+    minus(v: Vector | number){
+        if ( typeof(v) === 'number' ) {
+            const multiplied: number[] = this.map((e) => e - v)
+            return new Vector(...multiplied)
+        } else if ( typeof v == 'object' ) {
+            const multiplied : number[] = this.map((e,i) => e - v[i])
+            return new Vector(...multiplied)
+        } else {
+            throw("Wat?")
+        }
+        return this
+    }
+
+    div(v: Vector | number){
+        if ( typeof(v) === 'number' ) {
+            const multiplied: number[] = this.map((e) => e / v)
+            return new Vector(...multiplied)
+        } else if ( typeof v == 'object' ) {
+            const multiplied : number[] = this.map((e,i) => e / v[i])
+            return new Vector(...multiplied)
+        } else {
+            throw("Wat?")
+        }
+        return this
+    }
+
+    dot(v: Vector){
+        return this.map((n, i) => n * v[i]).reduce((a, b) => a + b, 0);
+    }
+
+    // in radians
+    angleBetween(v2: Vector){
+        const v1=this;
+        return Math.atan2(
+            v1.x()*v2.y() - v1.y()*v2.x(),
+            v1.x()*v2.x() + v1.y()*v2.y(),
+        ) * -1
+    }
+
+    // from basis
+    radians(){
+        return this.angleBetween(new Vector(1, 0));
+    }
+
+    // from basis, -180 to pos 180
+    degrees(){
+        return this.radians() * (180/Math.PI);
+    }
+
+    // magnitude
+    mag(){
+        return Math.sqrt(this.map(n => n**2).reduce((a, b) => a + b, 0))
+    }
+}
+
+class Boid  {
+    position!: Vector
+    heading!: Vector
+    color= arrays.sample(colors)
+    ui: HTMLElement
+    personalBubble= 10 // in pixels
+
+    constructor(ui: HTMLElement, readonly id = demo.newId()) {
+//        this.position= new Vector(Math.random()*ui.offsetWidth, Math.random()*ui.offsetHeight)
+        this.position= new Vector(Math.random()*20, Math.random()*20)
+
+        //this.position= new Vector(900, 100)
+        this.heading= new Vector().initRandUnitVector(2)
+        //this.heading=new Vector().initUnitDegrees(100)
+        this.ui=ui;
+    }
+
+    isHealthyDistance = (b: Boid) =>
+        Math.abs(Math.sqrt((this.position.x() - b.position.x() )**2 +
+            (this.position.y() - b.position.y() )**2)) >= this.personalBubble
+
+    // Boids try to fly towards the centre of mass of neighbouring boids.
+    rule1 = (boids: Boid[]) => {
+        let pc= new Vector(0, 0)
+        for (let b of boids) {
+            if (b.id==this.id) continue
+            pc= pc.add(b.position)
+        }
+        return pc.div(boids.length - 1).minus(this.position).div(10000)
+    }
+
+    // Boids try to keep a small distance away from other objects (including other boids).
+    rule2 = (boids: Boid[]) => {
+        let c= new Vector(0, 0)
+        for (let b of boids) {
+            if (b.id==this.id || this.isHealthyDistance(b)) continue
+            c=c.minus(b.position.minus(this.position).div(100))
+        }
+        return c
+    }
+
+    rule3 = (boids: Boid[]) => {
+        let pv= new Vector(0, 0)
+        for (let b of boids) {
+            if (b.id==this.id) continue
+            pv= pv.add(b.heading)
+        }
+        return pv.div(boids.length - 1).minus(this.heading).div(100)
+    }
+
+    // https://math.stackexchange.com/questions/13261/how-to-get-a-reflection-vector
+    reflect(d: Vector, n: Vector){
+        return d.minus( n.mul(d.dot(n)).mul(2) )
     }
 
     nextPos = () => {
 
-        // Do step
-        this.x = (this.x + Math.cos(this.heading) * this.velocity)
-        this.y = (this.y + Math.sin(this.heading) * this.velocity)
+        let nextPos= this.position.add(this.heading)
 
-        // Handle collisions
-        // if (this.x > this.containerEl.offsetWidth) {
-        //     this.x = this.containerEl.offsetWidth;
-        //     this.heading = -1 * this.heading + 180;
-        //
-        // } else if (this.x <= 0) {
-        //     this.x=0
-        //     this.heading = -1 * this.heading + 180;
-        // }
-        //
-        // if (this.y > this.containerEl.offsetHeight) {
-        //     this.y = this.containerEl.offsetHeight;
-        //     this.heading *= -1;
-        // } else if (this.y <= 0) {
-        //     this.y=0
-        //     this.heading *= -1;
-        // }
+        // X COLLISIONS
+        if (nextPos.x() < 0) {
+            nextPos.setX(0)
+            this.heading=this.reflect(this.heading, new Vector(1, 0))
+        } else if (nextPos.x() > this.ui.offsetWidth) {
+            nextPos.setX(this.ui.offsetWidth)
+            this.heading=this.reflect(this.heading, new Vector(-1, 0))
+        }
+
+        // Y COLLISIONS
+        if (nextPos.y() < 0) {
+            nextPos.setY(0)
+            this.heading=this.reflect(this.heading, new Vector(0, -1))
+        } else if (nextPos.y() > this.ui.offsetHeight) {
+            nextPos.setY(this.ui.offsetHeight)
+            this.heading=this.reflect(this.heading, new Vector(0, 1))
+        }
+
+        this.position=nextPos
     }
 
     render = (svg: SVGElement) => {
-        // to wrap boids around on collision with boundary
-
         svg.path({
             id: this.id,
             fill:this.color,
             stroke: this.color,
             strokeWidth: '2',
-            d: `M${ this.x  } ${ this.y }, l-10 2, v-4 l10 2`,
-            transform: `rotate(${ this.heading * (180/Math.PI) }, ${ this.x }, ${ this.y })`,
+            d: `M${ this.position.x()  } ${ this.position.y() }, l-10 2, v-4 l10 2`,
+            transform: `rotate(${ this.heading.degrees() }, ${ this.position.x() }, ${ this.position.y() })`,
         })
     }
 }
@@ -86,28 +219,36 @@ export class Inputs extends Part<{}> {
     }
 }
 
-export class SVG extends Part<{containerEl: HTMLElement}> {
+export class SVG extends Part<{ui: HTMLElement}> {
 
     boids: Boid[] = []
-    centroidX= null
-    centroidY= null
+    centroid: Vector = new Vector(0,0)
     frameNumber= 0
     intervalRef: Timer
 
     init() {
-        this.boids= arrays.range(0, numBoids-1).map( () => new Boid(this.state.containerEl) )
-        this.nextCentroidPos()
-        this.intervalRef=setInterval(this.mainLoop, 10)
+        this.boids= arrays.range(0, numBoids-1).map( () => new Boid(this.state.ui) )
+        this.centroid= new Vector()
+        this.intervalRef=setInterval(this.mainLoop, 1)
+
+        console.log(this.boids[0].position)
+        console.log(this.boids[0].rule1(this.boids))
     }
 
     mainLoop = () => {
         this.nextCentroidPos()
 
         this.boids.forEach(b =>{
-            b.turnToward(this.centroidX, this.centroidY)
 
-            b.nextPos()})
-        if (this.frameNumber < 3000)
+            b.heading= b.heading
+                .add(b.rule1(this.boids))
+                .add(b.rule2(this.boids))
+                .add(b.rule3(this.boids))
+
+            b.nextPos()
+        })
+
+        if (this.frameNumber < 5000)
             this.frameNumber+=1
         else
             clearInterval(this.intervalRef)
@@ -116,26 +257,27 @@ export class SVG extends Part<{containerEl: HTMLElement}> {
     }
 
     nextCentroidPos = () => {
-        this.centroidX= this.boids.reduce((sum, b) => sum + b.x, 0) / this.boids.length
-        this.centroidY= this.boids.reduce((sum, b) => sum + b.y, 0) / this.boids.length
+        const sumX= this.boids.map(b=>b.position.x()).reduce((a, b) => a + b, 0)
+        const sumY= this.boids.map(b=>b.position.y()).reduce((a, b) => a + b, 0)
+        this.centroid= new Vector(sumX / this.boids.length, sumY / this.boids.length, )
     }
 
     svgAttrs = () => ({
         width: '100%',
         height: '100%',
         viewBox: {
-            width: this.state.containerEl.offsetWidth,
-            height: this.state.containerEl.offsetHeight }})
+            width: this.state.ui.offsetWidth,
+            height: this.state.ui.offsetHeight }})
 
     renderCentroid = (svg) =>
         svg.circle({
-            cx: this.centroidX, cy: this.centroidY,
+            cx: this.centroid.x(), cy: this.centroid.y(),
             fill: 'magenta', r: 5 }).css({ opacity: '0.75' })
 
     renderOrigin = (svg) =>
         svg.circle({
-            cx: this.state.containerEl.offsetWidth / 2,
-            cy: this.state.containerEl.offsetHeight / 2,
+            cx: this.state.ui.offsetWidth / 2,
+            cy: this.state.ui.offsetHeight / 2,
             r: 10, stroke: 'cyan', fill: 'cyan'})
 
     render(parent: PartTag) {
@@ -164,7 +306,7 @@ export class App extends Part<{}> {
 
     update(elem: HTMLElement) {
         const svgContainer= elem.getElementsByClassName("svg-container")[0]
-        Part.mount(SVG, svgContainer, {containerEl: svgContainer})
+        Part.mount(SVG, svgContainer, {ui: svgContainer})
     }
 }
 
