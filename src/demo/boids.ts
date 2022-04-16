@@ -4,135 +4,34 @@ import * as demo from './demo'
 import * as logging from '../logging'
 import {arrays} from "../main";
 import * as forms from "../forms";
-
+import Vector  from './vector'
 const log = new logging.Logger('Boids')
 
-class Vector extends Array {
+const numBoids= 20
+const boidColors= ['#0088aa', '#00aa88', '#6600dd']
 
-    x=(): number=>this[0]
-    y=(): number=>this[1]
-    setX=(n:number): this=>{this[0]=n; return this}
-    setY=(n:number): this=>{this[1]=n; return this}
-
-    constructor(...nums: number[]) {
-        super()
-        for (let n of nums) this.push(n)
-        return this
-    }
-
-    initRandUnitVector(dims: number){
-        for (let _ of arrays.range(0, dims-1)) this.push(2*Math.random()-1)
-        const mag= this.mag()
-        for (let i of arrays.range(0, dims-1)) this[i]=this[i]/mag
-        return this
-    }
-
-    initUnitRadians(deg: number) {
-        this.push(Math.cos(deg))
-        this.push(Math.sin(deg))
-        return this
-    }
-
-    initUnitDegrees(deg: number) {
-        return this.initUnitRadians(deg* (Math.PI/180))
-    }
-
-    add(v: Vector | number){
-        if ( typeof(v) === 'number' ) {
-            const multiplied: number[] = this.map((e) => e + v)
-            return new Vector(...multiplied)
-        } else if ( typeof v == 'object' ) {
-            const multiplied : number[] = this.map((e,i) => e + v[i])
-            return new Vector(...multiplied)
-        } else {
-            throw("Wat?")
-        }
-        return this
-    }
-
-    mul(v: Vector | number){
-        if ( typeof(v) === 'number' ) {
-            const multiplied: number[] = this.map((e) => e * v)
-            return new Vector(...multiplied)
-        } else if ( typeof v == 'object' ) {
-            const multiplied : number[] = this.map((e,i) => e * v[i])
-            return new Vector(...multiplied)
-        } else {
-            throw("Wat?")
-        }
-        return this
-    }
-
-    minus(v: Vector | number){
-        if ( typeof(v) === 'number' ) {
-            const multiplied: number[] = this.map((e) => e - v)
-            return new Vector(...multiplied)
-        } else if ( typeof v == 'object' ) {
-            const multiplied : number[] = this.map((e,i) => e - v[i])
-            return new Vector(...multiplied)
-        } else {
-            throw("Wat?")
-        }
-        return this
-    }
-
-    div(v: Vector | number){
-        if ( typeof(v) === 'number' ) {
-            const multiplied: number[] = this.map((e) => e / v)
-            return new Vector(...multiplied)
-        } else if ( typeof v == 'object' ) {
-            const multiplied : number[] = this.map((e,i) => e / v[i])
-            return new Vector(...multiplied)
-        } else {
-            throw("Wat?")
-        }
-        return this
-    }
-
-    dot(v: Vector){
-        return this.map((n, i) => n * v[i]).reduce((a, b) => a + b, 0);
-    }
-
-    // in radians
-    angleBetween(v2: Vector){
-        const v1=this;
-        return Math.atan2(
-            v1.x()*v2.y() - v1.y()*v2.x(),
-            v1.x()*v2.x() + v1.y()*v2.y(),
-        ) * -1
-    }
-
-    // from basis
-    radians(){
-        return this.angleBetween(new Vector(1, 0));
-    }
-
-    // from basis, -180 to pos 180
-    degrees(){
-        return this.radians() * (180/Math.PI);
-    }
-
-    // magnitude
-    mag(){
-        return Math.sqrt(this.map(n => n**2).reduce((a, b) => a + b, 0))
-    }
+type BoidAppStateType = {
+    boids: Boid[],
+    centroid: Vector,
+    frameNumber: number
 }
 
+// ui: HTMLElement
 class Boid  {
+
     position!: Vector
     heading!: Vector
-    color= arrays.sample(colors)
-    ui: HTMLElement
-    personalBubble= 10 // in pixels
+    color!: string
+    personalBubble!: number // in pixels
 
-    constructor(ui: HTMLElement, readonly id = demo.newId()) {
-//        this.position= new Vector(Math.random()*ui.offsetWidth, Math.random()*ui.offsetHeight)
+    constructor(color: string, readonly id = demo.newId()) {
+        this.color= color
+        //this.position= new Vector(Math.random()*ui.offsetWidth, Math.random()*ui.offsetHeight)
         this.position= new Vector(Math.random()*20, Math.random()*20)
-
         //this.position= new Vector(900, 100)
         this.heading= new Vector().initRandUnitVector(2)
         //this.heading=new Vector().initUnitDegrees(100)
-        this.ui=ui;
+        //this.ui=ui;
     }
 
     isHealthyDistance = (b: Boid) =>
@@ -269,13 +168,9 @@ export class SVG extends Part<{ui: HTMLElement}> {
             this.renderOrigin(svg) })}
 }
 
-class BoidForm extends forms.FormPart<BoidState> {
+class BoidForm extends forms.FormPart<BoidAppStateType> {
 
     init() {
-
-        this.onDataChanged(this.dataChangedKey, m => {
-            log.info("Contact form data changed", m)
-        })
     }
 
     render(parent: PartTag) {
@@ -283,30 +178,18 @@ class BoidForm extends forms.FormPart<BoidState> {
     }
 }
 
-class BoidState {
-    boids: Boid[] = []
-    centroid: Vector = new Vector(0,0)
-    colors= ['#0088aa', '#00aa88', '#6600dd']
-    numBoids= 20 // the number of each boid to generate
-    frameNumber= 0
-    //intervalRef!: Timer
-
-    constructor() {
-        this.boids= arrays.range(0, numBoids-1).map( () => new Boid(this.state.ui) )
-        this.centroid= new Vector()
-        //this.intervalRef=setInterval(this.mainLoop, 1)
-    }
-}
-
 export class App extends Part<{}> {
 
     areaHeight= '500px' // Height of svg container
-    appState!: BoidState
     appForm!: BoidForm
+    appState: BoidAppStateType = {
+        frameNumber: 0,
+        centroid: new Vector(0,0),
+        boids: arrays.range(0, numBoids-1).map(() => new Boid(arrays.sample(boidColors)) ),
+    }
 
     init() {
-        this.appState= new BoidState()
-        this.appForm= this.makePart(BoidForm, {})
+        this.appForm= this.makePart(BoidForm, this.appState)
     }
 
     render(parent: PartTag) {
