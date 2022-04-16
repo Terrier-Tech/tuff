@@ -3,12 +3,9 @@ import * as styles from './styles.css'
 import * as demo from './demo'
 import * as logging from '../logging'
 import {arrays} from "../main";
+import * as forms from "../forms";
 
 const log = new logging.Logger('Boids')
-
-const colors= ['#0088aa', '#00aa88', '#6600dd']
-const areaHeight= '500px' // Height of svg container
-const numBoids= 20 // the number of each boid to generate
 
 class Vector extends Array {
 
@@ -213,26 +210,10 @@ class Boid  {
     }
 }
 
-export class Inputs extends Part<{}> {
-    render(parent: PartTag) {
-        parent.h1().text("INPUTS")
-    }
-}
-
 export class SVG extends Part<{ui: HTMLElement}> {
 
-    boids: Boid[] = []
-    centroid: Vector = new Vector(0,0)
-    frameNumber= 0
-    intervalRef: Timer
-
     init() {
-        this.boids= arrays.range(0, numBoids-1).map( () => new Boid(this.state.ui) )
-        this.centroid= new Vector()
-        this.intervalRef=setInterval(this.mainLoop, 1)
 
-        console.log(this.boids[0].position)
-        console.log(this.boids[0].rule1(this.boids))
     }
 
     mainLoop = () => {
@@ -288,25 +269,58 @@ export class SVG extends Part<{ui: HTMLElement}> {
             this.renderOrigin(svg) })}
 }
 
-export class App extends Part<{}> {
-
-    inputs!: Inputs
+class BoidForm extends forms.FormPart<BoidState> {
 
     init() {
-        this.inputs= this.makePart(Inputs, {})
+
+        this.onDataChanged(this.dataChangedKey, m => {
+            log.info("Contact form data changed", m)
+        })
+    }
+
+    render(parent: PartTag) {
+        parent.h1().text("INPUTS")
+    }
+}
+
+class BoidState {
+    boids: Boid[] = []
+    centroid: Vector = new Vector(0,0)
+    colors= ['#0088aa', '#00aa88', '#6600dd']
+    numBoids= 20 // the number of each boid to generate
+    frameNumber= 0
+    //intervalRef!: Timer
+
+    constructor() {
+        this.boids= arrays.range(0, numBoids-1).map( () => new Boid(this.state.ui) )
+        this.centroid= new Vector()
+        //this.intervalRef=setInterval(this.mainLoop, 1)
+    }
+}
+
+export class App extends Part<{}> {
+
+    areaHeight= '500px' // Height of svg container
+    appState!: BoidState
+    appForm!: BoidForm
+
+    init() {
+        this.appState= new BoidState()
+        this.appForm= this.makePart(BoidForm, {})
     }
 
     render(parent: PartTag) {
         parent.div(styles.flexRow, styles.padded, d => {
-            d.div('#input-container', styles.contentInset, styles.padded, d => { d.part(this.inputs) })
+            d.div('#input-container', styles.contentInset, styles.padded, d => {
+                d.part(this.appForm) })
             d.div('#svg-container','.svg-container', styles.contentInset, styles.flexStretch)
-                .css({ height: areaHeight })
+                .css({ height: this.areaHeight })
         })
     }
 
     update(elem: HTMLElement) {
         const svgContainer= elem.getElementsByClassName("svg-container")[0]
-        Part.mount(SVG, svgContainer, {ui: svgContainer})
+        //Part.mount(SVG, svgContainer, {ui: svgContainer})
     }
 }
 
