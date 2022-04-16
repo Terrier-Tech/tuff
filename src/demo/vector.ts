@@ -109,4 +109,8 @@ export default class Vector extends Array {
     mag(){
         return Math.sqrt(this.map(n => n**2).reduce((a, b) => a + b, 0))
     }
+
+    distanceTo(v: Vector){
+        return Math.sqrt((this.x() - v.x() )**2 + (this.y() - v.y() )**2)
+    }
 }
