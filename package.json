@@ -4,7 +4,7 @@
   "files": [
     "dist"
   ],
-  "version": "0.3.6",
+  "version": "0.4.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/Terrier-Tech/tuff"
@@ -36,5 +36,10 @@
     ".": {
       "import": "./dist/tuff.es.js"
     }
+  },
+  "dependencies": {
+    "@types/path-to-regexp": "^1.7.0",
+    "path-to-regexp": "^6.2.0",
+    "typesafe-routes": "^7.0.2"
   }
 }
