@@ -1,4 +1,4 @@
-import {Part, PartTag} from '../parts'
+import {Part, PartTag, RenderContext} from '../parts'
 import * as forms from '../forms'
 import * as messages from '../messages'
 import * as styles from './styles.css'
@@ -68,6 +68,7 @@ class ContactFormPart extends forms.FormPart<ContactState> {
         })
 
         this.onClick(deletePhoneKey, m => {
+            log.info("Deleting phone", m.data)
             this.removeChild(this.phoneForms[m.data.id])
             delete this.phoneForms[m.data.id]
             this.dirty()
@@ -87,10 +88,11 @@ class ContactFormPart extends forms.FormPart<ContactState> {
         this.onDataChanged(part.dataChangedKey, m => {
             log.info("Phone data changed", m)
         })
+        log.info("Adding phone", this)
         this.dirty()
     }
 
-    render(parent: PartTag) {
+    render(parent: PartTag, context: RenderContext) {
         parent.class(styles.contactForm)
         this.textInput(parent, "name", {placeholder: 'Name'})
         this.emailInput(parent, "email", {placeholder: 'E-Mail'})
@@ -120,14 +122,14 @@ class ContactFormPart extends forms.FormPart<ContactState> {
             })
         })
         for (let [_, phoneForm] of Object.entries(this.phoneForms)) {
-            parent.part(phoneForm)
+            parent.part(phoneForm, context)
         }
         
         this.textArea(parent, "notes", {placeholder: 'Notes', rows: 3})
     }
 }
 
-export class App extends Part<{}> {
+export class ContactsApp extends Part<{}> {
 
     forms = new Array<ContactFormPart>()
 
@@ -141,10 +143,10 @@ export class App extends Part<{}> {
         }))
     }
 
-    render(parent: PartTag) {
+    render(parent: PartTag, context: RenderContext) {
         parent.class(styles.contactsContainer)
         for (let form of this.forms) {
-            parent.part(form)
+            parent.part(form, context)
         }
     }
 
@@ -153,5 +155,5 @@ export class App extends Part<{}> {
 
 const container = document.getElementById('contacts')
 if (container) {
-    Part.mount(App, container, {})
+    Part.mount(ContactsApp, container, {})
 }

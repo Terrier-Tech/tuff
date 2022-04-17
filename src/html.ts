@@ -1,4 +1,4 @@
-import { Part } from './parts'
+import { Part, RenderContext } from './parts'
 import { Attrs, Tag, TagArgs } from './tags'
 import { SVGTag } from "./svg"
 import * as strings from './strings'
@@ -33,8 +33,8 @@ export abstract class HtmlTagBase<AttrsType extends Attrs> extends Tag<AttrsType
 
     /// Parts
 
-    part(part: Part<{}>) {
-        part.renderInTag(this)
+    part(part: Part<{}>, context: RenderContext) {
+        part.renderInTag(this, context)
     }
 
 

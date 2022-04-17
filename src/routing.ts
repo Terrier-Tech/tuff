@@ -1,7 +1,7 @@
 import {Logger} from './logging'
 import { route, ExtractParserReturnTypes, RouteNode, InferParamGroups, Parser, MergeParamGroups } from "typesafe-routes"
 import {pathToRegexp} from 'path-to-regexp'
-import {Part, PartConstructor, PartTag} from './parts'
+import {Part, PartConstructor, PartTag, RenderContext} from './parts'
 
 const log = new Logger('Routing')
 Logger.level = "debug"
@@ -79,70 +79,10 @@ export class RouterPart extends Part<{}> {
 
     currentPart?: Part<any>
 
-    render(parent: PartTag) {
+    render(parent: PartTag, context: RenderContext) {
         if (this.currentPart) {
-            parent.part(this.currentPart)
+            parent.part(this.currentPart, context)
         }
     }
 
 }
-
-/**
- * Builder object returned by `build()` that constructs a router.
- */
-// class RouteBuilder {
-
-//     readonly routes = Array<IRoute>()
-
-//     map<PartType extends Part<StateType>, StateType extends object>(
-//         partType: PartConstructor<PartType,StateType>,
-//         routeNode: RouteNode<string, StateType, {}, false>
-//     ): RouteBuilder {
-//         this.routes.push(new Route(partType, routeNode))
-//         return this
-//     }
-
-//     mount(mountPoint: MountPoint) {
-//         const router = new Router(this.routes)
-//         router.mount(mountPoint)
-//         return router
-//     }
-
-//     mock() {
-//         return new Router(this.routes)
-//     }
-
-// }
-
-// export function build(): RouteBuilder {
-//     return new RouteBuilder()
-// }
-
-/**
- * Mounts to a point in the DOM and matches a set of routes to it.
- */
-// class Router {
-
-//     constructor(readonly routes: Array<IRoute>) {
-
-//     }
-
-//     mount(mountPoint: MountPoint) {
-
-//     }
-
-//     /**
-//      * @param path a raw URL path
-//      * @returns the matching route, if any
-//      */
-//     match(path: string): IRoute | null {
-//         for (let route of this.routes) {
-//             if (route.match(path)) {
-//                 log.debug(`Matched "${path}" to '${route.template}'`)
-//                 return route
-//             }
-//         }
-//         return null
-//     }
-
-// }

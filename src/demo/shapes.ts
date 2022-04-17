@@ -56,7 +56,7 @@ class Shape {
 const shapeKey = messages.typedKey<string>()
 const mouseKey = messages.untypedKey()
 
-export class App extends Part<{}> {
+export class ShapesApp extends Part<{}> {
 
     selected?: Shape
     shapes: {[id: string]: Shape} = {} 
@@ -151,5 +151,5 @@ export class App extends Part<{}> {
 
 const container = document.getElementById('shapes')
 if (container) {
-    Part.mount(App, container, {})
+    Part.mount(ShapesApp, container, {})
 }
