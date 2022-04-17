@@ -47,6 +47,33 @@ export type MountPoint = HTMLElement | string
  */ 
 export interface PartTag extends DivTag {}
 
+/**
+ * An init context gets passed to the init() method of a Part.
+ */
+export type InitContext = {
+    root: Part<any>
+}
+
+/**
+ * A load context gets passed to the load() method of a Part.
+ */
+export type LoadContext = {}
+
+/**
+ * A render context gets passed to the render() method of a Part.
+ */
+export type RenderContext = {
+    frame: number
+}
+
+/**
+ * An update context gets passed to the update() method of a Part.
+ */
+export type UpdateContext = {
+    frame: number
+}
+
+
 export abstract class Part<StateType> {
     
     /// Root
@@ -137,16 +164,41 @@ export abstract class Part<StateType> {
         if (!this._initialized) {
             this._initialized = true
             log.debug('Initializing', this)
-            this.init()
+            const root = this.root
+            this.init({root})
+            const lastLoadContext = root._lastLoadContext
+            if (lastLoadContext) {
+                log.debug("Loading", this)
+                this.load(lastLoadContext)
+            }
         }
         this.eachChild(child => {
             child._init()
         })
     }
 
-    // Parts can override this to provide custom behavior that is run
-    // exactly once before the part is rendered for the first time
-    init() {
+    /**
+     * Parts can override this to provide custom behavior that is run
+     * exactly once before the part is rendered for the first time.
+     */
+    init(_context: InitContext) {
+    }
+
+
+    /// Loading
+
+    /**
+     * Parts can override this to provide custom behavior that is run after init()
+     * and whenever the page changes.
+     */
+    load(_context: LoadContext) {
+
+    }
+
+    private _lastLoadContext?: LoadContext
+
+    private _computeLoadContext() {
+        this._lastLoadContext = {}
     }
 
 
@@ -185,7 +237,7 @@ export abstract class Part<StateType> {
         requestAnimationFrame(t => {
             this._frameRequested = false
             log.debug('Frame', t)
-            this._markClean()
+            this._markClean(t)
             this._attachEventListeners()
         })
     }
@@ -250,10 +302,9 @@ export abstract class Part<StateType> {
     private _needsEventListeners = true
 
     /**
-     * Tell this element and its children that they need to attach event listeners
+     * Tells the children that they need to attach event listeners.
      */
     private _childrenNeedEventListeners() {
-        this._needsEventListeners = true
         this.eachChild(child => {
             child._childrenNeedEventListeners()
         })
@@ -410,6 +461,7 @@ export abstract class Part<StateType> {
         else {
             this._mountElement = document.getElementById(elem)!
         }
+        this._computeLoadContext()
         this._requestFrame()
     }
 
@@ -429,27 +481,26 @@ export abstract class Part<StateType> {
     
     /// Rendering
 
-    renderInTag(container: HtmlParentTag) {
+    renderInTag(container: HtmlParentTag, context: RenderContext) {
         this._renderState = "clean"
         container.div({id: this.id}, parent => {
-            this.render(parent)
+            this.render(parent, context)
         })
     }
 
-    abstract render(parent: PartTag): any
+    abstract render(parent: PartTag, context: RenderContext): any
 
     /**
      * Recursively crawls the children to see if any is dirty, then renders their entire branch.
      * If they're only stale, calls the update() method.
      */
-    private _markClean() {
+    private _markClean(frame: number) {
         this._init()
         if (this._renderState == "dirty") {
             // stop the chain, re-render the whole tree from here on down
-            log.debugTime('Update', () => {
-                this._init()
+            log.debugTime('Render', () => {
                 let parent = new DivTag("")
-                this.render(parent)
+                this.render(parent, {frame})
                 let output = Array<string>()
                 parent.buildInner(output)
                 const elem = this.element
@@ -460,16 +511,16 @@ export abstract class Part<StateType> {
                     throw(`Trying to render a part with no element!`)
                 }
                 this._childrenNeedEventListeners()
-                this._update()
+                this._update({frame})
             })
         }
         else if (this._renderState == "stale") {
-            this._update()
+            this._update({frame})
         }
         else {
             // keep propagating through the tree to see if anyone else needs to be rendered or updated
             this.eachChild(child => {
-                child._markClean()
+                child._markClean(frame)
             })
         }
     }
@@ -481,14 +532,14 @@ export abstract class Part<StateType> {
      * Gets called every time the part is rendered.
      * @param _elem the actual DOM element containing the part
      */
-    update(_elem: HTMLElement) {
+    update(_elem: HTMLElement, _context: UpdateContext) {
 
     }
 
     /**
      * Recursively calls `update()` on this part and all of its children.
      */
-    private _update() {
+    private _update(context: UpdateContext) {
         let elem = this.element
         if (!elem || !elem.isConnected) {
             elem = document.getElementById(this.id)
@@ -497,10 +548,10 @@ export abstract class Part<StateType> {
         if (!elem) {
             throw(`Trying to update a part with no element!`)
         }
-        this.update(elem)
+        this.update(elem, context)
         this._renderState = "clean"
         this.eachChild(child => {
-            child._update()
+            child._update(context)
         })
     }
 

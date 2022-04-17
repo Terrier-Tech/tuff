@@ -1,4 +1,4 @@
-import {Part, PartTag, StatelessPart} from '../parts'
+import {Part, PartTag, RenderContext, StatelessPart} from '../parts'
 import {Logger} from '../logging'
 import * as styles from './styles.css'
 import * as counter from './counter'
@@ -37,9 +37,9 @@ class App extends Part<{}> {
 
     init() {
         this.output = this.makePart(OutputPart, {output: ""})
-        this.parts['Counter'] = this.makeStatelessPart(counter.App)
-        this.parts['Contacts'] = this.makeStatelessPart(contacts.App)
-        this.parts['Shapes'] = this.makeStatelessPart(shapes.App)
+        this.parts['Counter'] = this.makeStatelessPart(counter.CounterApp)
+        this.parts['Contacts'] = this.makeStatelessPart(contacts.ContactsApp)
+        this.parts['Shapes'] = this.makeStatelessPart(shapes.ShapesApp)
 
         this.output.write("Initialized!")
 
@@ -48,16 +48,16 @@ class App extends Part<{}> {
         })
     }
 
-    render(parent: PartTag) {
+    render(parent: PartTag, context: RenderContext) {
         for (let [name, part] of Object.entries(this.parts)) {
             parent.h2(styles.partPreviewTitle, {text: name})
                 .css({textAlign: 'center'}) // test inline styles
             parent.div(styles.partPreview, d => {
-                d.part(part)
+                d.part(part, context)
             })
         }
 
-        parent.part(this.output)
+        parent.part(this.output, context)
     }
 }
 
