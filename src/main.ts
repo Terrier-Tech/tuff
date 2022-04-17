@@ -7,5 +7,6 @@ import * as strings from './strings'
 import * as arrays from './arrays'
 import * as html from './html'
 import * as svg from './svg'
+import * as urls from './urls'
 
-export {logging, parts, messages, tags, keyboard, strings, arrays, svg, html}
+export {logging, parts, messages, tags, keyboard, strings, arrays, svg, html, urls}
