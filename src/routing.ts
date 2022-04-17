@@ -1,7 +1,7 @@
 import {Logger} from './logging'
 import { route, ExtractParserReturnTypes, RouteNode, InferParamGroups, Parser, MergeParamGroups } from "typesafe-routes"
 import {pathToRegexp} from 'path-to-regexp'
-import {Part, PartConstructor} from './parts'
+import {Part, PartConstructor, PartTag} from './parts'
 
 const log = new Logger('Routing')
 Logger.level = "debug"
@@ -61,6 +61,30 @@ export class Route<PartType extends Part<StateType>,
         }
         return this.routeNode.parseParams(raw as Record<T, string>) as StateType
     }
+}
+
+
+export class RouterPart extends Part<{}> {
+
+    routes = Array<IRoute>()
+
+    routePart<PartType extends Part<StateType>, 
+    StateType extends ExtractParserReturnTypes<PM, keyof PM>, 
+    T extends string, 
+    PM extends ParserMap<MergeParamGroups<InferParamGroups<T>>> >(
+        partType: PartConstructor<PartType,StateType>, template: T, parserMap: PM
+    ) {
+        this.routes.push(new Route(partType, template, parserMap))
+    }
+
+    currentPart?: Part<any>
+
+    render(parent: PartTag) {
+        if (this.currentPart) {
+            parent.part(this.currentPart)
+        }
+    }
+
 }
 
 /**
