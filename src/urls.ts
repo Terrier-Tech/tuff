@@ -47,7 +47,10 @@ export class QueryParams {
  */
 export function parseQueryParams(search: string): QueryParams {
     const raw: Record<string,string> = {}
-    search = search.replace(/^\?/, '')
+    search = search.replace(/^\?/, '').trim()
+    if (search.length == 0) {
+        return new QueryParams(raw)
+    }
     for (let kv of search.split('&')) {
         const comps = kv.split('=')
         switch (comps.length) {

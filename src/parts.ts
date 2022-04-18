@@ -1,6 +1,7 @@
 import * as messages from './messages'
 import { Logger } from './logging'
 import * as keyboard from './keyboard'
+import * as urls from './urls'
 import { DivTag, HtmlParentTag } from './html'
 
 const log = new Logger('Part')
@@ -57,7 +58,9 @@ export type InitContext = {
 /**
  * A load context gets passed to the load() method of a Part.
  */
-export type LoadContext = {}
+export type LoadContext = {
+    queryParams: urls.QueryParams
+}
 
 /**
  * A render context gets passed to the render() method of a Part.
@@ -198,7 +201,9 @@ export abstract class Part<StateType> {
     private _lastLoadContext?: LoadContext
 
     private _computeLoadContext() {
-        this._lastLoadContext = {}
+        this._lastLoadContext = {
+            queryParams: urls.parseQueryParams(window.location.search)
+        }
     }
 
 

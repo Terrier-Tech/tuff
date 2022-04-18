@@ -1,4 +1,4 @@
-import {Part, PartTag, RenderContext, StatelessPart} from '../parts'
+import {LoadContext, Part, PartTag, RenderContext, StatelessPart} from '../parts'
 import {Logger} from '../logging'
 import * as styles from './styles.css'
 import * as counter from './counter'
@@ -46,6 +46,10 @@ class App extends Part<{}> {
         this.onKeyPress(messages.keyPress("z", "control/command"), m => {
             log.debug("Key press message", m)
         })
+    }
+
+    load(ctx: LoadContext) {
+        log.info("Loaded with context", ctx)
     }
 
     render(parent: PartTag, context: RenderContext) {
