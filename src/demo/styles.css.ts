@@ -49,6 +49,12 @@ export const flexRow = style({
     gap: sizes.pad
 })
 
+export const flexColumn = style({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: sizes.pad
+})
+
 export const flexStretch = style({
     flex: '1 1 auto'
 })
@@ -210,7 +216,6 @@ export const phoneForm = style({
 
 // Shapes
 
-
 export const shapesScroller = style({
     width: '100%',
     height: 600,
@@ -230,4 +235,12 @@ export const selectedShape = style({
     stroke: colors.selected,
     fill: `${colors.selected}44`,
     strokeWidth: 4
+})
+
+
+// Nav
+
+export const navChild = style({
+    padding: '2em',
+    textAlign: 'center'
 })

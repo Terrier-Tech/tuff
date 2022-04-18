@@ -495,6 +495,7 @@ export abstract class HtmlTagBase<AttrsType extends Attrs> extends Tag<AttrsType
 //// Begin Tag Classes
 
 export type AnchorTagAttrs = DefaultTagAttrs & {
+    href?: string
     download?: string
     hreflang?: string
     ping?: string

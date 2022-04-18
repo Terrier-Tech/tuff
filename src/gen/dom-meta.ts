@@ -26,6 +26,14 @@ export class Element {
             this.className = 'DefaultTag'
         }
 
+        // add hard-coded attributes missing from lib.dom.ts
+        switch (this.className) {
+            case 'AnchorTag':
+                // someone please explain this to me...
+                this.attrTypes['href'] = 'string'
+                break
+        }
+
         // parse the attributes
         for (let prop of tst.getProperties(iface)) {
             // svg and html attributes are handled differently

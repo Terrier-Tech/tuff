@@ -59,6 +59,9 @@ export type InitContext = {
  * A load context gets passed to the load() method of a Part.
  */
 export type LoadContext = {
+    href: string
+    host: string
+    path: string
     queryParams: urls.QueryParams
 }
 
@@ -74,6 +77,13 @@ export type RenderContext = {
  */
 export type UpdateContext = {
     frame: number
+}
+
+/**
+ * Options passed to a Part's `mount()` method.
+ */
+export type MountOptions = {
+    capturePath?: string
 }
 
 
@@ -198,10 +208,20 @@ export abstract class Part<StateType> {
 
     }
 
+    private _load(context: LoadContext) {
+        this.load(context)
+        this.eachChild(child => {
+            child._load(context)
+        })
+    }
+
     private _lastLoadContext?: LoadContext
 
-    private _computeLoadContext() {
-        this._lastLoadContext = {
+    private _computeLoadContext(): LoadContext {
+        return this._lastLoadContext = {
+            href: window.location.href,
+            host: window.location.host,
+            path: window.location.pathname,
             queryParams: urls.parseQueryParams(window.location.search)
         }
     }
@@ -421,6 +441,7 @@ export abstract class Part<StateType> {
         this.listen<"keypress",messages.KeyPress>("keypress", press, listener, {attach: "active"})
     }
 
+
     /// Mounting
     
     /**
@@ -459,13 +480,18 @@ export abstract class Part<StateType> {
         return !!this._mountElement
     }
 
-    private mount(elem: MountPoint) {
+    private mount(elem: MountPoint, mountOptions?: MountOptions) {
         if (elem instanceof HTMLElement) {
             this._mountElement = elem!
         }
         else {
             this._mountElement = document.getElementById(elem)!
         }
+
+        if (mountOptions?.capturePath?.length) {
+            this._capturePath(mountOptions)
+        }
+
         this._computeLoadContext()
         this._requestFrame()
     }
@@ -473,14 +499,35 @@ export abstract class Part<StateType> {
     /** 
      * Mounts a part to a DOM element (by DOM object or id).
      */
-    static mount<PartType extends Part<StateType>, StateType>(partType: PartConstructor<PartType,StateType>, mountPoint: MountPoint, state: StateType): PartType {
+    static mount<PartType extends Part<StateType>, StateType>
+            (partType: PartConstructor<PartType,StateType>, mountPoint: MountPoint, state: StateType, mountOptions?: MountOptions): PartType {
         const id = typeof mountPoint == 'string' ? mountPoint : mountPoint.getAttribute("id")
         if (!id) {
             throw "You must either mount a part directly to a DOM node with id attribute or provide the id value as a string"
         }
         const part = new partType(null, id, state)
-        part.mount(mountPoint)
+        part.mount(mountPoint, mountOptions)
         return part
+    }
+
+
+    /// Path Capture
+
+    private _capturePath(mountOptions: MountOptions) {
+        const pathStart = mountOptions.capturePath || '/'
+        document.addEventListener("click", (evt) => {
+            const target = evt.target as HTMLElement
+            if (target.tagName == 'A') {
+                const href = target.getAttribute("href")
+                if (href?.startsWith(pathStart)) {
+                    evt.stopPropagation()
+                    evt.preventDefault()
+                    log.debug(`Captured navigation to ${href}`)
+                    history.pushState(null, '', href)
+                    this._load(this._computeLoadContext())
+                }
+            }
+        })
     }
 
     

@@ -1,7 +1,7 @@
 import {Logger} from './logging'
 import { route, ExtractParserReturnTypes, RouteNode, InferParamGroups, Parser, MergeParamGroups } from "typesafe-routes"
 import {pathToRegexp} from 'path-to-regexp'
-import {Part, PartConstructor, PartTag, RenderContext} from './parts'
+import {LoadContext, Part, PartConstructor, PartTag, RenderContext, StatelessPart} from './parts'
 
 const log = new Logger('Routing')
 Logger.level = "debug"
@@ -9,7 +9,9 @@ Logger.level = "debug"
 
 interface IRoute {
     match(path: string): boolean
+    parse(path: string): Record<string,string>|null
     template: string
+    partType: PartConstructor<StatelessPart,any>
 }
 
 /**
@@ -69,15 +71,29 @@ export class RouterPart extends Part<{}> {
     routes = Array<IRoute>()
 
     routePart<PartType extends Part<StateType>, 
-    StateType extends ExtractParserReturnTypes<PM, keyof PM>, 
-    T extends string, 
-    PM extends ParserMap<MergeParamGroups<InferParamGroups<T>>> >(
+            StateType extends ExtractParserReturnTypes<PM, keyof PM>, 
+            T extends string, 
+            PM extends ParserMap<MergeParamGroups<InferParamGroups<T>>>>(
         partType: PartConstructor<PartType,StateType>, template: T, parserMap: PM
     ) {
         this.routes.push(new Route(partType, template, parserMap))
     }
 
     currentPart?: Part<any>
+
+    load(context: LoadContext) {
+        if (this.currentPart) {
+            this.removeChild(this.currentPart)
+        }
+        for (let route of this.routes) {
+            if (route.match(context.path)) {
+                const state = route.parse(context.path)
+                this.currentPart = this.makePart(route.partType, state)
+                this.dirty()
+                return
+            }
+        }
+    }
 
     render(parent: PartTag, context: RenderContext) {
         if (this.currentPart) {
