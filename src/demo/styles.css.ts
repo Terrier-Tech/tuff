@@ -6,6 +6,7 @@ const colors = {
     fg: '#222',
     bg: '#f8f8f8',
     button: '#08a',
+    warn: '#ffa602',
     output: '#e8f0ff',
     border: '#ccc',
     preview: '#aaa',
@@ -114,6 +115,10 @@ export const button = style({
     textAlign: 'center',
     textDecoration: 'none',
     ...scalePush
+})
+
+export const warnBg = style({
+    backgroundColor: colors.warn
 })
 
 export const characterLink = style({

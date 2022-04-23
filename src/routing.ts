@@ -74,10 +74,27 @@ export class Route<PartType extends Part<StateType>,
     }
 }
 
+/**
+ * Generates a route for a part.
+ * @param partType a `Part` subclass
+ * @param template the path template
+ * @param parserMap a map of state fields to parsers
+ * @returns 
+ */
+export function partRoute<PartType extends Part<StateType>, 
+        StateType extends ExtractParserReturnTypes<PM, keyof PM>, 
+        T extends string, 
+        PM extends ParserMap<MergeParamGroups<InferParamGroups<T>>> >
+        (partType: PartConstructor<PartType,StateType>, template: T, parserMap: PM): Route<PartType, StateType, T, PM> {
+    return new Route(partType, template, parserMap)
+}
+
 
 export abstract class RouterPart extends Part<{}> {
 
     abstract routes: Record<string,IRoute>
+
+    abstract defaultPart: PartConstructor<StatelessPart,{}>
 
     currentPart?: Part<any>
 
@@ -94,7 +111,9 @@ export abstract class RouterPart extends Part<{}> {
                 return
             }
         }
-        log.warn(`No matching route for ${context.path}`)
+        log.warn(`No matching route for ${context.path}, making a default part`, this.defaultPart)
+        this.currentPart = this.makePart(this.defaultPart, {})
+        this.dirty()
     }
 
     render(parent: PartTag, context: RenderContext) {

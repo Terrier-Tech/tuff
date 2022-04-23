@@ -1,8 +1,16 @@
 import { stringParser } from 'typesafe-routes'
 import {LoadContext, Part, PartTag, RenderContext} from '../parts'
-import { Route, RouterPart } from '../routing'
+import { partRoute, RouterPart } from '../routing'
 import * as styles from './styles.css'
 
+
+class UnknownPathPart extends Part<{}> {
+
+    render(parent: PartTag, context: RenderContext) {
+        parent.class(styles.output).text(`Unknown path`)
+    }
+
+}
 
 class StaticChildPart extends Part<{}> {
     message = 'Not Loaded'
@@ -29,9 +37,9 @@ class IdChildPart extends Part<IdState> {
 
 
 const routes = {
-    root: new Route(StaticChildPart, "/", {}),
-    hello: new Route(StaticChildPart, "/hello", {}),
-    foo: new Route(IdChildPart, "/foo/:id", {
+    root: partRoute(StaticChildPart, "/", {}),
+    hello: partRoute(StaticChildPart, "/hello", {}),
+    foo: partRoute(IdChildPart, "/foo/:id", {
         id: stringParser
     })
 }
@@ -40,6 +48,10 @@ export class NavApp extends RouterPart {
     
     get routes() {
         return routes
+    }
+
+    get defaultPart() {
+        return UnknownPathPart
     }
     
     render(parent: PartTag, context: RenderContext) {
@@ -54,6 +66,7 @@ export class NavApp extends RouterPart {
             for (let text of urls) {
                 col.a(styles.button, {href: text}).text(text)
             }
+            col.a(styles.button, styles.warnBg, {href: '/unknown'}).text("/unknown")
         })
         parent.div(styles.flexStretch, styles.padded, col => {
             super.render(col, context)
