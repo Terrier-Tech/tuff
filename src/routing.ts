@@ -10,6 +10,7 @@ Logger.level = "debug"
 interface IRoute {
     match(path: string): boolean
     parse(path: string): Record<string,string>|null
+    path(state: any): string
     template: string
     partType: PartConstructor<StatelessPart,any>
 }
@@ -63,21 +64,20 @@ export class Route<PartType extends Part<StateType>,
         }
         return this.routeNode.parseParams(raw as Record<T, string>) as StateType
     }
+
+    path(state: StateType): string {
+        const path = this.routeNode(state).$
+        if (path.length) {
+            return path
+        }
+        return '/' // assume blank paths are the root
+    }
 }
 
 
-export class RouterPart extends Part<{}> {
+export abstract class RouterPart extends Part<{}> {
 
-    routes = Array<IRoute>()
-
-    routePart<PartType extends Part<StateType>, 
-            StateType extends ExtractParserReturnTypes<PM, keyof PM>, 
-            T extends string, 
-            PM extends ParserMap<MergeParamGroups<InferParamGroups<T>>>>(
-        partType: PartConstructor<PartType,StateType>, template: T, parserMap: PM
-    ) {
-        this.routes.push(new Route(partType, template, parserMap))
-    }
+    abstract routes: Record<string,IRoute>
 
     currentPart?: Part<any>
 
@@ -85,14 +85,16 @@ export class RouterPart extends Part<{}> {
         if (this.currentPart) {
             this.removeChild(this.currentPart)
         }
-        for (let route of this.routes) {
+        for (let route of Object.values(this.routes)) {
             if (route.match(context.path)) {
                 const state = route.parse(context.path)
                 this.currentPart = this.makePart(route.partType, state)
+                log.debug(`Routed ${context.path} to part`, this.currentPart)
                 this.dirty()
                 return
             }
         }
+        log.warn(`No matching route for ${context.path}`)
     }
 
     render(parent: PartTag, context: RenderContext) {
