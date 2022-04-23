@@ -1,7 +1,7 @@
 import {Logger} from './logging'
 import { route, ExtractParserReturnTypes, RouteNode, InferParamGroups, Parser, MergeParamGroups } from "typesafe-routes"
 import {pathToRegexp} from 'path-to-regexp'
-import {LoadContext, Part, PartConstructor, PartTag, RenderContext, StatelessPart} from './parts'
+import {Part, PartConstructor, PartTag, StatelessPart} from './parts'
 
 const log = new Logger('Routing')
 Logger.level = "debug"
@@ -98,27 +98,28 @@ export abstract class RouterPart extends Part<{}> {
 
     currentPart?: Part<any>
 
-    load(context: LoadContext) {
+    load() {
         if (this.currentPart) {
             this.removeChild(this.currentPart)
         }
+        const path = this.context.path
         for (let route of Object.values(this.routes)) {
-            if (route.match(context.path)) {
-                const state = route.parse(context.path)
+            if (route.match(path)) {
+                const state = route.parse(path)
                 this.currentPart = this.makePart(route.partType, state)
-                log.debug(`Routed ${context.path} to part`, this.currentPart)
+                log.debug(`Routed ${path} to part`, this.currentPart)
                 this.dirty()
                 return
             }
         }
-        log.warn(`No matching route for ${context.path}, making a default part`, this.defaultPart)
+        log.warn(`No matching route for ${path}, making a default part`, this.defaultPart)
         this.currentPart = this.makePart(this.defaultPart, {})
         this.dirty()
     }
 
-    render(parent: PartTag, context: RenderContext) {
+    render(parent: PartTag) {
         if (this.currentPart) {
-            parent.part(this.currentPart, context)
+            parent.part(this.currentPart)
         }
     }
 

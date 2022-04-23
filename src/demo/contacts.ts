@@ -1,4 +1,4 @@
-import {Part, PartTag, RenderContext} from '../parts'
+import {Part, PartTag} from '../parts'
 import * as forms from '../forms'
 import * as messages from '../messages'
 import * as styles from './styles.css'
@@ -92,7 +92,7 @@ class ContactFormPart extends forms.FormPart<ContactState> {
         this.dirty()
     }
 
-    render(parent: PartTag, context: RenderContext) {
+    render(parent: PartTag) {
         parent.class(styles.contactForm)
         this.textInput(parent, "name", {placeholder: 'Name'})
         this.emailInput(parent, "email", {placeholder: 'E-Mail'})
@@ -122,7 +122,7 @@ class ContactFormPart extends forms.FormPart<ContactState> {
             })
         })
         for (let [_, phoneForm] of Object.entries(this.phoneForms)) {
-            parent.part(phoneForm, context)
+            parent.part(phoneForm)
         }
         
         this.textArea(parent, "notes", {placeholder: 'Notes', rows: 3})
@@ -143,10 +143,10 @@ export class ContactsApp extends Part<{}> {
         }))
     }
 
-    render(parent: PartTag, context: RenderContext) {
+    render(parent: PartTag) {
         parent.class(styles.contactsContainer)
         for (let form of this.forms) {
-            parent.part(form, context)
+            parent.part(form)
         }
     }
 

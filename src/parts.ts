@@ -3,6 +3,7 @@ import { Logger } from './logging'
 import * as keyboard from './keyboard'
 import * as urls from './urls'
 import { DivTag, HtmlParentTag } from './html'
+import { Context } from 'vm'
 
 const log = new Logger('Part')
 
@@ -49,34 +50,14 @@ export type MountPoint = HTMLElement | string
 export interface PartTag extends DivTag {}
 
 /**
- * An init context gets passed to the init() method of a Part.
+ * A context containing information about the current page/frame.
  */
-export type InitContext = {
-    root: Part<any>
-}
-
-/**
- * A load context gets passed to the load() method of a Part.
- */
-export type LoadContext = {
+export type PartContext = {
+    frame: number
     href: string
     host: string
     path: string
     queryParams: urls.QueryParams
-}
-
-/**
- * A render context gets passed to the render() method of a Part.
- */
-export type RenderContext = {
-    frame: number
-}
-
-/**
- * An update context gets passed to the update() method of a Part.
- */
-export type UpdateContext = {
-    frame: number
 }
 
 /**
@@ -178,11 +159,11 @@ export abstract class Part<StateType> {
             this._initialized = true
             log.debug('Initializing', this)
             const root = this.root
-            this.init({root})
-            const lastLoadContext = root._lastLoadContext
-            if (lastLoadContext) {
+            this._context = root._context
+            this.init()
+            if (this._context.frame) {
                 log.debug("Loading", this)
-                this.load(lastLoadContext)
+                this.load()
             }
         }
         this.eachChild(child => {
@@ -194,7 +175,7 @@ export abstract class Part<StateType> {
      * Parts can override this to provide custom behavior that is run
      * exactly once before the part is rendered for the first time.
      */
-    init(_context: InitContext) {
+    init() {
     }
 
 
@@ -204,21 +185,35 @@ export abstract class Part<StateType> {
      * Parts can override this to provide custom behavior that is run after init()
      * and whenever the page changes.
      */
-    load(_context: LoadContext) {
+    load() {
 
     }
 
-    private _load(context: LoadContext) {
-        this.load(context)
+    private _load() {
+        this.load()
         this.eachChild(child => {
-            child._load(context)
+            child._context = this._context
+            child._load()
         })
     }
 
-    private _lastLoadContext?: LoadContext
 
-    private _computeLoadContext(): LoadContext {
-        return this._lastLoadContext = {
+    /// Context
+
+    private _context!: Context
+
+    get context(): Context {
+        return this._context
+    }
+
+    get params(): urls.QueryParams {
+        return this._context.queryParams
+    }
+
+    private _computeContext(frame: number = 0): Context {
+        log.debug(`Computing context with ${window.location.href}`)
+        return this._context = {
+            frame,
             href: window.location.href,
             host: window.location.host,
             path: window.location.pathname,
@@ -259,10 +254,11 @@ export abstract class Part<StateType> {
     private _requestFrame() {
         if (this._frameRequested) return
         this._frameRequested = true
-        requestAnimationFrame(t => {
+        requestAnimationFrame(frame => {
             this._frameRequested = false
-            log.debug('Frame', t)
-            this._markClean(t)
+            log.debug('Frame', frame)
+            this._context.frame = frame
+            this._markClean(frame)
             this._attachEventListeners()
         })
     }
@@ -492,7 +488,7 @@ export abstract class Part<StateType> {
             this._capturePath(mountOptions)
         }
 
-        this._computeLoadContext()
+        this._computeContext()
         this._requestFrame()
     }
 
@@ -524,7 +520,8 @@ export abstract class Part<StateType> {
                     evt.preventDefault()
                     log.debug(`Captured navigation to ${href}`)
                     history.pushState(null, '', href)
-                    this._load(this._computeLoadContext())
+                    this._computeContext()
+                    this._load()
                 }
             }
         })
@@ -533,14 +530,14 @@ export abstract class Part<StateType> {
     
     /// Rendering
 
-    renderInTag(container: HtmlParentTag, context: RenderContext) {
+    renderInTag(container: HtmlParentTag) {
         this._renderState = "clean"
         container.div({id: this.id}, parent => {
-            this.render(parent, context)
+            this.render(parent)
         })
     }
 
-    abstract render(parent: PartTag, context: RenderContext): any
+    abstract render(parent: PartTag): any
 
     /**
      * Recursively crawls the children to see if any is dirty, then renders their entire branch.
@@ -552,7 +549,8 @@ export abstract class Part<StateType> {
             // stop the chain, re-render the whole tree from here on down
             log.debugTime('Render', () => {
                 let parent = new DivTag("")
-                this.render(parent, {frame})
+                this._context.frame = frame
+                this.render(parent)
                 let output = Array<string>()
                 parent.buildInner(output)
                 const elem = this.element
@@ -563,11 +561,11 @@ export abstract class Part<StateType> {
                     throw(`Trying to render a part with no element!`)
                 }
                 this._childrenNeedEventListeners()
-                this._update({frame})
+                this._update()
             })
         }
         else if (this._renderState == "stale") {
-            this._update({frame})
+            this._update()
         }
         else {
             // keep propagating through the tree to see if anyone else needs to be rendered or updated
@@ -584,14 +582,14 @@ export abstract class Part<StateType> {
      * Gets called every time the part is rendered.
      * @param _elem the actual DOM element containing the part
      */
-    update(_elem: HTMLElement, _context: UpdateContext) {
+    update(_elem: HTMLElement) {
 
     }
 
     /**
      * Recursively calls `update()` on this part and all of its children.
      */
-    private _update(context: UpdateContext) {
+    private _update() {
         let elem = this.element
         if (!elem || !elem.isConnected) {
             elem = document.getElementById(this.id)
@@ -600,10 +598,10 @@ export abstract class Part<StateType> {
         if (!elem) {
             throw(`Trying to update a part with no element!`)
         }
-        this.update(elem, context)
+        this.update(elem)
         this._renderState = "clean"
         this.eachChild(child => {
-            child._update(context)
+            child._update()
         })
     }
 

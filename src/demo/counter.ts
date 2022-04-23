@@ -1,4 +1,4 @@
-import {Part, PartTag, RenderContext, UpdateContext} from '../parts'
+import {Part, PartTag} from '../parts'
 import * as messages from '../messages'
 import * as styles from './styles.css'
 import * as demo from './demo'
@@ -35,8 +35,8 @@ class Counter extends Part<CounterState> {
         parent.span({text: `Count: ${this.state.count}`})
     }
 
-    update(elem: HTMLElement, context: UpdateContext): void {
-        log.info("After Render", elem, context)
+    update(elem: HTMLElement): void {
+        log.info("After Render", elem)
     }
 
 }
@@ -58,11 +58,11 @@ export class CounterApp extends Part<{}> {
         })
     }
 
-    render(parent: PartTag, context: RenderContext) {
+    render(parent: PartTag) {
         parent.div(d => {
             d.class(styles.flexRow, styles.padded)
             d.div(styles.flexStretch, d => {
-                d.part(this.counter, context)
+                d.part(this.counter)
             })
             d.div(styles.flexShrink, d => {
                 d.a(styles.button, {text: "+"})

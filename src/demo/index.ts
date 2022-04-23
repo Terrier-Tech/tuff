@@ -1,4 +1,4 @@
-import {LoadContext, Part, PartTag, RenderContext, StatelessPart} from '../parts'
+import {Part, PartTag, StatelessPart} from '../parts'
 import {Logger} from '../logging'
 import * as styles from './styles.css'
 import * as counter from './counter'
@@ -50,20 +50,20 @@ class App extends Part<{}> {
         })
     }
 
-    load(ctx: LoadContext) {
-        log.info("Loaded with context", ctx)
+    load() {
+        log.info("Loaded with context", this.context)
     }
 
-    render(parent: PartTag, context: RenderContext) {
+    render(parent: PartTag) {
         for (let [name, part] of Object.entries(this.parts)) {
             parent.h2(styles.partPreviewTitle, {text: name})
                 .css({textAlign: 'center'}) // test inline styles
             parent.div(styles.partPreview, d => {
-                d.part(part, context)
+                d.part(part)
             })
         }
 
-        parent.part(this.output, context)
+        parent.part(this.output)
     }
 }
 
