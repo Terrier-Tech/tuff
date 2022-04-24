@@ -10,7 +10,7 @@ import * as messages from "../messages";
 import {DivTag} from "../html";
 
 const log = new logging.Logger('Boids')
-const numBoids= 1
+const numBoids= 10
 const boidColors= ['#0088aa', '#00aa88', '#6600dd']
 const boidRadius= 30
 
@@ -19,7 +19,10 @@ type BoidAppStateType = {
     centroid: Vector,
     frameNumber: number,
     boidRadius: number,
-    intervalRef: Timer | null
+    intervalRef: Timer | null,
+    coherenceWeight: number,
+    separationWeight: number,
+    alignmentWeight: number,
 }
 
 // ui: HTMLElement
@@ -123,16 +126,16 @@ export class DisplaySVG extends Part<{ui: HTMLElement}> {
         appState.boids.forEach(b =>{
 
             b.heading=b.heading
-                .add(b.rule1(appState.boids).mul(.0001)) // boids stick together
-                .add(b.rule2(appState.boids).mul(.001)) // boids avoid other objects
-                .add(b.rule3(appState.boids).mul(.01) // boids match other boid velocity
+                .add(b.rule1(appState.boids).mul(.0001 * (appState.coherenceWeight / 100))) // coherence: boids stick together
+                .add(b.rule2(appState.boids).mul(.001 * (appState.separationWeight / 100))) // separation: boids avoid other objects
+                .add(b.rule3(appState.boids).mul(.01 * (appState.alignmentWeight / 100)) // alignment: boids match other boid velocity
                 ).ceil(2).floor(-2) // cap top speed, px per millisecond
 
             b.position=b.nextPos(this.state.ui)
         })
-
-        if (appState.frameNumber < 10000) appState.frameNumber+=1
-        else clearInterval(appState.intervalRef)
+        //
+        // if (appState.frameNumber < 10000) appState.frameNumber+=1
+        // else clearInterval(appState.intervalRef)
 
         this.dirty()
     }
@@ -176,6 +179,9 @@ export class DisplaySVG extends Part<{ui: HTMLElement}> {
 }
 
 const radiusKey = messages.untypedKey()
+const coherenceKey = messages.untypedKey()
+const separationKey = messages.untypedKey()
+const alignmentKey = messages.untypedKey()
 
 class BoidForm extends forms.FormPart<BoidAppStateType> {
     init() {
@@ -183,20 +189,42 @@ class BoidForm extends forms.FormPart<BoidAppStateType> {
             appState.boidRadius= document.getElementById('input-radius').value;
             this.dirty()
         })
+        this.onChange(coherenceKey, m => {
+            appState.coherenceWeight= document.getElementById('input-coherence').value;
+            this.dirty()
+        })
+        this.onChange(separationKey, m => {
+            appState.separationWeight= document.getElementById('input-separation').value;
+            this.dirty()
+        })
+        this.onChange(alignmentKey, m => {
+            appState.alignmentWeight= document.getElementById('input-alignment').value;
+            this.dirty()
+        })
     }
 
     render(parent: PartTag) {
         parent.div(styles.flexRow, row => {
-            row.div(styles.flexShrink, (column)=>{
-                column.p().text(`Radius ${ appState.boidRadius }`)//.css({backgroundColor: 'blue'})
+            row.div(styles.flexStretch, (column)=>{
+                column.p().text(`Radius: ${ appState.boidRadius }`)
                 column.input({ id: 'input-radius', type: 'range', min: '5', max: '100', step: '5', value: appState.boidRadius })
                     .emitChange(radiusKey)
             })
-            // row.div(styles.flexShrink, (column)=>{
-            //     column.p().text(`Radius ${ appState.boidRadius }`)//.css({backgroundColor: 'blue'})
-            //     column.input({ id: 'input-radius', name: 'radius', type: 'range', min: '5', max: '100', value: appState.boidRadius })
-            //         .emitChange(radiusKey)
-            // })
+            row.div(styles.flexStretch, (column)=>{
+                column.p().text(`Coherence: ${ appState.coherenceWeight }`)
+                column.input({ id: 'input-coherence', name: 'radius', type: 'range', min: '0', max: '100', value: appState.coherenceWeight })
+                    .emitChange(coherenceKey)
+            })
+            row.div(styles.flexStretch, (column)=>{
+                column.p().text(`Separation: ${ appState.separationWeight }`)
+                column.input({ id: 'input-separation', name: 'radius', type: 'range', min: '0', max: '100', value: appState.separationWeight })
+                    .emitChange(separationKey)
+            })
+            row.div(styles.flexStretch, (column)=>{
+                column.p().text(`Alignment: ${ appState.alignmentWeight }`)
+                column.input({ id: 'input-alignment', name: 'radius', type: 'range', min: '0', max: '100', value: appState.alignmentWeight })
+                    .emitChange(alignmentKey)
+            })
         })
     }
 }
@@ -229,6 +257,9 @@ let appState: BoidAppStateType = {
     frameNumber: 0,
     boidRadius: boidRadius,
     centroid: new Vector(0,0),
+    coherenceWeight: 50,
+    separationWeight: 50,
+    alignmentWeight: 50,
     boids: arrays.range(0, numBoids-1).map(() => new Boid(
         arrays.sample(boidColors)
     )),
