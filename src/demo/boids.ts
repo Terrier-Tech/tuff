@@ -10,7 +10,7 @@ import * as messages from "../messages";
 import {DivTag} from "../html";
 
 const log = new logging.Logger('Boids')
-const numBoids= 20
+const numBoids= 1
 const boidColors= ['#0088aa', '#00aa88', '#6600dd']
 const boidRadius= 30
 
@@ -46,7 +46,12 @@ class Boid  {
             if (b.id==this.id) continue
             pc= pc.add(b.position)
         }
-        return pc.div(boids.length - 1).minus(this.position).div(10000)
+
+        if (pc.sum() != 0) {
+            return pc.div(boids.length - 1).minus(this.position)
+        } else {
+            return pc
+        }
     }
 
     // Boids try to keep a small distance away from other objects (including other boids).
@@ -54,9 +59,9 @@ class Boid  {
         let c= new Vector(0, 0)
         for (let b of boids) {
             if (b.id==this.id || this.position.distanceTo(b.position) >= appState.boidRadius) continue
-            c=c.minus(b.position.minus(this.position).div(1000))
+            c=c.minus(b.position.minus(this.position))
         }
-        return c
+        return c;
     }
 
     rule3 = (boids: Boid[]) => {
@@ -65,7 +70,11 @@ class Boid  {
             if (b.id==this.id) continue
             pv= pv.add(b.heading)
         }
-        return pv.div(boids.length - 1).minus(this.heading).div(100)
+        if (pv.sum() != 0) {
+            return pv.div(boids.length - 1).minus(this.heading);
+        } else {
+            return pv;
+        }
     }
 
     // https://math.stackexchange.com/questions/13261/how-to-get-a-reflection-vector
@@ -97,7 +106,6 @@ class Boid  {
 
         return nextPos
     }
-
 }
 
 export class DisplaySVG extends Part<{ui: HTMLElement}> {
@@ -112,19 +120,28 @@ export class DisplaySVG extends Part<{ui: HTMLElement}> {
         const sumY= appState.boids.map(b=>b.position.y()).reduce((a, b) => a + b, 0)
         appState.centroid= new Vector(sumX / appState.boids.length, sumY / appState.boids.length )
 
+        let b = appState.boids[0];
+        console.log('fwee')
+        console.log(b.rule1(appState.boids))
+        console.log(b.rule2(appState.boids))
+        console.log(b.rule3(appState.boids))
+        console.log('fwoo')
+
         appState.boids.forEach(b =>{
+
             b.heading=b.heading
-                .add(b.rule1(appState.boids))
-                .add(b.rule2(appState.boids))
-                .add(b.rule3(appState.boids))
+                .add(b.rule1(appState.boids).mul(.0001)) // boids stick together
+                .add(b.rule2(appState.boids).mul(.001)) // boids avoid other objects
+                .add(b.rule3(appState.boids).mul(.01) // boids match other boid velocity
+                ).ceil(2).floor(-2) // cap top speed, px per millisecond
+
+            console.log(`choo: ${ appState.boids[0].heading }`)
 
             b.position=b.nextPos(this.state.ui)
         })
 
-        if (appState.frameNumber < 10000)
-            appState.frameNumber+=1
-        else
-            clearInterval(appState.intervalRef)
+        if (appState.frameNumber < 10000) appState.frameNumber+=1
+        else clearInterval(appState.intervalRef)
 
         this.dirty()
     }
@@ -150,7 +167,7 @@ export class DisplaySVG extends Part<{ui: HTMLElement}> {
     renderBoid = (b: Boid, svg: SVGTag) => {
         svg.path({
             id: b.id,
-            fill:b.color,
+            fill: b.color,
             stroke: b.color,
             strokeWidth: '2',
             d: `M${ b.position.x()  } ${ b.position.y() }, l-10 2, v-4 l10 2`,
@@ -167,50 +184,29 @@ export class DisplaySVG extends Part<{ui: HTMLElement}> {
         })}
 }
 
-const alterRadiusKey = messages.typedKey<{delta: number}>()
+const radiusKey = messages.untypedKey()
 
 class BoidForm extends forms.FormPart<BoidAppStateType> {
     init() {
-        this.onClick(alterRadiusKey, m => {
-            console.log(m.data.delta)
-            appState.boidRadius+=m.data.delta
+        this.onChange(radiusKey, m => {
+            appState.boidRadius= document.getElementById('input-radius').value;
             this.dirty()
-        })
-
-    }
-
-    renderInputRow(parent: DivTag, inputLabel: string, eventLabel: string,
-                   delta: number, key: messages.TypedKey<{delta: number}>) {
-        parent.div(styles.flexRow, row => {
-            row.div(styles.flexStretch, col => {
-            col.a(styles.characterLink, {text: "-"})
-                .emitClick(key, {delta: -1*delta})
-                .emitClick(demo.OutputKey, {output: eventLabel})
-            })
-            row.div(styles.flexStretch, col => {
-                col.label({text: inputLabel})
-            })
-            row.div(styles.flexShrink, col => {
-                col.a(styles.characterLink, {text: "+"})
-                    .emitClick(key, {delta: delta})
-                    .emitClick(demo.OutputKey, {output: eventLabel})
-            })
         })
     }
 
     render(parent: PartTag) {
-        parent.h1().text("INPUTS")
-
-            this.renderInputRow(parent,
-                `Boid Radius: ${ appState.boidRadius }px`,
-                "Boid Radius Altered",5, alterRadiusKey)
-
-            parent.br()
-
-            this.renderInputRow(parent,
-                `Boid Radius: ${ appState.boidRadius }px`,
-                "Boid Radius Altered",5, alterRadiusKey)
-
+        parent.div(styles.flexRow, row => {
+            row.div(styles.flexShrink, (column)=>{
+                column.p().text(`Radius ${ appState.boidRadius }`)//.css({backgroundColor: 'blue'})
+                column.input({ id: 'input-radius', type: 'range', min: '5', max: '100', step: '5', value: appState.boidRadius })
+                    .emitChange(radiusKey)
+            })
+            // row.div(styles.flexShrink, (column)=>{
+            //     column.p().text(`Radius ${ appState.boidRadius }`)//.css({backgroundColor: 'blue'})
+            //     column.input({ id: 'input-radius', name: 'radius', type: 'range', min: '5', max: '100', value: appState.boidRadius })
+            //         .emitChange(radiusKey)
+            // })
+        })
     }
 }
 
@@ -225,9 +221,9 @@ export class App extends Part<{}> {
 
     render(parent: PartTag) {
         parent.div(styles.flexRow, styles.padded, d => {
-            d.div('#input-ui', styles.contentInset, styles.padded, d => {
-                d.part(this.appForm) })
-            d.div('#display-ui','.display-ui', styles.contentInset, styles.flexStretch).css({ height: this.areaHeight })
+            d.css({flexDirection: 'column'})
+            d.div('#display-ui','.display-ui', styles.contentInset, styles.flexStretch ).css({ height: this.areaHeight })
+            d.div('#input-ui', styles.contentInset, styles.padded, d => { d.part(this.appForm) })
         })
     }
 
@@ -244,8 +240,11 @@ let appState: BoidAppStateType = {
     centroid: new Vector(0,0),
     boids: arrays.range(0, numBoids-1).map(() => new Boid(
         arrays.sample(boidColors)
-    ) ),
+    )),
 }
+
+console.log(`choop: ${ appState.boids[0].heading }`)
+
 
 const container = document.getElementById('boids')
 if (container) { Part.mount(App, container, {}) }

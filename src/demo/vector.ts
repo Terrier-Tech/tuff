@@ -15,8 +15,9 @@ export default class Vector extends Array {
 
     initRandUnitVector(dims: number){
         for (let _ of arrays.range(0, dims-1)) this.push(2*Math.random()-1)
-        const mag= this.mag()
-        for (let i of arrays.range(0, dims-1)) this[i]=this[i]/mag
+        console.log(`x, y: ${ this.x() } ${ this.y() }`)
+        this.normalize()
+        console.log(`x, y: ${ this.x() } ${ this.y() }`)
         return this
     }
 
@@ -28,6 +29,35 @@ export default class Vector extends Array {
 
     initUnitDegrees(deg: number) {
         return this.initUnitRadians(deg* (Math.PI/180))
+    }
+
+    normalize(){
+        const mag= this.mag()
+        console.log(`mag: ${ this.mag() }`)
+
+        for (let i of arrays.range(0, this.length-1)) {
+            if(mag == 0) continue
+            this[i]=this[i]/mag
+        }
+        return this
+    }
+
+    ceil(n: number){
+        for (let i of arrays.range(0, this.length-1)) {
+            if(this[i] > n) this[i]=n
+        }
+        return this
+    }
+
+    floor(n: number){
+        for (let i of arrays.range(0, this.length-1)) {
+            if(this[i] < n) this[i]=n
+        }
+        return this
+    }
+
+    sum(){
+        return this.reduce((a, b) => a + b, 0);
     }
 
     add(v: Vector | number){
@@ -83,7 +113,7 @@ export default class Vector extends Array {
     }
 
     dot(v: Vector){
-        return this.map((n, i) => n * v[i]).reduce((a, b) => a + b, 0);
+        return this.map((n, i) => n * v[i]).sum();
     }
 
     // in radians
@@ -107,7 +137,13 @@ export default class Vector extends Array {
 
     // magnitude
     mag(){
-        return Math.sqrt(this.map(n => n**2).reduce((a, b) => a + b, 0))
+        console.log(`this: ${ this }`)
+        console.log(`this.map(n => n**2): ${ this.map(n => n**2) }`)
+        return Math.sqrt(this.map(n => n**2).sum())
+    }
+
+    map(args: any){
+        return new Vector(...super.map(args))
     }
 
     distanceTo(v: Vector){
