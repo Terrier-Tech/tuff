@@ -120,13 +120,6 @@ export class DisplaySVG extends Part<{ui: HTMLElement}> {
         const sumY= appState.boids.map(b=>b.position.y()).reduce((a, b) => a + b, 0)
         appState.centroid= new Vector(sumX / appState.boids.length, sumY / appState.boids.length )
 
-        let b = appState.boids[0];
-        console.log('fwee')
-        console.log(b.rule1(appState.boids))
-        console.log(b.rule2(appState.boids))
-        console.log(b.rule3(appState.boids))
-        console.log('fwoo')
-
         appState.boids.forEach(b =>{
 
             b.heading=b.heading
@@ -134,8 +127,6 @@ export class DisplaySVG extends Part<{ui: HTMLElement}> {
                 .add(b.rule2(appState.boids).mul(.001)) // boids avoid other objects
                 .add(b.rule3(appState.boids).mul(.01) // boids match other boid velocity
                 ).ceil(2).floor(-2) // cap top speed, px per millisecond
-
-            console.log(`choo: ${ appState.boids[0].heading }`)
 
             b.position=b.nextPos(this.state.ui)
         })
@@ -242,9 +233,6 @@ let appState: BoidAppStateType = {
         arrays.sample(boidColors)
     )),
 }
-
-console.log(`choop: ${ appState.boids[0].heading }`)
-
 
 const container = document.getElementById('boids')
 if (container) { Part.mount(App, container, {}) }

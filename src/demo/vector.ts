@@ -15,10 +15,8 @@ export default class Vector extends Array {
 
     initRandUnitVector(dims: number){
         for (let _ of arrays.range(0, dims-1)) this.push(2*Math.random()-1)
-        console.log(`x, y: ${ this.x() } ${ this.y() }`)
         this.normalize()
-        console.log(`x, y: ${ this.x() } ${ this.y() }`)
-        return this
+        return this;
     }
 
     initUnitRadians(deg: number) {
@@ -33,8 +31,6 @@ export default class Vector extends Array {
 
     normalize(){
         const mag= this.mag()
-        console.log(`mag: ${ this.mag() }`)
-
         for (let i of arrays.range(0, this.length-1)) {
             if(mag == 0) continue
             this[i]=this[i]/mag
@@ -137,8 +133,6 @@ export default class Vector extends Array {
 
     // magnitude
     mag(){
-        console.log(`this: ${ this }`)
-        console.log(`this.map(n => n**2): ${ this.map(n => n**2) }`)
         return Math.sqrt(this.map(n => n**2).sum())
     }
 
