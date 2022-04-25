@@ -10,7 +10,7 @@ import * as messages from "../messages";
 import {DivTag} from "../html";
 
 const log = new logging.Logger('Boids')
-const numBoids= 10
+const numBoids= 20
 const boidColors= ['#0088aa', '#00aa88', '#6600dd']
 const boidRadius= 30
 
@@ -23,6 +23,7 @@ type BoidAppStateType = {
     coherenceWeight: number,
     separationWeight: number,
     alignmentWeight: number,
+    tPrev: number,
 }
 
 // ui: HTMLElement
@@ -136,8 +137,15 @@ export class DisplaySVG extends Part<{ui: HTMLElement}> {
         //
         // if (appState.frameNumber < 10000) appState.frameNumber+=1
         // else clearInterval(appState.intervalRef)
-
+        this.renderFPS()
         this.dirty()
+    }
+
+    renderFPS=()=>{
+        let t = Date.now();
+        let innerText=`FPS: ${ Math.floor(1000 / (t - appState.tPrev)) }` // 1000 / ms since last frame
+        document.getElementById('fps-text').innerText =innerText
+        appState.tPrev=t
     }
 
     svgAttrs : ()=> SVGTagAttrs = () => ({
@@ -158,16 +166,15 @@ export class DisplaySVG extends Part<{ui: HTMLElement}> {
             cy: this.state.ui.offsetHeight / 2,
             r: 10, stroke: 'cyan', fill: 'cyan'})
 
-    renderBoid = (b: Boid, svg: SVGTag) => {
+    renderBoid = (b: Boid, svg: SVGTag) =>
         svg.path({
             id: b.id,
             fill: b.color,
             stroke: b.color,
-            strokeWidth: '2',
+            strokeWidth: 2,
             d: `M${ b.position.x()  } ${ b.position.y() }, l-10 2, v-4 l10 2`,
             transform: `rotate(${ b.heading.degrees() }, ${ b.position.x() }, ${ b.position.y() })`,
         })
-    }
 
     render(parent: PartTag) {
         parent.svg( '#boids-svg',svg => {
@@ -175,7 +182,8 @@ export class DisplaySVG extends Part<{ui: HTMLElement}> {
             appState.boids.forEach(b => this.renderBoid(b, svg))
             this.renderCentroid(svg)
             this.renderOrigin(svg)
-        })}
+        })
+    }
 }
 
 const radiusKey = messages.untypedKey()
@@ -184,20 +192,21 @@ const separationKey = messages.untypedKey()
 const alignmentKey = messages.untypedKey()
 
 class BoidForm extends forms.FormPart<BoidAppStateType> {
+
     init() {
-        this.onChange(radiusKey, m => {
+        this.onChange(radiusKey, ()=> {
             appState.boidRadius= document.getElementById('input-radius').value;
             this.dirty()
         })
-        this.onChange(coherenceKey, m => {
+        this.onChange(coherenceKey, ()=> {
             appState.coherenceWeight= document.getElementById('input-coherence').value;
             this.dirty()
         })
-        this.onChange(separationKey, m => {
+        this.onChange(separationKey, ()=> {
             appState.separationWeight= document.getElementById('input-separation').value;
             this.dirty()
         })
-        this.onChange(alignmentKey, m => {
+        this.onChange(alignmentKey, ()=> {
             appState.alignmentWeight= document.getElementById('input-alignment').value;
             this.dirty()
         })
@@ -206,24 +215,27 @@ class BoidForm extends forms.FormPart<BoidAppStateType> {
     render(parent: PartTag) {
         parent.div(styles.flexRow, row => {
             row.div(styles.flexStretch, (column)=>{
-                column.p().text(`Radius: ${ appState.boidRadius }`)
+                column.p().text(`Radius: ${ appState.boidRadius }px`)
                 column.input({ id: 'input-radius', type: 'range', min: '5', max: '100', step: '5', value: appState.boidRadius })
                     .emitChange(radiusKey)
             })
             row.div(styles.flexStretch, (column)=>{
-                column.p().text(`Coherence: ${ appState.coherenceWeight }`)
+                column.p().text(`Coherence: ${ appState.coherenceWeight }%`)
                 column.input({ id: 'input-coherence', name: 'radius', type: 'range', min: '0', max: '100', value: appState.coherenceWeight })
                     .emitChange(coherenceKey)
             })
             row.div(styles.flexStretch, (column)=>{
-                column.p().text(`Separation: ${ appState.separationWeight }`)
+                column.p().text(`Separation: ${ appState.separationWeight }%`)
                 column.input({ id: 'input-separation', name: 'radius', type: 'range', min: '0', max: '100', value: appState.separationWeight })
                     .emitChange(separationKey)
             })
             row.div(styles.flexStretch, (column)=>{
-                column.p().text(`Alignment: ${ appState.alignmentWeight }`)
+                column.p().text(`Alignment: ${ appState.alignmentWeight }%`)
                 column.input({ id: 'input-alignment', name: 'radius', type: 'range', min: '0', max: '100', value: appState.alignmentWeight })
                     .emitChange(alignmentKey)
+            })
+            row.div(styles.flexShrink, (column)=>{
+                column.p({id: 'fps-text'}).css({width: '100px'})
             })
         })
     }
@@ -255,6 +267,7 @@ export class App extends Part<{}> {
 let appState: BoidAppStateType = {
     intervalRef: null,
     frameNumber: 0,
+    tPrev: Date.now(),
     boidRadius: boidRadius,
     centroid: new Vector(0,0),
     coherenceWeight: 50,
