@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import * as urls from './urls'
+import * as urls from '../urls'
 
 
 
