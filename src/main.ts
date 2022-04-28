@@ -8,5 +8,6 @@ import * as arrays from './arrays'
 import * as html from './html'
 import * as svg from './svg'
 import * as urls from './urls'
+import * as routing from './routing'
 
-export {logging, parts, messages, tags, keyboard, strings, arrays, svg, html, urls}
+export {logging, parts, messages, tags, keyboard, strings, arrays, svg, html, urls, routing}
