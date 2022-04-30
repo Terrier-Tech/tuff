@@ -53,7 +53,7 @@ class Shape {
 
 }
 
-const shapeKey = messages.typedKey<string>()
+const shapeKey = messages.typedKey<{id: string}>()
 const mouseKey = messages.untypedKey()
 
 export class ShapesApp extends Part<{}> {
@@ -70,7 +70,7 @@ export class ShapesApp extends Part<{}> {
                 const elem = document.getElementById(this.selected.id)
                 elem?.classList.remove(styles.selectedShape)
             }
-            this.selected = this.shapes[m.data]
+            this.selected = this.shapes[m.data.id]
             const elem = document.getElementById(this.selected.id)
             elem?.classList.add(styles.selectedShape)
             this.dragOffset = {x: 0, y: 0}
@@ -138,7 +138,7 @@ export class ShapesApp extends Part<{}> {
                     if (tag) {
                         tag.class(styles.shape)
                             .attrs({fill: shape.fill, stroke: shape.color, strokeWidth: shape.strokeWidth})
-                            .emitMouseDown(shapeKey, shape.id)
+                            .emitMouseDown(shapeKey, shape)
                             .emitClick(demo.OutputKey, {output: `Clicked ${shape.type} ${shape.id}!`})
                     }
                 }

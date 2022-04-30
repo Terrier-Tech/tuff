@@ -180,9 +180,9 @@ export class EventType {
 
     listenMethod(): string {
         return `
-    on${this.methodName}<DataType>(key: messages.UntypedKey, listener: (m: messages.Message<"${this.name}",DataType>) => void, options?: messages.ListenOptions): void
-    on${this.methodName}<DataType>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"${this.name}",DataType>) => void, options?: messages.ListenOptions): void
-    on${this.methodName}<DataType>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"${this.name}",DataType>) => void, options?: messages.ListenOptions): void {
+    on${this.methodName}<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"${this.name}",DataType>) => void, options?: messages.ListenOptions): void
+    on${this.methodName}<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"${this.name}",DataType>) => void, options?: messages.ListenOptions): void
+    on${this.methodName}<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"${this.name}",DataType>) => void, options?: messages.ListenOptions): void {
         this.listen<"${this.name}",DataType>("${this.name}", key, listener, options)
     }
     `
@@ -190,10 +190,15 @@ export class EventType {
 
     emitMethod(): string {
         return `
-    emit${this.methodName}<DataType>(key: messages.UntypedKey): Tag<AttrsType>
-    emit${this.methodName}<DataType>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emit${this.methodName}<DataType>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
-        this.emit('${this.name}', key, data)
+    emit${this.methodName}<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
+    emit${this.methodName}<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emit${this.methodName}<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+        if (data) {
+            this.emit('${this.name}', key, data)
+        }
+        else {
+            this.emit('${this.name}', key as messages.UntypedKey)
+        }
         return this
     }
     `
