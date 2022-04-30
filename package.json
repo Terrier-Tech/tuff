@@ -5,7 +5,7 @@
     "dist/tuff.d.ts",
     "dist/tuff.es.js"
   ],
-  "version": "0.6.0",
+  "version": "0.6.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/Terrier-Tech/tuff"
@@ -31,11 +31,11 @@
     "vite": "^2.7.0",
     "vitest": "^0.6.0"
   },
-  "module": "./tuff.es.js",
-  "types": "./tuff.d.ts",
+  "module": "./dist/tuff.es.js",
+  "types": "./dist/tuff.d.ts",
   "exports": {
     ".": {
-      "import": "./tuff.es.js"
+      "import": "./dist/tuff.es.js"
     }
   },
   "dependencies": {
