@@ -14,8 +14,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
-    "isolatedModules": true,
-    "outDir": "types"
+    "outFile": "./dist/tuff.d.ts"
   },
   "include": ["./src"]
 }

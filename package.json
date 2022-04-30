@@ -2,9 +2,10 @@
   "name": "tuff-core",
   "type": "module",
   "files": [
-    "dist"
+    "dist/tuff.d.ts",
+    "dist/tuff.es.js"
   ],
-  "version": "0.5.2",
+  "version": "0.6.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/Terrier-Tech/tuff"
@@ -12,9 +13,9 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && cp -r types/*.d.ts dist",
+    "build": "tsc && vite build",
     "preview": "vite preview",
-    "prepare": "tsc && vite build && cp -r types/*.d.ts dist",
+    "prepare": "tsc && vite build",
     "tsc": "tsc",
     "gen": "node --loader ts-node/esm  --experimental-modules --experimental-specifier-resolution=node src/gen/dom.ts",
     "test": "vitest"
@@ -30,11 +31,11 @@
     "vite": "^2.7.0",
     "vitest": "^0.6.0"
   },
-  "module": "./dist/tuff.es.js",
-  "types": "./dist/main.d.ts",
+  "module": "./tuff.es.js",
+  "types": "./tuff.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/tuff.es.js"
+      "import": "./tuff.es.js"
     }
   },
   "dependencies": {
