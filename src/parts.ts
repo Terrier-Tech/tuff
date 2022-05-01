@@ -512,17 +512,25 @@ export abstract class Part<StateType> {
     private _capturePath(mountOptions: MountOptions) {
         const pathStart = mountOptions.capturePath || '/'
         document.addEventListener("click", (evt) => {
-            const target = evt.target as HTMLElement
-            if (target.tagName == 'A') {
-                const href = target.getAttribute("href")
-                if (href?.startsWith(pathStart)) {
-                    evt.stopPropagation()
-                    evt.preventDefault()
-                    log.debug(`Captured navigation to ${href}`)
-                    history.pushState(null, '', href)
-                    this._computeContext()
-                    this._load()
+            // find the href of the anchor tag in the event path
+            let href: string | null = null
+            for (let e of evt.composedPath()) {
+                const elem = e as HTMLElement
+                if (elem.tagName == 'A') {
+                    href = elem.getAttribute('href')
+                    log.debug("Clicked on anchor", elem)
+                    break
                 }
+            }
+
+            // if there's an href, see if it's captured
+            if (href && href.startsWith(pathStart)) {
+                evt.stopPropagation()
+                evt.preventDefault()
+                log.debug(`Captured navigation to ${href}`)
+                history.pushState(null, '', href)
+                this._computeContext()
+                this._load()
             }
         })
     }

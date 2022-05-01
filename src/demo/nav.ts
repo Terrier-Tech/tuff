@@ -64,7 +64,7 @@ export class NavApp extends RouterPart {
                 routes.hello.path({})
             ]
             for (let text of urls) {
-                col.a(styles.button, {href: text}).text(text)
+                col.a(styles.button, {href: text}).div(styles.buttonTitle).text(text)
             }
             col.a(styles.button, styles.warnBg, {href: '/unknown'}).text("/unknown")
         })

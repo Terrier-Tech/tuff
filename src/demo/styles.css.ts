@@ -121,6 +121,11 @@ export const warnBg = style({
     backgroundColor: colors.warn
 })
 
+export const buttonTitle = style({
+    lineHeight: 1,
+    color: '#fff'
+})
+
 export const characterLink = style({
     fontSize: '150%',
     display: 'inline-block',
