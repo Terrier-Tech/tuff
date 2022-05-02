@@ -2,7 +2,6 @@ import {Logger} from './logging'
 import { route, ExtractParserReturnTypes, RouteNode, InferParamGroups, Parser, MergeParamGroups } from "typesafe-routes"
 import {pathToRegexp} from 'path-to-regexp'
 import {Part, PartConstructor, PartTag, StatelessPart} from './parts'
-import { string } from './state'
 
 const log = new Logger('Routing')
 Logger.level = "debug"
