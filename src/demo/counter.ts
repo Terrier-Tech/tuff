@@ -43,18 +43,17 @@ class Counter extends Part<CounterState> {
 
 
 export class CounterApp extends Part<{}> {
-    counter!: Counter
 
     init() {
-        this.counter = this.makePart(Counter, {count: 0})
+        const counter = this.makePart(Counter, {count: 0}, 'counter')
 
         this.onClick(ChangeKey, (m) => {
             log.info("Change", m.data)
-            this.counter.change(m.data)
+            counter.change(m.data)
         })
         this.onClick(ResetKey, _ => {
             log.info("Reset")
-            this.counter.resetCount()
+            counter.resetCount()
         })
     }
 
@@ -62,7 +61,7 @@ export class CounterApp extends Part<{}> {
         parent.div(d => {
             d.class(styles.flexRow, styles.padded)
             d.div(styles.flexStretch, d => {
-                d.part(this.counter)
+                d.part(this.namedChild('counter')!)
             })
             d.div(styles.flexShrink, d => {
                 d.a(styles.button, {text: "+"})

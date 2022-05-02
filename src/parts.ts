@@ -82,15 +82,31 @@ export abstract class Part<StateType> {
     /// Children
     
     private children: {[id: string]: StatelessPart} = {}
+    private namedChildren: {[id: string]: StatelessPart} = {}
 
+    /**
+     * Iterates over each direct child part.
+     */
     eachChild(func: (child: StatelessPart) => void) {
         for (let child of Object.values(this.children)) {
             func(child)
         }
     }
 
+    /**
+     * Removes a child part by id.
+     * @param child the id of the part
+     */
     removeChild(child: StatelessPart) {
         delete this.children[child.id]
+    }
+
+    /**
+     * Looks up a child part by name.
+     * @param name the name of the child part assigned during `makePart` or `makeStatelessPart`
+     */
+    namedChild(name: string): StatelessPart | undefined {
+        return this.namedChildren[name]
     }
 
 
@@ -108,20 +124,34 @@ export abstract class Part<StateType> {
     }
 
     makeStatelessPart<PartType extends StatelessPart>(
-        constructor: {new (p: PartParent, id: string, state: {}): PartType}): PartType 
+        constructor: {new (p: PartParent, id: string, state: {}): PartType},
+        name?: string): PartType 
     {
         let part = this.root._makeParentedPart(constructor, this, {})
         this.children[part.id] = part
+        if (name) {
+            if (this.namedChildren[name]) {
+                this.removeChild(this.namedChildren[name])
+            }
+            this.namedChildren[name] = part
+        }
         return part
     }
 
 
     makePart<PartType extends Part<PartStateType>, PartStateType>(
         constructor: {new (p: PartParent, id: string, state: PartStateType): PartType},
-        state: PartStateType): PartType 
+        state: PartStateType,
+        name?: string): PartType 
     {
         let part = this.root._makeParentedPart(constructor, this, state)
         this.children[part.id] = part
+        if (name) {
+            if (this.namedChildren[name]) {
+                this.removeChild(this.namedChildren[name])
+            }
+            this.namedChildren[name] = part
+        }
         return part
     }
     
