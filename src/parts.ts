@@ -3,7 +3,6 @@ import { Logger } from './logging'
 import * as keyboard from './keyboard'
 import * as urls from './urls'
 import { DivTag, HtmlParentTag } from './html'
-import { Context } from 'vm'
 
 const log = new Logger('Part')
 
@@ -155,11 +154,11 @@ export abstract class Part<StateType> {
     }
 
     private _init() {
+        const root = this.root
+        this._context = root._context
         if (!this._initialized) {
             this._initialized = true
             log.debug('Initializing', this)
-            const root = this.root
-            this._context = root._context
             this.init()
             if (this._context.frame) {
                 log.debug("Loading", this)
@@ -200,9 +199,9 @@ export abstract class Part<StateType> {
 
     /// Context
 
-    private _context!: Context
+    protected _context!: PartContext
 
-    get context(): Context {
+    get context(): PartContext {
         return this._context
     }
 
@@ -210,7 +209,7 @@ export abstract class Part<StateType> {
         return this._context.queryParams
     }
 
-    private _computeContext(frame: number = 0): Context {
+    _computeContext(frame: number = 0): PartContext {
         log.debug(`Computing context with ${window.location.href}`)
         return this._context = {
             frame,

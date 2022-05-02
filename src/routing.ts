@@ -2,6 +2,7 @@ import {Logger} from './logging'
 import { route, ExtractParserReturnTypes, RouteNode, InferParamGroups, Parser, MergeParamGroups } from "typesafe-routes"
 import {pathToRegexp} from 'path-to-regexp'
 import {Part, PartConstructor, PartTag, StatelessPart} from './parts'
+import { string } from './state'
 
 const log = new Logger('Routing')
 Logger.level = "debug"
@@ -12,7 +13,7 @@ interface IRoute {
     parse(path: string): Record<string,string>|null
     path(state: any): string
     template: string
-    partType: PartConstructor<StatelessPart,any>
+    destination: PartConstructor<StatelessPart,any> | string
 }
 
 /**
@@ -30,7 +31,7 @@ export class Route<PartType extends Part<StateType>,
     readonly regExp!: RegExp
     readonly paramNames!: Array<string>
 
-    constructor(readonly partType: PartConstructor<PartType,StateType>, template: T, parserMap: PM) {
+    constructor(readonly destination: PartConstructor<PartType,StateType>, template: T, parserMap: PM) {
         this.routeNode = route(template, parserMap, {})
         this.regExp = pathToRegexp(template)
 
@@ -89,6 +90,35 @@ export function partRoute<PartType extends Part<StateType>,
     return new Route(partType, template, parserMap)
 }
 
+export class RedirectRoute implements IRoute {
+    constructor(readonly template: string, readonly destination: string) {
+
+    }
+
+    match(path: string): boolean {
+        return path.toLowerCase().split('?')[0] == this.template.toLowerCase()
+    }
+
+    parse(_: string): Record<string, string> | null {
+        throw new Error("What does it mean to parse a redirect?")
+    }
+
+    path(_: any): string {
+        return this.template
+    }
+
+}
+
+/**
+ * Creates a `RedirectRoute` from one path to another.
+ * @param fromPath redirect from this path
+ * @param toPath redirect to this path
+ * @returns the new `RedirectRoute`
+ */
+export function redirectRoute(fromPath: string, toPath: string): RedirectRoute {
+    return new RedirectRoute(fromPath, toPath)
+}
+
 
 export abstract class RouterPart extends Part<{}> {
 
@@ -98,18 +128,33 @@ export abstract class RouterPart extends Part<{}> {
 
     currentPart?: Part<any>
 
-    load() {
+    load(): void {
+        const path = this.context.path
+        this.loadPath(path)
+    }
+
+    loadPath(path: string): void {
         if (this.currentPart) {
             this.removeChild(this.currentPart)
+            this.currentPart = undefined
         }
-        const path = this.context.path
         for (let route of Object.values(this.routes)) {
             if (route.match(path)) {
-                const state = route.parse(path)
-                this.currentPart = this.makePart(route.partType, state)
-                log.debug(`Routed ${path} to part`, this.currentPart)
-                this.dirty()
-                return
+                if (typeof route.destination == 'string') {
+                    // it's a redirect
+                    log.debug(`Redirected ${path} to ${route.destination}`)
+                    history.pushState(null, '', route.destination)
+                    this._context = this.root._computeContext(this.context.frame+1)
+                    return this.loadPath(route.destination)
+                }
+                else {
+                    // it's a proper part route
+                    const state = route.parse(path)
+                    this.currentPart = this.makePart(route.destination, state)
+                    log.debug(`Routed ${path} to part`, this.currentPart)
+                    this.dirty()
+                    return
+                }
             }
         }
         log.warn(`No matching route for ${path}, making a default part`, this.defaultPart)
