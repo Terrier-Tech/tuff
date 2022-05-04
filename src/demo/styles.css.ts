@@ -6,6 +6,7 @@ const fontFamily = 'Arial, Helvetica, sans-serif'
     fg: '#222',
     bg: '#f8f8f8',
     button: '#08a',
+    warn: '#ffa602',
     output: '#e8f0ff',
     border: '#ccc',
     preview: '#aaa',
@@ -46,6 +47,12 @@ export const padded = style({
 
 export const flexRow = style({
     display: 'flex',
+    gap: sizes.pad
+})
+
+export const flexColumn = style({
+    display: 'flex',
+    flexDirection: 'column',
     gap: sizes.pad
 })
 
@@ -113,6 +120,15 @@ export const button = style({
     textAlign: 'center',
     textDecoration: 'none',
     ...scalePush
+})
+
+export const warnBg = style({
+    backgroundColor: colors.warn
+})
+
+export const buttonTitle = style({
+    lineHeight: 1,
+    color: '#fff'
 })
 
 export const characterLink = style({
@@ -215,7 +231,6 @@ export const phoneForm = style({
 
 // Shapes
 
-
 export const shapesScroller = style({
     width: '100%',
     height: 600,
@@ -235,4 +250,12 @@ export const selectedShape = style({
     stroke: colors.selected,
     fill: `${colors.selected}44`,
     strokeWidth: 4
+})
+
+
+// Nav
+
+export const navChild = style({
+    padding: '2em',
+    textAlign: 'center'
 })

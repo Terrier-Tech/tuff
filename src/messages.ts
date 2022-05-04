@@ -115,7 +115,7 @@ export interface Key {
     readonly id: string
 }
 
-export interface TypedKey<T extends {}> extends Key {
+export interface TypedKey<T> extends Key {
     data?: T // not really sure what to do with this, but the compiler complains when we don't use T
 }
 

@@ -151,6 +151,10 @@ export abstract class HtmlTagBase<AttrsType extends Attrs> extends Tag<AttrsType
         return this.child(DefaultTag, "dfn", ...args)
     }
 
+    dialog(...args: TagArgs<DialogTag,DialogTagAttrs>[]) : DialogTag {
+        return this.child(DialogTag, "dialog", ...args)
+    }
+
     div(...args: TagArgs<DivTag,DivTagAttrs>[]) : DivTag {
         return this.child(DivTag, "div", ...args)
     }
@@ -495,6 +499,7 @@ export abstract class HtmlTagBase<AttrsType extends Attrs> extends Tag<AttrsType
 //// Begin Tag Classes
 
 export type AnchorTagAttrs = DefaultTagAttrs & {
+    href?: string
     download?: string
     hreflang?: string
     ping?: string
@@ -579,6 +584,13 @@ export type DetailsTagAttrs = DefaultTagAttrs & {
 }
 
 export class DetailsTag extends HtmlTagBase<DetailsTagAttrs> {}
+
+export type DialogTagAttrs = DefaultTagAttrs & {
+    open?: boolean
+    returnValue?: string
+}
+
+export class DialogTag extends HtmlTagBase<DialogTagAttrs> {}
 
 export type DivTagAttrs = DefaultTagAttrs & {
 }
@@ -675,7 +687,7 @@ export type ImageTagAttrs = DefaultTagAttrs & {
     decoding?: "async" | "sync" | "auto"
     height?: number
     isMap?: boolean
-    loading?: string
+    loading?: "eager" | "lazy"
     referrerPolicy?: string
     sizes?: string
     src?: string
@@ -799,6 +811,7 @@ export class MenuTag extends HtmlTagBase<MenuTagAttrs> {}
 export type MetaTagAttrs = DefaultTagAttrs & {
     content?: string
     httpEquiv?: string
+    media?: string
     name?: string
 }
 
@@ -937,11 +950,13 @@ export type SlotTagAttrs = DefaultTagAttrs & {
 export class SlotTag extends HtmlTagBase<SlotTagAttrs> {}
 
 export type SourceTagAttrs = DefaultTagAttrs & {
+    height?: number
     media?: string
     sizes?: string
     src?: string
     srcset?: string
     type?: string
+    width?: number
 }
 
 export class SourceTag extends HtmlTagBase<SourceTagAttrs> {}
@@ -952,6 +967,7 @@ export type SpanTagAttrs = DefaultTagAttrs & {
 export class SpanTag extends HtmlTagBase<SpanTagAttrs> {}
 
 export type StyleTagAttrs = DefaultTagAttrs & {
+    disabled?: boolean
     media?: string
 }
 

@@ -5,6 +5,7 @@ import * as boids from './boids'
 import * as counter from './counter'
 import * as contacts from './contacts'
 import * as shapes from './shapes'
+import * as nav from './nav'
 import * as demo from './demo'
 import * as messages from '../messages'
 
@@ -38,16 +39,20 @@ class App extends Part<{}> {
 
     init() {
         this.output = this.makePart(OutputPart, {output: ""})
-        this.parts['Boids'] = this.makeStatelessPart(boids.App)
-        this.parts['Counter'] = this.makeStatelessPart(counter.App)
-        this.parts['Contacts'] = this.makeStatelessPart(contacts.App)
-        this.parts['Shapes'] = this.makeStatelessPart(shapes.App)
+        this.parts['Counter'] = this.makeStatelessPart(counter.CounterApp)
+        this.parts['Contacts'] = this.makeStatelessPart(contacts.ContactsApp)
+        this.parts['Shapes'] = this.makeStatelessPart(shapes.ShapesApp)
+        this.parts['Nav'] = this.makeStatelessPart(nav.NavApp)
 
         this.output.write("Initialized!")
 
         this.onKeyPress(messages.keyPress("z", "control/command"), m => {
             log.debug("Key press message", m)
         })
+    }
+
+    load() {
+        log.info("Loaded with context", this.context)
     }
 
     render(parent: PartTag) {
@@ -63,4 +68,6 @@ class App extends Part<{}> {
     }
 }
 
-Part.mount(App, 'app', {})
+Part.mount(App, 'app', {}, {
+    capturePath: "/"
+})

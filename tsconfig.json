@@ -15,7 +15,7 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "isolatedModules": true,
-    "outDir": "types"
+    "outDir": "./dist"
   },
   "include": ["./src"]
 }

@@ -53,10 +53,10 @@ class Shape {
 
 }
 
-const shapeKey = messages.typedKey<string>()
+const shapeKey = messages.typedKey<{id: string}>()
 const mouseKey = messages.untypedKey()
 
-export class App extends Part<{}> {
+export class ShapesApp extends Part<{}> {
 
     selected?: Shape
     shapes: {[id: string]: Shape} = {} 
@@ -70,7 +70,7 @@ export class App extends Part<{}> {
                 const elem = document.getElementById(this.selected.id)
                 elem?.classList.remove(styles.selectedShape)
             }
-            this.selected = this.shapes[m.data]
+            this.selected = this.shapes[m.data.id]
             const elem = document.getElementById(this.selected.id)
             elem?.classList.add(styles.selectedShape)
             this.dragOffset = {x: 0, y: 0}
@@ -138,7 +138,7 @@ export class App extends Part<{}> {
                     if (tag) {
                         tag.class(styles.shape)
                             .attrs({fill: shape.fill, stroke: shape.color, strokeWidth: shape.strokeWidth})
-                            .emitMouseDown(shapeKey, shape.id)
+                            .emitMouseDown(shapeKey, shape)
                             .emitClick(demo.OutputKey, {output: `Clicked ${shape.type} ${shape.id}!`})
                     }
                 }
@@ -151,5 +151,5 @@ export class App extends Part<{}> {
 
 const container = document.getElementById('shapes')
 if (container) {
-    Part.mount(App, container, {})
+    Part.mount(ShapesApp, container, {})
 }

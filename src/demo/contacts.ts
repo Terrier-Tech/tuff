@@ -68,6 +68,7 @@ class ContactFormPart extends forms.FormPart<ContactState> {
         })
 
         this.onClick(deletePhoneKey, m => {
+            log.info("Deleting phone", m.data)
             this.removeChild(this.phoneForms[m.data.id])
             delete this.phoneForms[m.data.id]
             this.dirty()
@@ -87,6 +88,7 @@ class ContactFormPart extends forms.FormPart<ContactState> {
         this.onDataChanged(part.dataChangedKey, m => {
             log.info("Phone data changed", m)
         })
+        log.info("Adding phone", this)
         this.dirty()
     }
 
@@ -127,7 +129,7 @@ class ContactFormPart extends forms.FormPart<ContactState> {
     }
 }
 
-export class App extends Part<{}> {
+export class ContactsApp extends Part<{}> {
 
     forms = new Array<ContactFormPart>()
 
@@ -153,5 +155,5 @@ export class App extends Part<{}> {
 
 const container = document.getElementById('contacts')
 if (container) {
-    Part.mount(App, container, {})
+    Part.mount(ContactsApp, container, {})
 }

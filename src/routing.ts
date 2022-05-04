@@ -1,7 +1,7 @@
 import {Logger} from './logging'
 import { route, ExtractParserReturnTypes, RouteNode, InferParamGroups, Parser, MergeParamGroups } from "typesafe-routes"
 import {pathToRegexp} from 'path-to-regexp'
-import {Part, PartConstructor} from './parts'
+import {Part, PartConstructor, PartTag, StatelessPart} from './parts'
 
 const log = new Logger('Routing')
 Logger.level = "debug"
@@ -9,7 +9,10 @@ Logger.level = "debug"
 
 interface IRoute {
     match(path: string): boolean
+    parse(path: string): Record<string,string>|null
+    path(state: any): string
     template: string
+    destination: PartConstructor<StatelessPart,any> | string
 }
 
 /**
@@ -27,7 +30,7 @@ export class Route<PartType extends Part<StateType>,
     readonly regExp!: RegExp
     readonly paramNames!: Array<string>
 
-    constructor(readonly partType: PartConstructor<PartType,StateType>, template: T, parserMap: PM) {
+    constructor(readonly destination: PartConstructor<PartType,StateType>, template: T, parserMap: PM) {
         this.routeNode = route(template, parserMap, {})
         this.regExp = pathToRegexp(template)
 
@@ -61,64 +64,107 @@ export class Route<PartType extends Part<StateType>,
         }
         return this.routeNode.parseParams(raw as Record<T, string>) as StateType
     }
+
+    path(state: StateType): string {
+        const path = this.routeNode(state).$
+        if (path.length) {
+            return path
+        }
+        return '/' // assume blank paths are the root
+    }
 }
 
 /**
- * Builder object returned by `build()` that constructs a router.
+ * Generates a route for a part.
+ * @param partType a `Part` subclass
+ * @param template the path template
+ * @param parserMap a map of state fields to parsers
+ * @returns 
  */
-// class RouteBuilder {
+export function partRoute<PartType extends Part<StateType>, 
+        StateType extends ExtractParserReturnTypes<PM, keyof PM>, 
+        T extends string, 
+        PM extends ParserMap<MergeParamGroups<InferParamGroups<T>>> >
+        (partType: PartConstructor<PartType,StateType>, template: T, parserMap: PM): Route<PartType, StateType, T, PM> {
+    return new Route(partType, template, parserMap)
+}
 
-//     readonly routes = Array<IRoute>()
+export class RedirectRoute implements IRoute {
+    constructor(readonly template: string, readonly destination: string) {
 
-//     map<PartType extends Part<StateType>, StateType extends object>(
-//         partType: PartConstructor<PartType,StateType>,
-//         routeNode: RouteNode<string, StateType, {}, false>
-//     ): RouteBuilder {
-//         this.routes.push(new Route(partType, routeNode))
-//         return this
-//     }
+    }
 
-//     mount(mountPoint: MountPoint) {
-//         const router = new Router(this.routes)
-//         router.mount(mountPoint)
-//         return router
-//     }
+    match(path: string): boolean {
+        return path.toLowerCase().split('?')[0] == this.template.toLowerCase()
+    }
 
-//     mock() {
-//         return new Router(this.routes)
-//     }
+    parse(_: string): Record<string, string> | null {
+        throw new Error("What does it mean to parse a redirect?")
+    }
 
-// }
+    path(_: any): string {
+        return this.template
+    }
 
-// export function build(): RouteBuilder {
-//     return new RouteBuilder()
-// }
+}
 
 /**
- * Mounts to a point in the DOM and matches a set of routes to it.
+ * Creates a `RedirectRoute` from one path to another.
+ * @param fromPath redirect from this path
+ * @param toPath redirect to this path
+ * @returns the new `RedirectRoute`
  */
-// class Router {
+export function redirectRoute(fromPath: string, toPath: string): RedirectRoute {
+    return new RedirectRoute(fromPath, toPath)
+}
 
-//     constructor(readonly routes: Array<IRoute>) {
 
-//     }
+export abstract class RouterPart extends Part<{}> {
 
-//     mount(mountPoint: MountPoint) {
+    abstract routes: Record<string,IRoute>
 
-//     }
+    abstract defaultPart: PartConstructor<StatelessPart,{}>
 
-//     /**
-//      * @param path a raw URL path
-//      * @returns the matching route, if any
-//      */
-//     match(path: string): IRoute | null {
-//         for (let route of this.routes) {
-//             if (route.match(path)) {
-//                 log.debug(`Matched "${path}" to '${route.template}'`)
-//                 return route
-//             }
-//         }
-//         return null
-//     }
+    currentPart?: Part<any>
 
-// }
+    load(): void {
+        const path = this.context.path
+        this.loadPath(path)
+    }
+
+    loadPath(path: string): void {
+        if (this.currentPart) {
+            this.removeChild(this.currentPart)
+            this.currentPart = undefined
+        }
+        for (let route of Object.values(this.routes)) {
+            if (route.match(path)) {
+                if (typeof route.destination == 'string') {
+                    // it's a redirect
+                    log.debug(`Redirected ${path} to ${route.destination}`)
+                    history.pushState(null, '', route.destination)
+                    this._context = this.root._computeContext(this.context.frame+1)
+                    return this.loadPath(route.destination)
+                }
+                else {
+                    // it's a proper part route
+                    const state = route.parse(path)
+                    this.currentPart = this.makePart(route.destination, state)
+                    log.debug(`Routed ${path} to part`, this.currentPart)
+                    this.dirty()
+                    return
+                }
+            }
+        }
+        log.warn(`No matching route for ${path}, making a default part`, this.defaultPart)
+        this.currentPart = this.makePart(this.defaultPart, {})
+        this.dirty()
+    }
+
+    render(parent: PartTag) {
+        if (this.currentPart) {
+            parent.part(this.currentPart)
+        }
+    }
+
+}
