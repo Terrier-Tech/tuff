@@ -236,10 +236,3 @@ export const selectedShape = style({
     fill: `${colors.selected}44`,
     strokeWidth: 4
 })
-
-// Boids
-
-export const boidsSvg = style({
-    backgroundColor: '#ffffff',
-    ...insetShadow
-})
