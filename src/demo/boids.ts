@@ -4,10 +4,10 @@ import * as demo from './demo'
 import * as logging from '../logging'
 import {arrays} from "../main";
 import * as forms from "../forms";
-import Vector  from './vector'
 import {SVGTag, SVGTagAttrs} from "../svg";
 import * as messages from "../messages";
-import {DivTag} from "../html";
+import * as v from '../vec';
+import {origin} from "../vec";
 
 const log = new logging.Logger('Boids')
 const numBoids= 20
@@ -16,7 +16,7 @@ const boidRadius= 30
 
 type BoidAppStateType = {
     boids: Boid[],
-    centroid: Vector,
+    centroid: v.Vec,
     frameNumber: number,
     boidRadius: number,
     intervalRef: Timer | null,
@@ -29,30 +29,26 @@ type BoidAppStateType = {
 // ui: HTMLElement
 class Boid  {
 
-    position!: Vector
-    heading!: Vector
+    position!: v.Vec
+    heading!: v.Vec
     color!: string
 
     constructor(color: string, readonly id = demo.newId()) {
         this.color= color
-        //this.position= new Vector(Math.random()*ui.offsetWidth, Math.random()*ui.offsetHeight)
-        this.position= new Vector(50+Math.random()*20, 50+Math.random()*20)
-        //this.position= new Vector(900, 100)
-        this.heading= new Vector().initRandUnitVector(2)
-        //this.heading=new Vector().initUnitDegrees(100)
-        //this.ui=ui;
+        this.position= v.make(50+Math.random()*20, 50+Math.random()*20) // initialize boids in upper left hand corner
+        this.heading= v.norm(v.make(2*Math.random()-1, 2*Math.random()-1)) // random unit vector
     }
 
     // Boids try to fly towards the centre of mass of neighbouring boids.
     rule1 = (boids: Boid[]) => {
-        let pc= new Vector(0, 0)
+        let pc= v.origin()
         for (let b of boids) {
             if (b.id==this.id) continue
-            pc= pc.add(b.position)
+            pc= v.add(pc, b.position)
         }
 
-        if (pc.sum() != 0) {
-            return pc.div(boids.length - 1).minus(this.position)
+        if ( v.sum(pc) != 0) {
+            return v.subtract(v.divide(pc, v.fill(boids.length - 1)), this.position)
         } else {
             return pc
         }
@@ -60,52 +56,52 @@ class Boid  {
 
     // Boids try to keep a small distance away from other objects (including other boids).
     rule2 = (boids: Boid[]) => {
-        let c= new Vector(0, 0)
+        let c= v.origin()
         for (let b of boids) {
-            if (b.id==this.id || this.position.distanceTo(b.position) >= appState.boidRadius) continue
-            c=c.minus(b.position.minus(this.position))
+            if (b.id==this.id || v.distance(this.position, b.position) >= appState.boidRadius) continue
+            c= v.subtract(c, v.subtract(b.position, this.position))
         }
         return c;
     }
 
     rule3 = (boids: Boid[]) => {
-        let pv= new Vector(0, 0)
+        let pv= v.origin()
         for (let b of boids) {
             if (b.id==this.id) continue
-            pv= pv.add(b.heading)
+            pv= v.add(pv, b.heading)
         }
-        if (pv.sum() != 0) {
-            return pv.div(boids.length - 1).minus(this.heading);
+        if (v.sum(pv) != 0) {
+            return  v.subtract(v.divide(pv, v.fill(boids.length - 1)), this.heading);
         } else {
             return pv;
         }
     }
 
     // https://math.stackexchange.com/questions/13261/how-to-get-a-reflection-vector
-    reflect(d: Vector, n: Vector){
-        return d.minus( n.mul(d.dot(n)).mul(2) )
+    reflect(d: v.Vec, n: v.Vec){
+        return v.subtract(d, v.multiply( v.fill(2), n, v.fill(v.dot(d, n))))
     }
 
     nextPos = (ui: HTMLElement) => {
 
-        let nextPos= this.position.add(this.heading)
+        let nextPos= v.add(this.position, this.heading)
 
         // X COLLISIONS
-        if (nextPos.x() < 0) {
-            nextPos.setX(0)
-            this.heading=this.reflect(this.heading, new Vector(1, 0))
-        } else if (nextPos.x() > ui.offsetWidth) {
-            nextPos.setX(ui.offsetWidth)
-            this.heading=this.reflect(this.heading, new Vector(-1, 0))
+        if (nextPos.x < 0) {
+            nextPos=v.make(0, nextPos.y)
+            this.heading=this.reflect(this.heading, v.make(1, 0))
+        } else if (nextPos.x > ui.offsetWidth) {
+            nextPos=v.make(ui.offsetWidth, nextPos.y)
+            this.heading=this.reflect(this.heading, v.make(-1, 0))
         }
 
         // Y COLLISIONS
-        if (nextPos.y() < 0) {
-            nextPos.setY(0)
-            this.heading=this.reflect(this.heading, new Vector(0, -1))
-        } else if (nextPos.y() > ui.offsetHeight) {
-            nextPos.setY(ui.offsetHeight)
-            this.heading=this.reflect(this.heading, new Vector(0, 1))
+        if (nextPos.y < 0) {
+            nextPos=v.make(nextPos.x, 0)
+            this.heading=this.reflect(this.heading, v.make(0, -1))
+        } else if (nextPos.y  > ui.offsetHeight) {
+            nextPos=v.make(nextPos.x, ui.offsetHeight)
+            this.heading=this.reflect(this.heading, v.make(0, 1))
         }
 
         return nextPos
@@ -120,20 +116,33 @@ export class DisplaySVG extends Part<{ui: HTMLElement}> {
 
     mainLoop = () => {
 
-        const sumX= appState.boids.map(b=>b.position.x()).reduce((a, b) => a + b, 0)
-        const sumY= appState.boids.map(b=>b.position.y()).reduce((a, b) => a + b, 0)
-        appState.centroid= new Vector(sumX / appState.boids.length, sumY / appState.boids.length )
+        const sumX= appState.boids.map(b=>b.position.x).reduce((a, b) => a + b, 0)
+        const sumY= appState.boids.map(b=>b.position.y).reduce((a, b) => a + b, 0)
+        appState.centroid= v.make(sumX / appState.boids.length, sumY / appState.boids.length )
+
+        //console.log(appState.boids[0].heading)
+
+        let b= appState.boids[0]
+        //console.log(appState.boids[0].heading)
+
+        console.log(v.print(
+            v.multiply(v.make(2, 2), v.fill(3))
+        ))
 
         appState.boids.forEach(b =>{
 
-            b.heading=b.heading
-                .add(b.rule1(appState.boids).mul(.0001 * (appState.coherenceWeight / 100))) // coherence: boids stick together
-                .add(b.rule2(appState.boids).mul(.001 * (appState.separationWeight / 100))) // separation: boids avoid other objects
-                .add(b.rule3(appState.boids).mul(.01 * (appState.alignmentWeight / 100)) // alignment: boids match other boid velocity
-                ).ceil(2).floor(-2) // cap top speed, px per millisecond
+            b.heading= v.add(
+                b.heading,
+                v.multiply(b.rule1(appState.boids), v.fill(.0001 * (appState.coherenceWeight / 100))),
 
-            b.position=b.nextPos(this.state.ui)
+                v.multiply(b.rule2(appState.boids), v.fill(.001 * (appState.separationWeight / 100))),
+                v.multiply(b.rule3(appState.boids), v.fill(.01 * (appState.alignmentWeight / 100)))
+            )
+
+            b.position= b.nextPos(this.state.ui)
         })
+        //console.log(appState.boids[0].heading)
+        //clearInterval(appState.intervalRef)
         //
         // if (appState.frameNumber < 10000) appState.frameNumber+=1
         // else clearInterval(appState.intervalRef)
@@ -157,7 +166,7 @@ export class DisplaySVG extends Part<{ui: HTMLElement}> {
 
     renderCentroid = (svg: SVGTag) =>
         svg.circle({
-            cx: appState.centroid.x(), cy: appState.centroid.y(),
+            cx: appState.centroid.x, cy: appState.centroid.y,
             fill: 'magenta', r: 5 }).css({ opacity: '0.75' })
 
     renderOrigin = (svg: SVGTag) =>
@@ -172,8 +181,8 @@ export class DisplaySVG extends Part<{ui: HTMLElement}> {
             fill: b.color,
             stroke: b.color,
             strokeWidth: 2,
-            d: `M${ b.position.x()  } ${ b.position.y() }, l-10 2, v-4 l10 2`,
-            transform: `rotate(${ b.heading.degrees() }, ${ b.position.x() }, ${ b.position.y() })`,
+            d: `M${ b.position.x  } ${ b.position.y }, l-10 2, v-4 l10 2`,
+            transform: `rotate(${ v.angleDegrees(b.heading, v.make(1, 0)) }, ${ b.position.x }, ${ b.position.y })`,
         })
 
     render(parent: PartTag) {
@@ -269,7 +278,7 @@ let appState: BoidAppStateType = {
     frameNumber: 0,
     tPrev: Date.now(),
     boidRadius: boidRadius,
-    centroid: new Vector(0,0),
+    centroid:  v.origin(),
     coherenceWeight: 50,
     separationWeight: 50,
     alignmentWeight: 50,

@@ -21,7 +21,14 @@ export function make(xxy: number | Array<number>, y?: number): Vec {
     return {x: xxy, y: y!}
 }
 
-/** 
+/**
+ * Make a new vector filled with constant `c`.
+ */
+export function fill(c: number): Vec {
+    return {x: c, y: c}
+}
+
+/**
  * Creates a new vector from the `index` and `index+1` elements of an array.
  */
 export function slice(array: Array<number>, index: number): Vec {
@@ -64,17 +71,38 @@ export const print = (v: Vec, precision=0): string => {
 }
 
 /**
- * @returns `v1` + `v2`
+ * @returns `v[0]` + `v[1]` + ... + `v[n]`
  */
-export const add = (v1: Vec, v2: Vec): Vec => {
-    return {x: v1.x + v2.x, y: v1.y + v2.y}
+export const add = (...v: Vec[]): Vec => {
+    return v.reduce((v1, v2) => ({x: v1.x + v2.x, y: v1.y + v2.y}))
 }
 
 /**
- * @returns `v1` - `v2`
+ * @returns `v[0]` - `v[1]` - ... - `v[n]`
  */
-export const subtract = (v1: Vec, v2: Vec): Vec => {
-    return {x: v1.x - v2.x, y: v1.y - v2.y}
+export const subtract = (...v: Vec[]): Vec => {
+    return v.reduce((v1, v2) => ({x: v1.x - v2.x, y: v1.y - v2.y}))
+}
+
+/**
+ * @returns `v[0]` * `v[1]` * ... * `v[n]`
+ */
+export const multiply = (...v: Vec[]): Vec => {
+    return v.reduce((v1, v2) => ({x: v1.x * v2.x, y: v1.y * v2.y}))
+}
+
+/**
+ * @returns `v[0]` / `v[1]` / ... / `v[n]`
+ */
+export const divide = (...v: Vec[]): Vec => {
+    return v.reduce((v1, v2) => ({x: v1.x / v2.x, y: v1.y / v2.y}))
+}
+
+/**
+ * @returns `v.x` + `v.y`
+ */
+export const sum = (v: Vec): number => {
+    return v.x + v.y;
 }
 
 /**
@@ -118,7 +146,28 @@ export const mirror = (v: Vec): Vec => {
      const len1 = len(v1)
      const len2 = len(v2)
      const maxLen = Math.max(len1, len2)
-     return maxLen > 0 && 
-        Math.abs(len1-len2)/maxLen < EpsilonRatio && 
+     return maxLen > 0 &&
+        Math.abs(len1-len2)/maxLen < EpsilonRatio &&
         Math.abs(v1.x+v2.x)/maxLen < EpsilonRatio
  }
+
+/**
+ * @returns euclidean distance between `v1` and `v2`
+ */
+export const distance = (v1: Vec, v2: Vec): number => {
+    return Math.sqrt((v1.x - v2.x)**2 + (v1.y - v2.y)**2)
+}
+
+/**
+ * @returns angle in radians between `v1` and `v2`
+ */
+export const angleRadians = (v1: Vec, v2: Vec): number => {
+    return Math.atan2(v1.x*v2.y - v1.y*v2.x,v1.x*v2.x + v1.y*v2.y) * -1
+}
+
+/**
+ * @returns angle in degrees between `v1` and `v2`
+ */
+export const angleDegrees = (v1: Vec, v2: Vec): number => {
+    return angleRadians(v1, v2) * (180/Math.PI);
+}

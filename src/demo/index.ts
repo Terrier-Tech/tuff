@@ -39,6 +39,7 @@ class App extends Part<{}> {
 
     init() {
         this.output = this.makePart(OutputPart, {output: ""})
+        this.parts['Boids'] = this.makeStatelessPart(boids.App)
         this.parts['Counter'] = this.makeStatelessPart(counter.CounterApp)
         this.parts['Contacts'] = this.makeStatelessPart(contacts.ContactsApp)
         this.parts['Shapes'] = this.makeStatelessPart(shapes.ShapesApp)
