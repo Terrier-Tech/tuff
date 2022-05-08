@@ -9,9 +9,9 @@ import * as messages from "../messages";
 import * as v from '../vec';
 
 const log = new logging.Logger('Boids')
-const numBoids= 20
 const boidColors= ['#0088aa', '#00aa88', '#6600dd']
 const boidRadius= 30
+const numBoids= 20;
 
 type BoidAppStateType = {
     boids: Boid[],
@@ -25,6 +25,9 @@ type BoidAppStateType = {
     tPrev: number,
 }
 
+const handleNumBoidsChange = (appState: BoidAppStateType) => {
+}
+
 // ui: HTMLElement
 class Boid  {
 
@@ -32,8 +35,8 @@ class Boid  {
     heading!: v.Vec
     color!: string
 
-    constructor(color: string, readonly id = demo.newId()) {
-        this.color= color
+    constructor(readonly id = demo.newId()) {
+        this.color= arrays.sample(boidColors)
         this.position= v.make(50+Math.random()*20, 50+Math.random()*20) // initialize boids in upper left hand corner
         this.heading= v.norm(v.make(2*Math.random()-1, 2*Math.random()-1)) // random unit vector
     }
@@ -124,16 +127,15 @@ export class DisplaySVG extends Part<{ui: HTMLElement}> {
         let b= appState.boids[0]
         //console.log(appState.boids[0].heading)
 
-        console.log(v.print(
-            v.multiply(v.make(2, 2), v.fill(3))
-        ))
+        // console.log(v.print(
+        //     v.multiply(v.make(2, 2), v.fill(3))
+        // ))
 
         appState.boids.forEach(b =>{
 
             b.heading= v.add(
                 b.heading,
                 v.multiply(b.rule1(appState.boids), v.fill(.0001 * (appState.coherenceWeight / 100))),
-
                 v.multiply(b.rule2(appState.boids), v.fill(.001 * (appState.separationWeight / 100))),
                 v.multiply(b.rule3(appState.boids), v.fill(.01 * (appState.alignmentWeight / 100)))
             )
@@ -194,6 +196,7 @@ export class DisplaySVG extends Part<{ui: HTMLElement}> {
     }
 }
 
+const numBoidsKey = messages.untypedKey()
 const radiusKey = messages.untypedKey()
 const coherenceKey = messages.untypedKey()
 const separationKey = messages.untypedKey()
@@ -202,6 +205,14 @@ const alignmentKey = messages.untypedKey()
 class BoidForm extends forms.FormPart<BoidAppStateType> {
 
     init() {
+        this.onChange(numBoidsKey, (m)=> {
+            const diff= m.event.target.value - appState.boids.length
+            const isMoreBoids= Math.sign(diff) == 1 ? true : false;
+            const numChanged= Math.abs(diff);
+            for (let _ of arrays.range(0, numChanged))
+                if (isMoreBoids) appState.boids.push(new Boid()); else appState.boids.pop()
+            this.dirty()
+        })
         this.onChange(radiusKey, (m)=> {
             appState.boidRadius= m.event.target.value;
             this.dirty()
@@ -222,6 +233,11 @@ class BoidForm extends forms.FormPart<BoidAppStateType> {
 
     render(parent: PartTag) {
         parent.div(styles.flexRow, row => {
+            row.div(styles.flexStretch, (column)=>{
+                column.p().text(`Boid Count: ${ appState.boids.length }`)
+                column.input({ id: 'input-radius', type: 'range', min: '1', max: '50', step: '1', value: appState.boids.length })
+                    .emitChange(numBoidsKey)
+            })
             row.div(styles.flexStretch, (column)=>{
                 column.p().text(`Radius: ${ appState.boidRadius }px`)
                 column.input({ id: 'input-radius', type: 'range', min: '5', max: '100', step: '5', value: appState.boidRadius })
@@ -272,7 +288,7 @@ export class App extends Part<{}> {
     }
 }
 
-let appState: BoidAppStateType = {
+let appState = {
     intervalRef: null,
     frameNumber: 0,
     tPrev: Date.now(),
@@ -281,9 +297,7 @@ let appState: BoidAppStateType = {
     coherenceWeight: 50,
     separationWeight: 50,
     alignmentWeight: 50,
-    boids: arrays.range(0, numBoids-1).map(() => new Boid(
-        arrays.sample(boidColors)
-    )),
+    boids: arrays.range(0, numBoids-1).map(() => new Boid()),
 }
 
 const container = document.getElementById('boids')
