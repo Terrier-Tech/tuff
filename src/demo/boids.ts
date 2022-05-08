@@ -110,7 +110,7 @@ class Boid  {
     }
 }
 
-export class DisplaySVG extends Part<{ui: HTMLElement}> {
+export class DisplaySVG extends Part<{ui: null | HTMLElement}> {
 
     init() {
         appState.intervalRef= setInterval(this.mainLoop, 1);
@@ -187,12 +187,12 @@ export class DisplaySVG extends Part<{ui: HTMLElement}> {
         })
 
     render(parent: PartTag) {
-        parent.svg( '#boids-svg',svg => {
-            svg.attrs(this.svgAttrs())
-            appState.boids.forEach(b => this.renderBoid(b, svg))
-            this.renderCentroid(svg)
-            this.renderOrigin(svg)
-        })
+        if (this.state.ui)
+            parent.svg( '#boids-svg',svg => {
+                svg.attrs(this.svgAttrs())
+                appState.boids.forEach(b => this.renderBoid(b, svg))
+                this.renderCentroid(svg)
+                this.renderOrigin(svg) })
     }
 }
 
@@ -269,22 +269,23 @@ export class App extends Part<{}> {
 
     areaHeight= '500px' // Height of svg container
     appForm!: BoidForm
+    svgDisplay!: DisplaySVG
 
     init() {
-        this.appForm= this.makePart(BoidForm, appState)
+        this.appForm= this.makePart(BoidForm, appState);
+        this.svgDisplay= this.makePart(DisplaySVG, {ui: null})
     }
 
     render(parent: PartTag) {
         parent.div(styles.flexRow, styles.padded, d => {
             d.css({flexDirection: 'column'})
-            d.div('#display-ui','.display-ui', styles.contentInset, styles.flexStretch ).css({ height: this.areaHeight })
+            d.div('#display-ui','.display-ui', styles.contentInset, styles.flexStretch, d => { d.part(this.svgDisplay) } ).css({ height: this.areaHeight })
             d.div('#input-ui', styles.contentInset, styles.padded, d => { d.part(this.appForm) })
         })
     }
 
     update(elem: HTMLElement) {
-        const ui= elem.getElementsByClassName("display-ui")[0]
-        Part.mount(DisplaySVG, ui, {ui: ui})
+        this.svgDisplay.state.ui=elem.getElementsByClassName("display-ui")[0]
     }
 }
 
