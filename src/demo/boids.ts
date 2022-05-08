@@ -7,7 +7,6 @@ import * as forms from "../forms";
 import {SVGTag, SVGTagAttrs} from "../svg";
 import * as messages from "../messages";
 import * as v from '../vec';
-import {origin} from "../vec";
 
 const log = new logging.Logger('Boids')
 const numBoids= 20
@@ -203,20 +202,20 @@ const alignmentKey = messages.untypedKey()
 class BoidForm extends forms.FormPart<BoidAppStateType> {
 
     init() {
-        this.onChange(radiusKey, ()=> {
-            appState.boidRadius= document.getElementById('input-radius').value;
+        this.onChange(radiusKey, (m)=> {
+            appState.boidRadius= m.event.target.value;
             this.dirty()
         })
-        this.onChange(coherenceKey, ()=> {
-            appState.coherenceWeight= document.getElementById('input-coherence').value;
+        this.onChange(coherenceKey, (m)=> {
+            appState.coherenceWeight= m.event.target.value;
             this.dirty()
         })
-        this.onChange(separationKey, ()=> {
-            appState.separationWeight= document.getElementById('input-separation').value;
+        this.onChange(separationKey, (m)=> {
+            appState.separationWeight= m.event.target.value;;
             this.dirty()
         })
-        this.onChange(alignmentKey, ()=> {
-            appState.alignmentWeight= document.getElementById('input-alignment').value;
+        this.onChange(alignmentKey, (m)=> {
+            appState.alignmentWeight= m.event.target.value;;
             this.dirty()
         })
     }
