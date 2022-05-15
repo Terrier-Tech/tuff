@@ -481,6 +481,15 @@ In the event that such code needs to be regenerated, run:
 npm run gen
 ```
 
+### Publishing
+
+Due to reasons that I cannot fathom, `npm publish` doesn't seem to support publishing just the `dist` directory in a reasonable way.
+So, we use a custom script instead:
+
+```
+npm run pub
+```
+
 
 ## License (MIT)
 

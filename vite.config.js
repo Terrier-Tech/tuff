@@ -14,10 +14,10 @@ export default defineConfig({
   build: {
     emptyOutDir: false,
     lib: {
-      entry: path.resolve(dirname, 'src/main.ts'),
+      entry: path.resolve(dirname, 'src/index.ts'),
       name: 'Tuff',
       formats: ['es'],
-      fileName: (format) => `tuff.${format}.js`
+      fileName: (format) => `index.js`
     }
   },
 })
