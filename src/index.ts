@@ -10,5 +10,6 @@ import * as svg from './svg'
 import * as urls from './urls'
 import * as routing from './routing'
 import * as vec from './vec'
+import * as forms from './forms'
 
-export {logging, parts, messages, tags, keyboard, strings, arrays, svg, html, urls, routing, vec}
+export {logging, parts, messages, tags, keyboard, strings, arrays, svg, html, urls, routing, vec, forms}
