@@ -2,18 +2,29 @@ import {Part} from './parts'
 import {Logger} from './logging'
 import * as arrays from './arrays'
 import * as messages from './messages'
-import { FormTag, HtmlParentTag, InputTag, InputTagAttrs, TextAreaTag, TextAreaTagAttrs } from './html'
+import { FormTag, HtmlParentTag, InputTag, InputTagAttrs, SelectTag, SelectTagAttrs, TextAreaTag, TextAreaTagAttrs } from './html'
 
 const log = new Logger("Forms")
 
+/**
+ * All possible input element types.
+ */
 export type InputType = "button" | "checkbox" | "color" | "date" | "datetime-local" | "email" | "file" | "hidden" | "image" | "month" | "number" | "password" | "radio" | "range" | "reset" | "search" | "submit" | "tel" | "text" | "time" | "url" | "week"
 
+/**
+ * Type-safe way to match the key of type `T` as long as the value is of type `ValueType`.
+ */
 export type KeyOfType<T, ValueType> = 
   { [Key in keyof T]-?: T[Key] extends ValueType | undefined ? Key : never }[keyof T]
 
+/**
+ * All form elements are keyed by a string.
+ */
 export type FormData = Record<string, any>
 
-
+/**
+ * These get added to the possible events for which messages can be sent and received.
+ */
 export interface EventMap {
     "datachanged": Event
 }
@@ -52,10 +63,10 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
 
     textArea<Key extends KeyOfType<DataType,string> & string>(parent: HtmlParentTag, name: Key, attrs: TextAreaTagAttrs={}): TextAreaTag {
         attrs.name = `${this.id}-${name}`
-        if (!this.fields[name]) {
-            this.fields[name] = new TextAreaField(name)
+        if (!this.fields[attrs.name]) {
+            this.fields[attrs.name] = new TextAreaField(name)
         }
-        this.fields[name].assignAttrValue(attrs, this.state[name])
+        this.fields[attrs.name].assignAttrValue(attrs, this.state[name])
         return parent.textarea(attrs, this.className)
     }
 
@@ -72,13 +83,26 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
         return this.input<Key>(parent, "radio", name, RadioField, attrs)
     }
 
-    // Create a form tag
+    select<Key extends KeyOfType<DataType,string> & string>(parent: HtmlParentTag, name: Key, attrs: SelectTagAttrs={}): SelectTag {
+        attrs.name = `${this.id}-${name}`
+        if (!this.fields[attrs.name]) {
+            this.fields[attrs.name] = new SelectField(name)
+        }
+        this.fields[attrs.name].assignAttrValue(attrs, this.state[name])
+        return parent.select(attrs, this.className)
+    }
+
+    /**
+     *  Create a form tag in the given parent.
+     */
     formTag(parent: HtmlParentTag, fun: ((n: FormTag) => any)) {
         const tag = parent.form({id: `${this.id}_tag`}, this.className)
         fun(tag)
     }
 
-    // Serializes the form into a new copy of this.state
+    /**
+     * Serializes the form into a new copy of `this.state`.
+     */
     serialize(): DataType {
         const root = this.element
         if (!root) {
@@ -86,6 +110,7 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
         }
         const data: DataType = {...this.state}
         const allElems = Array.from(root.getElementsByClassName(this.className))
+        // there may be more than one actual element for any given key, so group them together and let the Field determine the value
         arrays.eachGroupBy(allElems, e => e.getAttribute('name')||'', (name, elems) => {
             const field = this.fields[name]
             if (field) {
@@ -96,15 +121,21 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
         return data
     }
 
-    // In addition to the regular part listeners, listen to change events on fields for this form
+    /**
+     * In addition to the regular part listeners, listen to change events on fields for this form
+     */
     _attachEventListeners() {
+        const needsEventListeners = this._needsEventListeners
         super._attachEventListeners()
+        if (!needsEventListeners) {
+            return
+        }
         const elem = this.element
         if (!elem) {
             return
         }
         const part = this
-        elem.addEventListener("change", function(this: HTMLElement, evt: Event) {
+        elem.addEventListener("input", function(this: HTMLElement, evt: Event) {
             if ((evt.target as HTMLElement).classList.contains(part.className)) {
                 const data = part.serialize()
                 log.debug("Data Changed", part, evt, data)
@@ -116,19 +147,24 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
         })
     }
 
-    // Return true (default) to assign the new data to the part's state
-    // and propagate it as a message
+    /** 
+     * @returns true (default) to assign the new data to the part's state and propagate it as a message.
+     */
     shouldUpdateState(_: DataType): boolean {
         return true
     }
 
-    // Emits the datachanged event for this form and the given data
+    /** 
+     * Emits the datachanged event for this form and the given data
+     */
     emitDataChanged(evt: Event, data: DataType) {
         log.debug("Emitting datachaged event", this, evt, data)
         this.emit("datachanged", this.dataChangedKey, evt, data, {scope: "bubble"})
     }
 
-    // Listens for datachanged events on this or child forms
+    /**
+     *  Listens for datachanged events on this or child forms
+     */
     onDataChanged<EvtDataType>(
         key: messages.TypedKey<EvtDataType>, 
         listener: (m: messages.Message<"datachanged",EvtDataType>) => void, 
@@ -139,19 +175,27 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
 
 }
 
-
+/**
+ * Base class for classes that get and set values for concrete form elements.
+ */
 abstract class Field<FieldType, ElementType extends Element> {
 
-    // name is the actual name of the property, not the element name attribute,
-    // which is mangled to ensure uniqueness between forms
+    /**
+     * @param name is the actual name of the property, not the element name attribute,
+     * which is mangled to ensure uniqueness between forms
+     */
     constructor(readonly name: string) {
 
     }
 
-    // Assigns either the 'value' attribute or related attributes (like 'checked')
+    /**
+     * Assigns either the 'value' attribute or related attributes (like 'checked')
+     */
     abstract assignAttrValue(attrs: InputTagAttrs, value?: FieldType): void
 
-    // Gets the value from an actual element
+    /**
+     * Gets the value from an actual element or elements
+     */
     abstract getValue(elem: ElementType[]): FieldType | null
 
 }
@@ -175,6 +219,18 @@ class TextAreaField extends Field<string, HTMLTextAreaElement> {
     }
 
     getValue(elems: HTMLTextAreaElement[]): string | null {
+        return elems[0].value
+    }
+
+}
+
+class SelectField extends Field<string, HTMLSelectElement> {
+    
+    assignAttrValue(attrs: SelectTagAttrs, value?: string) {
+        attrs.value = value // even though `value` isn't a valid select attribute, it might be convenient to have this value later on
+    }
+
+    getValue(elems: HTMLSelectElement[]): string | null {
         return elems[0].value
     }
 
@@ -204,5 +260,29 @@ class RadioField extends Field<string, HTMLInputElement> {
             }
         }
         return null
+    }
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Select Options
+////////////////////////////////////////////////////////////////////////////////
+
+export type SelectOption = {
+    value: string
+    title: string
+}
+
+export type SelectOptions = SelectOption[]
+
+/**
+ * Adds options to a select tag
+ * @param tag the select tag
+ * @param options the options to add
+ */
+export function optionsForSelect(tag: SelectTag, options: SelectOptions) {
+    for (const opt of options) {
+        tag.option({value: opt.value}).text(opt.title)
     }
 }

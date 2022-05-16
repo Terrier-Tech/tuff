@@ -349,7 +349,7 @@ export abstract class Part<StateType> {
         this.listen("message", key, handler, options)
     }
 
-    private _needsEventListeners = true
+    protected _needsEventListeners = true
 
     /**
      * Tells the children that they need to attach event listeners.

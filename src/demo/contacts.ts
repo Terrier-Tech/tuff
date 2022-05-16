@@ -47,11 +47,26 @@ class PhoneFormPart extends forms.FormPart<PhoneState> {
 
 }
 
+const roles = ['customer', 'vendor'] as const
+
+type Role = typeof roles[number]
+
+const roleOptions = [
+    {
+        value: 'customer',
+        title: 'Customer'
+    },
+    {
+        value: 'vendor',
+        title: 'Vendor'
+    }
+]
 
 type ContactState = {
     id: string
     name: string
     email?: string
+    role: Role
     isAdmin: boolean
     birthday?: string
     notes?: string,
@@ -96,6 +111,10 @@ class ContactFormPart extends forms.FormPart<ContactState> {
         parent.class(styles.contactForm)
         this.textInput(parent, "name", {placeholder: 'Name'})
         this.emailInput(parent, "email", {placeholder: 'E-Mail'})
+        
+        const roleSelect = this.select(parent, "role")
+        forms.optionsForSelect(roleSelect, roleOptions)
+        
         parent.div(styles.flexRow, row => {
             row.div(styles.flexStretch, col => {
                 col.label(label => {
@@ -137,6 +156,7 @@ export class ContactsApp extends Part<{}> {
         this.forms.push(this.makePart(ContactFormPart, {
             id: demo.newId(),
             name: "Bobby Tables", 
+            role: 'customer',
             isAdmin: true,
             birthday: '2021-12-01',
             phones: []

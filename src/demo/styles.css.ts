@@ -136,7 +136,7 @@ export const characterLink = style({
 
 // Inputs
 
-globalStyle('input, textarea', {
+globalStyle('input, textarea, select', {
     fontSize: sizes.font,
     height: sizes.fieldHeight,
     padding: '8px',
@@ -144,6 +144,9 @@ globalStyle('input, textarea', {
     border: `1px solid ${colors.border}`,
     borderRadius: sizes.borderRadius-1,
     width: '100%'
+})
+globalStyle('select', {
+    padding: '6px'
 })
 globalStyle('textarea', {
     height: 'initial',
