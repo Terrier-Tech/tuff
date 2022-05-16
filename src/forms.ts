@@ -6,9 +6,9 @@ import { FormTag, HtmlParentTag, InputTag, InputTagAttrs, TextAreaTag, TextAreaT
 
 const log = new Logger("Forms")
 
-type InputType = "button" | "checkbox" | "color" | "date" | "datetime-local" | "email" | "file" | "hidden" | "image" | "month" | "number" | "password" | "radio" | "range" | "reset" | "search" | "submit" | "tel" | "text" | "time" | "url" | "week"
+export type InputType = "button" | "checkbox" | "color" | "date" | "datetime-local" | "email" | "file" | "hidden" | "image" | "month" | "number" | "password" | "radio" | "range" | "reset" | "search" | "submit" | "tel" | "text" | "time" | "url" | "week"
 
-type KeyOfType<T, ValueType> = 
+export type KeyOfType<T, ValueType> = 
   { [Key in keyof T]-?: T[Key] extends ValueType | undefined ? Key : never }[keyof T]
 
 export type FormData = Record<string, any>
