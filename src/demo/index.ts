@@ -7,7 +7,7 @@ import * as shapes from './shapes'
 import * as nav from './nav'
 import * as demo from './demo'
 import * as messages from '../messages'
-import { createHtmlElement, DivTag } from '../html'
+import { createHtmlElement} from '../html'
 
 const log = new Logger("Demo")
 Logger.level = 'debug'
