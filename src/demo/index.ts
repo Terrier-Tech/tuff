@@ -51,7 +51,7 @@ class App extends Part<{}> {
         })
 
         // test creating an arbitrary element
-        const divTag = new DivTag('div')
+        const divTag = new DivTag()
         divTag.class('global').text("Hello Global Element")
         const divElem = divTag.createElement()
         document.body.appendChild(divElem)

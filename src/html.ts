@@ -63,443 +63,443 @@ export abstract class HtmlTagBase<AttrsType extends Attrs,ElementType extends HT
     //// Begin Tag Methods
 
     a(...args: TagArgs<AnchorTag,AnchorTagAttrs>[]) : AnchorTag {
-        return this.child(AnchorTag, "a", ...args)
+        return this.child(AnchorTag, ...args)
     }
 
     abbr(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "abbr", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     address(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "address", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     area(...args: TagArgs<AreaTag,AreaTagAttrs>[]) : AreaTag {
-        return this.child(AreaTag, "area", ...args)
+        return this.child(AreaTag, ...args)
     }
 
     article(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "article", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     aside(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "aside", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     b(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "b", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     base(...args: TagArgs<BaseTag,BaseTagAttrs>[]) : BaseTag {
-        return this.child(BaseTag, "base", ...args)
+        return this.child(BaseTag, ...args)
     }
 
     bdi(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "bdi", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     bdo(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "bdo", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     blockquote(...args: TagArgs<QuoteTag,QuoteTagAttrs>[]) : QuoteTag {
-        return this.child(QuoteTag, "blockquote", ...args)
+        return this.child(QuoteTag, ...args)
     }
 
     body(...args: TagArgs<BodyTag,BodyTagAttrs>[]) : BodyTag {
-        return this.child(BodyTag, "body", ...args)
+        return this.child(BodyTag, ...args)
     }
 
     br(...args: TagArgs<BRTag,BRTagAttrs>[]) : BRTag {
-        return this.child(BRTag, "br", ...args)
+        return this.child(BRTag, ...args)
     }
 
     button(...args: TagArgs<ButtonTag,ButtonTagAttrs>[]) : ButtonTag {
-        return this.child(ButtonTag, "button", ...args)
+        return this.child(ButtonTag, ...args)
     }
 
     canvas(...args: TagArgs<CanvasTag,CanvasTagAttrs>[]) : CanvasTag {
-        return this.child(CanvasTag, "canvas", ...args)
+        return this.child(CanvasTag, ...args)
     }
 
     caption(...args: TagArgs<TableCaptionTag,TableCaptionTagAttrs>[]) : TableCaptionTag {
-        return this.child(TableCaptionTag, "caption", ...args)
+        return this.child(TableCaptionTag, ...args)
     }
 
     cite(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "cite", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     code(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "code", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     col(...args: TagArgs<TableColTag,TableColTagAttrs>[]) : TableColTag {
-        return this.child(TableColTag, "col", ...args)
+        return this.child(TableColTag, ...args)
     }
 
     colgroup(...args: TagArgs<TableColTag,TableColTagAttrs>[]) : TableColTag {
-        return this.child(TableColTag, "colgroup", ...args)
+        return this.child(TableColTag, ...args)
     }
 
     dataTag(...args: TagArgs<DataTag,DataTagAttrs>[]) : DataTag {
-        return this.child(DataTag, "data", ...args)
+        return this.child(DataTag, ...args)
     }
 
     datalist(...args: TagArgs<DataListTag,DataListTagAttrs>[]) : DataListTag {
-        return this.child(DataListTag, "datalist", ...args)
+        return this.child(DataListTag, ...args)
     }
 
     dd(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "dd", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     del(...args: TagArgs<ModTag,ModTagAttrs>[]) : ModTag {
-        return this.child(ModTag, "del", ...args)
+        return this.child(ModTag, ...args)
     }
 
     details(...args: TagArgs<DetailsTag,DetailsTagAttrs>[]) : DetailsTag {
-        return this.child(DetailsTag, "details", ...args)
+        return this.child(DetailsTag, ...args)
     }
 
     dfn(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "dfn", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     div(...args: TagArgs<DivTag,DivTagAttrs>[]) : DivTag {
-        return this.child(DivTag, "div", ...args)
+        return this.child(DivTag, ...args)
     }
 
     dl(...args: TagArgs<DListTag,DListTagAttrs>[]) : DListTag {
-        return this.child(DListTag, "dl", ...args)
+        return this.child(DListTag, ...args)
     }
 
     dt(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "dt", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     em(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "em", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     embed(...args: TagArgs<EmbedTag,EmbedTagAttrs>[]) : EmbedTag {
-        return this.child(EmbedTag, "embed", ...args)
+        return this.child(EmbedTag, ...args)
     }
 
     fieldset(...args: TagArgs<FieldSetTag,FieldSetTagAttrs>[]) : FieldSetTag {
-        return this.child(FieldSetTag, "fieldset", ...args)
+        return this.child(FieldSetTag, ...args)
     }
 
     figcaption(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "figcaption", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     figure(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "figure", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     footer(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "footer", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     form(...args: TagArgs<FormTag,FormTagAttrs>[]) : FormTag {
-        return this.child(FormTag, "form", ...args)
+        return this.child(FormTag, ...args)
     }
 
     frameset(...args: TagArgs<FrameSetTag,FrameSetTagAttrs>[]) : FrameSetTag {
-        return this.child(FrameSetTag, "frameset", ...args)
+        return this.child(FrameSetTag, ...args)
     }
 
     h1(...args: TagArgs<HeadingTag,HeadingTagAttrs>[]) : HeadingTag {
-        return this.child(HeadingTag, "h1", ...args)
+        return this.child(HeadingTag, ...args)
     }
 
     h2(...args: TagArgs<HeadingTag,HeadingTagAttrs>[]) : HeadingTag {
-        return this.child(HeadingTag, "h2", ...args)
+        return this.child(HeadingTag, ...args)
     }
 
     h3(...args: TagArgs<HeadingTag,HeadingTagAttrs>[]) : HeadingTag {
-        return this.child(HeadingTag, "h3", ...args)
+        return this.child(HeadingTag, ...args)
     }
 
     h4(...args: TagArgs<HeadingTag,HeadingTagAttrs>[]) : HeadingTag {
-        return this.child(HeadingTag, "h4", ...args)
+        return this.child(HeadingTag, ...args)
     }
 
     h5(...args: TagArgs<HeadingTag,HeadingTagAttrs>[]) : HeadingTag {
-        return this.child(HeadingTag, "h5", ...args)
+        return this.child(HeadingTag, ...args)
     }
 
     h6(...args: TagArgs<HeadingTag,HeadingTagAttrs>[]) : HeadingTag {
-        return this.child(HeadingTag, "h6", ...args)
+        return this.child(HeadingTag, ...args)
     }
 
     head(...args: TagArgs<HeadTag,HeadTagAttrs>[]) : HeadTag {
-        return this.child(HeadTag, "head", ...args)
+        return this.child(HeadTag, ...args)
     }
 
     header(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "header", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     hgroup(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "hgroup", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     hr(...args: TagArgs<HRTag,HRTagAttrs>[]) : HRTag {
-        return this.child(HRTag, "hr", ...args)
+        return this.child(HRTag, ...args)
     }
 
     html(...args: TagArgs<HtmlTag,HtmlTagAttrs>[]) : HtmlTag {
-        return this.child(HtmlTag, "html", ...args)
+        return this.child(HtmlTag, ...args)
     }
 
     i(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "i", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     iframe(...args: TagArgs<IFrameTag,IFrameTagAttrs>[]) : IFrameTag {
-        return this.child(IFrameTag, "iframe", ...args)
+        return this.child(IFrameTag, ...args)
     }
 
     img(...args: TagArgs<ImageTag,ImageTagAttrs>[]) : ImageTag {
-        return this.child(ImageTag, "img", ...args)
+        return this.child(ImageTag, ...args)
     }
 
     input(...args: TagArgs<InputTag,InputTagAttrs>[]) : InputTag {
-        return this.child(InputTag, "input", ...args)
+        return this.child(InputTag, ...args)
     }
 
     ins(...args: TagArgs<ModTag,ModTagAttrs>[]) : ModTag {
-        return this.child(ModTag, "ins", ...args)
+        return this.child(ModTag, ...args)
     }
 
     kbd(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "kbd", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     label(...args: TagArgs<LabelTag,LabelTagAttrs>[]) : LabelTag {
-        return this.child(LabelTag, "label", ...args)
+        return this.child(LabelTag, ...args)
     }
 
     legend(...args: TagArgs<LegendTag,LegendTagAttrs>[]) : LegendTag {
-        return this.child(LegendTag, "legend", ...args)
+        return this.child(LegendTag, ...args)
     }
 
     li(...args: TagArgs<LITag,LITagAttrs>[]) : LITag {
-        return this.child(LITag, "li", ...args)
+        return this.child(LITag, ...args)
     }
 
     link(...args: TagArgs<LinkTag,LinkTagAttrs>[]) : LinkTag {
-        return this.child(LinkTag, "link", ...args)
+        return this.child(LinkTag, ...args)
     }
 
     main(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "main", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     map(...args: TagArgs<MapTag,MapTagAttrs>[]) : MapTag {
-        return this.child(MapTag, "map", ...args)
+        return this.child(MapTag, ...args)
     }
 
     mark(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "mark", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     menu(...args: TagArgs<MenuTag,MenuTagAttrs>[]) : MenuTag {
-        return this.child(MenuTag, "menu", ...args)
+        return this.child(MenuTag, ...args)
     }
 
     meta(...args: TagArgs<MetaTag,MetaTagAttrs>[]) : MetaTag {
-        return this.child(MetaTag, "meta", ...args)
+        return this.child(MetaTag, ...args)
     }
 
     meter(...args: TagArgs<MeterTag,MeterTagAttrs>[]) : MeterTag {
-        return this.child(MeterTag, "meter", ...args)
+        return this.child(MeterTag, ...args)
     }
 
     nav(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "nav", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     noscript(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "noscript", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     object(...args: TagArgs<ObjectTag,ObjectTagAttrs>[]) : ObjectTag {
-        return this.child(ObjectTag, "object", ...args)
+        return this.child(ObjectTag, ...args)
     }
 
     ol(...args: TagArgs<OListTag,OListTagAttrs>[]) : OListTag {
-        return this.child(OListTag, "ol", ...args)
+        return this.child(OListTag, ...args)
     }
 
     optgroup(...args: TagArgs<OptGroupTag,OptGroupTagAttrs>[]) : OptGroupTag {
-        return this.child(OptGroupTag, "optgroup", ...args)
+        return this.child(OptGroupTag, ...args)
     }
 
     option(...args: TagArgs<OptionTag,OptionTagAttrs>[]) : OptionTag {
-        return this.child(OptionTag, "option", ...args)
+        return this.child(OptionTag, ...args)
     }
 
     output(...args: TagArgs<OutputTag,OutputTagAttrs>[]) : OutputTag {
-        return this.child(OutputTag, "output", ...args)
+        return this.child(OutputTag, ...args)
     }
 
     p(...args: TagArgs<ParagraphTag,ParagraphTagAttrs>[]) : ParagraphTag {
-        return this.child(ParagraphTag, "p", ...args)
+        return this.child(ParagraphTag, ...args)
     }
 
     param(...args: TagArgs<ParamTag,ParamTagAttrs>[]) : ParamTag {
-        return this.child(ParamTag, "param", ...args)
+        return this.child(ParamTag, ...args)
     }
 
     picture(...args: TagArgs<PictureTag,PictureTagAttrs>[]) : PictureTag {
-        return this.child(PictureTag, "picture", ...args)
+        return this.child(PictureTag, ...args)
     }
 
     pre(...args: TagArgs<PreTag,PreTagAttrs>[]) : PreTag {
-        return this.child(PreTag, "pre", ...args)
+        return this.child(PreTag, ...args)
     }
 
     progress(...args: TagArgs<ProgressTag,ProgressTagAttrs>[]) : ProgressTag {
-        return this.child(ProgressTag, "progress", ...args)
+        return this.child(ProgressTag, ...args)
     }
 
     q(...args: TagArgs<QuoteTag,QuoteTagAttrs>[]) : QuoteTag {
-        return this.child(QuoteTag, "q", ...args)
+        return this.child(QuoteTag, ...args)
     }
 
     rp(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "rp", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     rt(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "rt", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     ruby(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "ruby", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     s(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "s", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     samp(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "samp", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     script(...args: TagArgs<ScriptTag,ScriptTagAttrs>[]) : ScriptTag {
-        return this.child(ScriptTag, "script", ...args)
+        return this.child(ScriptTag, ...args)
     }
 
     section(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "section", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     select(...args: TagArgs<SelectTag,SelectTagAttrs>[]) : SelectTag {
-        return this.child(SelectTag, "select", ...args)
+        return this.child(SelectTag, ...args)
     }
 
     slot(...args: TagArgs<SlotTag,SlotTagAttrs>[]) : SlotTag {
-        return this.child(SlotTag, "slot", ...args)
+        return this.child(SlotTag, ...args)
     }
 
     small(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "small", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     source(...args: TagArgs<SourceTag,SourceTagAttrs>[]) : SourceTag {
-        return this.child(SourceTag, "source", ...args)
+        return this.child(SourceTag, ...args)
     }
 
     span(...args: TagArgs<SpanTag,SpanTagAttrs>[]) : SpanTag {
-        return this.child(SpanTag, "span", ...args)
+        return this.child(SpanTag, ...args)
     }
 
     strong(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "strong", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     style(...args: TagArgs<StyleTag,StyleTagAttrs>[]) : StyleTag {
-        return this.child(StyleTag, "style", ...args)
+        return this.child(StyleTag, ...args)
     }
 
     sub(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "sub", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     summary(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "summary", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     sup(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "sup", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     table(...args: TagArgs<TableTag,TableTagAttrs>[]) : TableTag {
-        return this.child(TableTag, "table", ...args)
+        return this.child(TableTag, ...args)
     }
 
     tbody(...args: TagArgs<TableSectionTag,TableSectionTagAttrs>[]) : TableSectionTag {
-        return this.child(TableSectionTag, "tbody", ...args)
+        return this.child(TableSectionTag, ...args)
     }
 
     td(...args: TagArgs<TableCellTag,TableCellTagAttrs>[]) : TableCellTag {
-        return this.child(TableCellTag, "td", ...args)
+        return this.child(TableCellTag, ...args)
     }
 
     template(...args: TagArgs<TemplateTag,TemplateTagAttrs>[]) : TemplateTag {
-        return this.child(TemplateTag, "template", ...args)
+        return this.child(TemplateTag, ...args)
     }
 
     textarea(...args: TagArgs<TextAreaTag,TextAreaTagAttrs>[]) : TextAreaTag {
-        return this.child(TextAreaTag, "textarea", ...args)
+        return this.child(TextAreaTag, ...args)
     }
 
     tfoot(...args: TagArgs<TableSectionTag,TableSectionTagAttrs>[]) : TableSectionTag {
-        return this.child(TableSectionTag, "tfoot", ...args)
+        return this.child(TableSectionTag, ...args)
     }
 
     th(...args: TagArgs<TableCellTag,TableCellTagAttrs>[]) : TableCellTag {
-        return this.child(TableCellTag, "th", ...args)
+        return this.child(TableCellTag, ...args)
     }
 
     thead(...args: TagArgs<TableSectionTag,TableSectionTagAttrs>[]) : TableSectionTag {
-        return this.child(TableSectionTag, "thead", ...args)
+        return this.child(TableSectionTag, ...args)
     }
 
     time(...args: TagArgs<TimeTag,TimeTagAttrs>[]) : TimeTag {
-        return this.child(TimeTag, "time", ...args)
+        return this.child(TimeTag, ...args)
     }
 
     title(...args: TagArgs<TitleTag,TitleTagAttrs>[]) : TitleTag {
-        return this.child(TitleTag, "title", ...args)
+        return this.child(TitleTag, ...args)
     }
 
     tr(...args: TagArgs<TableRowTag,TableRowTagAttrs>[]) : TableRowTag {
-        return this.child(TableRowTag, "tr", ...args)
+        return this.child(TableRowTag, ...args)
     }
 
     track(...args: TagArgs<TrackTag,TrackTagAttrs>[]) : TrackTag {
-        return this.child(TrackTag, "track", ...args)
+        return this.child(TrackTag, ...args)
     }
 
     u(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "u", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     ul(...args: TagArgs<UListTag,UListTagAttrs>[]) : UListTag {
-        return this.child(UListTag, "ul", ...args)
+        return this.child(UListTag, ...args)
     }
 
     var(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "var", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
     wbr(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
-        return this.child(DefaultTag, "wbr", ...args)
+        return this.child(DefaultTag, ...args)
     }
 
 //// End Tag Methods
@@ -521,7 +521,9 @@ export type AnchorTagAttrs = DefaultTagAttrs & {
     type?: string
 }
 
-export class AnchorTag extends HtmlTagBase<AnchorTagAttrs,HTMLAnchorElement> {}
+export class AnchorTag extends HtmlTagBase<AnchorTagAttrs,HTMLAnchorElement> {
+    constructor() { super("a") }
+}
 
 export type AreaTagAttrs = DefaultTagAttrs & {
     alt?: string
@@ -534,24 +536,32 @@ export type AreaTagAttrs = DefaultTagAttrs & {
     target?: string
 }
 
-export class AreaTag extends HtmlTagBase<AreaTagAttrs,HTMLAreaElement> {}
+export class AreaTag extends HtmlTagBase<AreaTagAttrs,HTMLAreaElement> {
+    constructor() { super("area") }
+}
 
 export type BRTagAttrs = DefaultTagAttrs & {
 }
 
-export class BRTag extends HtmlTagBase<BRTagAttrs,HTMLBRElement> {}
+export class BRTag extends HtmlTagBase<BRTagAttrs,HTMLBRElement> {
+    constructor() { super("br") }
+}
 
 export type BaseTagAttrs = DefaultTagAttrs & {
     href?: string
     target?: string
 }
 
-export class BaseTag extends HtmlTagBase<BaseTagAttrs,HTMLBaseElement> {}
+export class BaseTag extends HtmlTagBase<BaseTagAttrs,HTMLBaseElement> {
+    constructor() { super("base") }
+}
 
 export type BodyTagAttrs = DefaultTagAttrs & {
 }
 
-export class BodyTag extends HtmlTagBase<BodyTagAttrs,HTMLBodyElement> {}
+export class BodyTag extends HtmlTagBase<BodyTagAttrs,HTMLBodyElement> {
+    constructor() { super("body") }
+}
 
 export type ButtonTagAttrs = DefaultTagAttrs & {
     disabled?: boolean
@@ -565,41 +575,55 @@ export type ButtonTagAttrs = DefaultTagAttrs & {
     value?: string
 }
 
-export class ButtonTag extends HtmlTagBase<ButtonTagAttrs,HTMLButtonElement> {}
+export class ButtonTag extends HtmlTagBase<ButtonTagAttrs,HTMLButtonElement> {
+    constructor() { super("button") }
+}
 
 export type CanvasTagAttrs = DefaultTagAttrs & {
     height?: number
     width?: number
 }
 
-export class CanvasTag extends HtmlTagBase<CanvasTagAttrs,HTMLCanvasElement> {}
+export class CanvasTag extends HtmlTagBase<CanvasTagAttrs,HTMLCanvasElement> {
+    constructor() { super("canvas") }
+}
 
 export type DListTagAttrs = DefaultTagAttrs & {
 }
 
-export class DListTag extends HtmlTagBase<DListTagAttrs,HTMLDListElement> {}
+export class DListTag extends HtmlTagBase<DListTagAttrs,HTMLDListElement> {
+    constructor() { super("dl") }
+}
 
 export type DataTagAttrs = DefaultTagAttrs & {
     value?: string
 }
 
-export class DataTag extends HtmlTagBase<DataTagAttrs,HTMLDataElement> {}
+export class DataTag extends HtmlTagBase<DataTagAttrs,HTMLDataElement> {
+    constructor() { super("data") }
+}
 
 export type DataListTagAttrs = DefaultTagAttrs & {
 }
 
-export class DataListTag extends HtmlTagBase<DataListTagAttrs,HTMLDataListElement> {}
+export class DataListTag extends HtmlTagBase<DataListTagAttrs,HTMLDataListElement> {
+    constructor() { super("datalist") }
+}
 
 export type DetailsTagAttrs = DefaultTagAttrs & {
     open?: boolean
 }
 
-export class DetailsTag extends HtmlTagBase<DetailsTagAttrs,HTMLDetailsElement> {}
+export class DetailsTag extends HtmlTagBase<DetailsTagAttrs,HTMLDetailsElement> {
+    constructor() { super("details") }
+}
 
 export type DivTagAttrs = DefaultTagAttrs & {
 }
 
-export class DivTag extends HtmlTagBase<DivTagAttrs,HTMLDivElement> {}
+export class DivTag extends HtmlTagBase<DivTagAttrs,HTMLDivElement> {
+    constructor() { super("div") }
+}
 
 export type DefaultTagAttrs = HtmlBaseAttrs & {
     accessKey?: string
@@ -615,7 +639,9 @@ export type DefaultTagAttrs = HtmlBaseAttrs & {
     translate?: boolean
 }
 
-export class DefaultTag extends HtmlTagBase<DefaultTagAttrs,HTMLElement> {}
+export class DefaultTag extends HtmlTagBase<DefaultTagAttrs,HTMLElement> {
+    constructor() { super("wbr") }
+}
 
 export type EmbedTagAttrs = DefaultTagAttrs & {
     height?: string
@@ -624,14 +650,18 @@ export type EmbedTagAttrs = DefaultTagAttrs & {
     width?: string
 }
 
-export class EmbedTag extends HtmlTagBase<EmbedTagAttrs,HTMLEmbedElement> {}
+export class EmbedTag extends HtmlTagBase<EmbedTagAttrs,HTMLEmbedElement> {
+    constructor() { super("embed") }
+}
 
 export type FieldSetTagAttrs = DefaultTagAttrs & {
     disabled?: boolean
     name?: string
 }
 
-export class FieldSetTag extends HtmlTagBase<FieldSetTagAttrs,HTMLFieldSetElement> {}
+export class FieldSetTag extends HtmlTagBase<FieldSetTagAttrs,HTMLFieldSetElement> {
+    constructor() { super("fieldset") }
+}
 
 export type FormTagAttrs = DefaultTagAttrs & {
     acceptCharset?: string
@@ -645,32 +675,44 @@ export type FormTagAttrs = DefaultTagAttrs & {
     target?: string
 }
 
-export class FormTag extends HtmlTagBase<FormTagAttrs,HTMLFormElement> {}
+export class FormTag extends HtmlTagBase<FormTagAttrs,HTMLFormElement> {
+    constructor() { super("form") }
+}
 
 export type FrameSetTagAttrs = DefaultTagAttrs & {
 }
 
-export class FrameSetTag extends HtmlTagBase<FrameSetTagAttrs,HTMLFrameSetElement> {}
+export class FrameSetTag extends HtmlTagBase<FrameSetTagAttrs,HTMLFrameSetElement> {
+    constructor() { super("frameset") }
+}
 
 export type HRTagAttrs = DefaultTagAttrs & {
 }
 
-export class HRTag extends HtmlTagBase<HRTagAttrs,HTMLHRElement> {}
+export class HRTag extends HtmlTagBase<HRTagAttrs,HTMLHRElement> {
+    constructor() { super("hr") }
+}
 
 export type HeadTagAttrs = DefaultTagAttrs & {
 }
 
-export class HeadTag extends HtmlTagBase<HeadTagAttrs,HTMLHeadElement> {}
+export class HeadTag extends HtmlTagBase<HeadTagAttrs,HTMLHeadElement> {
+    constructor() { super("head") }
+}
 
 export type HeadingTagAttrs = DefaultTagAttrs & {
 }
 
-export class HeadingTag extends HtmlTagBase<HeadingTagAttrs,HTMLHeadingElement> {}
+export class HeadingTag extends HtmlTagBase<HeadingTagAttrs,HTMLHeadingElement> {
+    constructor() { super("h6") }
+}
 
 export type HtmlTagAttrs = DefaultTagAttrs & {
 }
 
-export class HtmlTag extends HtmlTagBase<HtmlTagAttrs,HTMLHtmlElement> {}
+export class HtmlTag extends HtmlTagBase<HtmlTagAttrs,HTMLHtmlElement> {
+    constructor() { super("html") }
+}
 
 export type IFrameTagAttrs = DefaultTagAttrs & {
     allow?: string
@@ -683,7 +725,9 @@ export type IFrameTagAttrs = DefaultTagAttrs & {
     width?: string
 }
 
-export class IFrameTag extends HtmlTagBase<IFrameTagAttrs,HTMLIFrameElement> {}
+export class IFrameTag extends HtmlTagBase<IFrameTagAttrs,HTMLIFrameElement> {
+    constructor() { super("iframe") }
+}
 
 export type ImageTagAttrs = DefaultTagAttrs & {
     alt?: string
@@ -700,7 +744,9 @@ export type ImageTagAttrs = DefaultTagAttrs & {
     width?: number
 }
 
-export class ImageTag extends HtmlTagBase<ImageTagAttrs,HTMLImageElement> {}
+export class ImageTag extends HtmlTagBase<ImageTagAttrs,HTMLImageElement> {
+    constructor() { super("img") }
+}
 
 export type InputTagAttrs = DefaultTagAttrs & {
     accept?: string
@@ -744,24 +790,32 @@ export type InputTagAttrs = DefaultTagAttrs & {
     width?: number
 }
 
-export class InputTag extends HtmlTagBase<InputTagAttrs,HTMLInputElement> {}
+export class InputTag extends HtmlTagBase<InputTagAttrs,HTMLInputElement> {
+    constructor() { super("input") }
+}
 
 export type LITagAttrs = DefaultTagAttrs & {
     value?: number
 }
 
-export class LITag extends HtmlTagBase<LITagAttrs,HTMLLIElement> {}
+export class LITag extends HtmlTagBase<LITagAttrs,HTMLLIElement> {
+    constructor() { super("li") }
+}
 
 export type LabelTagAttrs = DefaultTagAttrs & {
     htmlFor?: string
 }
 
-export class LabelTag extends HtmlTagBase<LabelTagAttrs,HTMLLabelElement> {}
+export class LabelTag extends HtmlTagBase<LabelTagAttrs,HTMLLabelElement> {
+    constructor() { super("label") }
+}
 
 export type LegendTagAttrs = DefaultTagAttrs & {
 }
 
-export class LegendTag extends HtmlTagBase<LegendTagAttrs,HTMLLegendElement> {}
+export class LegendTag extends HtmlTagBase<LegendTagAttrs,HTMLLegendElement> {
+    constructor() { super("legend") }
+}
 
 export type LinkTagAttrs = DefaultTagAttrs & {
     as?: string
@@ -778,13 +832,17 @@ export type LinkTagAttrs = DefaultTagAttrs & {
     type?: string
 }
 
-export class LinkTag extends HtmlTagBase<LinkTagAttrs,HTMLLinkElement> {}
+export class LinkTag extends HtmlTagBase<LinkTagAttrs,HTMLLinkElement> {
+    constructor() { super("link") }
+}
 
 export type MapTagAttrs = DefaultTagAttrs & {
     name?: string
 }
 
-export class MapTag extends HtmlTagBase<MapTagAttrs,HTMLMapElement> {}
+export class MapTag extends HtmlTagBase<MapTagAttrs,HTMLMapElement> {
+    constructor() { super("map") }
+}
 
 export type MediaTagAttrs = DefaultTagAttrs & {
     autoplay?: boolean
@@ -805,12 +863,16 @@ export type MediaTagAttrs = DefaultTagAttrs & {
     volume?: number
 }
 
-export class MediaTag extends HtmlTagBase<MediaTagAttrs,HTMLMediaElement> {}
+export class MediaTag extends HtmlTagBase<MediaTagAttrs,HTMLMediaElement> {
+    constructor() { super("") }
+}
 
 export type MenuTagAttrs = DefaultTagAttrs & {
 }
 
-export class MenuTag extends HtmlTagBase<MenuTagAttrs,HTMLMenuElement> {}
+export class MenuTag extends HtmlTagBase<MenuTagAttrs,HTMLMenuElement> {
+    constructor() { super("menu") }
+}
 
 export type MetaTagAttrs = DefaultTagAttrs & {
     content?: string
@@ -819,7 +881,9 @@ export type MetaTagAttrs = DefaultTagAttrs & {
     name?: string
 }
 
-export class MetaTag extends HtmlTagBase<MetaTagAttrs,HTMLMetaElement> {}
+export class MetaTag extends HtmlTagBase<MetaTagAttrs,HTMLMetaElement> {
+    constructor() { super("meta") }
+}
 
 export type MeterTagAttrs = DefaultTagAttrs & {
     high?: number
@@ -830,14 +894,18 @@ export type MeterTagAttrs = DefaultTagAttrs & {
     value?: number
 }
 
-export class MeterTag extends HtmlTagBase<MeterTagAttrs,HTMLMeterElement> {}
+export class MeterTag extends HtmlTagBase<MeterTagAttrs,HTMLMeterElement> {
+    constructor() { super("meter") }
+}
 
 export type ModTagAttrs = DefaultTagAttrs & {
     cite?: string
     dateTime?: string
 }
 
-export class ModTag extends HtmlTagBase<ModTagAttrs,HTMLModElement> {}
+export class ModTag extends HtmlTagBase<ModTagAttrs,HTMLModElement> {
+    constructor() { super("ins") }
+}
 
 export type OListTagAttrs = DefaultTagAttrs & {
     reversed?: boolean
@@ -845,7 +913,9 @@ export type OListTagAttrs = DefaultTagAttrs & {
     type?: string
 }
 
-export class OListTag extends HtmlTagBase<OListTagAttrs,HTMLOListElement> {}
+export class OListTag extends HtmlTagBase<OListTagAttrs,HTMLOListElement> {
+    constructor() { super("ol") }
+}
 
 export type ObjectTagAttrs = DefaultTagAttrs & {
     data?: string
@@ -856,14 +926,18 @@ export type ObjectTagAttrs = DefaultTagAttrs & {
     width?: string
 }
 
-export class ObjectTag extends HtmlTagBase<ObjectTagAttrs,HTMLObjectElement> {}
+export class ObjectTag extends HtmlTagBase<ObjectTagAttrs,HTMLObjectElement> {
+    constructor() { super("object") }
+}
 
 export type OptGroupTagAttrs = DefaultTagAttrs & {
     disabled?: boolean
     label?: string
 }
 
-export class OptGroupTag extends HtmlTagBase<OptGroupTagAttrs,HTMLOptGroupElement> {}
+export class OptGroupTag extends HtmlTagBase<OptGroupTagAttrs,HTMLOptGroupElement> {
+    constructor() { super("optgroup") }
+}
 
 export type OptionTagAttrs = DefaultTagAttrs & {
     defaultSelected?: boolean
@@ -874,7 +948,9 @@ export type OptionTagAttrs = DefaultTagAttrs & {
     value?: string
 }
 
-export class OptionTag extends HtmlTagBase<OptionTagAttrs,HTMLOptionElement> {}
+export class OptionTag extends HtmlTagBase<OptionTagAttrs,HTMLOptionElement> {
+    constructor() { super("option") }
+}
 
 export type OutputTagAttrs = DefaultTagAttrs & {
     defaultValue?: string
@@ -882,42 +958,56 @@ export type OutputTagAttrs = DefaultTagAttrs & {
     value?: string
 }
 
-export class OutputTag extends HtmlTagBase<OutputTagAttrs,HTMLOutputElement> {}
+export class OutputTag extends HtmlTagBase<OutputTagAttrs,HTMLOutputElement> {
+    constructor() { super("output") }
+}
 
 export type ParagraphTagAttrs = DefaultTagAttrs & {
 }
 
-export class ParagraphTag extends HtmlTagBase<ParagraphTagAttrs,HTMLParagraphElement> {}
+export class ParagraphTag extends HtmlTagBase<ParagraphTagAttrs,HTMLParagraphElement> {
+    constructor() { super("p") }
+}
 
 export type ParamTagAttrs = DefaultTagAttrs & {
     name?: string
     value?: string
 }
 
-export class ParamTag extends HtmlTagBase<ParamTagAttrs,HTMLParamElement> {}
+export class ParamTag extends HtmlTagBase<ParamTagAttrs,HTMLParamElement> {
+    constructor() { super("param") }
+}
 
 export type PictureTagAttrs = DefaultTagAttrs & {
 }
 
-export class PictureTag extends HtmlTagBase<PictureTagAttrs,HTMLPictureElement> {}
+export class PictureTag extends HtmlTagBase<PictureTagAttrs,HTMLPictureElement> {
+    constructor() { super("picture") }
+}
 
 export type PreTagAttrs = DefaultTagAttrs & {
 }
 
-export class PreTag extends HtmlTagBase<PreTagAttrs,HTMLPreElement> {}
+export class PreTag extends HtmlTagBase<PreTagAttrs,HTMLPreElement> {
+    constructor() { super("pre") }
+}
 
 export type ProgressTagAttrs = DefaultTagAttrs & {
     max?: number
     value?: number
 }
 
-export class ProgressTag extends HtmlTagBase<ProgressTagAttrs,HTMLProgressElement> {}
+export class ProgressTag extends HtmlTagBase<ProgressTagAttrs,HTMLProgressElement> {
+    constructor() { super("progress") }
+}
 
 export type QuoteTagAttrs = DefaultTagAttrs & {
     cite?: string
 }
 
-export class QuoteTag extends HtmlTagBase<QuoteTagAttrs,HTMLQuoteElement> {}
+export class QuoteTag extends HtmlTagBase<QuoteTagAttrs,HTMLQuoteElement> {
+    constructor() { super("q") }
+}
 
 export type ScriptTagAttrs = DefaultTagAttrs & {
     async?: boolean
@@ -931,7 +1021,9 @@ export type ScriptTagAttrs = DefaultTagAttrs & {
     type?: string
 }
 
-export class ScriptTag extends HtmlTagBase<ScriptTagAttrs,HTMLScriptElement> {}
+export class ScriptTag extends HtmlTagBase<ScriptTagAttrs,HTMLScriptElement> {
+    constructor() { super("script") }
+}
 
 export type SelectTagAttrs = DefaultTagAttrs & {
     autocomplete?: string
@@ -945,13 +1037,17 @@ export type SelectTagAttrs = DefaultTagAttrs & {
     value?: string
 }
 
-export class SelectTag extends HtmlTagBase<SelectTagAttrs,HTMLSelectElement> {}
+export class SelectTag extends HtmlTagBase<SelectTagAttrs,HTMLSelectElement> {
+    constructor() { super("select") }
+}
 
 export type SlotTagAttrs = DefaultTagAttrs & {
     name?: string
 }
 
-export class SlotTag extends HtmlTagBase<SlotTagAttrs,HTMLSlotElement> {}
+export class SlotTag extends HtmlTagBase<SlotTagAttrs,HTMLSlotElement> {
+    constructor() { super("slot") }
+}
 
 export type SourceTagAttrs = DefaultTagAttrs & {
     height?: number
@@ -963,23 +1059,31 @@ export type SourceTagAttrs = DefaultTagAttrs & {
     width?: number
 }
 
-export class SourceTag extends HtmlTagBase<SourceTagAttrs,HTMLSourceElement> {}
+export class SourceTag extends HtmlTagBase<SourceTagAttrs,HTMLSourceElement> {
+    constructor() { super("source") }
+}
 
 export type SpanTagAttrs = DefaultTagAttrs & {
 }
 
-export class SpanTag extends HtmlTagBase<SpanTagAttrs,HTMLSpanElement> {}
+export class SpanTag extends HtmlTagBase<SpanTagAttrs,HTMLSpanElement> {
+    constructor() { super("span") }
+}
 
 export type StyleTagAttrs = DefaultTagAttrs & {
     media?: string
 }
 
-export class StyleTag extends HtmlTagBase<StyleTagAttrs,HTMLStyleElement> {}
+export class StyleTag extends HtmlTagBase<StyleTagAttrs,HTMLStyleElement> {
+    constructor() { super("style") }
+}
 
 export type TableCaptionTagAttrs = DefaultTagAttrs & {
 }
 
-export class TableCaptionTag extends HtmlTagBase<TableCaptionTagAttrs,HTMLTableCaptionElement> {}
+export class TableCaptionTag extends HtmlTagBase<TableCaptionTagAttrs,HTMLTableCaptionElement> {
+    constructor() { super("caption") }
+}
 
 export type TableCellTagAttrs = DefaultTagAttrs & {
     abbr?: string
@@ -989,13 +1093,17 @@ export type TableCellTagAttrs = DefaultTagAttrs & {
     scope?: string
 }
 
-export class TableCellTag extends HtmlTagBase<TableCellTagAttrs,HTMLTableCellElement> {}
+export class TableCellTag extends HtmlTagBase<TableCellTagAttrs,HTMLTableCellElement> {
+    constructor() { super("th") }
+}
 
 export type TableColTagAttrs = DefaultTagAttrs & {
     span?: number
 }
 
-export class TableColTag extends HtmlTagBase<TableColTagAttrs,HTMLTableColElement> {}
+export class TableColTag extends HtmlTagBase<TableColTagAttrs,HTMLTableColElement> {
+    constructor() { super("colgroup") }
+}
 
 export type TableTagAttrs = DefaultTagAttrs & {
     caption?: HTMLTableCaptionElement | null
@@ -1003,22 +1111,30 @@ export type TableTagAttrs = DefaultTagAttrs & {
     tHead?: HTMLTableSectionElement | null
 }
 
-export class TableTag extends HtmlTagBase<TableTagAttrs,HTMLTableElement> {}
+export class TableTag extends HtmlTagBase<TableTagAttrs,HTMLTableElement> {
+    constructor() { super("table") }
+}
 
 export type TableRowTagAttrs = DefaultTagAttrs & {
 }
 
-export class TableRowTag extends HtmlTagBase<TableRowTagAttrs,HTMLTableRowElement> {}
+export class TableRowTag extends HtmlTagBase<TableRowTagAttrs,HTMLTableRowElement> {
+    constructor() { super("tr") }
+}
 
 export type TableSectionTagAttrs = DefaultTagAttrs & {
 }
 
-export class TableSectionTag extends HtmlTagBase<TableSectionTagAttrs,HTMLTableSectionElement> {}
+export class TableSectionTag extends HtmlTagBase<TableSectionTagAttrs,HTMLTableSectionElement> {
+    constructor() { super("thead") }
+}
 
 export type TemplateTagAttrs = DefaultTagAttrs & {
 }
 
-export class TemplateTag extends HtmlTagBase<TemplateTagAttrs,HTMLTemplateElement> {}
+export class TemplateTag extends HtmlTagBase<TemplateTagAttrs,HTMLTemplateElement> {
+    constructor() { super("template") }
+}
 
 export type TextAreaTagAttrs = DefaultTagAttrs & {
     autocomplete?: string
@@ -1040,19 +1156,25 @@ export type TextAreaTagAttrs = DefaultTagAttrs & {
     wrap?: string
 }
 
-export class TextAreaTag extends HtmlTagBase<TextAreaTagAttrs,HTMLTextAreaElement> {}
+export class TextAreaTag extends HtmlTagBase<TextAreaTagAttrs,HTMLTextAreaElement> {
+    constructor() { super("textarea") }
+}
 
 export type TimeTagAttrs = DefaultTagAttrs & {
     dateTime?: string
 }
 
-export class TimeTag extends HtmlTagBase<TimeTagAttrs,HTMLTimeElement> {}
+export class TimeTag extends HtmlTagBase<TimeTagAttrs,HTMLTimeElement> {
+    constructor() { super("time") }
+}
 
 export type TitleTagAttrs = DefaultTagAttrs & {
     text?: string
 }
 
-export class TitleTag extends HtmlTagBase<TitleTagAttrs,HTMLTitleElement> {}
+export class TitleTag extends HtmlTagBase<TitleTagAttrs,HTMLTitleElement> {
+    constructor() { super("title") }
+}
 
 export type TrackTagAttrs = DefaultTagAttrs & {
     default?: boolean
@@ -1062,16 +1184,22 @@ export type TrackTagAttrs = DefaultTagAttrs & {
     srclang?: string
 }
 
-export class TrackTag extends HtmlTagBase<TrackTagAttrs,HTMLTrackElement> {}
+export class TrackTag extends HtmlTagBase<TrackTagAttrs,HTMLTrackElement> {
+    constructor() { super("track") }
+}
 
 export type UListTagAttrs = DefaultTagAttrs & {
 }
 
-export class UListTag extends HtmlTagBase<UListTagAttrs,HTMLUListElement> {}
+export class UListTag extends HtmlTagBase<UListTagAttrs,HTMLUListElement> {
+    constructor() { super("ul") }
+}
 
 export type UnknownTagAttrs = DefaultTagAttrs & {
 }
 
-export class UnknownTag extends HtmlTagBase<UnknownTagAttrs,HTMLUnknownElement> {}
+export class UnknownTag extends HtmlTagBase<UnknownTagAttrs,HTMLUnknownElement> {
+    constructor() { super("") }
+}
 
 //// End Tag Classes

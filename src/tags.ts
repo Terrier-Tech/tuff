@@ -283,11 +283,10 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
     /// Children
 
     child<TagType extends Tag<ChildAttrsType,any>, ChildAttrsType extends Attrs>(
-            c: { new (t: string): TagType }, 
-            tag: string,
+            c: { new (): TagType },
             ...args: TagArgs<TagType,ChildAttrsType>[]
     ): TagType {
-        let node = new c(tag)
+        let node = new c()
         this.children.push(node)
         for (let arg of args) {
             if (arg instanceof Function) {

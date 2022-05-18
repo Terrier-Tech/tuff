@@ -127,211 +127,211 @@ export abstract class SvgTagBase<AttrsType extends Attrs,ElementType extends Ele
     //// Begin Tag Methods
 
     a(...args: TagArgs<ATag,ATagAttrs>[]) : ATag {
-        return this.child(ATag, "a", ...args)
+        return this.child(ATag, ...args)
     }
 
     circle(...args: TagArgs<CircleTag,CircleTagAttrs>[]) : CircleTag {
-        return this.child(CircleTag, "circle", ...args)
+        return this.child(CircleTag, ...args)
     }
 
     clipPath(...args: TagArgs<ClipPathTag,ClipPathTagAttrs>[]) : ClipPathTag {
-        return this.child(ClipPathTag, "clipPath", ...args)
+        return this.child(ClipPathTag, ...args)
     }
 
     defs(...args: TagArgs<DefsTag,DefsTagAttrs>[]) : DefsTag {
-        return this.child(DefsTag, "defs", ...args)
+        return this.child(DefsTag, ...args)
     }
 
     desc(...args: TagArgs<DescTag,DescTagAttrs>[]) : DescTag {
-        return this.child(DescTag, "desc", ...args)
+        return this.child(DescTag, ...args)
     }
 
     ellipse(...args: TagArgs<EllipseTag,EllipseTagAttrs>[]) : EllipseTag {
-        return this.child(EllipseTag, "ellipse", ...args)
+        return this.child(EllipseTag, ...args)
     }
 
     feBlend(...args: TagArgs<FEBlendTag,FEBlendTagAttrs>[]) : FEBlendTag {
-        return this.child(FEBlendTag, "feBlend", ...args)
+        return this.child(FEBlendTag, ...args)
     }
 
     feColorMatrix(...args: TagArgs<FEColorMatrixTag,FEColorMatrixTagAttrs>[]) : FEColorMatrixTag {
-        return this.child(FEColorMatrixTag, "feColorMatrix", ...args)
+        return this.child(FEColorMatrixTag, ...args)
     }
 
     feComponentTransfer(...args: TagArgs<FEComponentTransferTag,FEComponentTransferTagAttrs>[]) : FEComponentTransferTag {
-        return this.child(FEComponentTransferTag, "feComponentTransfer", ...args)
+        return this.child(FEComponentTransferTag, ...args)
     }
 
     feComposite(...args: TagArgs<FECompositeTag,FECompositeTagAttrs>[]) : FECompositeTag {
-        return this.child(FECompositeTag, "feComposite", ...args)
+        return this.child(FECompositeTag, ...args)
     }
 
     feConvolveMatrix(...args: TagArgs<FEConvolveMatrixTag,FEConvolveMatrixTagAttrs>[]) : FEConvolveMatrixTag {
-        return this.child(FEConvolveMatrixTag, "feConvolveMatrix", ...args)
+        return this.child(FEConvolveMatrixTag, ...args)
     }
 
     feDiffuseLighting(...args: TagArgs<FEDiffuseLightingTag,FEDiffuseLightingTagAttrs>[]) : FEDiffuseLightingTag {
-        return this.child(FEDiffuseLightingTag, "feDiffuseLighting", ...args)
+        return this.child(FEDiffuseLightingTag, ...args)
     }
 
     feDisplacementMap(...args: TagArgs<FEDisplacementMapTag,FEDisplacementMapTagAttrs>[]) : FEDisplacementMapTag {
-        return this.child(FEDisplacementMapTag, "feDisplacementMap", ...args)
+        return this.child(FEDisplacementMapTag, ...args)
     }
 
     feDistantLight(...args: TagArgs<FEDistantLightTag,FEDistantLightTagAttrs>[]) : FEDistantLightTag {
-        return this.child(FEDistantLightTag, "feDistantLight", ...args)
+        return this.child(FEDistantLightTag, ...args)
     }
 
     feDropShadow(...args: TagArgs<FEDropShadowTag,FEDropShadowTagAttrs>[]) : FEDropShadowTag {
-        return this.child(FEDropShadowTag, "feDropShadow", ...args)
+        return this.child(FEDropShadowTag, ...args)
     }
 
     feFlood(...args: TagArgs<FEFloodTag,FEFloodTagAttrs>[]) : FEFloodTag {
-        return this.child(FEFloodTag, "feFlood", ...args)
+        return this.child(FEFloodTag, ...args)
     }
 
     feGaussianBlur(...args: TagArgs<FEGaussianBlurTag,FEGaussianBlurTagAttrs>[]) : FEGaussianBlurTag {
-        return this.child(FEGaussianBlurTag, "feGaussianBlur", ...args)
+        return this.child(FEGaussianBlurTag, ...args)
     }
 
     feImage(...args: TagArgs<FEImageTag,FEImageTagAttrs>[]) : FEImageTag {
-        return this.child(FEImageTag, "feImage", ...args)
+        return this.child(FEImageTag, ...args)
     }
 
     feMerge(...args: TagArgs<FEMergeTag,FEMergeTagAttrs>[]) : FEMergeTag {
-        return this.child(FEMergeTag, "feMerge", ...args)
+        return this.child(FEMergeTag, ...args)
     }
 
     feMergeNode(...args: TagArgs<FEMergeNodeTag,FEMergeNodeTagAttrs>[]) : FEMergeNodeTag {
-        return this.child(FEMergeNodeTag, "feMergeNode", ...args)
+        return this.child(FEMergeNodeTag, ...args)
     }
 
     feMorphology(...args: TagArgs<FEMorphologyTag,FEMorphologyTagAttrs>[]) : FEMorphologyTag {
-        return this.child(FEMorphologyTag, "feMorphology", ...args)
+        return this.child(FEMorphologyTag, ...args)
     }
 
     feOffset(...args: TagArgs<FEOffsetTag,FEOffsetTagAttrs>[]) : FEOffsetTag {
-        return this.child(FEOffsetTag, "feOffset", ...args)
+        return this.child(FEOffsetTag, ...args)
     }
 
     fePointLight(...args: TagArgs<FEPointLightTag,FEPointLightTagAttrs>[]) : FEPointLightTag {
-        return this.child(FEPointLightTag, "fePointLight", ...args)
+        return this.child(FEPointLightTag, ...args)
     }
 
     feSpecularLighting(...args: TagArgs<FESpecularLightingTag,FESpecularLightingTagAttrs>[]) : FESpecularLightingTag {
-        return this.child(FESpecularLightingTag, "feSpecularLighting", ...args)
+        return this.child(FESpecularLightingTag, ...args)
     }
 
     feSpotLight(...args: TagArgs<FESpotLightTag,FESpotLightTagAttrs>[]) : FESpotLightTag {
-        return this.child(FESpotLightTag, "feSpotLight", ...args)
+        return this.child(FESpotLightTag, ...args)
     }
 
     feTile(...args: TagArgs<FETileTag,FETileTagAttrs>[]) : FETileTag {
-        return this.child(FETileTag, "feTile", ...args)
+        return this.child(FETileTag, ...args)
     }
 
     feTurbulence(...args: TagArgs<FETurbulenceTag,FETurbulenceTagAttrs>[]) : FETurbulenceTag {
-        return this.child(FETurbulenceTag, "feTurbulence", ...args)
+        return this.child(FETurbulenceTag, ...args)
     }
 
     filter(...args: TagArgs<FilterTag,FilterTagAttrs>[]) : FilterTag {
-        return this.child(FilterTag, "filter", ...args)
+        return this.child(FilterTag, ...args)
     }
 
     foreignObject(...args: TagArgs<ForeignObjectTag,ForeignObjectTagAttrs>[]) : ForeignObjectTag {
-        return this.child(ForeignObjectTag, "foreignObject", ...args)
+        return this.child(ForeignObjectTag, ...args)
     }
 
     g(...args: TagArgs<GTag,GTagAttrs>[]) : GTag {
-        return this.child(GTag, "g", ...args)
+        return this.child(GTag, ...args)
     }
 
     image(...args: TagArgs<ImageTag,ImageTagAttrs>[]) : ImageTag {
-        return this.child(ImageTag, "image", ...args)
+        return this.child(ImageTag, ...args)
     }
 
     line(...args: TagArgs<LineTag,LineTagAttrs>[]) : LineTag {
-        return this.child(LineTag, "line", ...args)
+        return this.child(LineTag, ...args)
     }
 
     linearGradient(...args: TagArgs<LinearGradientTag,LinearGradientTagAttrs>[]) : LinearGradientTag {
-        return this.child(LinearGradientTag, "linearGradient", ...args)
+        return this.child(LinearGradientTag, ...args)
     }
 
     marker(...args: TagArgs<MarkerTag,MarkerTagAttrs>[]) : MarkerTag {
-        return this.child(MarkerTag, "marker", ...args)
+        return this.child(MarkerTag, ...args)
     }
 
     mask(...args: TagArgs<MaskTag,MaskTagAttrs>[]) : MaskTag {
-        return this.child(MaskTag, "mask", ...args)
+        return this.child(MaskTag, ...args)
     }
 
     metadata(...args: TagArgs<MetadataTag,MetadataTagAttrs>[]) : MetadataTag {
-        return this.child(MetadataTag, "metadata", ...args)
+        return this.child(MetadataTag, ...args)
     }
 
     mpath(...args: TagArgs<MPathTag,MPathTagAttrs>[]) : MPathTag {
-        return this.child(MPathTag, "mpath", ...args)
+        return this.child(MPathTag, ...args)
     }
 
     path(...args: TagArgs<PathTag,PathTagAttrs>[]) : PathTag {
-        return this.child(PathTag, "path", ...args)
+        return this.child(PathTag, ...args)
     }
 
     pattern(...args: TagArgs<PatternTag,PatternTagAttrs>[]) : PatternTag {
-        return this.child(PatternTag, "pattern", ...args)
+        return this.child(PatternTag, ...args)
     }
 
     polygon(...args: TagArgs<PolygonTag,PolygonTagAttrs>[]) : PolygonTag {
-        return this.child(PolygonTag, "polygon", ...args)
+        return this.child(PolygonTag, ...args)
     }
 
     polyline(...args: TagArgs<PolylineTag,PolylineTagAttrs>[]) : PolylineTag {
-        return this.child(PolylineTag, "polyline", ...args)
+        return this.child(PolylineTag, ...args)
     }
 
     radialGradient(...args: TagArgs<RadialGradientTag,RadialGradientTagAttrs>[]) : RadialGradientTag {
-        return this.child(RadialGradientTag, "radialGradient", ...args)
+        return this.child(RadialGradientTag, ...args)
     }
 
     rect(...args: TagArgs<RectTag,RectTagAttrs>[]) : RectTag {
-        return this.child(RectTag, "rect", ...args)
+        return this.child(RectTag, ...args)
     }
 
     script(...args: TagArgs<ScriptTag,ScriptTagAttrs>[]) : ScriptTag {
-        return this.child(ScriptTag, "script", ...args)
+        return this.child(ScriptTag, ...args)
     }
 
     stop(...args: TagArgs<StopTag,StopTagAttrs>[]) : StopTag {
-        return this.child(StopTag, "stop", ...args)
+        return this.child(StopTag, ...args)
     }
 
     style(...args: TagArgs<StyleTag,StyleTagAttrs>[]) : StyleTag {
-        return this.child(StyleTag, "style", ...args)
+        return this.child(StyleTag, ...args)
     }
 
     svg(...args: TagArgs<SVGTag,SVGTagAttrs>[]) : SVGTag {
-        return this.child(SVGTag, "svg", ...args)
+        return this.child(SVGTag, ...args)
     }
 
     switch(...args: TagArgs<SwitchTag,SwitchTagAttrs>[]) : SwitchTag {
-        return this.child(SwitchTag, "switch", ...args)
+        return this.child(SwitchTag, ...args)
     }
 
     symbol(...args: TagArgs<SymbolTag,SymbolTagAttrs>[]) : SymbolTag {
-        return this.child(SymbolTag, "symbol", ...args)
+        return this.child(SymbolTag, ...args)
     }
 
     title(...args: TagArgs<TitleTag,TitleTagAttrs>[]) : TitleTag {
-        return this.child(TitleTag, "title", ...args)
+        return this.child(TitleTag, ...args)
     }
 
     use(...args: TagArgs<UseTag,UseTagAttrs>[]) : UseTag {
-        return this.child(UseTag, "use", ...args)
+        return this.child(UseTag, ...args)
     }
 
     view(...args: TagArgs<ViewTag,ViewTagAttrs>[]) : ViewTag {
-        return this.child(ViewTag, "view", ...args)
+        return this.child(ViewTag, ...args)
     }
 
 //// End Tag Methods
@@ -348,13 +348,17 @@ export type ATagAttrs = GraphicsTagAttrs & {
     target?: string
 }
 
-export class ATag extends SvgTagBase<ATagAttrs,SVGAElement> {}
+export class ATag extends SvgTagBase<ATagAttrs,SVGAElement> {
+    constructor() { super("a") }
+}
 
 export type AnimationTagAttrs = DefaultTagAttrs & {
     targetElement?: SVGElement | null
 }
 
-export class AnimationTag extends SvgTagBase<AnimationTagAttrs,SVGAnimationElement> {}
+export class AnimationTag extends SvgTagBase<AnimationTagAttrs,SVGAnimationElement> {
+    constructor() { super("") }
+}
 
 export type CircleTagAttrs = GeometryTagAttrs & {
     cx?: number
@@ -362,14 +366,18 @@ export type CircleTagAttrs = GeometryTagAttrs & {
     r?: number
 }
 
-export class CircleTag extends SvgTagBase<CircleTagAttrs,SVGCircleElement> {}
+export class CircleTag extends SvgTagBase<CircleTagAttrs,SVGCircleElement> {
+    constructor() { super("circle") }
+}
 
 export type ClipPathTagAttrs = DefaultTagAttrs & {
     clipPathUnits?: string|number
     transform?: string
 }
 
-export class ClipPathTag extends SvgTagBase<ClipPathTagAttrs,SVGClipPathElement> {}
+export class ClipPathTag extends SvgTagBase<ClipPathTagAttrs,SVGClipPathElement> {
+    constructor() { super("clipPath") }
+}
 
 export type ComponentTransferFunctionTagAttrs = DefaultTagAttrs & {
     amplitude?: number
@@ -387,24 +395,32 @@ export type ComponentTransferFunctionTagAttrs = DefaultTagAttrs & {
     SVG_FECOMPONENTTRANSFER_TYPE_UNKNOWN?: number
 }
 
-export class ComponentTransferFunctionTag extends SvgTagBase<ComponentTransferFunctionTagAttrs,SVGComponentTransferFunctionElement> {}
+export class ComponentTransferFunctionTag extends SvgTagBase<ComponentTransferFunctionTagAttrs,SVGComponentTransferFunctionElement> {
+    constructor() { super("") }
+}
 
 export type DefsTagAttrs = GraphicsTagAttrs & {
 }
 
-export class DefsTag extends SvgTagBase<DefsTagAttrs,SVGDefsElement> {}
+export class DefsTag extends SvgTagBase<DefsTagAttrs,SVGDefsElement> {
+    constructor() { super("defs") }
+}
 
 export type DescTagAttrs = DefaultTagAttrs & {
 }
 
-export class DescTag extends SvgTagBase<DescTagAttrs,SVGDescElement> {}
+export class DescTag extends SvgTagBase<DescTagAttrs,SVGDescElement> {
+    constructor() { super("desc") }
+}
 
 export type DefaultTagAttrs = SvgBaseAttrs & {
     ownerSVGElement?: SVGSVGElement | null
     viewportElement?: SVGElement | null
 }
 
-export class DefaultTag extends SvgTagBase<DefaultTagAttrs,SVGElement> {}
+export class DefaultTag extends SvgTagBase<DefaultTagAttrs,SVGElement> {
+    constructor() { super("") }
+}
 
 export type EllipseTagAttrs = GeometryTagAttrs & {
     cx?: number
@@ -413,7 +429,9 @@ export type EllipseTagAttrs = GeometryTagAttrs & {
     ry?: number
 }
 
-export class EllipseTag extends SvgTagBase<EllipseTagAttrs,SVGEllipseElement> {}
+export class EllipseTag extends SvgTagBase<EllipseTagAttrs,SVGEllipseElement> {
+    constructor() { super("ellipse") }
+}
 
 export type FEBlendTagAttrs = DefaultTagAttrs & {
     in1?: string
@@ -438,7 +456,9 @@ export type FEBlendTagAttrs = DefaultTagAttrs & {
     SVG_FEBLEND_MODE_UNKNOWN?: number
 }
 
-export class FEBlendTag extends SvgTagBase<FEBlendTagAttrs,SVGFEBlendElement> {}
+export class FEBlendTag extends SvgTagBase<FEBlendTagAttrs,SVGFEBlendElement> {
+    constructor() { super("feBlend") }
+}
 
 export type FEColorMatrixTagAttrs = DefaultTagAttrs & {
     in1?: string
@@ -451,13 +471,17 @@ export type FEColorMatrixTagAttrs = DefaultTagAttrs & {
     SVG_FECOLORMATRIX_TYPE_UNKNOWN?: number
 }
 
-export class FEColorMatrixTag extends SvgTagBase<FEColorMatrixTagAttrs,SVGFEColorMatrixElement> {}
+export class FEColorMatrixTag extends SvgTagBase<FEColorMatrixTagAttrs,SVGFEColorMatrixElement> {
+    constructor() { super("feColorMatrix") }
+}
 
 export type FEComponentTransferTagAttrs = DefaultTagAttrs & {
     in1?: string
 }
 
-export class FEComponentTransferTag extends SvgTagBase<FEComponentTransferTagAttrs,SVGFEComponentTransferElement> {}
+export class FEComponentTransferTag extends SvgTagBase<FEComponentTransferTagAttrs,SVGFEComponentTransferElement> {
+    constructor() { super("feComponentTransfer") }
+}
 
 export type FECompositeTagAttrs = DefaultTagAttrs & {
     in1?: string
@@ -476,7 +500,9 @@ export type FECompositeTagAttrs = DefaultTagAttrs & {
     SVG_FECOMPOSITE_OPERATOR_XOR?: number
 }
 
-export class FECompositeTag extends SvgTagBase<FECompositeTagAttrs,SVGFECompositeElement> {}
+export class FECompositeTag extends SvgTagBase<FECompositeTagAttrs,SVGFECompositeElement> {
+    constructor() { super("feComposite") }
+}
 
 export type FEConvolveMatrixTagAttrs = DefaultTagAttrs & {
     bias?: number
@@ -497,7 +523,9 @@ export type FEConvolveMatrixTagAttrs = DefaultTagAttrs & {
     SVG_EDGEMODE_WRAP?: number
 }
 
-export class FEConvolveMatrixTag extends SvgTagBase<FEConvolveMatrixTagAttrs,SVGFEConvolveMatrixElement> {}
+export class FEConvolveMatrixTag extends SvgTagBase<FEConvolveMatrixTagAttrs,SVGFEConvolveMatrixElement> {
+    constructor() { super("feConvolveMatrix") }
+}
 
 export type FEDiffuseLightingTagAttrs = DefaultTagAttrs & {
     diffuseConstant?: number
@@ -507,7 +535,9 @@ export type FEDiffuseLightingTagAttrs = DefaultTagAttrs & {
     surfaceScale?: number
 }
 
-export class FEDiffuseLightingTag extends SvgTagBase<FEDiffuseLightingTagAttrs,SVGFEDiffuseLightingElement> {}
+export class FEDiffuseLightingTag extends SvgTagBase<FEDiffuseLightingTagAttrs,SVGFEDiffuseLightingElement> {
+    constructor() { super("feDiffuseLighting") }
+}
 
 export type FEDisplacementMapTagAttrs = DefaultTagAttrs & {
     in1?: string
@@ -522,14 +552,18 @@ export type FEDisplacementMapTagAttrs = DefaultTagAttrs & {
     SVG_CHANNEL_UNKNOWN?: number
 }
 
-export class FEDisplacementMapTag extends SvgTagBase<FEDisplacementMapTagAttrs,SVGFEDisplacementMapElement> {}
+export class FEDisplacementMapTag extends SvgTagBase<FEDisplacementMapTagAttrs,SVGFEDisplacementMapElement> {
+    constructor() { super("feDisplacementMap") }
+}
 
 export type FEDistantLightTagAttrs = DefaultTagAttrs & {
     azimuth?: number
     elevation?: number
 }
 
-export class FEDistantLightTag extends SvgTagBase<FEDistantLightTagAttrs,SVGFEDistantLightElement> {}
+export class FEDistantLightTag extends SvgTagBase<FEDistantLightTagAttrs,SVGFEDistantLightElement> {
+    constructor() { super("feDistantLight") }
+}
 
 export type FEDropShadowTagAttrs = DefaultTagAttrs & {
     dx?: number
@@ -539,12 +573,16 @@ export type FEDropShadowTagAttrs = DefaultTagAttrs & {
     stdDeviationY?: number
 }
 
-export class FEDropShadowTag extends SvgTagBase<FEDropShadowTagAttrs,SVGFEDropShadowElement> {}
+export class FEDropShadowTag extends SvgTagBase<FEDropShadowTagAttrs,SVGFEDropShadowElement> {
+    constructor() { super("feDropShadow") }
+}
 
 export type FEFloodTagAttrs = DefaultTagAttrs & {
 }
 
-export class FEFloodTag extends SvgTagBase<FEFloodTagAttrs,SVGFEFloodElement> {}
+export class FEFloodTag extends SvgTagBase<FEFloodTagAttrs,SVGFEFloodElement> {
+    constructor() { super("feFlood") }
+}
 
 export type FEGaussianBlurTagAttrs = DefaultTagAttrs & {
     in1?: string
@@ -552,24 +590,32 @@ export type FEGaussianBlurTagAttrs = DefaultTagAttrs & {
     stdDeviationY?: number
 }
 
-export class FEGaussianBlurTag extends SvgTagBase<FEGaussianBlurTagAttrs,SVGFEGaussianBlurElement> {}
+export class FEGaussianBlurTag extends SvgTagBase<FEGaussianBlurTagAttrs,SVGFEGaussianBlurElement> {
+    constructor() { super("feGaussianBlur") }
+}
 
 export type FEImageTagAttrs = DefaultTagAttrs & {
     preserveAspectRatio?: string
 }
 
-export class FEImageTag extends SvgTagBase<FEImageTagAttrs,SVGFEImageElement> {}
+export class FEImageTag extends SvgTagBase<FEImageTagAttrs,SVGFEImageElement> {
+    constructor() { super("feImage") }
+}
 
 export type FEMergeTagAttrs = DefaultTagAttrs & {
 }
 
-export class FEMergeTag extends SvgTagBase<FEMergeTagAttrs,SVGFEMergeElement> {}
+export class FEMergeTag extends SvgTagBase<FEMergeTagAttrs,SVGFEMergeElement> {
+    constructor() { super("feMerge") }
+}
 
 export type FEMergeNodeTagAttrs = DefaultTagAttrs & {
     in1?: string
 }
 
-export class FEMergeNodeTag extends SvgTagBase<FEMergeNodeTagAttrs,SVGFEMergeNodeElement> {}
+export class FEMergeNodeTag extends SvgTagBase<FEMergeNodeTagAttrs,SVGFEMergeNodeElement> {
+    constructor() { super("feMergeNode") }
+}
 
 export type FEMorphologyTagAttrs = DefaultTagAttrs & {
     in1?: string
@@ -581,7 +627,9 @@ export type FEMorphologyTagAttrs = DefaultTagAttrs & {
     SVG_MORPHOLOGY_OPERATOR_UNKNOWN?: number
 }
 
-export class FEMorphologyTag extends SvgTagBase<FEMorphologyTagAttrs,SVGFEMorphologyElement> {}
+export class FEMorphologyTag extends SvgTagBase<FEMorphologyTagAttrs,SVGFEMorphologyElement> {
+    constructor() { super("feMorphology") }
+}
 
 export type FEOffsetTagAttrs = DefaultTagAttrs & {
     dx?: number
@@ -589,7 +637,9 @@ export type FEOffsetTagAttrs = DefaultTagAttrs & {
     in1?: string
 }
 
-export class FEOffsetTag extends SvgTagBase<FEOffsetTagAttrs,SVGFEOffsetElement> {}
+export class FEOffsetTag extends SvgTagBase<FEOffsetTagAttrs,SVGFEOffsetElement> {
+    constructor() { super("feOffset") }
+}
 
 export type FEPointLightTagAttrs = DefaultTagAttrs & {
     x?: number
@@ -597,7 +647,9 @@ export type FEPointLightTagAttrs = DefaultTagAttrs & {
     z?: number
 }
 
-export class FEPointLightTag extends SvgTagBase<FEPointLightTagAttrs,SVGFEPointLightElement> {}
+export class FEPointLightTag extends SvgTagBase<FEPointLightTagAttrs,SVGFEPointLightElement> {
+    constructor() { super("fePointLight") }
+}
 
 export type FESpecularLightingTagAttrs = DefaultTagAttrs & {
     in1?: string
@@ -608,7 +660,9 @@ export type FESpecularLightingTagAttrs = DefaultTagAttrs & {
     surfaceScale?: number
 }
 
-export class FESpecularLightingTag extends SvgTagBase<FESpecularLightingTagAttrs,SVGFESpecularLightingElement> {}
+export class FESpecularLightingTag extends SvgTagBase<FESpecularLightingTagAttrs,SVGFESpecularLightingElement> {
+    constructor() { super("feSpecularLighting") }
+}
 
 export type FESpotLightTagAttrs = DefaultTagAttrs & {
     limitingConeAngle?: number
@@ -621,13 +675,17 @@ export type FESpotLightTagAttrs = DefaultTagAttrs & {
     z?: number
 }
 
-export class FESpotLightTag extends SvgTagBase<FESpotLightTagAttrs,SVGFESpotLightElement> {}
+export class FESpotLightTag extends SvgTagBase<FESpotLightTagAttrs,SVGFESpotLightElement> {
+    constructor() { super("feSpotLight") }
+}
 
 export type FETileTagAttrs = DefaultTagAttrs & {
     in1?: string
 }
 
-export class FETileTag extends SvgTagBase<FETileTagAttrs,SVGFETileElement> {}
+export class FETileTag extends SvgTagBase<FETileTagAttrs,SVGFETileElement> {
+    constructor() { super("feTile") }
+}
 
 export type FETurbulenceTagAttrs = DefaultTagAttrs & {
     baseFrequencyX?: number
@@ -644,7 +702,9 @@ export type FETurbulenceTagAttrs = DefaultTagAttrs & {
     SVG_TURBULENCE_TYPE_UNKNOWN?: number
 }
 
-export class FETurbulenceTag extends SvgTagBase<FETurbulenceTagAttrs,SVGFETurbulenceElement> {}
+export class FETurbulenceTag extends SvgTagBase<FETurbulenceTagAttrs,SVGFETurbulenceElement> {
+    constructor() { super("feTurbulence") }
+}
 
 export type FilterTagAttrs = DefaultTagAttrs & {
     filterUnits?: string|number
@@ -655,7 +715,9 @@ export type FilterTagAttrs = DefaultTagAttrs & {
     y?: number
 }
 
-export class FilterTag extends SvgTagBase<FilterTagAttrs,SVGFilterElement> {}
+export class FilterTag extends SvgTagBase<FilterTagAttrs,SVGFilterElement> {
+    constructor() { super("filter") }
+}
 
 export type ForeignObjectTagAttrs = GraphicsTagAttrs & {
     height?: number
@@ -664,18 +726,24 @@ export type ForeignObjectTagAttrs = GraphicsTagAttrs & {
     y?: number
 }
 
-export class ForeignObjectTag extends SvgTagBase<ForeignObjectTagAttrs,SVGForeignObjectElement> {}
+export class ForeignObjectTag extends SvgTagBase<ForeignObjectTagAttrs,SVGForeignObjectElement> {
+    constructor() { super("foreignObject") }
+}
 
 export type GTagAttrs = GraphicsTagAttrs & {
 }
 
-export class GTag extends SvgTagBase<GTagAttrs,SVGGElement> {}
+export class GTag extends SvgTagBase<GTagAttrs,SVGGElement> {
+    constructor() { super("g") }
+}
 
 export type GeometryTagAttrs = SvgBaseAttrs & {
     pathLength?: number
 }
 
-export class GeometryTag extends SvgTagBase<GeometryTagAttrs,SVGGeometryElement> {}
+export class GeometryTag extends SvgTagBase<GeometryTagAttrs,SVGGeometryElement> {
+    constructor() { super("") }
+}
 
 export type GradientTagAttrs = SvgBaseAttrs & {
     gradientTransform?: string
@@ -687,13 +755,17 @@ export type GradientTagAttrs = SvgBaseAttrs & {
     SVG_SPREADMETHOD_UNKNOWN?: number
 }
 
-export class GradientTag extends SvgTagBase<GradientTagAttrs,SVGGradientElement> {}
+export class GradientTag extends SvgTagBase<GradientTagAttrs,SVGGradientElement> {
+    constructor() { super("") }
+}
 
 export type GraphicsTagAttrs = SvgBaseAttrs & {
     transform?: string
 }
 
-export class GraphicsTag extends SvgTagBase<GraphicsTagAttrs,SVGGraphicsElement> {}
+export class GraphicsTag extends SvgTagBase<GraphicsTagAttrs,SVGGraphicsElement> {
+    constructor() { super("") }
+}
 
 export type ImageTagAttrs = GraphicsTagAttrs & {
     height?: number
@@ -703,7 +775,9 @@ export type ImageTagAttrs = GraphicsTagAttrs & {
     y?: number
 }
 
-export class ImageTag extends SvgTagBase<ImageTagAttrs,SVGImageElement> {}
+export class ImageTag extends SvgTagBase<ImageTagAttrs,SVGImageElement> {
+    constructor() { super("image") }
+}
 
 export type LineTagAttrs = GeometryTagAttrs & {
     x1?: number
@@ -712,7 +786,9 @@ export type LineTagAttrs = GeometryTagAttrs & {
     y2?: number
 }
 
-export class LineTag extends SvgTagBase<LineTagAttrs,SVGLineElement> {}
+export class LineTag extends SvgTagBase<LineTagAttrs,SVGLineElement> {
+    constructor() { super("line") }
+}
 
 export type LinearGradientTagAttrs = GradientTagAttrs & {
     x1?: number
@@ -721,12 +797,16 @@ export type LinearGradientTagAttrs = GradientTagAttrs & {
     y2?: number
 }
 
-export class LinearGradientTag extends SvgTagBase<LinearGradientTagAttrs,SVGLinearGradientElement> {}
+export class LinearGradientTag extends SvgTagBase<LinearGradientTagAttrs,SVGLinearGradientElement> {
+    constructor() { super("linearGradient") }
+}
 
 export type MPathTagAttrs = DefaultTagAttrs & {
 }
 
-export class MPathTag extends SvgTagBase<MPathTagAttrs,SVGMPathElement> {}
+export class MPathTag extends SvgTagBase<MPathTagAttrs,SVGMPathElement> {
+    constructor() { super("mpath") }
+}
 
 export type MarkerTagAttrs = DefaultTagAttrs & {
     markerHeight?: number
@@ -746,7 +826,9 @@ export type MarkerTagAttrs = DefaultTagAttrs & {
     viewBox?: IRect
 }
 
-export class MarkerTag extends SvgTagBase<MarkerTagAttrs,SVGMarkerElement> {}
+export class MarkerTag extends SvgTagBase<MarkerTagAttrs,SVGMarkerElement> {
+    constructor() { super("marker") }
+}
 
 export type MaskTagAttrs = DefaultTagAttrs & {
     height?: number
@@ -757,17 +839,23 @@ export type MaskTagAttrs = DefaultTagAttrs & {
     y?: number
 }
 
-export class MaskTag extends SvgTagBase<MaskTagAttrs,SVGMaskElement> {}
+export class MaskTag extends SvgTagBase<MaskTagAttrs,SVGMaskElement> {
+    constructor() { super("mask") }
+}
 
 export type MetadataTagAttrs = DefaultTagAttrs & {
 }
 
-export class MetadataTag extends SvgTagBase<MetadataTagAttrs,SVGMetadataElement> {}
+export class MetadataTag extends SvgTagBase<MetadataTagAttrs,SVGMetadataElement> {
+    constructor() { super("metadata") }
+}
 
 export type PathTagAttrs = GeometryTagAttrs & {
 }
 
-export class PathTag extends SvgTagBase<PathTagAttrs,SVGPathElement> {}
+export class PathTag extends SvgTagBase<PathTagAttrs,SVGPathElement> {
+    constructor() { super("path") }
+}
 
 export type PatternTagAttrs = DefaultTagAttrs & {
     height?: number
@@ -781,17 +869,23 @@ export type PatternTagAttrs = DefaultTagAttrs & {
     viewBox?: IRect
 }
 
-export class PatternTag extends SvgTagBase<PatternTagAttrs,SVGPatternElement> {}
+export class PatternTag extends SvgTagBase<PatternTagAttrs,SVGPatternElement> {
+    constructor() { super("pattern") }
+}
 
 export type PolygonTagAttrs = GeometryTagAttrs & {
 }
 
-export class PolygonTag extends SvgTagBase<PolygonTagAttrs,SVGPolygonElement> {}
+export class PolygonTag extends SvgTagBase<PolygonTagAttrs,SVGPolygonElement> {
+    constructor() { super("polygon") }
+}
 
 export type PolylineTagAttrs = GeometryTagAttrs & {
 }
 
-export class PolylineTag extends SvgTagBase<PolylineTagAttrs,SVGPolylineElement> {}
+export class PolylineTag extends SvgTagBase<PolylineTagAttrs,SVGPolylineElement> {
+    constructor() { super("polyline") }
+}
 
 export type RadialGradientTagAttrs = GradientTagAttrs & {
     cx?: number
@@ -802,7 +896,9 @@ export type RadialGradientTagAttrs = GradientTagAttrs & {
     r?: number
 }
 
-export class RadialGradientTag extends SvgTagBase<RadialGradientTagAttrs,SVGRadialGradientElement> {}
+export class RadialGradientTag extends SvgTagBase<RadialGradientTagAttrs,SVGRadialGradientElement> {
+    constructor() { super("radialGradient") }
+}
 
 export type RectTagAttrs = GeometryTagAttrs & {
     height?: number
@@ -813,7 +909,9 @@ export type RectTagAttrs = GeometryTagAttrs & {
     y?: number
 }
 
-export class RectTag extends SvgTagBase<RectTagAttrs,SVGRectElement> {}
+export class RectTag extends SvgTagBase<RectTagAttrs,SVGRectElement> {
+    constructor() { super("rect") }
+}
 
 export type SVGTagAttrs = GraphicsTagAttrs & {
     currentScale?: number
@@ -826,19 +924,25 @@ export type SVGTagAttrs = GraphicsTagAttrs & {
     viewBox?: IRect
 }
 
-export class SVGTag extends SvgTagBase<SVGTagAttrs,SVGSVGElement> {}
+export class SVGTag extends SvgTagBase<SVGTagAttrs,SVGSVGElement> {
+    constructor() { super("svg") }
+}
 
 export type ScriptTagAttrs = DefaultTagAttrs & {
     type?: string
 }
 
-export class ScriptTag extends SvgTagBase<ScriptTagAttrs,SVGScriptElement> {}
+export class ScriptTag extends SvgTagBase<ScriptTagAttrs,SVGScriptElement> {
+    constructor() { super("script") }
+}
 
 export type StopTagAttrs = DefaultTagAttrs & {
     offset?: number
 }
 
-export class StopTag extends SvgTagBase<StopTagAttrs,SVGStopElement> {}
+export class StopTag extends SvgTagBase<StopTagAttrs,SVGStopElement> {
+    constructor() { super("stop") }
+}
 
 export type StyleTagAttrs = DefaultTagAttrs & {
     disabled?: boolean
@@ -847,19 +951,25 @@ export type StyleTagAttrs = DefaultTagAttrs & {
     type?: string
 }
 
-export class StyleTag extends SvgTagBase<StyleTagAttrs,SVGStyleElement> {}
+export class StyleTag extends SvgTagBase<StyleTagAttrs,SVGStyleElement> {
+    constructor() { super("style") }
+}
 
 export type SwitchTagAttrs = GraphicsTagAttrs & {
 }
 
-export class SwitchTag extends SvgTagBase<SwitchTagAttrs,SVGSwitchElement> {}
+export class SwitchTag extends SvgTagBase<SwitchTagAttrs,SVGSwitchElement> {
+    constructor() { super("switch") }
+}
 
 export type SymbolTagAttrs = DefaultTagAttrs & {
     preserveAspectRatio?: string
     viewBox?: IRect
 }
 
-export class SymbolTag extends SvgTagBase<SymbolTagAttrs,SVGSymbolElement> {}
+export class SymbolTag extends SvgTagBase<SymbolTagAttrs,SVGSymbolElement> {
+    constructor() { super("symbol") }
+}
 
 export type TextContentTagAttrs = GraphicsTagAttrs & {
     lengthAdjust?: string|number
@@ -869,12 +979,16 @@ export type TextContentTagAttrs = GraphicsTagAttrs & {
     LENGTHADJUST_UNKNOWN?: number
 }
 
-export class TextContentTag extends SvgTagBase<TextContentTagAttrs,SVGTextContentElement> {}
+export class TextContentTag extends SvgTagBase<TextContentTagAttrs,SVGTextContentElement> {
+    constructor() { super("") }
+}
 
 export type TitleTagAttrs = DefaultTagAttrs & {
 }
 
-export class TitleTag extends SvgTagBase<TitleTagAttrs,SVGTitleElement> {}
+export class TitleTag extends SvgTagBase<TitleTagAttrs,SVGTitleElement> {
+    constructor() { super("title") }
+}
 
 export type UseTagAttrs = GraphicsTagAttrs & {
     height?: number
@@ -883,13 +997,17 @@ export type UseTagAttrs = GraphicsTagAttrs & {
     y?: number
 }
 
-export class UseTag extends SvgTagBase<UseTagAttrs,SVGUseElement> {}
+export class UseTag extends SvgTagBase<UseTagAttrs,SVGUseElement> {
+    constructor() { super("use") }
+}
 
 export type ViewTagAttrs = DefaultTagAttrs & {
     preserveAspectRatio?: string
     viewBox?: IRect
 }
 
-export class ViewTag extends SvgTagBase<ViewTagAttrs,SVGViewElement> {}
+export class ViewTag extends SvgTagBase<ViewTagAttrs,SVGViewElement> {
+    constructor() { super("view") }
+}
 
 //// End Tag Classes

@@ -108,6 +108,11 @@ for (let t of tagTypes) {
 
     const file = new SourceFile(`src/${t}.ts`)
 
+    // assign the tags to the elements
+    for (const [tag, elem] of Object.entries(taggedElements[t])) {
+        elem.tag = tag
+    }
+
     // tag class declarations
     const classDeclarations = Object.values(elementTypes[t]).map(elem => {
         if (configs[t].elementBlacklist.includes(elem.name)) {
