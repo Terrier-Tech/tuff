@@ -16,13 +16,13 @@ export interface HtmlBaseAttrs extends Attrs {
 /**
  * General HTML tag type with no specific attributes.
  */
-export type HtmlParentTag = HtmlTagBase<HtmlBaseAttrs>
+export type HtmlParentTag = HtmlTagBase<HtmlBaseAttrs,any>
 
 
 /**
  * Base class for all HTML tags, parameterized on their attribute types.
  */
-export abstract class HtmlTagBase<AttrsType extends Attrs> extends Tag<AttrsType> {
+export abstract class HtmlTagBase<AttrsType extends Attrs,ElementType> extends Tag<AttrsType,ElementType> {
     
     serializeAttribute(name: string, value: any): string {
         if (typeof value == 'object') {
@@ -149,10 +149,6 @@ export abstract class HtmlTagBase<AttrsType extends Attrs> extends Tag<AttrsType
 
     dfn(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
         return this.child(DefaultTag, "dfn", ...args)
-    }
-
-    dialog(...args: TagArgs<DialogTag,DialogTagAttrs>[]) : DialogTag {
-        return this.child(DialogTag, "dialog", ...args)
     }
 
     div(...args: TagArgs<DivTag,DivTagAttrs>[]) : DivTag {
@@ -510,7 +506,7 @@ export type AnchorTagAttrs = DefaultTagAttrs & {
     type?: string
 }
 
-export class AnchorTag extends HtmlTagBase<AnchorTagAttrs> {}
+export class AnchorTag extends HtmlTagBase<AnchorTagAttrs,HTMLAnchorElement> {}
 
 export type AreaTagAttrs = DefaultTagAttrs & {
     alt?: string
@@ -523,24 +519,24 @@ export type AreaTagAttrs = DefaultTagAttrs & {
     target?: string
 }
 
-export class AreaTag extends HtmlTagBase<AreaTagAttrs> {}
+export class AreaTag extends HtmlTagBase<AreaTagAttrs,HTMLAreaElement> {}
 
 export type BRTagAttrs = DefaultTagAttrs & {
 }
 
-export class BRTag extends HtmlTagBase<BRTagAttrs> {}
+export class BRTag extends HtmlTagBase<BRTagAttrs,HTMLBRElement> {}
 
 export type BaseTagAttrs = DefaultTagAttrs & {
     href?: string
     target?: string
 }
 
-export class BaseTag extends HtmlTagBase<BaseTagAttrs> {}
+export class BaseTag extends HtmlTagBase<BaseTagAttrs,HTMLBaseElement> {}
 
 export type BodyTagAttrs = DefaultTagAttrs & {
 }
 
-export class BodyTag extends HtmlTagBase<BodyTagAttrs> {}
+export class BodyTag extends HtmlTagBase<BodyTagAttrs,HTMLBodyElement> {}
 
 export type ButtonTagAttrs = DefaultTagAttrs & {
     disabled?: boolean
@@ -554,48 +550,41 @@ export type ButtonTagAttrs = DefaultTagAttrs & {
     value?: string
 }
 
-export class ButtonTag extends HtmlTagBase<ButtonTagAttrs> {}
+export class ButtonTag extends HtmlTagBase<ButtonTagAttrs,HTMLButtonElement> {}
 
 export type CanvasTagAttrs = DefaultTagAttrs & {
     height?: number
     width?: number
 }
 
-export class CanvasTag extends HtmlTagBase<CanvasTagAttrs> {}
+export class CanvasTag extends HtmlTagBase<CanvasTagAttrs,HTMLCanvasElement> {}
 
 export type DListTagAttrs = DefaultTagAttrs & {
 }
 
-export class DListTag extends HtmlTagBase<DListTagAttrs> {}
+export class DListTag extends HtmlTagBase<DListTagAttrs,HTMLDListElement> {}
 
 export type DataTagAttrs = DefaultTagAttrs & {
     value?: string
 }
 
-export class DataTag extends HtmlTagBase<DataTagAttrs> {}
+export class DataTag extends HtmlTagBase<DataTagAttrs,HTMLDataElement> {}
 
 export type DataListTagAttrs = DefaultTagAttrs & {
 }
 
-export class DataListTag extends HtmlTagBase<DataListTagAttrs> {}
+export class DataListTag extends HtmlTagBase<DataListTagAttrs,HTMLDataListElement> {}
 
 export type DetailsTagAttrs = DefaultTagAttrs & {
     open?: boolean
 }
 
-export class DetailsTag extends HtmlTagBase<DetailsTagAttrs> {}
-
-export type DialogTagAttrs = DefaultTagAttrs & {
-    open?: boolean
-    returnValue?: string
-}
-
-export class DialogTag extends HtmlTagBase<DialogTagAttrs> {}
+export class DetailsTag extends HtmlTagBase<DetailsTagAttrs,HTMLDetailsElement> {}
 
 export type DivTagAttrs = DefaultTagAttrs & {
 }
 
-export class DivTag extends HtmlTagBase<DivTagAttrs> {}
+export class DivTag extends HtmlTagBase<DivTagAttrs,HTMLDivElement> {}
 
 export type DefaultTagAttrs = HtmlBaseAttrs & {
     accessKey?: string
@@ -611,7 +600,7 @@ export type DefaultTagAttrs = HtmlBaseAttrs & {
     translate?: boolean
 }
 
-export class DefaultTag extends HtmlTagBase<DefaultTagAttrs> {}
+export class DefaultTag extends HtmlTagBase<DefaultTagAttrs,HTMLElement> {}
 
 export type EmbedTagAttrs = DefaultTagAttrs & {
     height?: string
@@ -620,14 +609,14 @@ export type EmbedTagAttrs = DefaultTagAttrs & {
     width?: string
 }
 
-export class EmbedTag extends HtmlTagBase<EmbedTagAttrs> {}
+export class EmbedTag extends HtmlTagBase<EmbedTagAttrs,HTMLEmbedElement> {}
 
 export type FieldSetTagAttrs = DefaultTagAttrs & {
     disabled?: boolean
     name?: string
 }
 
-export class FieldSetTag extends HtmlTagBase<FieldSetTagAttrs> {}
+export class FieldSetTag extends HtmlTagBase<FieldSetTagAttrs,HTMLFieldSetElement> {}
 
 export type FormTagAttrs = DefaultTagAttrs & {
     acceptCharset?: string
@@ -641,32 +630,32 @@ export type FormTagAttrs = DefaultTagAttrs & {
     target?: string
 }
 
-export class FormTag extends HtmlTagBase<FormTagAttrs> {}
+export class FormTag extends HtmlTagBase<FormTagAttrs,HTMLFormElement> {}
 
 export type FrameSetTagAttrs = DefaultTagAttrs & {
 }
 
-export class FrameSetTag extends HtmlTagBase<FrameSetTagAttrs> {}
+export class FrameSetTag extends HtmlTagBase<FrameSetTagAttrs,HTMLFrameSetElement> {}
 
 export type HRTagAttrs = DefaultTagAttrs & {
 }
 
-export class HRTag extends HtmlTagBase<HRTagAttrs> {}
+export class HRTag extends HtmlTagBase<HRTagAttrs,HTMLHRElement> {}
 
 export type HeadTagAttrs = DefaultTagAttrs & {
 }
 
-export class HeadTag extends HtmlTagBase<HeadTagAttrs> {}
+export class HeadTag extends HtmlTagBase<HeadTagAttrs,HTMLHeadElement> {}
 
 export type HeadingTagAttrs = DefaultTagAttrs & {
 }
 
-export class HeadingTag extends HtmlTagBase<HeadingTagAttrs> {}
+export class HeadingTag extends HtmlTagBase<HeadingTagAttrs,HTMLHeadingElement> {}
 
 export type HtmlTagAttrs = DefaultTagAttrs & {
 }
 
-export class HtmlTag extends HtmlTagBase<HtmlTagAttrs> {}
+export class HtmlTag extends HtmlTagBase<HtmlTagAttrs,HTMLHtmlElement> {}
 
 export type IFrameTagAttrs = DefaultTagAttrs & {
     allow?: string
@@ -679,7 +668,7 @@ export type IFrameTagAttrs = DefaultTagAttrs & {
     width?: string
 }
 
-export class IFrameTag extends HtmlTagBase<IFrameTagAttrs> {}
+export class IFrameTag extends HtmlTagBase<IFrameTagAttrs,HTMLIFrameElement> {}
 
 export type ImageTagAttrs = DefaultTagAttrs & {
     alt?: string
@@ -696,7 +685,7 @@ export type ImageTagAttrs = DefaultTagAttrs & {
     width?: number
 }
 
-export class ImageTag extends HtmlTagBase<ImageTagAttrs> {}
+export class ImageTag extends HtmlTagBase<ImageTagAttrs,HTMLImageElement> {}
 
 export type InputTagAttrs = DefaultTagAttrs & {
     accept?: string
@@ -740,24 +729,24 @@ export type InputTagAttrs = DefaultTagAttrs & {
     width?: number
 }
 
-export class InputTag extends HtmlTagBase<InputTagAttrs> {}
+export class InputTag extends HtmlTagBase<InputTagAttrs,HTMLInputElement> {}
 
 export type LITagAttrs = DefaultTagAttrs & {
     value?: number
 }
 
-export class LITag extends HtmlTagBase<LITagAttrs> {}
+export class LITag extends HtmlTagBase<LITagAttrs,HTMLLIElement> {}
 
 export type LabelTagAttrs = DefaultTagAttrs & {
     htmlFor?: string
 }
 
-export class LabelTag extends HtmlTagBase<LabelTagAttrs> {}
+export class LabelTag extends HtmlTagBase<LabelTagAttrs,HTMLLabelElement> {}
 
 export type LegendTagAttrs = DefaultTagAttrs & {
 }
 
-export class LegendTag extends HtmlTagBase<LegendTagAttrs> {}
+export class LegendTag extends HtmlTagBase<LegendTagAttrs,HTMLLegendElement> {}
 
 export type LinkTagAttrs = DefaultTagAttrs & {
     as?: string
@@ -774,13 +763,13 @@ export type LinkTagAttrs = DefaultTagAttrs & {
     type?: string
 }
 
-export class LinkTag extends HtmlTagBase<LinkTagAttrs> {}
+export class LinkTag extends HtmlTagBase<LinkTagAttrs,HTMLLinkElement> {}
 
 export type MapTagAttrs = DefaultTagAttrs & {
     name?: string
 }
 
-export class MapTag extends HtmlTagBase<MapTagAttrs> {}
+export class MapTag extends HtmlTagBase<MapTagAttrs,HTMLMapElement> {}
 
 export type MediaTagAttrs = DefaultTagAttrs & {
     autoplay?: boolean
@@ -801,12 +790,12 @@ export type MediaTagAttrs = DefaultTagAttrs & {
     volume?: number
 }
 
-export class MediaTag extends HtmlTagBase<MediaTagAttrs> {}
+export class MediaTag extends HtmlTagBase<MediaTagAttrs,HTMLMediaElement> {}
 
 export type MenuTagAttrs = DefaultTagAttrs & {
 }
 
-export class MenuTag extends HtmlTagBase<MenuTagAttrs> {}
+export class MenuTag extends HtmlTagBase<MenuTagAttrs,HTMLMenuElement> {}
 
 export type MetaTagAttrs = DefaultTagAttrs & {
     content?: string
@@ -815,7 +804,7 @@ export type MetaTagAttrs = DefaultTagAttrs & {
     name?: string
 }
 
-export class MetaTag extends HtmlTagBase<MetaTagAttrs> {}
+export class MetaTag extends HtmlTagBase<MetaTagAttrs,HTMLMetaElement> {}
 
 export type MeterTagAttrs = DefaultTagAttrs & {
     high?: number
@@ -826,14 +815,14 @@ export type MeterTagAttrs = DefaultTagAttrs & {
     value?: number
 }
 
-export class MeterTag extends HtmlTagBase<MeterTagAttrs> {}
+export class MeterTag extends HtmlTagBase<MeterTagAttrs,HTMLMeterElement> {}
 
 export type ModTagAttrs = DefaultTagAttrs & {
     cite?: string
     dateTime?: string
 }
 
-export class ModTag extends HtmlTagBase<ModTagAttrs> {}
+export class ModTag extends HtmlTagBase<ModTagAttrs,HTMLModElement> {}
 
 export type OListTagAttrs = DefaultTagAttrs & {
     reversed?: boolean
@@ -841,7 +830,7 @@ export type OListTagAttrs = DefaultTagAttrs & {
     type?: string
 }
 
-export class OListTag extends HtmlTagBase<OListTagAttrs> {}
+export class OListTag extends HtmlTagBase<OListTagAttrs,HTMLOListElement> {}
 
 export type ObjectTagAttrs = DefaultTagAttrs & {
     data?: string
@@ -852,14 +841,14 @@ export type ObjectTagAttrs = DefaultTagAttrs & {
     width?: string
 }
 
-export class ObjectTag extends HtmlTagBase<ObjectTagAttrs> {}
+export class ObjectTag extends HtmlTagBase<ObjectTagAttrs,HTMLObjectElement> {}
 
 export type OptGroupTagAttrs = DefaultTagAttrs & {
     disabled?: boolean
     label?: string
 }
 
-export class OptGroupTag extends HtmlTagBase<OptGroupTagAttrs> {}
+export class OptGroupTag extends HtmlTagBase<OptGroupTagAttrs,HTMLOptGroupElement> {}
 
 export type OptionTagAttrs = DefaultTagAttrs & {
     defaultSelected?: boolean
@@ -870,7 +859,7 @@ export type OptionTagAttrs = DefaultTagAttrs & {
     value?: string
 }
 
-export class OptionTag extends HtmlTagBase<OptionTagAttrs> {}
+export class OptionTag extends HtmlTagBase<OptionTagAttrs,HTMLOptionElement> {}
 
 export type OutputTagAttrs = DefaultTagAttrs & {
     defaultValue?: string
@@ -878,42 +867,42 @@ export type OutputTagAttrs = DefaultTagAttrs & {
     value?: string
 }
 
-export class OutputTag extends HtmlTagBase<OutputTagAttrs> {}
+export class OutputTag extends HtmlTagBase<OutputTagAttrs,HTMLOutputElement> {}
 
 export type ParagraphTagAttrs = DefaultTagAttrs & {
 }
 
-export class ParagraphTag extends HtmlTagBase<ParagraphTagAttrs> {}
+export class ParagraphTag extends HtmlTagBase<ParagraphTagAttrs,HTMLParagraphElement> {}
 
 export type ParamTagAttrs = DefaultTagAttrs & {
     name?: string
     value?: string
 }
 
-export class ParamTag extends HtmlTagBase<ParamTagAttrs> {}
+export class ParamTag extends HtmlTagBase<ParamTagAttrs,HTMLParamElement> {}
 
 export type PictureTagAttrs = DefaultTagAttrs & {
 }
 
-export class PictureTag extends HtmlTagBase<PictureTagAttrs> {}
+export class PictureTag extends HtmlTagBase<PictureTagAttrs,HTMLPictureElement> {}
 
 export type PreTagAttrs = DefaultTagAttrs & {
 }
 
-export class PreTag extends HtmlTagBase<PreTagAttrs> {}
+export class PreTag extends HtmlTagBase<PreTagAttrs,HTMLPreElement> {}
 
 export type ProgressTagAttrs = DefaultTagAttrs & {
     max?: number
     value?: number
 }
 
-export class ProgressTag extends HtmlTagBase<ProgressTagAttrs> {}
+export class ProgressTag extends HtmlTagBase<ProgressTagAttrs,HTMLProgressElement> {}
 
 export type QuoteTagAttrs = DefaultTagAttrs & {
     cite?: string
 }
 
-export class QuoteTag extends HtmlTagBase<QuoteTagAttrs> {}
+export class QuoteTag extends HtmlTagBase<QuoteTagAttrs,HTMLQuoteElement> {}
 
 export type ScriptTagAttrs = DefaultTagAttrs & {
     async?: boolean
@@ -927,7 +916,7 @@ export type ScriptTagAttrs = DefaultTagAttrs & {
     type?: string
 }
 
-export class ScriptTag extends HtmlTagBase<ScriptTagAttrs> {}
+export class ScriptTag extends HtmlTagBase<ScriptTagAttrs,HTMLScriptElement> {}
 
 export type SelectTagAttrs = DefaultTagAttrs & {
     autocomplete?: string
@@ -941,13 +930,13 @@ export type SelectTagAttrs = DefaultTagAttrs & {
     value?: string
 }
 
-export class SelectTag extends HtmlTagBase<SelectTagAttrs> {}
+export class SelectTag extends HtmlTagBase<SelectTagAttrs,HTMLSelectElement> {}
 
 export type SlotTagAttrs = DefaultTagAttrs & {
     name?: string
 }
 
-export class SlotTag extends HtmlTagBase<SlotTagAttrs> {}
+export class SlotTag extends HtmlTagBase<SlotTagAttrs,HTMLSlotElement> {}
 
 export type SourceTagAttrs = DefaultTagAttrs & {
     height?: number
@@ -959,24 +948,23 @@ export type SourceTagAttrs = DefaultTagAttrs & {
     width?: number
 }
 
-export class SourceTag extends HtmlTagBase<SourceTagAttrs> {}
+export class SourceTag extends HtmlTagBase<SourceTagAttrs,HTMLSourceElement> {}
 
 export type SpanTagAttrs = DefaultTagAttrs & {
 }
 
-export class SpanTag extends HtmlTagBase<SpanTagAttrs> {}
+export class SpanTag extends HtmlTagBase<SpanTagAttrs,HTMLSpanElement> {}
 
 export type StyleTagAttrs = DefaultTagAttrs & {
-    disabled?: boolean
     media?: string
 }
 
-export class StyleTag extends HtmlTagBase<StyleTagAttrs> {}
+export class StyleTag extends HtmlTagBase<StyleTagAttrs,HTMLStyleElement> {}
 
 export type TableCaptionTagAttrs = DefaultTagAttrs & {
 }
 
-export class TableCaptionTag extends HtmlTagBase<TableCaptionTagAttrs> {}
+export class TableCaptionTag extends HtmlTagBase<TableCaptionTagAttrs,HTMLTableCaptionElement> {}
 
 export type TableCellTagAttrs = DefaultTagAttrs & {
     abbr?: string
@@ -986,13 +974,13 @@ export type TableCellTagAttrs = DefaultTagAttrs & {
     scope?: string
 }
 
-export class TableCellTag extends HtmlTagBase<TableCellTagAttrs> {}
+export class TableCellTag extends HtmlTagBase<TableCellTagAttrs,HTMLTableCellElement> {}
 
 export type TableColTagAttrs = DefaultTagAttrs & {
     span?: number
 }
 
-export class TableColTag extends HtmlTagBase<TableColTagAttrs> {}
+export class TableColTag extends HtmlTagBase<TableColTagAttrs,HTMLTableColElement> {}
 
 export type TableTagAttrs = DefaultTagAttrs & {
     caption?: HTMLTableCaptionElement | null
@@ -1000,22 +988,22 @@ export type TableTagAttrs = DefaultTagAttrs & {
     tHead?: HTMLTableSectionElement | null
 }
 
-export class TableTag extends HtmlTagBase<TableTagAttrs> {}
+export class TableTag extends HtmlTagBase<TableTagAttrs,HTMLTableElement> {}
 
 export type TableRowTagAttrs = DefaultTagAttrs & {
 }
 
-export class TableRowTag extends HtmlTagBase<TableRowTagAttrs> {}
+export class TableRowTag extends HtmlTagBase<TableRowTagAttrs,HTMLTableRowElement> {}
 
 export type TableSectionTagAttrs = DefaultTagAttrs & {
 }
 
-export class TableSectionTag extends HtmlTagBase<TableSectionTagAttrs> {}
+export class TableSectionTag extends HtmlTagBase<TableSectionTagAttrs,HTMLTableSectionElement> {}
 
 export type TemplateTagAttrs = DefaultTagAttrs & {
 }
 
-export class TemplateTag extends HtmlTagBase<TemplateTagAttrs> {}
+export class TemplateTag extends HtmlTagBase<TemplateTagAttrs,HTMLTemplateElement> {}
 
 export type TextAreaTagAttrs = DefaultTagAttrs & {
     autocomplete?: string
@@ -1037,19 +1025,19 @@ export type TextAreaTagAttrs = DefaultTagAttrs & {
     wrap?: string
 }
 
-export class TextAreaTag extends HtmlTagBase<TextAreaTagAttrs> {}
+export class TextAreaTag extends HtmlTagBase<TextAreaTagAttrs,HTMLTextAreaElement> {}
 
 export type TimeTagAttrs = DefaultTagAttrs & {
     dateTime?: string
 }
 
-export class TimeTag extends HtmlTagBase<TimeTagAttrs> {}
+export class TimeTag extends HtmlTagBase<TimeTagAttrs,HTMLTimeElement> {}
 
 export type TitleTagAttrs = DefaultTagAttrs & {
     text?: string
 }
 
-export class TitleTag extends HtmlTagBase<TitleTagAttrs> {}
+export class TitleTag extends HtmlTagBase<TitleTagAttrs,HTMLTitleElement> {}
 
 export type TrackTagAttrs = DefaultTagAttrs & {
     default?: boolean
@@ -1059,16 +1047,16 @@ export type TrackTagAttrs = DefaultTagAttrs & {
     srclang?: string
 }
 
-export class TrackTag extends HtmlTagBase<TrackTagAttrs> {}
+export class TrackTag extends HtmlTagBase<TrackTagAttrs,HTMLTrackElement> {}
 
 export type UListTagAttrs = DefaultTagAttrs & {
 }
 
-export class UListTag extends HtmlTagBase<UListTagAttrs> {}
+export class UListTag extends HtmlTagBase<UListTagAttrs,HTMLUListElement> {}
 
 export type UnknownTagAttrs = DefaultTagAttrs & {
 }
 
-export class UnknownTag extends HtmlTagBase<UnknownTagAttrs> {}
+export class UnknownTag extends HtmlTagBase<UnknownTagAttrs,HTMLUnknownElement> {}
 
 //// End Tag Classes

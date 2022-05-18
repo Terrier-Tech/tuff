@@ -130,7 +130,7 @@ export class Element {
             lines.push("}\n")
         }
 
-        lines.push(`export class ${this.className} extends ${baseClass}<${this.attrsName}> {}\n`)
+        lines.push(`export class ${this.className} extends ${baseClass}<${this.attrsName},${this.name}> {}\n`)
 
         return lines.join("\n")
     }
@@ -190,9 +190,9 @@ export class EventType {
 
     emitMethod(): string {
         return `
-    emit${this.methodName}<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emit${this.methodName}<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emit${this.methodName}<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emit${this.methodName}<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emit${this.methodName}<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emit${this.methodName}<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('${this.name}', key, data)
         }

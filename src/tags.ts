@@ -79,12 +79,12 @@ export type Attrs = {
 const _attrsBlacklist = ['id', 'class', 'classes', 'sel', 'text', 'data', 'css']
 
 // each argument to a tag can be a callback, selector string, or attribute literal
-export type TagArgs<TagType extends Tag<AttrsType>, AttrsType extends Attrs> =
+export type TagArgs<TagType extends Tag<AttrsType,any>, AttrsType extends Attrs> =
     ((n: TagType) => any) | AttrsType | string | undefined
 
-export abstract class Tag<AttrsType extends Attrs> {
+export abstract class Tag<AttrsType extends Attrs, ElementType> {
 
-    private children: Tag<Attrs>[] = []
+    private children: Tag<Attrs,any>[] = []
     private _text?: string
     private _id?: string
     private _classes: string[] = []
@@ -103,7 +103,7 @@ export abstract class Tag<AttrsType extends Attrs> {
      * @param {string} s - A CSS selector containing classes (.-prefixed) and/or an id (#-prefixed)
      * @returns this
      */
-    sel(selector: string): Tag<AttrsType> {
+    sel(selector: string) {
         if (!selector || selector.length == 0) {
             return this
         }
@@ -128,7 +128,7 @@ export abstract class Tag<AttrsType extends Attrs> {
      * @param {string} s - A single class name
      * @returns this
      */
-    class(...s: string[]): Tag<AttrsType> {
+    class(...s: string[]) {
         this._classes = this._classes.concat(s)
         return this
     }
@@ -138,7 +138,7 @@ export abstract class Tag<AttrsType extends Attrs> {
      * @param s - an id
      * @returns this
      */
-    id(s: string): Tag<AttrsType> {
+    id(s: string) {
         this._id = s
         return this
     }
@@ -148,7 +148,7 @@ export abstract class Tag<AttrsType extends Attrs> {
      * @param {string} s - The inner text of the element
      * @returns this
      */
-    text(s: string): Tag<AttrsType> {
+    text(s: string) {
         this._text = s
         return this
     }
@@ -158,7 +158,7 @@ export abstract class Tag<AttrsType extends Attrs> {
      * @param {InlineStyle} s - An inline style to apply to the element
      * @returns this
      */
-    css(s: InlineStyle): Tag<AttrsType> {
+    css(s: InlineStyle) {
         if (this._css) {
             this._css = {...this._css, ...s}
         }
@@ -173,7 +173,7 @@ export abstract class Tag<AttrsType extends Attrs> {
      * @param {DataAttrs} d - Some raw data attributes
      * @returns this
      */
-    data(d: DataAttrs): Tag<AttrsType> {
+    data(d: DataAttrs) {
         if (this._data) {
             this._data = {...this._data, ...d}
         }
@@ -184,7 +184,7 @@ export abstract class Tag<AttrsType extends Attrs> {
     }
 
     // Assignes a single data attribute without having to create a new object
-    dataAttr(key: string, value: any): Tag<AttrsType> {
+    dataAttr(key: string, value: any) {
         if (!this._data) {
             this._data = {}
         }
@@ -192,7 +192,7 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
 
-    attrs(attrs: AttrsType): Tag<AttrsType> {
+    attrs(attrs: AttrsType) {
         if (attrs.class?.length) {
             this.class(attrs.class)
         }
@@ -278,7 +278,7 @@ export abstract class Tag<AttrsType extends Attrs> {
 
     /// Children
 
-    child<TagType extends Tag<ChildAttrsType>, ChildAttrsType extends Attrs>(
+    child<TagType extends Tag<ChildAttrsType,any>, ChildAttrsType extends Attrs>(
             c: { new (t: string): TagType }, 
             tag: string,
             ...args: TagArgs<TagType,ChildAttrsType>[]
@@ -324,12 +324,12 @@ export abstract class Tag<AttrsType extends Attrs> {
         }
     }
 
-    emit<DataType extends object>(type: keyof messages.EventMap, key: messages.UntypedKey): Tag<AttrsType>
+    emit<DataType extends object>(type: keyof messages.EventMap, key: messages.UntypedKey): Tag<AttrsType,ElementType>
     
     // Force the caller to pass data if the message key is typed
-    emit<DataType extends object>(type: keyof messages.EventMap, key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
+    emit<DataType extends object>(type: keyof messages.EventMap, key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
 
-    emit<DataType extends object>(type: keyof messages.EventMap, key: messages.UntypedKey | messages.TypedKey<DataType>, data?: DataType): Tag<AttrsType> {
+    emit<DataType extends object>(type: keyof messages.EventMap, key: messages.UntypedKey | messages.TypedKey<DataType>, data?: DataType): Tag<AttrsType,ElementType> {
         this.addMessageKey(type, key.id)
         if (data) {
             this.dataAttr(key.id, encodeURIComponent(JSON.stringify(data)))
@@ -339,9 +339,9 @@ export abstract class Tag<AttrsType extends Attrs> {
 
     //// Begin Emit Methods
 
-    emitAbort<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitAbort<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitAbort<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitAbort<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitAbort<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitAbort<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('abort', key, data)
         }
@@ -351,9 +351,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitAnimationCancel<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitAnimationCancel<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitAnimationCancel<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitAnimationCancel<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitAnimationCancel<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitAnimationCancel<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('animationcancel', key, data)
         }
@@ -363,9 +363,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitAnimationEnd<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitAnimationEnd<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitAnimationEnd<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitAnimationEnd<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitAnimationEnd<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitAnimationEnd<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('animationend', key, data)
         }
@@ -375,9 +375,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitAnimationIteration<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitAnimationIteration<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitAnimationIteration<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitAnimationIteration<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitAnimationIteration<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitAnimationIteration<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('animationiteration', key, data)
         }
@@ -387,9 +387,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitAnimationStart<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitAnimationStart<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitAnimationStart<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitAnimationStart<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitAnimationStart<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitAnimationStart<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('animationstart', key, data)
         }
@@ -399,9 +399,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitAuxClick<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitAuxClick<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitAuxClick<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitAuxClick<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitAuxClick<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitAuxClick<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('auxclick', key, data)
         }
@@ -411,9 +411,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitBeforeInput<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitBeforeInput<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitBeforeInput<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitBeforeInput<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitBeforeInput<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitBeforeInput<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('beforeinput', key, data)
         }
@@ -423,9 +423,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitBlur<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitBlur<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitBlur<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitBlur<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitBlur<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitBlur<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('blur', key, data)
         }
@@ -435,9 +435,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitCanPlay<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitCanPlay<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitCanPlay<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitCanPlay<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitCanPlay<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitCanPlay<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('canplay', key, data)
         }
@@ -447,9 +447,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitCanPlayThrough<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitCanPlayThrough<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitCanPlayThrough<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitCanPlayThrough<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitCanPlayThrough<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitCanPlayThrough<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('canplaythrough', key, data)
         }
@@ -459,9 +459,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitChange<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitChange<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitChange<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitChange<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitChange<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitChange<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('change', key, data)
         }
@@ -471,9 +471,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitClick<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitClick<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitClick<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitClick<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitClick<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitClick<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('click', key, data)
         }
@@ -483,9 +483,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitClose<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitClose<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitClose<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitClose<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitClose<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitClose<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('close', key, data)
         }
@@ -495,9 +495,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitCompositionEnd<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitCompositionEnd<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitCompositionEnd<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitCompositionEnd<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitCompositionEnd<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitCompositionEnd<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('compositionend', key, data)
         }
@@ -507,9 +507,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitCompositionStart<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitCompositionStart<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitCompositionStart<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitCompositionStart<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitCompositionStart<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitCompositionStart<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('compositionstart', key, data)
         }
@@ -519,9 +519,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitCompositionUpdate<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitCompositionUpdate<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitCompositionUpdate<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitCompositionUpdate<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitCompositionUpdate<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitCompositionUpdate<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('compositionupdate', key, data)
         }
@@ -531,9 +531,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitContextMenu<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitContextMenu<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitContextMenu<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitContextMenu<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitContextMenu<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitContextMenu<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('contextmenu', key, data)
         }
@@ -543,9 +543,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitCopy<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitCopy<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitCopy<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitCopy<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitCopy<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitCopy<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('copy', key, data)
         }
@@ -555,9 +555,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitCueChange<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitCueChange<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitCueChange<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitCueChange<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitCueChange<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitCueChange<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('cuechange', key, data)
         }
@@ -567,9 +567,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitCut<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitCut<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitCut<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitCut<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitCut<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitCut<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('cut', key, data)
         }
@@ -579,9 +579,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitDblClick<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitDblClick<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitDblClick<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitDblClick<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitDblClick<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitDblClick<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('dblclick', key, data)
         }
@@ -591,9 +591,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitDrag<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitDrag<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitDrag<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitDrag<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitDrag<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitDrag<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('drag', key, data)
         }
@@ -603,9 +603,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitDragEnd<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitDragEnd<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitDragEnd<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitDragEnd<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitDragEnd<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitDragEnd<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('dragend', key, data)
         }
@@ -615,9 +615,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitDragEnter<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitDragEnter<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitDragEnter<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitDragEnter<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitDragEnter<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitDragEnter<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('dragenter', key, data)
         }
@@ -627,9 +627,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitDragLeave<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitDragLeave<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitDragLeave<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitDragLeave<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitDragLeave<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitDragLeave<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('dragleave', key, data)
         }
@@ -639,9 +639,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitDragOver<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitDragOver<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitDragOver<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitDragOver<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitDragOver<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitDragOver<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('dragover', key, data)
         }
@@ -651,9 +651,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitDragStart<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitDragStart<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitDragStart<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitDragStart<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitDragStart<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitDragStart<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('dragstart', key, data)
         }
@@ -663,9 +663,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitDrop<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitDrop<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitDrop<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitDrop<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitDrop<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitDrop<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('drop', key, data)
         }
@@ -675,9 +675,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitDurationChange<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitDurationChange<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitDurationChange<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitDurationChange<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitDurationChange<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitDurationChange<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('durationchange', key, data)
         }
@@ -687,9 +687,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitEmptied<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitEmptied<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitEmptied<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitEmptied<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitEmptied<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitEmptied<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('emptied', key, data)
         }
@@ -699,9 +699,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitEnded<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitEnded<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitEnded<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitEnded<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitEnded<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitEnded<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('ended', key, data)
         }
@@ -711,9 +711,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitError<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitError<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitError<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitError<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitError<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitError<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('error', key, data)
         }
@@ -723,9 +723,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitFocus<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitFocus<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitFocus<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitFocus<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitFocus<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitFocus<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('focus', key, data)
         }
@@ -735,9 +735,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitFocusIn<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitFocusIn<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitFocusIn<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitFocusIn<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitFocusIn<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitFocusIn<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('focusin', key, data)
         }
@@ -747,9 +747,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitFocusOut<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitFocusOut<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitFocusOut<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitFocusOut<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitFocusOut<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitFocusOut<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('focusout', key, data)
         }
@@ -759,9 +759,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitFormData<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitFormData<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitFormData<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitFormData<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitFormData<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitFormData<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('formdata', key, data)
         }
@@ -771,9 +771,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitFullscreenChange<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitFullscreenChange<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitFullscreenChange<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitFullscreenChange<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitFullscreenChange<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitFullscreenChange<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('fullscreenchange', key, data)
         }
@@ -783,9 +783,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitFullscreenError<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitFullscreenError<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitFullscreenError<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitFullscreenError<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitFullscreenError<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitFullscreenError<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('fullscreenerror', key, data)
         }
@@ -795,9 +795,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitGotPointerCapture<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitGotPointerCapture<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitGotPointerCapture<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitGotPointerCapture<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitGotPointerCapture<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitGotPointerCapture<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('gotpointercapture', key, data)
         }
@@ -807,9 +807,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitInput<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitInput<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitInput<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitInput<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitInput<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitInput<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('input', key, data)
         }
@@ -819,9 +819,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitInvalid<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitInvalid<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitInvalid<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitInvalid<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitInvalid<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitInvalid<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('invalid', key, data)
         }
@@ -831,9 +831,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitKeyDown<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitKeyDown<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitKeyDown<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitKeyDown<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitKeyDown<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitKeyDown<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('keydown', key, data)
         }
@@ -843,9 +843,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitKeyUp<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitKeyUp<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitKeyUp<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitKeyUp<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitKeyUp<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitKeyUp<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('keyup', key, data)
         }
@@ -855,9 +855,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitLoad<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitLoad<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitLoad<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitLoad<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitLoad<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitLoad<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('load', key, data)
         }
@@ -867,9 +867,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitLoadedData<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitLoadedData<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitLoadedData<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitLoadedData<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitLoadedData<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitLoadedData<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('loadeddata', key, data)
         }
@@ -879,9 +879,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitLoadedMetadata<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitLoadedMetadata<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitLoadedMetadata<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitLoadedMetadata<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitLoadedMetadata<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitLoadedMetadata<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('loadedmetadata', key, data)
         }
@@ -891,9 +891,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitLoadStart<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitLoadStart<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitLoadStart<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitLoadStart<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitLoadStart<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitLoadStart<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('loadstart', key, data)
         }
@@ -903,9 +903,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitLostPointerCapture<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitLostPointerCapture<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitLostPointerCapture<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitLostPointerCapture<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitLostPointerCapture<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitLostPointerCapture<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('lostpointercapture', key, data)
         }
@@ -915,9 +915,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitMouseDown<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitMouseDown<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitMouseDown<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitMouseDown<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitMouseDown<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitMouseDown<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('mousedown', key, data)
         }
@@ -927,9 +927,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitMouseEnter<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitMouseEnter<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitMouseEnter<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitMouseEnter<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitMouseEnter<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitMouseEnter<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('mouseenter', key, data)
         }
@@ -939,9 +939,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitMouseLeave<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitMouseLeave<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitMouseLeave<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitMouseLeave<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitMouseLeave<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitMouseLeave<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('mouseleave', key, data)
         }
@@ -951,9 +951,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitMouseMove<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitMouseMove<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitMouseMove<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitMouseMove<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitMouseMove<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitMouseMove<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('mousemove', key, data)
         }
@@ -963,9 +963,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitMouseOut<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitMouseOut<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitMouseOut<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitMouseOut<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitMouseOut<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitMouseOut<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('mouseout', key, data)
         }
@@ -975,9 +975,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitMouseOver<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitMouseOver<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitMouseOver<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitMouseOver<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitMouseOver<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitMouseOver<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('mouseover', key, data)
         }
@@ -987,9 +987,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitMouseUp<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitMouseUp<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitMouseUp<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitMouseUp<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitMouseUp<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitMouseUp<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('mouseup', key, data)
         }
@@ -999,9 +999,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitPaste<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitPaste<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitPaste<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitPaste<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitPaste<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitPaste<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('paste', key, data)
         }
@@ -1011,9 +1011,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitPause<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitPause<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitPause<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitPause<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitPause<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitPause<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('pause', key, data)
         }
@@ -1023,9 +1023,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitPlay<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitPlay<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitPlay<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitPlay<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitPlay<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitPlay<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('play', key, data)
         }
@@ -1035,9 +1035,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitPlaying<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitPlaying<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitPlaying<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitPlaying<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitPlaying<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitPlaying<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('playing', key, data)
         }
@@ -1047,9 +1047,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitPointerCancel<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitPointerCancel<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitPointerCancel<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitPointerCancel<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitPointerCancel<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitPointerCancel<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('pointercancel', key, data)
         }
@@ -1059,9 +1059,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitPointerDown<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitPointerDown<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitPointerDown<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitPointerDown<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitPointerDown<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitPointerDown<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('pointerdown', key, data)
         }
@@ -1071,9 +1071,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitPointerEnter<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitPointerEnter<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitPointerEnter<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitPointerEnter<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitPointerEnter<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitPointerEnter<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('pointerenter', key, data)
         }
@@ -1083,9 +1083,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitPointerLeave<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitPointerLeave<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitPointerLeave<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitPointerLeave<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitPointerLeave<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitPointerLeave<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('pointerleave', key, data)
         }
@@ -1095,9 +1095,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitPointerMove<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitPointerMove<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitPointerMove<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitPointerMove<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitPointerMove<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitPointerMove<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('pointermove', key, data)
         }
@@ -1107,9 +1107,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitPointerOut<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitPointerOut<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitPointerOut<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitPointerOut<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitPointerOut<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitPointerOut<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('pointerout', key, data)
         }
@@ -1119,9 +1119,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitPointerOver<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitPointerOver<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitPointerOver<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitPointerOver<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitPointerOver<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitPointerOver<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('pointerover', key, data)
         }
@@ -1131,9 +1131,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitPointerUp<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitPointerUp<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitPointerUp<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitPointerUp<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitPointerUp<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitPointerUp<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('pointerup', key, data)
         }
@@ -1143,9 +1143,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitProgress<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitProgress<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitProgress<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitProgress<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitProgress<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitProgress<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('progress', key, data)
         }
@@ -1155,9 +1155,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitRateChange<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitRateChange<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitRateChange<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitRateChange<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitRateChange<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitRateChange<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('ratechange', key, data)
         }
@@ -1167,9 +1167,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitReset<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitReset<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitReset<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitReset<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitReset<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitReset<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('reset', key, data)
         }
@@ -1179,9 +1179,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitResize<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitResize<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitResize<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitResize<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitResize<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitResize<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('resize', key, data)
         }
@@ -1191,9 +1191,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitScroll<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitScroll<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitScroll<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitScroll<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitScroll<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitScroll<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('scroll', key, data)
         }
@@ -1203,9 +1203,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitSecurityPolicyViolation<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitSecurityPolicyViolation<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitSecurityPolicyViolation<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitSecurityPolicyViolation<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitSecurityPolicyViolation<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitSecurityPolicyViolation<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('securitypolicyviolation', key, data)
         }
@@ -1215,9 +1215,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitSeeked<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitSeeked<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitSeeked<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitSeeked<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitSeeked<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitSeeked<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('seeked', key, data)
         }
@@ -1227,9 +1227,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitSeeking<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitSeeking<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitSeeking<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitSeeking<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitSeeking<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitSeeking<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('seeking', key, data)
         }
@@ -1239,9 +1239,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitSelect<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitSelect<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitSelect<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitSelect<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitSelect<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitSelect<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('select', key, data)
         }
@@ -1251,9 +1251,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitSelectionChange<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitSelectionChange<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitSelectionChange<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitSelectionChange<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitSelectionChange<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitSelectionChange<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('selectionchange', key, data)
         }
@@ -1263,9 +1263,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitSelectStart<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitSelectStart<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitSelectStart<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitSelectStart<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitSelectStart<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitSelectStart<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('selectstart', key, data)
         }
@@ -1275,9 +1275,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitSlotChange<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitSlotChange<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitSlotChange<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitSlotChange<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitSlotChange<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitSlotChange<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('slotchange', key, data)
         }
@@ -1287,9 +1287,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitStalled<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitStalled<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitStalled<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitStalled<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitStalled<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitStalled<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('stalled', key, data)
         }
@@ -1299,9 +1299,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitSubmit<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitSubmit<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitSubmit<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitSubmit<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitSubmit<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitSubmit<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('submit', key, data)
         }
@@ -1311,9 +1311,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitSuspend<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitSuspend<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitSuspend<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitSuspend<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitSuspend<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitSuspend<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('suspend', key, data)
         }
@@ -1323,9 +1323,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitTimeUpdate<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitTimeUpdate<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitTimeUpdate<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitTimeUpdate<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitTimeUpdate<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitTimeUpdate<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('timeupdate', key, data)
         }
@@ -1335,9 +1335,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitToggle<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitToggle<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitToggle<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitToggle<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitToggle<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitToggle<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('toggle', key, data)
         }
@@ -1347,9 +1347,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitTouchCancel<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitTouchCancel<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitTouchCancel<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitTouchCancel<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitTouchCancel<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitTouchCancel<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('touchcancel', key, data)
         }
@@ -1359,9 +1359,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitTouchEnd<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitTouchEnd<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitTouchEnd<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitTouchEnd<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitTouchEnd<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitTouchEnd<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('touchend', key, data)
         }
@@ -1371,9 +1371,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitTouchMove<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitTouchMove<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitTouchMove<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitTouchMove<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitTouchMove<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitTouchMove<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('touchmove', key, data)
         }
@@ -1383,9 +1383,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitTouchStart<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitTouchStart<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitTouchStart<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitTouchStart<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitTouchStart<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitTouchStart<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('touchstart', key, data)
         }
@@ -1395,9 +1395,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitTransitionCancel<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitTransitionCancel<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitTransitionCancel<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitTransitionCancel<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitTransitionCancel<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitTransitionCancel<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('transitioncancel', key, data)
         }
@@ -1407,9 +1407,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitTransitionEnd<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitTransitionEnd<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitTransitionEnd<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitTransitionEnd<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitTransitionEnd<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitTransitionEnd<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('transitionend', key, data)
         }
@@ -1419,9 +1419,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitTransitionRun<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitTransitionRun<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitTransitionRun<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitTransitionRun<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitTransitionRun<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitTransitionRun<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('transitionrun', key, data)
         }
@@ -1431,9 +1431,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitTransitionStart<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitTransitionStart<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitTransitionStart<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitTransitionStart<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitTransitionStart<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitTransitionStart<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('transitionstart', key, data)
         }
@@ -1443,9 +1443,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitVolumeChange<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitVolumeChange<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitVolumeChange<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitVolumeChange<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitVolumeChange<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitVolumeChange<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('volumechange', key, data)
         }
@@ -1455,9 +1455,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitWaiting<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitWaiting<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitWaiting<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitWaiting<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitWaiting<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitWaiting<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('waiting', key, data)
         }
@@ -1467,9 +1467,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitWebkitAnimationEnd<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitWebkitAnimationEnd<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitWebkitAnimationEnd<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitWebkitAnimationEnd<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitWebkitAnimationEnd<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitWebkitAnimationEnd<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('webkitanimationend', key, data)
         }
@@ -1479,9 +1479,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitWebkitAnimationIteration<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitWebkitAnimationIteration<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitWebkitAnimationIteration<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitWebkitAnimationIteration<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitWebkitAnimationIteration<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitWebkitAnimationIteration<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('webkitanimationiteration', key, data)
         }
@@ -1491,9 +1491,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitWebkitAnimationStart<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitWebkitAnimationStart<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitWebkitAnimationStart<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitWebkitAnimationStart<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitWebkitAnimationStart<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitWebkitAnimationStart<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('webkitanimationstart', key, data)
         }
@@ -1503,9 +1503,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitWebkitTransitionEnd<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitWebkitTransitionEnd<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitWebkitTransitionEnd<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitWebkitTransitionEnd<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitWebkitTransitionEnd<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitWebkitTransitionEnd<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('webkittransitionend', key, data)
         }
@@ -1515,9 +1515,9 @@ export abstract class Tag<AttrsType extends Attrs> {
         return this
     }
     
-    emitWheel<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType>
-    emitWheel<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType>
-    emitWheel<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType> {
+    emitWheel<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitWheel<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitWheel<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
         if (data) {
             this.emit('wheel', key, data)
         }
