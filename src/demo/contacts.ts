@@ -112,8 +112,7 @@ class ContactFormPart extends forms.FormPart<ContactState> {
         this.textInput(parent, "name", {placeholder: 'Name'})
         this.emailInput(parent, "email", {placeholder: 'E-Mail'})
         
-        const roleSelect = this.select(parent, "role")
-        forms.optionsForSelect(roleSelect, roleOptions)
+        this.select(parent, "role", roleOptions)
         
         parent.div(styles.flexRow, row => {
             row.div(styles.flexStretch, col => {
@@ -156,7 +155,7 @@ export class ContactsApp extends Part<{}> {
         this.forms.push(this.makePart(ContactFormPart, {
             id: demo.newId(),
             name: "Bobby Tables", 
-            role: 'customer',
+            role: 'vendor',
             isAdmin: true,
             birthday: '2021-12-01',
             phones: []

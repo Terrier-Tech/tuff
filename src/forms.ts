@@ -2,7 +2,7 @@ import {Part} from './parts'
 import {Logger} from './logging'
 import * as arrays from './arrays'
 import * as messages from './messages'
-import { FormTag, HtmlParentTag, InputTag, InputTagAttrs, SelectTag, SelectTagAttrs, TextAreaTag, TextAreaTagAttrs } from './html'
+import { FormTag, HtmlParentTag, InputTag, InputTagAttrs, OptionTagAttrs, SelectTag, SelectTagAttrs, TextAreaTag, TextAreaTagAttrs } from './html'
 
 const log = new Logger("Forms")
 
@@ -83,13 +83,17 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
         return this.input<Key>(parent, "radio", name, RadioField, attrs)
     }
 
-    select<Key extends KeyOfType<DataType,string> & string>(parent: HtmlParentTag, name: Key, attrs: SelectTagAttrs={}): SelectTag {
+    select<Key extends KeyOfType<DataType,string> & string>(parent: HtmlParentTag, name: Key, options?: SelectOptions, attrs: SelectTagAttrs={}): SelectTag {
         attrs.name = `${this.id}-${name}`
         if (!this.fields[attrs.name]) {
             this.fields[attrs.name] = new SelectField(name)
         }
         this.fields[attrs.name].assignAttrValue(attrs, this.state[name])
-        return parent.select(attrs, this.className)
+        const tag = parent.select(attrs, this.className)
+        if (options) {
+            optionsForSelect(tag, options, this.state[name])
+        }
+        return tag
     }
 
     /**
@@ -269,6 +273,9 @@ class RadioField extends Field<string, HTMLInputElement> {
 // Select Options
 ////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Represents a single <option> tag.
+ */
 export type SelectOption = {
     value: string
     title: string
@@ -280,9 +287,16 @@ export type SelectOptions = SelectOption[]
  * Adds options to a select tag
  * @param tag the select tag
  * @param options the options to add
+ * @param selected the currently selected option value
  */
-export function optionsForSelect(tag: SelectTag, options: SelectOptions) {
+export function optionsForSelect(tag: SelectTag, options: SelectOptions, selected?: string) {
     for (const opt of options) {
-        tag.option({value: opt.value}).text(opt.title)
+        const attrs: OptionTagAttrs = {
+            value: opt.value
+        }
+        if (selected == opt.value) {
+            attrs.selected = true
+        }
+        tag.option(attrs).text(opt.title)
     }
 }
