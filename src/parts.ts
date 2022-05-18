@@ -585,7 +585,7 @@ export abstract class Part<StateType> {
         if (this._renderState == "dirty") {
             // stop the chain, re-render the whole tree from here on down
             log.debugTime('Render', () => {
-                let parent = new DivTag()
+                let parent = new DivTag('div')
                 this._context.frame = frame
                 this.render(parent)
                 let output = Array<string>()

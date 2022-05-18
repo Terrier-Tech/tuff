@@ -4,6 +4,7 @@ import * as fs from 'fs'
 import TypescriptTree from './ts-tree'
 import * as meta from './dom-meta'
 import SourceFile from './source-file'
+import { titleize } from '../strings'
 
 const info = console.log
 
@@ -108,11 +109,6 @@ for (let t of tagTypes) {
 
     const file = new SourceFile(`src/${t}.ts`)
 
-    // assign the tags to the elements
-    for (const [tag, elem] of Object.entries(taggedElements[t])) {
-        elem.tag = tag
-    }
-
     // tag class declarations
     const classDeclarations = Object.values(elementTypes[t]).map(elem => {
         if (configs[t].elementBlacklist.includes(elem.name)) {
@@ -128,6 +124,20 @@ for (let t of tagTypes) {
         return elem.tagMethod(tag)
     }).join("")
     file.replaceRegion("Tag Methods", tagMethods)
+
+    // tag map
+    const tagMap = [`\nexport interface ${titleize(t)}TagMap {`]
+    Object.entries(taggedElements[t]).forEach(([tag, elem]) => {
+        tagMap.push(`    "${tag}": ${elem.className}`)
+    })
+    tagMap.push(`}\n`)
+    tagMap.push(`\nexport type ${titleize(t)}TagName = keyof ${titleize(t)}TagMap`)
+    tagMap.push(`\nexport const ${t}TagMap: Record<${titleize(t)}TagName, {new (tag: ${titleize(t)}TagName): ${titleize(t)}TagMap[typeof tag]}> = {`)
+    Object.entries(taggedElements[t]).forEach(([tag, elem]) => {
+        tagMap.push(`    ${tag}: ${elem.className},`)
+    })
+    tagMap.push(`}\n`)
+    file.replaceRegion("Tag Map", tagMap.join("\n"))
 
     file.write()
 }

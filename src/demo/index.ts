@@ -7,7 +7,7 @@ import * as shapes from './shapes'
 import * as nav from './nav'
 import * as demo from './demo'
 import * as messages from '../messages'
-import { DivTag } from '../html'
+import { createHtmlElement, DivTag } from '../html'
 
 const log = new Logger("Demo")
 Logger.level = 'debug'
@@ -51,10 +51,12 @@ class App extends Part<{}> {
         })
 
         // test creating an arbitrary element
-        const divTag = new DivTag()
-        divTag.class('global').text("Hello Global Element")
-        const divElem = divTag.createElement()
-        document.body.appendChild(divElem)
+        const divTag = createHtmlElement("div", div => {
+            div.class('global').text("Hello Global Element")
+        })
+        document.body.appendChild(divTag)
+        divTag.classList.add('extra')
+        log.info(`Created div tag`, divTag)
     }
 
     load() {

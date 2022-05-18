@@ -12,7 +12,6 @@ export class Element {
     readonly className!: string
     readonly attrsName!: string
     readonly typeName!: string // capitalized type name
-    tag: string = ''
 
     constructor(readonly type: string, readonly name: string, readonly baseNames: string[], iface: ts.InterfaceDeclaration, tst: TypescriptTree) {
         this.typeName = strings.capitalize(type)
@@ -131,9 +130,7 @@ export class Element {
             lines.push("}\n")
         }
 
-        lines.push(`export class ${this.className} extends ${baseClass}<${this.attrsName},${this.name}> {`)
-        lines.push(`    constructor() { super("${this.tag}") }`)
-        lines.push("}\n")
+        lines.push(`export class ${this.className} extends ${baseClass}<${this.attrsName},${this.name}> {}\n`)
 
         return lines.join("\n")
     }
@@ -142,7 +139,7 @@ export class Element {
         const lines = Array<string>()
         const methodName = tag == 'data' ? 'dataTag' : tag // I'd rather use data() for assigning data attributes
         lines.push(`\n    ${methodName}(...args: TagArgs<${this.className},${this.attrsName}>[]) : ${this.className} {`)
-        lines.push(`        return this.child(${this.className}, ...args)`)
+        lines.push(`        return this.child(${this.className}, '${tag}', ...args)`)
         lines.push("    }\n")
         return lines.join("\n")
     }
