@@ -115,7 +115,7 @@ export abstract class Part<StateType> {
     constructor(
         private readonly parent: PartParent,
         public readonly id: string,
-        public readonly state: StateType
+        public state: StateType
     ) {
         this._renderState = "dirty"
         if (parent) {
