@@ -22,7 +22,7 @@ export type HtmlParentTag = HtmlTagBase<HtmlBaseAttrs,any>
 /**
  * Base class for all HTML tags, parameterized on their attribute types.
  */
-export abstract class HtmlTagBase<AttrsType extends Attrs,ElementType> extends Tag<AttrsType,ElementType> {
+export abstract class HtmlTagBase<AttrsType extends Attrs,ElementType extends HTMLElement> extends Tag<AttrsType,ElementType> {
     
     serializeAttribute(name: string, value: any): string {
         if (typeof value == 'object') {
@@ -30,6 +30,21 @@ export abstract class HtmlTagBase<AttrsType extends Attrs,ElementType> extends T
         }
         return `${strings.ropeCase(name)}="${value.toString()}"`
     }
+
+
+    /// Elements
+
+    /**
+     * @returns an actual `ElementType` generated for this tag, in the current document.
+     */
+    createElement(): ElementType {
+        const output = Array<string>()
+        this.build(output)
+        const elem = document.createElement(this.tag) as ElementType
+        elem.innerHTML = output.join('')
+        return elem
+    }
+
 
     /// Parts
 
@@ -676,7 +691,7 @@ export type ImageTagAttrs = DefaultTagAttrs & {
     decoding?: "async" | "sync" | "auto"
     height?: number
     isMap?: boolean
-    loading?: "eager" | "lazy"
+    loading?: string
     referrerPolicy?: string
     sizes?: string
     src?: string
@@ -800,7 +815,6 @@ export class MenuTag extends HtmlTagBase<MenuTagAttrs,HTMLMenuElement> {}
 export type MetaTagAttrs = DefaultTagAttrs & {
     content?: string
     httpEquiv?: string
-    media?: string
     name?: string
 }
 
@@ -939,13 +953,11 @@ export type SlotTagAttrs = DefaultTagAttrs & {
 export class SlotTag extends HtmlTagBase<SlotTagAttrs,HTMLSlotElement> {}
 
 export type SourceTagAttrs = DefaultTagAttrs & {
-    height?: number
     media?: string
     sizes?: string
     src?: string
     srcset?: string
     type?: string
-    width?: number
 }
 
 export class SourceTag extends HtmlTagBase<SourceTagAttrs,HTMLSourceElement> {}

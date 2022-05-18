@@ -7,6 +7,7 @@ import * as shapes from './shapes'
 import * as nav from './nav'
 import * as demo from './demo'
 import * as messages from '../messages'
+import { DivTag } from '../html'
 
 const log = new Logger("Demo")
 Logger.level = 'debug'
@@ -48,6 +49,12 @@ class App extends Part<{}> {
         this.onKeyPress(messages.keyPress("z", "control/command"), m => {
             log.debug("Key press message", m)
         })
+
+        // test creating an arbitrary element
+        const divTag = new DivTag('div')
+        divTag.class('global').text("Hello Global Element")
+        const divElem = divTag.createElement()
+        document.body.appendChild(divElem)
     }
 
     load() {

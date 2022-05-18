@@ -82,7 +82,7 @@ const _attrsBlacklist = ['id', 'class', 'classes', 'sel', 'text', 'data', 'css']
 export type TagArgs<TagType extends Tag<AttrsType,any>, AttrsType extends Attrs> =
     ((n: TagType) => any) | AttrsType | string | undefined
 
-export abstract class Tag<AttrsType extends Attrs, ElementType> {
+export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> {
 
     private children: Tag<Attrs,any>[] = []
     private _text?: string
@@ -269,6 +269,10 @@ export abstract class Tag<AttrsType extends Attrs, ElementType> {
         output.push(`</${this.tag}>`)
     }
 
+    /**
+     * Appends the children
+     * @param output a string array on which to append the output
+     */
     buildInner(output: string[]) {
         for (let child of this.children) {
             child.build(output)
@@ -1271,18 +1275,6 @@ export abstract class Tag<AttrsType extends Attrs, ElementType> {
         }
         else {
             this.emit('selectstart', key as messages.UntypedKey)
-        }
-        return this
-    }
-    
-    emitSlotChange<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
-    emitSlotChange<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
-    emitSlotChange<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
-        if (data) {
-            this.emit('slotchange', key, data)
-        }
-        else {
-            this.emit('slotchange', key as messages.UntypedKey)
         }
         return this
     }

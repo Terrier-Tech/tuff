@@ -1114,12 +1114,6 @@ export abstract class Part<StateType> {
         this.listen<"selectstart",DataType>("selectstart", key, listener, options)
     }
     
-    onSlotChange<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"slotchange",DataType>) => void, options?: messages.ListenOptions): void
-    onSlotChange<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"slotchange",DataType>) => void, options?: messages.ListenOptions): void
-    onSlotChange<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"slotchange",DataType>) => void, options?: messages.ListenOptions): void {
-        this.listen<"slotchange",DataType>("slotchange", key, listener, options)
-    }
-    
     onStalled<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"stalled",DataType>) => void, options?: messages.ListenOptions): void
     onStalled<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"stalled",DataType>) => void, options?: messages.ListenOptions): void
     onStalled<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"stalled",DataType>) => void, options?: messages.ListenOptions): void {
