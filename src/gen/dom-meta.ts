@@ -5,7 +5,7 @@ import { info } from 'console'
 
 const capitalize = (s: string) => s = s.charAt(0).toUpperCase() + s.slice(1)
 
-// represents an HTML element type
+// represents an HTML or SVG element type
 export class Element {
 
     attrTypes: {[name: string]: string} = {}

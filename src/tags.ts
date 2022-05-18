@@ -1279,6 +1279,18 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
         return this
     }
     
+    emitSlotChange<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitSlotChange<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitSlotChange<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
+        if (data) {
+            this.emit('slotchange', key, data)
+        }
+        else {
+            this.emit('slotchange', key as messages.UntypedKey)
+        }
+        return this
+    }
+    
     emitStalled<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
     emitStalled<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
     emitStalled<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {

@@ -105,7 +105,7 @@ export type SvgParentTag = SvgTagBase<SvgBaseAttrs,any>
 /**
  * Base class for all SVG tags, parameterized on their attribute types.
  */
-export abstract class SvgTagBase<AttrsType extends Attrs,ElementType> extends Tag<AttrsType,ElementType> {
+export abstract class SvgTagBase<AttrsType extends Attrs,ElementType extends Element> extends Tag<AttrsType,ElementType> {
 
     serializeAttribute(name: string, value: any): string {
         if (typeof value == 'object') {
@@ -656,13 +656,6 @@ export type FilterTagAttrs = DefaultTagAttrs & {
 }
 
 export class FilterTag extends SvgTagBase<FilterTagAttrs,SVGFilterElement> {}
-
-export type FitToViewBoxTagAttrs = SvgBaseAttrs & {
-    preserveAspectRatio?: string
-    viewBox?: IRect
-}
-
-export class FitToViewBoxTag extends SvgTagBase<FitToViewBoxTagAttrs,SVGFitToViewBox> {}
 
 export type ForeignObjectTagAttrs = GraphicsTagAttrs & {
     height?: number

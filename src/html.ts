@@ -691,7 +691,7 @@ export type ImageTagAttrs = DefaultTagAttrs & {
     decoding?: "async" | "sync" | "auto"
     height?: number
     isMap?: boolean
-    loading?: string
+    loading?: "eager" | "lazy"
     referrerPolicy?: string
     sizes?: string
     src?: string
@@ -815,6 +815,7 @@ export class MenuTag extends HtmlTagBase<MenuTagAttrs,HTMLMenuElement> {}
 export type MetaTagAttrs = DefaultTagAttrs & {
     content?: string
     httpEquiv?: string
+    media?: string
     name?: string
 }
 
@@ -953,11 +954,13 @@ export type SlotTagAttrs = DefaultTagAttrs & {
 export class SlotTag extends HtmlTagBase<SlotTagAttrs,HTMLSlotElement> {}
 
 export type SourceTagAttrs = DefaultTagAttrs & {
+    height?: number
     media?: string
     sizes?: string
     src?: string
     srcset?: string
     type?: string
+    width?: number
 }
 
 export class SourceTag extends HtmlTagBase<SourceTagAttrs,HTMLSourceElement> {}

@@ -23,6 +23,7 @@ for (let t of eventTypeBlacklist) {
 interface ConfigType {
     elementBaseInterfaces: ReadonlyArray<string>
     tagBaseClass: string
+    elementBlacklist: ReadonlyArray<string>
 }
 
 
@@ -31,11 +32,13 @@ type ElementMap = {[name: string]: meta.Element}
 const configs: {[type: string]: ConfigType} = {
     "html": {
         elementBaseInterfaces: ["HTMLElement"],
-        tagBaseClass: "HtmlTagBase"
+        tagBaseClass: "HtmlTagBase",
+        elementBlacklist: []
     },
     "svg": {
         elementBaseInterfaces: ["SVGElement", "SVGGraphicsElement", "SVGGeometryElement", "SVGGradientElement", "SVGFitToViewBox"],
-        tagBaseClass: "SvgTagBase"
+        tagBaseClass: "SvgTagBase",
+        elementBlacklist: ['SVGFitToViewBox'] // don't write this element since it's not an SVGElement
     }
 } as const
 type TagType = keyof typeof configs
@@ -107,6 +110,10 @@ for (let t of tagTypes) {
 
     // tag class declarations
     const classDeclarations = Object.values(elementTypes[t]).map(elem => {
+        if (configs[t].elementBlacklist.includes(elem.name)) {
+            info(`Skipping blacklisted element ${elem.name}`)
+            return ''
+        }
         return elem.classDeclaration(elem.baseNames.map(n => {return elementTypes[t][n]}), configs[t].tagBaseClass)
     }).join("")
     file.replaceRegion("Tag Classes", classDeclarations)
