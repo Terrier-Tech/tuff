@@ -353,10 +353,14 @@ export abstract class Part<StateType> {
 
     /**
      * Tells the children that they need to attach event listeners.
+     * @param includeMe only set _needsEventListeners on this if it's true
      */
-    private _childrenNeedEventListeners() {
+    private _setNeedsEventListeners(includeMe: boolean) {
+        if (includeMe) {
+            this._needsEventListeners = true
+        }
         this.eachChild(child => {
-            child._childrenNeedEventListeners()
+            child._setNeedsEventListeners(true)
         })
     }
 
@@ -597,7 +601,8 @@ export abstract class Part<StateType> {
                 else {
                     throw(`Trying to render a part with no element!`)
                 }
-                this._childrenNeedEventListeners()
+                // this element doesn't need new event listeners since only the innerHTML was replaced
+                this._setNeedsEventListeners(false)
                 this._update()
             })
         }
