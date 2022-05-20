@@ -11,3 +11,12 @@ test("query param parsing", () => {
     expect(params.isPresent('baz')).eq(true)
     expect(params.isPresent('unknown')).eq(false)
 })
+
+test("query param serializing", () => {
+
+    const queryIn = "foo=hello%20world&bar=123&baz="
+    const params = urls.parseQueryParams(queryIn)
+    const queryOut = params.serialize()
+    expect(queryOut).eq(queryIn)
+
+})

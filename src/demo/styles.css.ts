@@ -11,7 +11,7 @@ const colors = {
     border: '#ccc',
     preview: '#aaa',
     contact: '#f8f8f8',
-    selected: '#ffa500'
+    selected: '#6dc639'
 }
 
 const sizes = {
@@ -119,6 +119,10 @@ export const button = style({
 
 export const warnBg = style({
     backgroundColor: colors.warn
+})
+
+export const selectedBg = style({
+    backgroundColor: colors.selected
 })
 
 export const buttonTitle = style({

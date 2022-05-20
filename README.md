@@ -128,9 +128,10 @@ render(parent: PartTag) {
 }
 ```
 
-### Initialization
+### Init and Load
 
-Parts can define an `init()` method that will get called once before the first `render()` call:
+Parts can define an `init()` method that will get called once before the first `render()` call.
+You can also define a `load()` method that will get called after `init()` but before `render()`.
 
 ```typescript
 class Counter extends Part<CounterState> {
@@ -138,6 +139,11 @@ class Counter extends Part<CounterState> {
     // this is guaranteed to be called only once,
     // before the render() method is called for the first time
     init() {
+    }
+
+    // this will get called after init() and before the first render()
+    // it may be called more than once if the root part is reloaded
+    load() {
     }
     
     // this will get called at least once, but possibly many
@@ -148,8 +154,10 @@ class Counter extends Part<CounterState> {
 }
 ```
 
+The difference between `init()` and `load()` is that `load()` may be called multiple times (when the user navigates, see [Routing and Navigation](#routing-and-navigation)), whereas `init()` is guaranteed to only ever be called once.
 
-## Update
+
+### Update
 
 Each time a Part is actually rendered to the DOM, the `update()` method will get called and passed the corresponding DOM element.
 The `update()` method may also get called when a part is marked as `stale`. 
@@ -193,6 +201,18 @@ Part.mount(Counter, 'container', {count: 0})
 // which is the same as:
 Part.mount(Counter, document.getElementById('container')!, {count: 0})
 ```
+
+Optionally, you can choose to _capture_ a base path when mounting a part. 
+This means Tuff will prevent any navigation to a part starting with that base path by the browser and instead 
+push the path to the browser history and reload the mounted Part.
+
+```typescript
+// mounts the part and captures any navigation to /path or any of its subpaths
+Part.mount(RootPart, 'container', {}, {capturePath: '/path'})
+```
+
+Path capture is useful for client-side routing. 
+See the [Routing and Navigation](#routing-and-navigation) section.
 
 
 ### Child Parts
@@ -244,6 +264,83 @@ Instead, an update is scheduled for the next animation frame and only dirty part
 1. Multiple `dirty()` calls at the same time will only result in a single render
 2. Rendering happens only during the browser-specified animation frames, so even rapid calls to `dirty()` will result in smooth UI updates
 3. As longs as the UI is composed of relatively fine-grained parts, updating small parts of the interface will result in only small re-renders, not a global virtual DOM diff
+
+
+### Routing and Navigation
+
+Tuff supports typesafe client client-side using the [Typesafe Routes](https://github.com/kruschid/typesafe-routes) library.
+
+Routes are declared as a constant composed of calls to `partRoute()` and `redirectRoute()`:
+
+```typescript
+const routes = {
+    root: partRoute(RootPart, '/', {}),
+    fooList: partRoute(FooListPart, '/foos', {}).
+    fooShow: partRoute(FooShowPart, '/foos/:id', {
+        id: stringParser
+    }),
+    bar: redirectRoute('/bar', '/foos')
+}
+```
+
+`partRoute` routes a particular path to the given part.
+If the part's state type is non-empty, the route must match each property with a parser (i.e. `stringParser`).
+These properties are strongl-typed and matched to the part's state type at compile time.
+See the [Typesafe Routes documentation](https://github.com/kruschid/typesafe-routes) for more details about parsers.
+
+`redirectRoute` simply redirects one path to another. 
+
+
+#### Routers
+
+To actually _use_ a set of routes, you must create a subclass of `RouterPart`:
+
+```typescript
+export MyRouter extends RouterPart {
+    get routes() {
+        return routes
+    }
+
+    get defaultPart() {
+        return UnknownPathPart
+    }
+
+    render(parent: PartTag) {
+        parent.div('.child', child => {
+            super.render(child)
+        })
+    }
+}
+```
+
+A router needs to implement `routes` and `defaultPart` to specify the routes structure and default `Part` class if the current route is not found, respecitely. 
+In the `render()` method, it must call `super.render()` and pass the tag in which the matched part will be rendered.
+
+Tuff routers have some special properties that aren't present many other frameworks:
+1. Routers do *not* need to be the root (mounted) part
+2. You can have *more than one router* as children (or grandchildren, etc.) of the root part
+3. The router's `render()` method can call `super.render()` at an arbitrary point in its render tree, acting like a layout
+
+Combined, these properties allow the Tuff routing system to break free from the traditional one-router/one-layout paradigm and enable composable, dynamic UIs that still leverage traditional URL-based routing.
+
+
+### Navigation
+
+When a part is mounted with path capture (see [Mounting](#mounting)), all anchor tag clicks are intercepted and the mounted part is reloaded instead of the native browser navigation occurring.
+
+You can also programmatically navigate to a different URL using `Nav.visit()`:
+
+```typescript
+Part.mount(RootPart, 'container', {}, {capturePath: '/root'})
+
+// will update the URL bar to /root/foos/123 and reload the mounted part without actually reloading the page
+Nav.visit("/root/foos/123")
+
+// will perform the native navigation to /other since that's outside of the mounted path
+Nav.visit("/other")
+```
+
+
 
 
 ### Messages

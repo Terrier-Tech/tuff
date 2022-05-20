@@ -1,5 +1,7 @@
 import { stringParser } from 'typesafe-routes'
+import { messages } from '..'
 import { Logger } from '../logging'
+import Nav from '../nav'
 import {Part, PartTag} from '../parts'
 import { partRoute, RouterPart, redirectRoute } from '../routing'
 import * as styles from './styles.css'
@@ -48,6 +50,8 @@ const routes = {
     hola: redirectRoute('/hola', '/hello')
 }
 
+const navKey = messages.typedKey<{path: string}>()
+
 export class NavApp extends RouterPart {
     
     get routes() {
@@ -56,6 +60,13 @@ export class NavApp extends RouterPart {
 
     get defaultPart() {
         return UnknownPathPart
+    }
+
+    init() {
+        this.onClick(navKey, m => {
+            log.info(`Clicked on nav link`, m.data)
+            Nav.visit(m.data.path)
+        })
     }
     
     render(parent: PartTag) {
@@ -72,6 +83,8 @@ export class NavApp extends RouterPart {
                 col.a(styles.button, {href: text}).div(styles.buttonTitle).text(text)
             }
             col.a(styles.button, styles.warnBg, {href: '/unknown'}).text("/unknown")
+            const navPath = '/foo/bar'
+            col.a(styles.button, styles.selectedBg).text(navPath).emitClick(navKey, {path: navPath})
         })
         parent.div(styles.flexStretch, styles.padded, col => {
             super.render(col)

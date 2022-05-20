@@ -3,6 +3,7 @@ import { Logger } from './logging'
 import * as keyboard from './keyboard'
 import * as urls from './urls'
 import { DivTag, HtmlParentTag } from './html'
+import Nav from './nav'
 
 const log = new Logger('Part')
 
@@ -218,6 +219,15 @@ export abstract class Part<StateType> {
 
     }
 
+    /**
+     * Computes a new context and loads this and all child parts.
+     * Meant to be used by Nav.
+     */
+    loadAll() {
+        this._computeContext()
+        this._load()
+    }
+
     private _load() {
         this.load()
         this.eachChild(child => {
@@ -231,10 +241,16 @@ export abstract class Part<StateType> {
 
     protected _context!: PartContext
 
+    /**
+     * Returns the current context.
+     */
     get context(): PartContext {
         return this._context
     }
 
+    /**
+     * Returns the query params from the current context.
+     */
     get params(): urls.QueryParams {
         return this._context.queryParams
     }
@@ -518,7 +534,7 @@ export abstract class Part<StateType> {
         }
 
         if (mountOptions?.capturePath?.length) {
-            this._capturePath(mountOptions)
+            Nav.initCapture(this, mountOptions.capturePath)
         }
 
         this._computeContext()
@@ -537,35 +553,6 @@ export abstract class Part<StateType> {
         const part = new partType(null, id, state)
         part.mount(mountPoint, mountOptions)
         return part
-    }
-
-
-    /// Path Capture
-
-    private _capturePath(mountOptions: MountOptions) {
-        const pathStart = mountOptions.capturePath || '/'
-        document.addEventListener("click", (evt) => {
-            // find the href of the anchor tag in the event path
-            let href: string | null = null
-            for (let e of evt.composedPath()) {
-                const elem = e as HTMLElement
-                if (elem.tagName == 'A') {
-                    href = elem.getAttribute('href')
-                    log.debug("Clicked on anchor", elem)
-                    break
-                }
-            }
-
-            // if there's an href, see if it's captured
-            if (href && href.startsWith(pathStart)) {
-                evt.stopPropagation()
-                evt.preventDefault()
-                log.debug(`Captured navigation to ${href}`)
-                history.pushState(null, '', href)
-                this._computeContext()
-                this._load()
-            }
-        })
     }
 
     

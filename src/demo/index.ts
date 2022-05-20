@@ -52,7 +52,7 @@ class App extends Part<{}> {
 
         // test creating an arbitrary element
         const divTag = createHtmlElement("div", div => {
-            div.class('global').text("Hello Global Element")
+            div.class('global').css({padding: '1em'}).text("Hello Global Element")
         })
         document.body.appendChild(divTag)
         divTag.classList.add('extra')

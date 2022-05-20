@@ -38,6 +38,26 @@ export class QueryParams {
         return this.raw[key] != undefined
     }
 
+    /**
+     * Serializes the params to a query string.
+     * @param path the (optional) root path to prepend to the query string
+     */
+    serialize(path?: string): string {
+        const vals = Object.entries(this.raw).map(kv => {
+            return `${kv[0]}=${encodeURIComponent(kv[1])}`
+        })
+        const query = vals.join('&')
+        if (path) {
+            if (path.endsWith('/')) {
+                path = path.substring(0, path.length-1)
+            }
+            return `${path}/${query}`
+        }
+        else {
+            return query
+        }
+    }
+
 }
 
 /**
