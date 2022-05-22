@@ -178,6 +178,7 @@ export abstract class Part<StateType> {
 
     /// Initialization
 
+    private _initializing = false
     private _initialized = false
 
     get isInitialized(): boolean {
@@ -187,14 +188,16 @@ export abstract class Part<StateType> {
     private _init() {
         const root = this.root
         this._context = root._context
-        if (!this._initialized) {
-            this._initialized = true
+        if (!this._initializing) {
+            this._initializing = true
             log.debug('Initializing', this)
-            this.init()
-            if (this._context.frame) {
-                log.debug("Loading", this)
-                this.load()
-            }
+            this.init().then(_ => {
+                this._initialized = true
+                if (this._context.frame) {
+                    log.debug("Loading", this)
+                    this.load()
+                }
+            })
         }
         this.eachChild(child => {
             child._init()
@@ -205,7 +208,7 @@ export abstract class Part<StateType> {
      * Parts can override this to provide custom behavior that is run
      * exactly once before the part is rendered for the first time.
      */
-    init() {
+    async init() {
     }
 
 
@@ -515,7 +518,7 @@ export abstract class Part<StateType> {
      * @returns Whether or not the part is currently in the DOM tree with either a parent or a valid DOM element mount point.
     */
     get isAttached(): boolean {
-        return !!this.element
+        return !!this.element && !!this.element.isConnected
     }
 
     /**
@@ -625,7 +628,9 @@ export abstract class Part<StateType> {
             this._attachedElement = elem!
         }
         if (!elem) {
-            throw(`Trying to update a part with no element!`)
+            // if the part has no element, it likely hasn't been rendered yet
+            // it's fine to silently skip it for now
+            return
         }
         this.update(elem)
         this._renderState = "clean"

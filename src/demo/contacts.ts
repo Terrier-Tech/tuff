@@ -77,7 +77,7 @@ class ContactFormPart extends forms.FormPart<ContactState> {
 
     phoneForms: {[id: string]: PhoneFormPart} = {}
 
-    init() {
+    async init() {
         this.onClick(newPhoneKey, _ => {
             this.addPhone()
         })
@@ -151,7 +151,7 @@ export class ContactsApp extends Part<{}> {
 
     forms = new Array<ContactFormPart>()
 
-    init() {
+    async init() {
         this.forms.push(this.makePart(ContactFormPart, {
             id: demo.newId(),
             name: "Bobby Tables", 

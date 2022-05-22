@@ -14,7 +14,7 @@ Logger.level = 'debug'
 
 class OutputPart extends Part<demo.OutputData> {
 
-    init() {
+    async init() {
         this.onClick(demo.OutputKey, m => {
             this.write(m.data.output)
         }, {attach: "passive"})
@@ -37,7 +37,7 @@ class App extends Part<{}> {
     output!: OutputPart
     parts: {[name: string]: StatelessPart} = {}
 
-    init() {
+    async init() {
         this.output = this.makePart(OutputPart, {output: ""})
         this.parts['Counter'] = this.makeStatelessPart(counter.CounterApp)
         this.parts['Contacts'] = this.makeStatelessPart(contacts.ContactsApp)

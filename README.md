@@ -138,7 +138,7 @@ class Counter extends Part<CounterState> {
 
     // this is guaranteed to be called only once,
     // before the render() method is called for the first time
-    init() {
+    async init() {
     }
 
     // this will get called after init() and before the first render()
@@ -156,6 +156,8 @@ class Counter extends Part<CounterState> {
 
 The difference between `init()` and `load()` is that `load()` may be called multiple times (when the user navigates, see [Routing and Navigation](#routing-and-navigation)), whereas `init()` is guaranteed to only ever be called once.
 
+`init()` is also `async` since it may need to perform some IO while initializing and the part's `isInitialized` will not get set until after it's complete.
+
 
 ### Update
 
@@ -169,7 +171,7 @@ class Counter extends Part<CounterState> {
 
     fooKey = messages.untypedKey()
 
-    init() {
+    async init() {
         this.onClick(m => {
             this.stale() // don't force a re-render, only update
         })
@@ -233,7 +235,7 @@ type ToolbarState = {count: number}
 class Toolbar extends Part<ToolbarState> {
     buttons = Array<Button>()
 
-    init() {
+    async init() {
         // populate the this.buttons array of child parts
         for (let i=0; i<this.state.count; i++) {
             this.buttons.push(
@@ -379,7 +381,7 @@ Then, either the same part or another part in the tree can declare that it will 
 
 ```typescript
 class Toolbar extends Part<ToolbarState> {
-    init() {
+    async init() {
         // .onClick(key, ...) is a shortcut for .handle("click", key, ...)
         // the message argument contains:
         //  type: the string event type ("click")
@@ -400,7 +402,7 @@ Parts that are not in the same branch of the DOM/Part tree can listen for messag
 
 ```typescript
 class OtherPart extends Part<OtherState> {
-    init() {
+    async init() {
         // this part will handle the FooKey message even though
         // it's not a parent of the emitting Button parts
         this.onClick(FooKey, m => {
@@ -425,7 +427,7 @@ Each *KeyPress* takes the key being pressed as well as zero or more *KeyModifier
 For example, the "control/command" modifier maps to the Command key on macOS and the Control key on other platforms:
 
 ```typescript
-init() {
+async init() {
     this.onKeyPress(messages.keyPress("z", "control/command"), m => {
         // this gets called when command+z is pressed on macOS 
         // and control+z if called on Windows and Linux
@@ -532,7 +534,7 @@ class ParentPart extends Part<{}> {
 
     myForm!: MyFormPart
 
-    init() {
+    async init() {
         this.myForm = this.makePart(MyFormPart, {
             text: "New Form",
             date: "2022-01-01",

@@ -62,7 +62,7 @@ export class NavApp extends RouterPart {
         return UnknownPathPart
     }
 
-    init() {
+    async init() {
         this.onClick(navKey, m => {
             log.info(`Clicked on nav link`, m.data)
             Nav.visit(m.data.path)

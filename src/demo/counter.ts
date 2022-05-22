@@ -44,7 +44,7 @@ class Counter extends Part<CounterState> {
 
 export class CounterApp extends Part<{}> {
 
-    init() {
+    async init() {
         const counter = this.makePart(Counter, {count: 0}, 'counter')
 
         this.onClick(ChangeKey, (m) => {

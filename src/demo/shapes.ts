@@ -63,7 +63,7 @@ export class ShapesApp extends Part<{}> {
     dragOffset = {x: 0, y: 0}
     scrollKey = messages.untypedKey()
 
-    init() {
+    async init() {
         this.onMouseDown(shapeKey, m => {
             log.info(`Mouse Down ${m.data}`)
             if (this.selected) {
