@@ -18,5 +18,6 @@ test("query param serializing", () => {
     const params = urls.parseQueryParams(queryIn)
     const queryOut = params.serialize()
     expect(queryOut).eq(queryIn)
-
+    expect(params.serialize('/path')).eq(`/path?${queryIn}`)
+    expect(params.serialize('/path?baz=true')).eq(`/path?baz=true&${queryIn}`)
 })

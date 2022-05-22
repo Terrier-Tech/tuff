@@ -51,7 +51,12 @@ export class QueryParams {
             if (path.endsWith('/')) {
                 path = path.substring(0, path.length-1)
             }
-            return `${path}/${query}`
+            if (path.includes('?')) {
+                return `${path}&${query}`
+            }
+            else {
+                return `${path}?${query}`
+            }
         }
         else {
             return query
