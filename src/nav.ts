@@ -52,7 +52,7 @@ function initCapture(part: StatelessPart, path: string = '/') {
  * @param path the destination path
  * @param params the (optional) query parameters to append to the path
  */
-function visit(path: string, params?: QueryParams) {
+export function visit(path: string, params?: QueryParams) {
     if (!capturePart) {
         throw "Trying to navigate with no captured part, call `Nav.initCapture` first!"
     }
