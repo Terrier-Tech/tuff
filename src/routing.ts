@@ -38,7 +38,6 @@ export class Route<PartType extends Part<StateType>,
         if (!namesMatch) {
             throw `No parameters found in "${template}"`
         }
-        log.info(`Matches: `, namesMatch)
         this.paramNames = Array.from(namesMatch, m => m[1])
     }
 

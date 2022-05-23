@@ -106,8 +106,9 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
 
     /**
      * Serializes the form into a new copy of `this.state`.
+     * This is async so that subclasses can override it and do async things.
      */
-    serialize(): DataType {
+    async serialize(): Promise<DataType> {
         const root = this.element
         if (!root) {
             return {} as DataType
@@ -131,7 +132,7 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
     _attachEventListeners() {
         const needsEventListeners = this._needsEventListeners
         super._attachEventListeners()
-        if (!needsEventListeners) {
+        if (!this.isInitialized || !needsEventListeners) {
             return
         }
         const elem = this.element
@@ -139,9 +140,9 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
             return
         }
         const part = this
-        elem.addEventListener("input", function(this: HTMLElement, evt: Event) {
+        elem.addEventListener("change", async function(this: HTMLElement, evt: Event) {
             if ((evt.target as HTMLElement).classList.contains(part.className)) {
-                const data = part.serialize()
+                const data = await part.serialize()
                 log.debug("Data Changed", part, evt, data)
                 if (part.shouldUpdateState(data)) {
                     Object.assign(part.state, data)
