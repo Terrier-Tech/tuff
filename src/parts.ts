@@ -388,7 +388,7 @@ export abstract class Part<StateType> {
      * Needs to be protected for FormPart.
      */
     protected _attachEventListeners() {
-        if (this._needsEventListeners) {
+        if (this._initialized && this._needsEventListeners) {
             this._needsEventListeners = false
             let elem = this.element
             if (elem) {
