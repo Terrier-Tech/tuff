@@ -19,7 +19,7 @@ function initCapture(part: StatelessPart, path: string = '/') {
         throw `Already capturing navigation with a part (${capturePart}), it was probably a mistake to try to initialize another capture!`
     }
     capturePart = part
-    capturePath = path
+    capturePath = path.toLowerCase()
 
     // handle all click events and listen to those starting with `path`
     document.addEventListener("click", (evt) => {
@@ -35,12 +35,24 @@ function initCapture(part: StatelessPart, path: string = '/') {
         }
 
         // if there's an href, see if it's captured
-        if (href && href.startsWith(path)) {
+        if (href && href.toLowerCase().startsWith(capturePath)) {
             evt.stopPropagation()
             evt.preventDefault()
             log.debug(`Captured navigation to ${href}`)
             history.pushState(null, '', href)
             part.loadAll()
+        }
+    })
+
+    // handle popstate events so that the back button works
+    window.addEventListener("popstate", _ => {
+        const href = location.pathname
+        if (href.toLowerCase().startsWith(capturePath)) {
+            log.debug(`Popped to captured path ${href}, reloading captured part`)
+            part.loadAll()
+        }
+        else {
+            log.debug(`Popped to non-captured path ${href}, doing nothing`)
         }
     })
 }
