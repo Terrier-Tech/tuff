@@ -116,7 +116,7 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
         const data: DataType = {...this.state}
         const allElems = Array.from(root.getElementsByClassName(this.className))
         // there may be more than one actual element for any given key, so group them together and let the Field determine the value
-        arrays.eachGroupBy(allElems, e => e.getAttribute('name')||'', (name, elems) => {
+        arrays.eachGroupByFunction(allElems, e => (e.getAttribute('name')||undefined), (name, elems) => {
             const field = this.fields[name]
             if (field) {
                 const value = field.getValue(elems)

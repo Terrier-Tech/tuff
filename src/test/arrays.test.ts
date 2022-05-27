@@ -29,3 +29,44 @@ test("unique", () => {
         }
     ])
 })
+
+
+test("groupBy and groupByFunction", () => {
+    const array = [
+        {id: "one", foo: "bar"},
+        {id: "one", foo: "hello"},
+        {id: "two", foo: "baz"},
+        {id: "two", foo: "world"},
+    ]
+    const grouped = arrays.groupBy(array, "id")
+    expect(Object.keys(grouped).length).eq(2)
+    expect(grouped["one"]).toMatchObject([{id: "one", foo: "bar"}, {id: "one", foo: "hello"}])
+    expect(grouped["two"]).toMatchObject([{id: "two", foo: "baz"}, {id: "two", foo: "world"}])
+
+    const funGrouped = arrays.groupByFunction(array, a => a['id'])
+    expect(Object.keys(funGrouped).length).eq(2)
+    expect(funGrouped["one"]).toMatchObject([{id: "one", foo: "bar"}, {id: "one", foo: "hello"}])
+    expect(funGrouped["two"]).toMatchObject([{id: "two", foo: "baz"}, {id: "two", foo: "world"}])
+})
+
+test("indexBy", () => {
+    const array = [
+        {id: "one", foo: "bar"},
+        {id: "two", foo: "baz"},
+        {id: "two", foo: "bat"} // test duplicate entries
+    ]
+    const indexed = arrays.indexBy(array, "id")
+    expect(Object.keys(indexed).length).eq(2)
+    expect(indexed["one"].foo).eq("bar")
+    expect(indexed["two"].foo).eq("bat") // it will take the last duplicate
+})
+
+test("sample", () => {
+    const array = ['one', 'two', 'three']
+    for (const _ in arrays.range(0, 100)) {
+        const sample = arrays.sample(array)
+        const index = array.indexOf(sample)
+        expect(index).toBeGreaterThan(-1)
+        expect(index).toBeLessThan(array.length)
+    }
+})
