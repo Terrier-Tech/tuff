@@ -69,6 +69,22 @@ export function indexBy<T extends object, K extends KeyOfType<T,string> & string
     return obj
 }
 
+export type SortDir = "asc" | "desc"
+
+/**
+ * Sorts an array of objects by a key.
+ * @param array an array to sort
+ * @param key the field key by which to sort
+ * @param dir the sort direction (default ascending)
+ * @returns (a new) sorted array
+ */
+export function sortBy<T extends object, K extends KeyOfType<T,string> & string>(array: T[], key: K, dir: SortDir = "asc"): T[] {
+    const dirMult = dir == "asc" ? 1 : -1
+    return Array(...array).sort((a, b) => {
+        return dirMult * (a[key] > b[key] ? 1 : -1)
+    })
+}
+
 /**
  * Generates an array ranging between two numbers
  * @param start The starting number

@@ -61,6 +61,31 @@ test("indexBy", () => {
     expect(indexed["two"].foo).eq("bat") // it will take the last duplicate
 })
 
+test("sortBy", () => {
+    const array = [
+        {name: "barry"},
+        {name: "aaron"},
+        {name: "larry"}
+    ]
+
+    // ascending
+    const ascending = arrays.sortBy(array, "name")
+    expect(ascending.length).eq(array.length)
+    expect(ascending[0].name).eq("aaron")
+    expect(ascending[1].name).eq("barry")
+    expect(ascending[2].name).eq("larry")
+
+    // descending
+    const descending = arrays.sortBy(array, "name", "desc")
+    expect(descending.length).eq(array.length)
+    expect(descending[0].name).eq("larry")
+    expect(descending[1].name).eq("barry")
+    expect(descending[2].name).eq("aaron")
+
+    // make sure the original array wasn't altered
+    expect(array[0].name).eq("barry")
+})
+
 test("sample", () => {
     const array = ['one', 'two', 'three']
     for (const _ in arrays.range(0, 100)) {
