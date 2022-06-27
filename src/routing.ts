@@ -90,7 +90,12 @@ export function partRoute<PartType extends Part<StateType>,
 
 export class RedirectRoute implements IRoute {
     constructor(readonly template: string, readonly destination: string) {
-
+        if (this.template.endsWith('/')) {
+            this.template = this.template.slice(0, -1)
+        }
+        if (this.destination.endsWith('/')) {
+            this.destination = this.destination.slice(0, -1)
+        }
     }
 
     match(path: string): boolean {
