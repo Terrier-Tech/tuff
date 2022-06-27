@@ -188,7 +188,7 @@ export abstract class Part<StateType> {
     private _init() {
         const root = this.root
         this._context = root._context
-        if (!this._initializing) {
+        if (!this._initializing) { // don't initialize more than once, even if the first time hasn't completed
             this._initializing = true
             log.debug('Initializing', this)
             this.init().then(_ => {
@@ -197,6 +197,8 @@ export abstract class Part<StateType> {
                     log.debug("Loading", this)
                     this.load()
                 }
+                // parts are very likely dirty after an asynchronous init()
+                this.dirty()
             })
         }
         this.eachChild(child => {
@@ -564,7 +566,9 @@ export abstract class Part<StateType> {
     renderInTag(container: HtmlParentTag) {
         this._renderState = "clean"
         container.div({id: this.id}, parent => {
-            this.render(parent)
+            if (this.isInitialized) {
+                this.render(parent)
+            }
         })
     }
 
@@ -576,9 +580,13 @@ export abstract class Part<StateType> {
      */
     private _markClean(frame: number) {
         this._init()
+        // init() is async, so we don't actually know if it finished
+        if (!this.isInitialized) {
+            return
+        }
         if (this._renderState == "dirty") {
             // stop the chain, re-render the whole tree from here on down
-            log.debugTime('Render', () => {
+            log.debugTime(`Render ${this.id}`, () => {
                 let parent = new DivTag('div')
                 this._context.frame = frame
                 this.render(parent)
@@ -589,7 +597,7 @@ export abstract class Part<StateType> {
                     elem.innerHTML = output.join('')
                 }
                 else {
-                    throw(`Trying to render a part with no element!`)
+                    throw(`Trying to render part ${this.id} with no element!`)
                 }
                 // this element doesn't need new event listeners since only the innerHTML was replaced
                 this._setNeedsEventListeners(false)
