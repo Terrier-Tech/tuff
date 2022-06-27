@@ -119,6 +119,13 @@ export function max(array: Array<number>): number {
 }
 
 /**
+ * Returns the last element in an array.
+ */
+export function last<T>(array: Array<T>): T {
+    return array[array.length-1]
+}
+
+/**
  * Returns a new array with the unique values in `array`, 
  * using an optional function to return the key.
  * @param array an array of values
