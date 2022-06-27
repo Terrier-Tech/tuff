@@ -197,8 +197,6 @@ export abstract class Part<StateType> {
                     log.debug("Loading", this)
                     this.load()
                 }
-                // parts are very likely dirty after an asynchronous init()
-                this.dirty()
             })
         }
         this.eachChild(child => {
