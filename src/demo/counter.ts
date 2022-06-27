@@ -31,8 +31,9 @@ class Counter extends Part<CounterState> {
     }
     
     render(parent: PartTag) {
-        parent.class(styles.output)
-        parent.span({text: `Count: ${this.state.count}`})
+        parent.div(styles.output, output => {
+            output.span({text: `Count: ${this.state.count}`})
+        })
     }
 
     update(elem: HTMLElement): void {

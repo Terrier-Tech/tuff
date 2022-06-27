@@ -27,8 +27,7 @@ class OutputPart extends Part<demo.OutputData> {
     }
     
     render(parent: PartTag) {
-        parent.class(styles.output, styles.fixedBottom)
-        parent.div({text: this.state.output})
+        parent.div(styles.output, styles.fixedBottom).text(this.state.output)
     }
 
 }

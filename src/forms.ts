@@ -1,8 +1,8 @@
-import {Part} from './parts'
+import {Part, PartTag} from './parts'
 import {Logger} from './logging'
 import * as arrays from './arrays'
 import * as messages from './messages'
-import { FormTag, HtmlParentTag, InputTag, InputTagAttrs, OptionTagAttrs, SelectTag, SelectTagAttrs, TextAreaTag, TextAreaTagAttrs } from './html'
+import { FormTag, InputTag, InputTagAttrs, OptionTagAttrs, SelectTag, SelectTagAttrs, TextAreaTag, TextAreaTagAttrs } from './html'
 
 const log = new Logger("Forms")
 
@@ -39,7 +39,7 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
         return `form-${this.id}`
     }
 
-    protected input<Key extends KeyOfType<DataType,any> & string>(parent: HtmlParentTag, type: InputType, name: Key, serializerType: (new (name: string)=> Field<any, Element>), attrs: InputTagAttrs={}): InputTag {
+    protected input<Key extends KeyOfType<DataType,any> & string>(parent: PartTag, type: InputType, name: Key, serializerType: (new (name: string)=> Field<any, Element>), attrs: InputTagAttrs={}): InputTag {
         attrs.type = type
         attrs.name = `${this.id}-${name}`
         if (!this.fields[attrs.name]) {
@@ -49,19 +49,19 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
         return parent.input(attrs, this.className)
     }
 
-    textInput<Key extends KeyOfType<DataType,string> & string>(parent: HtmlParentTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+    textInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
         return this.input<Key>(parent, "text", name, TextInputField, attrs)
     }
 
-    emailInput<Key extends KeyOfType<DataType,string> & string>(parent: HtmlParentTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+    emailInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
         return this.input<Key>(parent, "email", name, TextInputField, attrs)
     }
 
-    phoneInput<Key extends KeyOfType<DataType,string> & string>(parent: HtmlParentTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+    phoneInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
         return this.input<Key>(parent, "tel", name, TextInputField, attrs)
     }
 
-    textArea<Key extends KeyOfType<DataType,string> & string>(parent: HtmlParentTag, name: Key, attrs: TextAreaTagAttrs={}): TextAreaTag {
+    textArea<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: TextAreaTagAttrs={}): TextAreaTag {
         attrs.name = `${this.id}-${name}`
         if (!this.fields[attrs.name]) {
             this.fields[attrs.name] = new TextAreaField(name)
@@ -70,20 +70,20 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
         return parent.textarea(attrs, this.className)
     }
 
-    dateInput<Key extends KeyOfType<DataType,string> & string>(parent: HtmlParentTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+    dateInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
         return this.input<Key>(parent, "date", name, TextInputField, attrs)
     }
 
-    checkbox<Key extends KeyOfType<DataType,boolean> & string>(parent: HtmlParentTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+    checkbox<Key extends KeyOfType<DataType,boolean> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
         return this.input<Key>(parent, "checkbox", name, CheckboxField, attrs)
     }
 
-    radio<Key extends KeyOfType<DataType,string> & string>(parent: HtmlParentTag, name: Key, value: string, attrs: InputTagAttrs={}): InputTag {
+    radio<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, value: string, attrs: InputTagAttrs={}): InputTag {
         attrs.value = value
         return this.input<Key>(parent, "radio", name, RadioField, attrs)
     }
 
-    select<Key extends KeyOfType<DataType,string> & string>(parent: HtmlParentTag, name: Key, options?: SelectOptions, attrs: SelectTagAttrs={}): SelectTag {
+    select<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, options?: SelectOptions, attrs: SelectTagAttrs={}): SelectTag {
         attrs.name = `${this.id}-${name}`
         if (!this.fields[attrs.name]) {
             this.fields[attrs.name] = new SelectField(name)
@@ -99,7 +99,7 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
     /**
      *  Create a form tag in the given parent.
      */
-    formTag(parent: HtmlParentTag, fun: ((n: FormTag) => any)) {
+    formTag(parent: PartTag, fun: ((n: FormTag) => any)) {
         const tag = parent.form({id: `${this.id}_tag`}, this.className)
         fun(tag)
     }

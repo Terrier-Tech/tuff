@@ -108,42 +108,43 @@ class ContactFormPart extends forms.FormPart<ContactState> {
     }
 
     render(parent: PartTag) {
-        parent.class(styles.contactForm)
-        this.textInput(parent, "name", {placeholder: 'Name'})
-        this.emailInput(parent, "email", {placeholder: 'E-Mail'})
-        
-        this.select(parent, "role", roleOptions)
-        
-        parent.div(styles.flexRow, row => {
-            row.div(styles.flexStretch, col => {
-                col.label(label => {
-                    this.checkbox(label, "isAdmin")
-                    label.span({text: "Is Admin?"})
+        parent.div(styles.contactForm, form => { 
+            this.textInput(form, "name", {placeholder: 'Name'})
+            this.emailInput(form, "email", {placeholder: 'E-Mail'})
+            
+            this.select(form, "role", roleOptions)
+            
+            form.div(styles.flexRow, row => {
+                row.div(styles.flexStretch, col => {
+                    col.label(label => {
+                        this.checkbox(label, "isAdmin")
+                        label.span({text: "Is Admin?"})
+                    })
                 })
             })
-        })
 
-        parent.div(row => {
-            row.label({text: 'Birthday'})
-            this.dateInput(row, "birthday")
-        })
-        
-        // phones
-        parent.div(styles.flexRow, row => {
-            row.div(styles.flexStretch, col => {
-                col.label({text: "Phones"})
+            form.div(row => {
+                row.label({text: 'Birthday'})
+                this.dateInput(row, "birthday")
             })
-            row.div(styles.flexShrink, col => {
-                col.a(styles.characterLink, {text: "+"})
-                    .emitClick(newPhoneKey)
-                    .emitClick(demo.OutputKey, {output: "New Phone Clicked"})
+            
+            // phones
+            form.div(styles.flexRow, row => {
+                row.div(styles.flexStretch, col => {
+                    col.label({text: "Phones"})
+                })
+                row.div(styles.flexShrink, col => {
+                    col.a(styles.characterLink, {text: "+"})
+                        .emitClick(newPhoneKey)
+                        .emitClick(demo.OutputKey, {output: "New Phone Clicked"})
+                })
             })
+            for (let [_, phoneForm] of Object.entries(this.phoneForms)) {
+                form.part(phoneForm)
+            }
+            
+            this.textArea(form, "notes", {placeholder: 'Notes', rows: 3})
         })
-        for (let [_, phoneForm] of Object.entries(this.phoneForms)) {
-            parent.part(phoneForm)
-        }
-        
-        this.textArea(parent, "notes", {placeholder: 'Notes', rows: 3})
     }
 }
 
@@ -163,10 +164,11 @@ export class ContactsApp extends Part<{}> {
     }
 
     render(parent: PartTag) {
-        parent.class(styles.contactsContainer)
-        for (let form of this.forms) {
-            parent.part(form)
-        }
+        parent.div(styles.contactsContainer, container => {
+            for (let form of this.forms) {
+                container.part(form)
+            }
+        })
     }
 
 

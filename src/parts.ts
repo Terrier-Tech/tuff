@@ -2,7 +2,7 @@ import * as messages from './messages'
 import { Logger } from './logging'
 import * as keyboard from './keyboard'
 import * as urls from './urls'
-import { DivTag, HtmlParentTag } from './html'
+import { DivTag, HtmlBaseAttrs, HtmlParentTag, HtmlTagBase } from './html'
 import Nav from './nav'
 
 const log = new Logger('Part')
@@ -45,9 +45,12 @@ const nonBubblingEvents: EventKey[] = [
 export type MountPoint = HTMLElement | string
 
 /**
- * The type of the object that gets passed to a part's render method
+ * The type of the object that gets passed to a part's render() method.
+ * You're not allowed to alter the parent's attributes from inside a render() method
+ * in order to preserve encapsulation and since the parent may not actually be 
+ * rendered during a particular call.
  */ 
-export interface PartTag extends DivTag {}
+export type PartTag = Omit<HtmlTagBase<HtmlBaseAttrs,any>, 'sel' | 'class' | 'id' | 'data' | 'css'>
 
 /**
  * A context containing information about the current page/frame.
