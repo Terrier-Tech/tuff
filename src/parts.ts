@@ -565,9 +565,9 @@ export abstract class Part<StateType> {
     /// Rendering
 
     renderInTag(container: HtmlParentTag) {
-        this._renderState = "clean"
         container.div({id: this.id}, parent => {
             if (this.isInitialized) {
+                this._renderState = "clean"
                 this.render(parent)
             }
         })
@@ -588,18 +588,21 @@ export abstract class Part<StateType> {
         if (this._renderState == "dirty") {
             // stop the chain, re-render the whole tree from here on down
             log.debugTime(`Render ${this.id}`, () => {
+                // get the exiting container element
+                const elem = this.element
+                if (!elem) {
+                    log.warn(`Trying to render part ${this.id} with no container element, it's parent must not've been rendered yet`)
+                    return
+                }
+
+                // render the part's content to the container
                 let parent = new DivTag('div')
                 this._context.frame = frame
                 this.render(parent)
                 let output = Array<string>()
                 parent.buildInner(output)
-                const elem = this.element
-                if (elem) {
-                    elem.innerHTML = output.join('')
-                }
-                else {
-                    throw(`Trying to render part ${this.id} with no element!`)
-                }
+                elem.innerHTML = output.join('')
+
                 // this element doesn't need new event listeners since only the innerHTML was replaced
                 this._setNeedsEventListeners(false)
                 this._update()
