@@ -62,11 +62,16 @@ const roleOptions = [
     }
 ]
 
+const statuses = ['active', 'inactive'] as const
+
+type Status = typeof statuses[number]
+
 type ContactState = {
     id: string
     name: string
     email?: string
     role: Role
+    status: Status
     isAdmin: boolean
     birthday?: string
     notes?: string,
@@ -122,6 +127,17 @@ class ContactFormPart extends forms.FormPart<ContactState> {
                     })
                 })
             })
+            
+            form.div(styles.flexRow, row => {
+                for (const status of statuses) {
+                    row.div(styles.flexStretch, col => {
+                        col.label(label => {
+                            this.radio(label, "status", status)
+                            label.span({text: status})
+                        })
+                    })
+                }
+            })
 
             form.div(row => {
                 row.label({text: 'Birthday'})
@@ -158,6 +174,7 @@ export class ContactsApp extends Part<{}> {
             name: "Bobby Tables", 
             role: 'vendor',
             isAdmin: true,
+            status: 'active',
             birthday: '2021-12-01',
             phones: []
         }))
