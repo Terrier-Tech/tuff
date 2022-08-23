@@ -8,7 +8,6 @@ import { KeyOfType } from "./forms"
  */
 export function groupBy<T extends object, K extends keyof T, TK extends T[K] & (string | number | symbol)>(array: T[], key: K): Record<TK, T[]> {
     return array.reduce((previous, currentItem) => {
-        // I don't know why typescript can't figure this out
         const group = currentItem[key] as TK
         if (group) {
             if (!previous[group]) previous[group] = []
@@ -31,7 +30,7 @@ type KeyFun<T, K> = (item: T) => K | undefined
  * @param getKey a function returning the key by which to group
  * @returns on objects mapping key to grouped elements
  */ 
-export function groupByFunction<T extends object, K extends string | number | symbol>(list: T[], getKey: KeyFun<T, K>): Record<K, T[]> {
+export function groupByFunction<T extends object, TK extends string | number | symbol>(list: T[], getKey: KeyFun<T, TK>): Record<TK, T[]> {
     return list.reduce((previous, currentItem) => {
         const group = getKey(currentItem)
         if (group) {
@@ -39,15 +38,15 @@ export function groupByFunction<T extends object, K extends string | number | sy
             previous[group].push(currentItem)
         }
         return previous
-    }, {} as Record<K, T[]>)
+    }, {} as Record<TK, T[]>)
 }
 
 /**
  * Iterates over the results of groupByFunction
  */
-export function eachGroupByFunction<T extends object, K extends string | number | symbol>(list: T[], getKey: KeyFun<T, K>, fun: (key: K, values: T[]) => any) {
+export function eachGroupByFunction<T extends object, TK extends string | number | symbol>(list: T[], getKey: KeyFun<T, TK>, fun: (key: TK, values: T[]) => any) {
     for (let [k, v] of Object.entries(groupByFunction(list, getKey))) {
-        fun(k as K, v as T[])
+        fun(k as TK, v as T[])
     }
 }
 
