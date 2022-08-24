@@ -31,22 +31,46 @@ test("unique", () => {
 })
 
 
-test("groupBy and groupByFunction", () => {
+test("groupBy", () => {
+    type ID = "one" | "two"
     const array = [
-        {id: "one", foo: "bar"},
-        {id: "one", foo: "hello"},
-        {id: "two", foo: "baz"},
-        {id: "two", foo: "world"},
+        {id: "one" as ID, foo: "bar"},
+        {id: "one" as ID, foo: "hello"},
+        {id: "two" as ID, foo: "baz"},
+        {id: "two" as ID, foo: "world"},
     ]
     const grouped = arrays.groupBy(array, "id")
     expect(Object.keys(grouped).length).eq(2)
     expect(grouped["one"]).toMatchObject([{id: "one", foo: "bar"}, {id: "one", foo: "hello"}])
     expect(grouped["two"]).toMatchObject([{id: "two", foo: "baz"}, {id: "two", foo: "world"}])
+})
 
-    const funGrouped = arrays.groupByFunction(array, a => a['id'])
-    expect(Object.keys(funGrouped).length).eq(2)
-    expect(funGrouped["one"]).toMatchObject([{id: "one", foo: "bar"}, {id: "one", foo: "hello"}])
-    expect(funGrouped["two"]).toMatchObject([{id: "two", foo: "baz"}, {id: "two", foo: "world"}])
+test("groupByFunction", () => {
+    type ID = "one" | "two"
+    const array = [
+        {id: "one" as ID, foo: "bar"},
+        {id: "one" as ID, foo: "hello"},
+        {id: "two" as ID, foo: "baz"},
+        {id: "two" as ID, foo: "world"},
+    ]
+    const grouped = arrays.groupByFunction(array, a => a['id'])
+    expect(Object.keys(grouped).length).eq(2)
+    expect(grouped["one"]).toMatchObject([{id: "one", foo: "bar"}, {id: "one", foo: "hello"}])
+    expect(grouped["two"]).toMatchObject([{id: "two", foo: "baz"}, {id: "two", foo: "world"}])
+})
+
+test("groupByFunction with non-object-key group key", () => {
+    type ID = "one" | "two"
+    const array = [
+        {id: "one" as ID, foo: "bar"},
+        {id: "one" as ID, foo: "hello"},
+        {id: "two" as ID, foo: "baz"},
+        {id: "two" as ID, foo: "world"},
+    ]
+    const grouped = arrays.groupByFunction(array, a => a['id'] + "_key")
+    expect(Object.keys(grouped).length).eq(2)
+    expect(grouped["one_key"]).toMatchObject([{id: "one", foo: "bar"}, {id: "one", foo: "hello"}])
+    expect(grouped["two_key"]).toMatchObject([{id: "two", foo: "baz"}, {id: "two", foo: "world"}])
 })
 
 test("indexBy", () => {
