@@ -40,7 +40,16 @@ export abstract class HtmlTagBase<AttrsType extends Attrs,ElementType extends HT
         if (typeof value == 'object') {
             log.warn(`Don't know how to serialize value for key ${name}`, value)
         }
-        return `${strings.ropeCase(name)}="${value.toString()}"`
+        return `${strings.ropeCase(name)}="${this.escapeAttrValue(value.toString())}"`
+    }
+
+    private escapeAttrValue(unsafeValue: string): string {
+        return unsafeValue
+            .replaceAll(/&/g, "&amp;")
+            .replaceAll(/"/g, "&quot;")
+            .replaceAll(/'/g, "&#39;")
+            .replaceAll(/</g, '&lt;')
+            .replaceAll(/>/g, '&gt;')
     }
 
 
