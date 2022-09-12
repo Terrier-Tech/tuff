@@ -43,15 +43,6 @@ export abstract class HtmlTagBase<AttrsType extends Attrs,ElementType extends HT
         return `${strings.ropeCase(name)}="${this.escapeAttrValue(value.toString())}"`
     }
 
-    private escapeAttrValue(unsafeValue: string): string {
-        return unsafeValue
-            .replaceAll(/&/g, "&amp;")
-            .replaceAll(/"/g, "&quot;")
-            .replaceAll(/'/g, "&#39;")
-            .replaceAll(/</g, '&lt;')
-            .replaceAll(/>/g, '&gt;')
-    }
-
 
     /// Elements
 

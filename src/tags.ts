@@ -235,6 +235,15 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
      */
     abstract serializeAttribute(name: string, value: any): string
 
+    protected escapeAttrValue(unsafeValue: string): string {
+        return unsafeValue
+            .replaceAll(/&/g, "&amp;")
+            .replaceAll(/"/g, "&quot;")
+            .replaceAll(/'/g, "&#39;")
+            .replaceAll(/</g, '&lt;')
+            .replaceAll(/>/g, '&gt;')
+    }
+
     /**
      * Builds the resulting HTML by appending lines to the {output} array.
      * @param output - A string array on which to append the output

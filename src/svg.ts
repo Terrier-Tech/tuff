@@ -117,10 +117,10 @@ export abstract class SvgTagBase<AttrsType extends Attrs,ElementType extends Ele
             }
         }
         if (ropeCaseAttributes[name]) {
-            return `${strings.ropeCase(name)}="${value}"`
+            return `${strings.ropeCase(name)}="${this.escapeAttrValue(value.toString())}"`
         }
         else {
-            return `${name}="${value}"`
+            return `${name}="${this.escapeAttrValue(value.toString())}"`
         }
     }
 
