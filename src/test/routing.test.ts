@@ -1,7 +1,9 @@
 import { expect, test } from 'vitest'
 import { Part, PartTag } from '../parts'
+import {optionalIntParser} from "../routing";
 import * as routing from '../routing'
 import * as state from '../state'
+import {QueryParams} from "../urls";
 
 const FooStateMap = {
     id: state.string
@@ -48,14 +50,24 @@ test("route parsing", () => {
     expect(barState?.num).eq(123)
 })
 
-// test("basic routing", () => {
-//     const router = routing.build()
-//         .map(FooPart, "/foo/{id}")
-//         .map(BarPart, "/foo/{id}/bar")
-//         .map(BarPart, "/foo/{id}/bar/{num:number}")
-//         .mock()
+class OptionalPart extends Part<{ num: number | undefined }> {
+    render(_: PartTag) {
+        throw new Error('Method not implemented.')
+    }
+}
 
-//     expect(router.match("/foo/foo1")?.pattern, "/foo/{id}")
-//     expect(router.match("/foo/foo1/bar")?.pattern, "/foo/{id}/bar")
-//     expect(router.match("/foo1/foo1")).toBeNull()
-// })
+test("optional param route parsing", () => {
+    const optionalRoute = new routing.Route(OptionalPart, "/opt/:num?/rest", { num: optionalIntParser })
+    expect(optionalRoute.match("/opt/rest")).eq(true)
+    expect(optionalRoute.match("/opt/42/rest")).eq(true)
+    expect(optionalRoute.match("/opt/42/hi/rest")).eq(false)
+
+    expect(optionalRoute.parse("/opt/42/rest")?.num).eq(42)
+})
+
+test("query string route parsing", () => {
+    const queryRoute = new routing.Route(OptionalPart, "/opt&:num?", { num: optionalIntParser })
+    expect(queryRoute.match("/opt")).eq(true)
+
+    expect(queryRoute.parse("/opt", new QueryParams({ num: '42' }))?.num).eq(42)
+})
