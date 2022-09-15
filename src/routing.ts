@@ -1,7 +1,16 @@
 import {Logger} from './logging'
-import { route, ExtractParserReturnTypes, RouteNode, InferParamGroups, Parser, MergeParamGroups } from "typesafe-routes"
+import {
+    route,
+    ExtractParserReturnTypes,
+    RouteNode,
+    InferParamGroups,
+    Parser,
+    MergeParamGroups,
+    stringParser, floatParser, intParser, dateParser, booleanParser
+} from "typesafe-routes"
 import {pathToRegexp} from 'path-to-regexp'
 import {Part, PartConstructor, PartTag, StatelessPart} from './parts'
+import {QueryParams} from "./urls";
 
 const log = new Logger('Routing')
 Logger.level = "debug"
@@ -9,7 +18,7 @@ Logger.level = "debug"
 
 interface IRoute {
     match(path: string): boolean
-    parse(path: string): Record<string,string>|null
+    parse(path: string, queryParams: QueryParams): Record<string,string|number|Date|boolean|undefined>|null
     path(state: any): string
     template: string
     destination: PartConstructor<StatelessPart,any> | string
@@ -29,16 +38,18 @@ export class Route<PartType extends Part<StateType>,
     readonly routeNode!: RouteNode<string,PM,{},false>
     readonly regExp!: RegExp
     readonly paramNames!: Array<string>
+    readonly requiredParamNames!: Array<string>
 
     constructor(readonly destination: PartConstructor<PartType,StateType>, template: T, parserMap: PM) {
         this.routeNode = route(template, parserMap, {})
-        this.regExp = pathToRegexp(template)
+        this.regExp = pathToRegexp(template.replace(/&.*/, ""))
 
         const namesMatch = template.matchAll(/\/\:([A-Za-z0-9_]+)/g)
         if (!namesMatch) {
             throw `No parameters found in "${template}"`
         }
-        this.paramNames = Array.from(namesMatch, m => m[1])
+        this.paramNames = template.match(/:([a-zA-Z0-9]+)/g)?.map(s => s.slice(1)) ?? []
+        this.requiredParamNames = template.match(/:([a-zA-Z0-9]+)(?![a-zA-Z0-9?])/g)?.map(s => s.slice(1)) ?? []
     }
 
     get template(): string {
@@ -49,18 +60,27 @@ export class Route<PartType extends Part<StateType>,
         return !!this.regExp.exec(path)
     }
 
-    parse(path: string): StateType | null {
+    parse(path: string, queryParams?: QueryParams): StateType | null {
         const res = this.regExp.exec(path)
         if (!res) {
             return null
         }
-        if ((res.length-1) != this.paramNames.length) {
-            throw `Parsed ${res.length-1} params, but only ${this.paramNames.length} param names parsed from the template!`
+
+        const raw: Record<string,any> = { ...queryParams?.raw }
+        for (let n=1; n<res.length; n++) {
+            if (res[n]) raw[this.paramNames[n-1]] = res[n]
         }
-        const raw: Record<string,any> = {}
-        for (let n=0; n<res.length; n++) {
-            raw[this.paramNames[n-1]] = res[n]
+
+        const missingParams: string[] = []
+        for (const key of this.requiredParamNames) {
+            if (key in raw) continue;
+            missingParams.push(key)
         }
+
+        if (missingParams.length) {
+            throw `Missing ${missingParams.length} params in path '${window.location.href}': ${missingParams.map(s => `"${s}"`)}`
+        }
+
         return this.routeNode.parseParams(raw as Record<T, string>) as StateType
     }
 
@@ -152,7 +172,7 @@ export abstract class RouterPart extends Part<{}> {
                 }
                 else {
                     // it's a proper part route
-                    const state = route.parse(path)
+                    const state = route.parse(path, this.context.queryParams)
                     this.currentPart = this.makePart(route.destination, state)
                     log.debug(`Routed ${path} to part`, this.currentPart)
                     this.dirty()
@@ -172,3 +192,16 @@ export abstract class RouterPart extends Part<{}> {
     }
 
 }
+
+function makeOptionalParser<T>(parser: Parser<T>): Parser<T | undefined> {
+    return {
+        parse: (s: string) => s.length ? parser.parse(s) : undefined,
+        serialize: (x: T | undefined) => x ? parser.serialize(x) : '',
+    }
+}
+
+export const optionalStringParser: Parser<string | undefined> = makeOptionalParser(stringParser)
+export const optionalFloatParser: Parser<number | undefined> = makeOptionalParser(floatParser)
+export const optionalIntParser: Parser<number | undefined> = makeOptionalParser(intParser)
+export const optionalDateParser: Parser<Date | undefined> = makeOptionalParser(dateParser)
+export const optionalBooleanParser: Parser<boolean | undefined> = makeOptionalParser(booleanParser)
