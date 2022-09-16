@@ -48,8 +48,8 @@ export class Route<PartType extends Part<StateType>,
         if (!namesMatch) {
             throw `No parameters found in "${template}"`
         }
-        this.paramNames = template.match(/:([a-zA-Z0-9]+)/g)?.map(s => s.slice(1)) ?? []
-        this.requiredParamNames = template.match(/:([a-zA-Z0-9]+)(?![a-zA-Z0-9?])/g)?.map(s => s.slice(1)) ?? []
+        this.paramNames = template.match(/:([a-zA-Z0-9_]+)/g)?.map(s => s.slice(1)) ?? []
+        this.requiredParamNames = template.match(/:([a-zA-Z0-9_]+)(?![a-zA-Z0-9_?])/g)?.map(s => s.slice(1)) ?? []
     }
 
     get template(): string {

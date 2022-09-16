@@ -50,24 +50,24 @@ test("route parsing", () => {
     expect(barState?.num).eq(123)
 })
 
-class OptionalPart extends Part<{ num: number | undefined }> {
+class OptionalPart extends Part<{ my_num: number | undefined }> {
     render(_: PartTag) {
         throw new Error('Method not implemented.')
     }
 }
 
 test("optional param route parsing", () => {
-    const optionalRoute = new routing.Route(OptionalPart, "/opt/:num?/rest", { num: optionalIntParser })
+    const optionalRoute = new routing.Route(OptionalPart, "/opt/:my_num?/rest", { my_num: optionalIntParser })
     expect(optionalRoute.match("/opt/rest")).eq(true)
     expect(optionalRoute.match("/opt/42/rest")).eq(true)
     expect(optionalRoute.match("/opt/42/hi/rest")).eq(false)
 
-    expect(optionalRoute.parse("/opt/42/rest")?.num).eq(42)
+    expect(optionalRoute.parse("/opt/42/rest")?.my_num).eq(42)
 })
 
 test("query string route parsing", () => {
-    const queryRoute = new routing.Route(OptionalPart, "/opt&:num?", { num: optionalIntParser })
+    const queryRoute = new routing.Route(OptionalPart, "/opt&:my_num?", { my_num: optionalIntParser })
     expect(queryRoute.match("/opt")).eq(true)
 
-    expect(queryRoute.parse("/opt", new QueryParams({ num: '42' }))?.num).eq(42)
+    expect(queryRoute.parse("/opt", new QueryParams({ my_num: '42' }))?.my_num).eq(42)
 })
