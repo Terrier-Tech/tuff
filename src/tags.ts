@@ -12,8 +12,11 @@ type DataAttrs = {[key: string]: any}
  * @param k a data-attribute key
  */
 function sanitizeDataKey(k: string): string {
-    // Add a dash before any ASCII uppercase letter A to Z, then lowercase the letter
-    return k.replaceAll(/-[A-Z]/g, m => {return m.slice(1).toLowerCase()})
+    return k
+        .replaceAll("_", "-")             // correct_horse_battery_staple -> correct-horse-battery-staple
+        .replaceAll(/-*([A-Z]+)/g, "-$1") // correctHorseBatteryStaple OR correctHORSE-BatterySTAPLE -> correct-horse-battery-staple
+        .replaceAll(/^-+/g, "")           // -correct-horse-battery-staple -> correct-horse-battery-staple
+        .toLowerCase()
 }
 
 /**
@@ -208,7 +211,7 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
         if (attrs.text?.length) {
             this.text(attrs.text)
         }
-        if (attrs.data?.length) {
+        if (attrs.data && Object.keys(attrs.data).length) {
             this.data(attrs.data)
         }
         if (attrs.css) {
