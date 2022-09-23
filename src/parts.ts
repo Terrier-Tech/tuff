@@ -551,7 +551,9 @@ export abstract class Part<StateType> {
             this._mountElement = document.getElementById(elem)!
         }
 
-        this._mountElement.dataset.tuffPartClass = this.constructor.name
+        const partClass = this.constructor.name
+        this._mountElement.classList.add(`tuff-part-${partClass}`)
+        this._mountElement.dataset.tuffPart = partClass
 
         if (mountOptions?.capturePath?.length) {
             Nav.initCapture(this, mountOptions.capturePath)
@@ -579,7 +581,8 @@ export abstract class Part<StateType> {
     /// Rendering
 
     renderInTag(container: HtmlParentTag) {
-        container.div({ id: this.id, data: { tuffPartClass: this.constructor.name }}, parent => {
+        const partClass = this.constructor.name;
+        container.div({ id: this.id, class: `tuff-part-${partClass}`, data: { tuffPart: partClass }}, parent => {
             if (this.isInitialized) {
                 this._renderState = "clean"
                 this.render(parent)
