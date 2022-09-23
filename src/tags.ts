@@ -12,11 +12,7 @@ type DataAttrs = {[key: string]: any}
  * @param k a data-attribute key
  */
 function sanitizeDataKey(k: string): string {
-    return k
-        .replaceAll("_", "-")             // correct_horse_battery_staple -> correct-horse-battery-staple
-        .replaceAll(/-*([A-Z]+)/g, "-$1") // correctHorseBatteryStaple OR correctHORSE-BatterySTAPLE -> correct-horse-battery-staple
-        .replaceAll(/^-+/g, "")           // -correct-horse-battery-staple -> correct-horse-battery-staple
-        .toLowerCase()
+    return strings.ropeCase(k)
 }
 
 /**

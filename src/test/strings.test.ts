@@ -18,6 +18,7 @@ test("ropeCase", () => {
     expect(strings.ropeCase("foo bar")).toBe("foo-bar")
     expect(strings.ropeCase("FooBar")).toBe("foo-bar")
     expect(strings.ropeCase("foo_bar")).toBe("foo-bar")
+    expect(strings.ropeCase("fooBAR")).toBe("foo-bar")
 })
 
 test("camelCase", () => {
