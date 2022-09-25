@@ -179,7 +179,7 @@ export abstract class Part<StateType> {
         state: InferredPartStateType
     ): PartType {
         this._idCount += 1
-        let part = new constructor(parent || this, `__part-${this._idCount.toString()}__`, state)
+        let part = new constructor(parent || this, `tuff-part-${this._idCount.toString()}`, state)
         if (parent) { 
             // don't register as a root-level part if there's a different parent
         }
@@ -436,9 +436,9 @@ export abstract class Part<StateType> {
             // traverse the DOM path to find an event key
             let maybeTarget: HTMLElement | null = null
             let keys: string[] | null = null
+            const typeKey = `tuff${type}`
             for (let e of evt.composedPath()) {
                 let data = (e as any).dataset
-                const typeKey = `__${type}__`
                 if (data && data[typeKey]?.length) {
                     keys = data[typeKey].split(';')
                     maybeTarget = e as HTMLElement

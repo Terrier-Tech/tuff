@@ -332,7 +332,7 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
         if (!this.messageKeys) return
         for (let typeKeys of Object.entries(this.messageKeys)) {
             let keys = typeKeys[1].map(k => {return k}).join(';')
-            output.push(`data-__${typeKeys[0]}__="${keys}"`)
+            output.push(`data-tuff${typeKeys[0]}="${keys}"`)
         }
     }
 

@@ -107,7 +107,7 @@ let count = 0
 
 function nextId(): string {
     count += 1
-    return `__msg${count}__`
+    return `tuff${count}`
 }
 
 // Both typed and untyped message keys contain an id
