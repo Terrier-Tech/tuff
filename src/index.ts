@@ -6,6 +6,7 @@ import * as keyboard from './keyboard'
 import * as strings from './strings'
 import * as arrays from './arrays'
 import * as html from './html'
+import * as sets from './sets'
 import * as svg from './svg'
 import * as urls from './urls'
 import * as routing from './routing'
@@ -13,4 +14,4 @@ import * as vec from './vec'
 import * as forms from './forms'
 import * as nav from './nav'
 
-export {logging, parts, messages, tags, keyboard, strings, arrays, svg, html, urls, routing, vec, forms, nav}
+export {logging, parts, messages, tags, keyboard, strings, arrays, sets, svg, html, urls, routing, vec, forms, nav}
