@@ -58,27 +58,28 @@ export class CounterApp extends Part<{}> {
         })
     }
 
+    get parentClasses(): Array<string> {
+        return [styles.flexRow, styles.padded]
+    }
+
     render(parent: PartTag) {
-        parent.div(d => {
-            d.class(styles.flexRow, styles.padded)
-            d.div(styles.flexStretch, d => {
-                d.part(this.namedChild('counter')!)
-            })
-            d.div(styles.flexShrink, d => {
-                d.a(styles.button, {text: "+"})
-                 .emitClick(ChangeKey, {by: 1})
-                 .emitClick(demo.OutputKey, {output: "Increment Clicked"})
-            })
-            d.div(styles.flexShrink, d => {
-                d.a(styles.button, {text: "-"})
-                 .emitClick(ChangeKey, {by: -1})
-                 .emitClick(demo.OutputKey, {output: "Decrement Clicked"})
-            })
-            d.div(styles.flexShrink, d => {
-                d.a(styles.button, {text: "Reset"})
-                 .emitClick(ResetKey)
-                 .emitClick(demo.OutputKey, {output: "Reset Clicked"})
-            })
+        parent.div(styles.flexStretch, d => {
+            d.part(this.namedChild('counter')!)
+        })
+        parent.div(styles.flexShrink, d => {
+            d.a(styles.button, {text: "+"})
+                .emitClick(ChangeKey, {by: 1})
+                .emitClick(demo.OutputKey, {output: "Increment Clicked"})
+        })
+        parent.div(styles.flexShrink, d => {
+            d.a(styles.button, {text: "-"})
+                .emitClick(ChangeKey, {by: -1})
+                .emitClick(demo.OutputKey, {output: "Decrement Clicked"})
+        })
+        parent.div(styles.flexShrink, d => {
+            d.a(styles.button, {text: "Reset"})
+                .emitClick(ResetKey)
+                .emitClick(demo.OutputKey, {output: "Reset Clicked"})
         })
     }
 

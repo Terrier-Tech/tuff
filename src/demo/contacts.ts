@@ -24,25 +24,27 @@ const deletePhoneKey = messages.typedKey<{id: string}>()
 
 class PhoneFormPart extends forms.FormPart<PhoneState> {
     
+    get parentClasses(): Array<string> {
+        return [styles.phoneForm]
+    }
+
     render(parent: PartTag) {
-        parent.div(styles.phoneForm, f => {
-            f.div(styles.flexRow, row => {
-                for (let t of PhoneTypes) {
-                    row.div(styles.flexStretch, col => {
-                        col.label(label => {
-                            this.radio(label, "type", t)
-                            label.span({text: strings.titleize(t)})
-                        })
+        parent.div(styles.flexRow, row => {
+            for (let t of PhoneTypes) {
+                row.div(styles.flexStretch, col => {
+                    col.label(label => {
+                        this.radio(label, "type", t)
+                        label.span({text: strings.titleize(t)})
                     })
-                }
-                row.div(styles.flexShrink, col => {
-                    col.a(styles.characterLink, {text: '-'})
-                       .emitClick(deletePhoneKey, {id: this.state.id})
-                       .emitClick(demo.OutputKey, {output: `Delete Phone ${this.state.id} Clicked`})
                 })
+            }
+            row.div(styles.flexShrink, col => {
+                col.a(styles.characterLink, {text: '-'})
+                    .emitClick(deletePhoneKey, {id: this.state.id})
+                    .emitClick(demo.OutputKey, {output: `Delete Phone ${this.state.id} Clicked`})
             })
-            this.phoneInput(f, "number", {placeholder: "555-555-5555"})
         })
+        this.phoneInput(parent, "number", {placeholder: "555-555-5555"})
     }
 
 }
