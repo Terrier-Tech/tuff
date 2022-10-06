@@ -24,19 +24,21 @@ export type Size = {
 export type MutableBox = Partial<Box>
 
 /**
- * Contains the same information as a Box, but using the the four sides instead of width and height.
+ * Literal side names.
  */
-export type Sides = {
-    readonly left: number
-    readonly right: number
-    readonly top: number
-    readonly bottom: number
-}
+export const SideNames = ['left', 'right', 'top', 'bottom'] as const
 
 /**
  * A key for one of the sides.
  */
-export type Side = keyof Sides
+ export type Side = typeof SideNames[number]
+
+/**
+ * Contains the same information as a Box, but using the the four sides instead of width and height.
+ */
+export type Sides = {
+    readonly [side in Side]: number
+}
 
 /**
  * @returns the +Sides+ of the box.
