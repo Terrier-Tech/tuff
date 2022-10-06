@@ -7,7 +7,7 @@ import Nav from './nav'
 
 const log = new Logger('Part')
 
-export type StatelessPart = Part<{}>
+export type StatelessPart = Part<any>
 
 export type PartParent = StatelessPart | null
 
@@ -583,6 +583,7 @@ export abstract class Part<StateType> {
     renderInTag(container: HtmlParentTag) {
         const partClass = this.constructor.name;
         container.div({ id: this.id, class: `tuff-part-${partClass}`, data: { tuffPart: partClass }}, parent => {
+            parent.class(...this.parentClasses)
             if (this.isInitialized) {
                 this._renderState = "clean"
                 this.render(parent)
@@ -591,6 +592,14 @@ export abstract class Part<StateType> {
     }
 
     abstract render(parent: PartTag): any
+
+    /**
+     * Subclasses can override this to provide a list of 
+     * classes to apply to the parent element.
+     */
+    get parentClasses(): Array<string> {
+        return []
+    }
 
     /**
      * Recursively crawls the children to see if any is dirty, then renders their entire branch.
@@ -614,6 +623,7 @@ export abstract class Part<StateType> {
 
                 // render the part's content to the container
                 let parent = new DivTag('div')
+                parent.class(...this.parentClasses)
                 this._context.frame = frame
                 this.render(parent)
                 let output = Array<string>()
