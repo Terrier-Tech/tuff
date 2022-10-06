@@ -1,6 +1,14 @@
 import * as vec from './vec'
 
 /**
+ * The size of a box.
+ */
+export type Size = {
+    readonly width: number
+    readonly height: number
+}
+
+/**
  * Immutable box type.
  */
  export type Box = {
@@ -24,6 +32,11 @@ export type Sides = {
     readonly top: number
     readonly bottom: number
 }
+
+/**
+ * A key for one of the sides.
+ */
+export type Side = keyof Sides
 
 /**
  * @returns the +Sides+ of the box.
