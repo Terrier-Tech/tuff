@@ -14,5 +14,6 @@ import * as vec from './vec'
 import * as forms from './forms'
 import * as nav from './nav'
 import * as box from './box'
+import * as objects from './objects'
 
-export {logging, parts, messages, tags, keyboard, strings, arrays, sets, svg, html, urls, routing, vec, forms, nav, box}
+export {logging, parts, messages, tags, keyboard, strings, arrays, sets, svg, html, urls, routing, vec, forms, nav, box, objects}

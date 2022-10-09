@@ -1,4 +1,5 @@
 import { KeyOfType } from "./forms"
+import { notNull } from "./objects"
 
 /**
  * Groups the elements of `array` by the value of key `key`
@@ -140,4 +141,85 @@ export function unique<T>(array: Array<T>, by?: (a: T) => number|string): Array<
     else {
         return [... new Set(array)]
     }
+}
+
+/**
+ * Removes all null and undefined values from the array.
+ * @param array an array
+ * @returns a new array without any null or undefined values
+ */
+export function compact<T>(array: Array<T | null | undefined>): T[] {
+    return array.filter(notNull)
+}
+
+
+/// Stream
+
+/**
+ * A readonly wrapper around an array that lets you chain method calls.
+ */
+class Stream<T> {
+    constructor(readonly array: T[]) {}
+
+    /**
+     * Exits the chain.
+     * @returns the actual array
+     */
+    toArray(): T[] {
+        return this.array
+    }
+
+    /**
+     * Filters the array by a predicate function.
+     * @param predicate a function by which to filter
+     * @returns a new stream with the filtered result
+     */
+    filter(predicate: (value: T) => boolean): Stream<T> {
+        return new Stream(this.array.filter(predicate))
+    }
+
+    /**
+     * Maps the elements in the array using a function.
+     * @param fn a function that operates on each value in the array
+     * @returns a new stream with the mapped array values
+     */
+    map<S>(fn: (value: T) => S): Stream<S> {
+        return new Stream(this.array.map(fn))
+    }
+
+    /**
+     * Returns the unique elements of the array.
+     * @param by an optional comparison function
+     * @returns a new stream with the unique elements
+     */
+    unique(by?: (a: T) => number|string): Stream<T> {
+        return new Stream(unique(this.array, by))
+    }
+
+    /**
+     * Sorts the array by an object key.
+     * @param key the sort key
+     * @param dir the sort direction
+     * @returns the sorted array
+     */
+    sortBy<S extends object & T, K extends KeyOfType<S,string> & string>(key: K, dir: SortDir = "asc"): Stream<S> {
+        return new Stream(sortBy<S, K>(this.array as any as S[], key, dir) as S[])
+    }
+
+    /**
+     * Removes all null and undefined values from the array.
+     * @returns a new array without any null or undefined values
+     */
+    compact(): Stream<T> {
+        return new Stream(compact(this.array))
+    }
+}
+
+/**
+ * Starts a new array stream so that method calls can be chained together.
+ * @param array an array to wrap
+ * @returns the wrapped array stream
+ */
+export function stream<T>(array: T[]): Stream<T> {
+    return new Stream(array)
 }

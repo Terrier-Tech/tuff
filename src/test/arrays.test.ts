@@ -119,3 +119,30 @@ test("sample", () => {
         expect(index).toBeLessThan(array.length)
     }
 })
+
+test("compact", () => {
+    const array = ['one', null, 'three', undefined]
+    const compactArray = arrays.compact(array)
+    expect(compactArray.length).toBe(2)
+    for (const val of compactArray) {
+        expect(val).toBeDefined()
+    }
+})
+
+
+test("streams", () => {
+    const input = [
+        {id: "one", foo: "bar"},
+        {id: "two", foo: "baz"},
+        null,
+        {id: "three", foo: "bat"}
+    ]
+    const output = arrays.stream(input)
+        .compact()
+        .sortBy('id')
+        .filter(a => a.id[0] != 'o')
+        .map(a => a.foo)
+        .toArray()
+    expect(output[0]).toBe('bat')
+    expect(output[1]).toBe('baz')
+})
