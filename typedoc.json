@@ -6,6 +6,7 @@
     "excludeNotDocumented": true,
     "media": "docs/media",
     "customCss": "docs/docs.css",
+    "cname": "tuff.terrier.tech",
     "plugin": [
         "typedoc-plugin-extras"
     ],
