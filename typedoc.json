@@ -1,0 +1,12 @@
+{
+    "$schema": "https://typedoc.org/schema.json",
+    "entryPoints": ["./src/index.ts"],
+    "out": "docs/html",
+    "compilerOptions": {
+        "stripInternal": false
+    },
+    "name": "Tuff",
+    "excludeNotDocumented": true,
+    "media": "docs/media",
+    "customCss": "docs/docs.css"
+}

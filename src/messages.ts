@@ -110,15 +110,23 @@ function nextId(): string {
     return `tuff${count}`
 }
 
-// Both typed and untyped message keys contain an id
+/**
+ * Both typed and untyped message keys contain an id.
+ */
 export interface Key {
     readonly id: string
 }
 
+/**
+ * A key with a specific data type.
+ */
 export interface TypedKey<T> extends Key {
     data?: T // not really sure what to do with this, but the compiler complains when we don't use T
 }
 
+/**
+ * A key with no data. 
+ */
 export interface UntypedKey extends Key {
     typed: false // need this so that TypedKey is not compatible
 }

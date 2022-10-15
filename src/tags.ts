@@ -4,7 +4,10 @@ import * as strings from './strings'
 // import {Logger} from './logging'
 // const log = new Logger('tags')
 
-type DataAttrs = {[key: string]: any}
+/**
+ * Type for arbtirary data-* attributes.
+ */
+export type DataAttrs = {[key: string]: any}
 
 /**
  * Sanitizes the given data-attribute key based on the rules described here:
@@ -244,7 +247,7 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
     }
 
     /**
-     * Builds the resulting HTML by appending lines to the {output} array.
+     * Builds the resulting HTML by appending lines to the `output` array.
      * @param output - A string array on which to append the output
      */
     build(output: string[]) {
@@ -1283,6 +1286,18 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
         }
         else {
             this.emit('selectstart', key as messages.UntypedKey)
+        }
+        return this
+    }
+    
+    emitSlotChange<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitSlotChange<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitSlotChange<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
+        if (data) {
+            this.emit('slotchange', key, data)
+        }
+        else {
+            this.emit('slotchange', key as messages.UntypedKey)
         }
         return this
     }

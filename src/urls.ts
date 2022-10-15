@@ -68,7 +68,7 @@ export class QueryParams {
 /**
  * Parses a URL query parameter string.
  * @param search a query parameter string such as `window.location.search`
- * @returns a {QueryParams} object mapping the parameters
+ * @returns a {@link QueryParams} object mapping the parameters
  */
 export function parseQueryParams(search: string): QueryParams {
     const raw: Record<string,string> = {}

@@ -15,8 +15,10 @@ import {QueryParams} from "./urls";
 const log = new Logger('Routing')
 Logger.level = "debug"
 
-
-interface IRoute {
+/** 
+ * Basic interface that all routes must implement.
+ */
+export interface IRoute {
     match(path: string): boolean
     parse(path: string, queryParams: QueryParams): Record<string,string|number|Date|boolean|undefined>|null
     path(state: any): string
@@ -27,8 +29,11 @@ interface IRoute {
 /**
  * This isn't exported from typesafe-routes for some reason.
  */
-declare type ParserMap<K extends string> = Record<K, Parser<any>>;
+export declare type ParserMap<K extends string> = Record<K, Parser<any>>;
 
+/**
+ * Base class for routes, which parse and match against paths.
+ */
 export class Route<PartType extends Part<StateType>, 
         StateType extends ExtractParserReturnTypes<PM, keyof PM>, 
         T extends string, 
@@ -108,6 +113,9 @@ export function partRoute<PartType extends Part<StateType>,
     return new Route(partType, template, parserMap)
 }
 
+/**
+ * A route that simply redirects from one path to another.
+ */
 export class RedirectRoute implements IRoute {
     constructor(readonly template: string, readonly destination: string) {
         if (this.template.endsWith('/')) {
@@ -142,7 +150,9 @@ export function redirectRoute(fromPath: string, toPath: string): RedirectRoute {
     return new RedirectRoute(fromPath, toPath)
 }
 
-
+/**
+ * Base class for parts that will route based on a list of routes. 
+ */
 export abstract class RouterPart extends Part<{}> {
 
     abstract routes: Record<string,IRoute>
@@ -193,6 +203,11 @@ export abstract class RouterPart extends Part<{}> {
 
 }
 
+/**
+ * Creates an optional parser from a concrete one.
+ * @param parser a concrete parser
+ * @returns the optional equivalent
+ */
 function makeOptionalParser<T>(parser: Parser<T>): Parser<T | undefined> {
     return {
         parse: (s: string) => s.length ? parser.parse(s) : undefined,

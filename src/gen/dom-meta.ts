@@ -113,12 +113,12 @@ export class Element {
         const base = bases[0]
         info(`${this.className} has base ${base.className}`)
         if (this == base) {
-            lines.push(`\nexport type ${this.attrsName} = ${this.typeName}BaseAttrs & {`)
+            lines.push(`\n/** ${this.name} Attributes */\nexport type ${this.attrsName} = ${this.typeName}BaseAttrs & {`)
             this.attrsDeclaration(lines)
             lines.push("}\n")
         }
         else if (this.attrsName != base.attrsName) {
-            lines.push(`\nexport type ${this.attrsName} = ${base.attrsName} & {`)
+            lines.push(`\n/** ${this.name} Attributes */\nexport type ${this.attrsName} = ${base.attrsName} & {`)
             this.attrsDeclaration(lines)
             if (bases.length > 1) { 
                 // this element has more than one base class, 
@@ -130,7 +130,7 @@ export class Element {
             lines.push("}\n")
         }
 
-        lines.push(`export class ${this.className} extends ${baseClass}<${this.attrsName},${this.name}> {}\n`)
+        lines.push(`/** ${this.name} Tag */\nexport class ${this.className} extends ${baseClass}<${this.attrsName},${this.name}> {}\n`)
 
         return lines.join("\n")
     }

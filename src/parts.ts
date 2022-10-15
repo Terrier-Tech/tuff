@@ -7,8 +7,14 @@ import Nav from './nav'
 
 const log = new Logger('Part')
 
+/**
+ * A part that can have any state.
+ */
 export type StatelessPart = Part<any>
 
+/**
+ * Parent parts can possibly be null.
+ */
 export type PartParent = StatelessPart | null
 
 /**
@@ -21,7 +27,10 @@ export type PartConstructor<PartType extends Part<StateType>, StateType> = {new 
  */
 export type EmitScope = "single" | "bubble"
 
-type EmitOptions = {
+/**
+ * Options for emitting messages.
+ */
+export type EmitOptions = {
     scope?: EmitScope
 }
 
@@ -30,6 +39,9 @@ type EmitOptions = {
  */
 type RenderState = "clean" | "stale" | "dirty"
 
+/**
+ * Currently, only HTML events are mapped.
+ */
 type EventKey = keyof HTMLElementEventMap
 
 /**
@@ -75,6 +87,9 @@ export type MountOptions = {
  */
 type Exactly<T, X extends T> = T & Record<Exclude<keyof X, keyof T>, never>
 
+/**
+ * Base class for all parts.
+ */
 export abstract class Part<StateType> {
     
     /// Root
@@ -1148,6 +1163,12 @@ export abstract class Part<StateType> {
     onSelectStart<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"selectstart",DataType>) => void, options?: messages.ListenOptions): void
     onSelectStart<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"selectstart",DataType>) => void, options?: messages.ListenOptions): void {
         this.listen<"selectstart",DataType>("selectstart", key, listener, options)
+    }
+    
+    onSlotChange<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"slotchange",DataType>) => void, options?: messages.ListenOptions): void
+    onSlotChange<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"slotchange",DataType>) => void, options?: messages.ListenOptions): void
+    onSlotChange<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"slotchange",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"slotchange",DataType>("slotchange", key, listener, options)
     }
     
     onStalled<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"stalled",DataType>) => void, options?: messages.ListenOptions): void

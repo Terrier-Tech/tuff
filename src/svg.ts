@@ -342,35 +342,44 @@ export abstract class SvgTagBase<AttrsType extends Attrs,ElementType extends Ele
 // DO NOT EDIT THE CODE BELOW!
 //// Begin Tag Classes
 
+/** SVGAElement Attributes */
 export type ATagAttrs = GraphicsTagAttrs & {
     rel?: string
     relList?: DOMTokenList
     target?: string
 }
 
+/** SVGAElement Tag */
 export class ATag extends SvgTagBase<ATagAttrs,SVGAElement> {}
 
+/** SVGAnimationElement Attributes */
 export type AnimationTagAttrs = DefaultTagAttrs & {
     targetElement?: SVGElement | null
 }
 
+/** SVGAnimationElement Tag */
 export class AnimationTag extends SvgTagBase<AnimationTagAttrs,SVGAnimationElement> {}
 
+/** SVGCircleElement Attributes */
 export type CircleTagAttrs = GeometryTagAttrs & {
     cx?: number
     cy?: number
     r?: number
 }
 
+/** SVGCircleElement Tag */
 export class CircleTag extends SvgTagBase<CircleTagAttrs,SVGCircleElement> {}
 
+/** SVGClipPathElement Attributes */
 export type ClipPathTagAttrs = DefaultTagAttrs & {
     clipPathUnits?: string|number
     transform?: string
 }
 
+/** SVGClipPathElement Tag */
 export class ClipPathTag extends SvgTagBase<ClipPathTagAttrs,SVGClipPathElement> {}
 
+/** SVGComponentTransferFunctionElement Attributes */
 export type ComponentTransferFunctionTagAttrs = DefaultTagAttrs & {
     amplitude?: number
     exponent?: number
@@ -387,25 +396,33 @@ export type ComponentTransferFunctionTagAttrs = DefaultTagAttrs & {
     SVG_FECOMPONENTTRANSFER_TYPE_UNKNOWN?: number
 }
 
+/** SVGComponentTransferFunctionElement Tag */
 export class ComponentTransferFunctionTag extends SvgTagBase<ComponentTransferFunctionTagAttrs,SVGComponentTransferFunctionElement> {}
 
+/** SVGDefsElement Attributes */
 export type DefsTagAttrs = GraphicsTagAttrs & {
 }
 
+/** SVGDefsElement Tag */
 export class DefsTag extends SvgTagBase<DefsTagAttrs,SVGDefsElement> {}
 
+/** SVGDescElement Attributes */
 export type DescTagAttrs = DefaultTagAttrs & {
 }
 
+/** SVGDescElement Tag */
 export class DescTag extends SvgTagBase<DescTagAttrs,SVGDescElement> {}
 
+/** SVGElement Attributes */
 export type DefaultTagAttrs = SvgBaseAttrs & {
     ownerSVGElement?: SVGSVGElement | null
     viewportElement?: SVGElement | null
 }
 
+/** SVGElement Tag */
 export class DefaultTag extends SvgTagBase<DefaultTagAttrs,SVGElement> {}
 
+/** SVGEllipseElement Attributes */
 export type EllipseTagAttrs = GeometryTagAttrs & {
     cx?: number
     cy?: number
@@ -413,8 +430,10 @@ export type EllipseTagAttrs = GeometryTagAttrs & {
     ry?: number
 }
 
+/** SVGEllipseElement Tag */
 export class EllipseTag extends SvgTagBase<EllipseTagAttrs,SVGEllipseElement> {}
 
+/** SVGFEBlendElement Attributes */
 export type FEBlendTagAttrs = DefaultTagAttrs & {
     in1?: string
     in2?: string
@@ -438,8 +457,10 @@ export type FEBlendTagAttrs = DefaultTagAttrs & {
     SVG_FEBLEND_MODE_UNKNOWN?: number
 }
 
+/** SVGFEBlendElement Tag */
 export class FEBlendTag extends SvgTagBase<FEBlendTagAttrs,SVGFEBlendElement> {}
 
+/** SVGFEColorMatrixElement Attributes */
 export type FEColorMatrixTagAttrs = DefaultTagAttrs & {
     in1?: string
     type?: string|number
@@ -451,14 +472,18 @@ export type FEColorMatrixTagAttrs = DefaultTagAttrs & {
     SVG_FECOLORMATRIX_TYPE_UNKNOWN?: number
 }
 
+/** SVGFEColorMatrixElement Tag */
 export class FEColorMatrixTag extends SvgTagBase<FEColorMatrixTagAttrs,SVGFEColorMatrixElement> {}
 
+/** SVGFEComponentTransferElement Attributes */
 export type FEComponentTransferTagAttrs = DefaultTagAttrs & {
     in1?: string
 }
 
+/** SVGFEComponentTransferElement Tag */
 export class FEComponentTransferTag extends SvgTagBase<FEComponentTransferTagAttrs,SVGFEComponentTransferElement> {}
 
+/** SVGFECompositeElement Attributes */
 export type FECompositeTagAttrs = DefaultTagAttrs & {
     in1?: string
     in2?: string
@@ -476,8 +501,10 @@ export type FECompositeTagAttrs = DefaultTagAttrs & {
     SVG_FECOMPOSITE_OPERATOR_XOR?: number
 }
 
+/** SVGFECompositeElement Tag */
 export class FECompositeTag extends SvgTagBase<FECompositeTagAttrs,SVGFECompositeElement> {}
 
+/** SVGFEConvolveMatrixElement Attributes */
 export type FEConvolveMatrixTagAttrs = DefaultTagAttrs & {
     bias?: number
     divisor?: number
@@ -497,8 +524,10 @@ export type FEConvolveMatrixTagAttrs = DefaultTagAttrs & {
     SVG_EDGEMODE_WRAP?: number
 }
 
+/** SVGFEConvolveMatrixElement Tag */
 export class FEConvolveMatrixTag extends SvgTagBase<FEConvolveMatrixTagAttrs,SVGFEConvolveMatrixElement> {}
 
+/** SVGFEDiffuseLightingElement Attributes */
 export type FEDiffuseLightingTagAttrs = DefaultTagAttrs & {
     diffuseConstant?: number
     in1?: string
@@ -507,8 +536,10 @@ export type FEDiffuseLightingTagAttrs = DefaultTagAttrs & {
     surfaceScale?: number
 }
 
+/** SVGFEDiffuseLightingElement Tag */
 export class FEDiffuseLightingTag extends SvgTagBase<FEDiffuseLightingTagAttrs,SVGFEDiffuseLightingElement> {}
 
+/** SVGFEDisplacementMapElement Attributes */
 export type FEDisplacementMapTagAttrs = DefaultTagAttrs & {
     in1?: string
     in2?: string
@@ -522,15 +553,19 @@ export type FEDisplacementMapTagAttrs = DefaultTagAttrs & {
     SVG_CHANNEL_UNKNOWN?: number
 }
 
+/** SVGFEDisplacementMapElement Tag */
 export class FEDisplacementMapTag extends SvgTagBase<FEDisplacementMapTagAttrs,SVGFEDisplacementMapElement> {}
 
+/** SVGFEDistantLightElement Attributes */
 export type FEDistantLightTagAttrs = DefaultTagAttrs & {
     azimuth?: number
     elevation?: number
 }
 
+/** SVGFEDistantLightElement Tag */
 export class FEDistantLightTag extends SvgTagBase<FEDistantLightTagAttrs,SVGFEDistantLightElement> {}
 
+/** SVGFEDropShadowElement Attributes */
 export type FEDropShadowTagAttrs = DefaultTagAttrs & {
     dx?: number
     dy?: number
@@ -539,38 +574,50 @@ export type FEDropShadowTagAttrs = DefaultTagAttrs & {
     stdDeviationY?: number
 }
 
+/** SVGFEDropShadowElement Tag */
 export class FEDropShadowTag extends SvgTagBase<FEDropShadowTagAttrs,SVGFEDropShadowElement> {}
 
+/** SVGFEFloodElement Attributes */
 export type FEFloodTagAttrs = DefaultTagAttrs & {
 }
 
+/** SVGFEFloodElement Tag */
 export class FEFloodTag extends SvgTagBase<FEFloodTagAttrs,SVGFEFloodElement> {}
 
+/** SVGFEGaussianBlurElement Attributes */
 export type FEGaussianBlurTagAttrs = DefaultTagAttrs & {
     in1?: string
     stdDeviationX?: number
     stdDeviationY?: number
 }
 
+/** SVGFEGaussianBlurElement Tag */
 export class FEGaussianBlurTag extends SvgTagBase<FEGaussianBlurTagAttrs,SVGFEGaussianBlurElement> {}
 
+/** SVGFEImageElement Attributes */
 export type FEImageTagAttrs = DefaultTagAttrs & {
     preserveAspectRatio?: string
 }
 
+/** SVGFEImageElement Tag */
 export class FEImageTag extends SvgTagBase<FEImageTagAttrs,SVGFEImageElement> {}
 
+/** SVGFEMergeElement Attributes */
 export type FEMergeTagAttrs = DefaultTagAttrs & {
 }
 
+/** SVGFEMergeElement Tag */
 export class FEMergeTag extends SvgTagBase<FEMergeTagAttrs,SVGFEMergeElement> {}
 
+/** SVGFEMergeNodeElement Attributes */
 export type FEMergeNodeTagAttrs = DefaultTagAttrs & {
     in1?: string
 }
 
+/** SVGFEMergeNodeElement Tag */
 export class FEMergeNodeTag extends SvgTagBase<FEMergeNodeTagAttrs,SVGFEMergeNodeElement> {}
 
+/** SVGFEMorphologyElement Attributes */
 export type FEMorphologyTagAttrs = DefaultTagAttrs & {
     in1?: string
     operator?: string|number
@@ -581,24 +628,30 @@ export type FEMorphologyTagAttrs = DefaultTagAttrs & {
     SVG_MORPHOLOGY_OPERATOR_UNKNOWN?: number
 }
 
+/** SVGFEMorphologyElement Tag */
 export class FEMorphologyTag extends SvgTagBase<FEMorphologyTagAttrs,SVGFEMorphologyElement> {}
 
+/** SVGFEOffsetElement Attributes */
 export type FEOffsetTagAttrs = DefaultTagAttrs & {
     dx?: number
     dy?: number
     in1?: string
 }
 
+/** SVGFEOffsetElement Tag */
 export class FEOffsetTag extends SvgTagBase<FEOffsetTagAttrs,SVGFEOffsetElement> {}
 
+/** SVGFEPointLightElement Attributes */
 export type FEPointLightTagAttrs = DefaultTagAttrs & {
     x?: number
     y?: number
     z?: number
 }
 
+/** SVGFEPointLightElement Tag */
 export class FEPointLightTag extends SvgTagBase<FEPointLightTagAttrs,SVGFEPointLightElement> {}
 
+/** SVGFESpecularLightingElement Attributes */
 export type FESpecularLightingTagAttrs = DefaultTagAttrs & {
     in1?: string
     kernelUnitLengthX?: number
@@ -608,8 +661,10 @@ export type FESpecularLightingTagAttrs = DefaultTagAttrs & {
     surfaceScale?: number
 }
 
+/** SVGFESpecularLightingElement Tag */
 export class FESpecularLightingTag extends SvgTagBase<FESpecularLightingTagAttrs,SVGFESpecularLightingElement> {}
 
+/** SVGFESpotLightElement Attributes */
 export type FESpotLightTagAttrs = DefaultTagAttrs & {
     limitingConeAngle?: number
     pointsAtX?: number
@@ -621,14 +676,18 @@ export type FESpotLightTagAttrs = DefaultTagAttrs & {
     z?: number
 }
 
+/** SVGFESpotLightElement Tag */
 export class FESpotLightTag extends SvgTagBase<FESpotLightTagAttrs,SVGFESpotLightElement> {}
 
+/** SVGFETileElement Attributes */
 export type FETileTagAttrs = DefaultTagAttrs & {
     in1?: string
 }
 
+/** SVGFETileElement Tag */
 export class FETileTag extends SvgTagBase<FETileTagAttrs,SVGFETileElement> {}
 
+/** SVGFETurbulenceElement Attributes */
 export type FETurbulenceTagAttrs = DefaultTagAttrs & {
     baseFrequencyX?: number
     baseFrequencyY?: number
@@ -644,8 +703,10 @@ export type FETurbulenceTagAttrs = DefaultTagAttrs & {
     SVG_TURBULENCE_TYPE_UNKNOWN?: number
 }
 
+/** SVGFETurbulenceElement Tag */
 export class FETurbulenceTag extends SvgTagBase<FETurbulenceTagAttrs,SVGFETurbulenceElement> {}
 
+/** SVGFilterElement Attributes */
 export type FilterTagAttrs = DefaultTagAttrs & {
     filterUnits?: string|number
     height?: number
@@ -655,8 +716,10 @@ export type FilterTagAttrs = DefaultTagAttrs & {
     y?: number
 }
 
+/** SVGFilterElement Tag */
 export class FilterTag extends SvgTagBase<FilterTagAttrs,SVGFilterElement> {}
 
+/** SVGForeignObjectElement Attributes */
 export type ForeignObjectTagAttrs = GraphicsTagAttrs & {
     height?: number
     width?: number
@@ -664,19 +727,25 @@ export type ForeignObjectTagAttrs = GraphicsTagAttrs & {
     y?: number
 }
 
+/** SVGForeignObjectElement Tag */
 export class ForeignObjectTag extends SvgTagBase<ForeignObjectTagAttrs,SVGForeignObjectElement> {}
 
+/** SVGGElement Attributes */
 export type GTagAttrs = GraphicsTagAttrs & {
 }
 
+/** SVGGElement Tag */
 export class GTag extends SvgTagBase<GTagAttrs,SVGGElement> {}
 
+/** SVGGeometryElement Attributes */
 export type GeometryTagAttrs = SvgBaseAttrs & {
     pathLength?: number
 }
 
+/** SVGGeometryElement Tag */
 export class GeometryTag extends SvgTagBase<GeometryTagAttrs,SVGGeometryElement> {}
 
+/** SVGGradientElement Attributes */
 export type GradientTagAttrs = SvgBaseAttrs & {
     gradientTransform?: string
     gradientUnits?: string|number
@@ -687,14 +756,18 @@ export type GradientTagAttrs = SvgBaseAttrs & {
     SVG_SPREADMETHOD_UNKNOWN?: number
 }
 
+/** SVGGradientElement Tag */
 export class GradientTag extends SvgTagBase<GradientTagAttrs,SVGGradientElement> {}
 
+/** SVGGraphicsElement Attributes */
 export type GraphicsTagAttrs = SvgBaseAttrs & {
     transform?: string
 }
 
+/** SVGGraphicsElement Tag */
 export class GraphicsTag extends SvgTagBase<GraphicsTagAttrs,SVGGraphicsElement> {}
 
+/** SVGImageElement Attributes */
 export type ImageTagAttrs = GraphicsTagAttrs & {
     height?: number
     preserveAspectRatio?: string
@@ -703,8 +776,10 @@ export type ImageTagAttrs = GraphicsTagAttrs & {
     y?: number
 }
 
+/** SVGImageElement Tag */
 export class ImageTag extends SvgTagBase<ImageTagAttrs,SVGImageElement> {}
 
+/** SVGLineElement Attributes */
 export type LineTagAttrs = GeometryTagAttrs & {
     x1?: number
     x2?: number
@@ -712,8 +787,10 @@ export type LineTagAttrs = GeometryTagAttrs & {
     y2?: number
 }
 
+/** SVGLineElement Tag */
 export class LineTag extends SvgTagBase<LineTagAttrs,SVGLineElement> {}
 
+/** SVGLinearGradientElement Attributes */
 export type LinearGradientTagAttrs = GradientTagAttrs & {
     x1?: number
     x2?: number
@@ -721,13 +798,17 @@ export type LinearGradientTagAttrs = GradientTagAttrs & {
     y2?: number
 }
 
+/** SVGLinearGradientElement Tag */
 export class LinearGradientTag extends SvgTagBase<LinearGradientTagAttrs,SVGLinearGradientElement> {}
 
+/** SVGMPathElement Attributes */
 export type MPathTagAttrs = DefaultTagAttrs & {
 }
 
+/** SVGMPathElement Tag */
 export class MPathTag extends SvgTagBase<MPathTagAttrs,SVGMPathElement> {}
 
+/** SVGMarkerElement Attributes */
 export type MarkerTagAttrs = DefaultTagAttrs & {
     markerHeight?: number
     markerUnits?: string|number
@@ -746,8 +827,10 @@ export type MarkerTagAttrs = DefaultTagAttrs & {
     viewBox?: IRect
 }
 
+/** SVGMarkerElement Tag */
 export class MarkerTag extends SvgTagBase<MarkerTagAttrs,SVGMarkerElement> {}
 
+/** SVGMaskElement Attributes */
 export type MaskTagAttrs = DefaultTagAttrs & {
     height?: number
     maskContentUnits?: string|number
@@ -757,18 +840,24 @@ export type MaskTagAttrs = DefaultTagAttrs & {
     y?: number
 }
 
+/** SVGMaskElement Tag */
 export class MaskTag extends SvgTagBase<MaskTagAttrs,SVGMaskElement> {}
 
+/** SVGMetadataElement Attributes */
 export type MetadataTagAttrs = DefaultTagAttrs & {
 }
 
+/** SVGMetadataElement Tag */
 export class MetadataTag extends SvgTagBase<MetadataTagAttrs,SVGMetadataElement> {}
 
+/** SVGPathElement Attributes */
 export type PathTagAttrs = GeometryTagAttrs & {
 }
 
+/** SVGPathElement Tag */
 export class PathTag extends SvgTagBase<PathTagAttrs,SVGPathElement> {}
 
+/** SVGPatternElement Attributes */
 export type PatternTagAttrs = DefaultTagAttrs & {
     height?: number
     patternContentUnits?: string|number
@@ -781,18 +870,24 @@ export type PatternTagAttrs = DefaultTagAttrs & {
     viewBox?: IRect
 }
 
+/** SVGPatternElement Tag */
 export class PatternTag extends SvgTagBase<PatternTagAttrs,SVGPatternElement> {}
 
+/** SVGPolygonElement Attributes */
 export type PolygonTagAttrs = GeometryTagAttrs & {
 }
 
+/** SVGPolygonElement Tag */
 export class PolygonTag extends SvgTagBase<PolygonTagAttrs,SVGPolygonElement> {}
 
+/** SVGPolylineElement Attributes */
 export type PolylineTagAttrs = GeometryTagAttrs & {
 }
 
+/** SVGPolylineElement Tag */
 export class PolylineTag extends SvgTagBase<PolylineTagAttrs,SVGPolylineElement> {}
 
+/** SVGRadialGradientElement Attributes */
 export type RadialGradientTagAttrs = GradientTagAttrs & {
     cx?: number
     cy?: number
@@ -802,8 +897,10 @@ export type RadialGradientTagAttrs = GradientTagAttrs & {
     r?: number
 }
 
+/** SVGRadialGradientElement Tag */
 export class RadialGradientTag extends SvgTagBase<RadialGradientTagAttrs,SVGRadialGradientElement> {}
 
+/** SVGRectElement Attributes */
 export type RectTagAttrs = GeometryTagAttrs & {
     height?: number
     rx?: number
@@ -813,8 +910,10 @@ export type RectTagAttrs = GeometryTagAttrs & {
     y?: number
 }
 
+/** SVGRectElement Tag */
 export class RectTag extends SvgTagBase<RectTagAttrs,SVGRectElement> {}
 
+/** SVGSVGElement Attributes */
 export type SVGTagAttrs = GraphicsTagAttrs & {
     currentScale?: number
     currentTranslate?: DOMPointReadOnly
@@ -826,20 +925,26 @@ export type SVGTagAttrs = GraphicsTagAttrs & {
     viewBox?: IRect
 }
 
+/** SVGSVGElement Tag */
 export class SVGTag extends SvgTagBase<SVGTagAttrs,SVGSVGElement> {}
 
+/** SVGScriptElement Attributes */
 export type ScriptTagAttrs = DefaultTagAttrs & {
     type?: string
 }
 
+/** SVGScriptElement Tag */
 export class ScriptTag extends SvgTagBase<ScriptTagAttrs,SVGScriptElement> {}
 
+/** SVGStopElement Attributes */
 export type StopTagAttrs = DefaultTagAttrs & {
     offset?: number
 }
 
+/** SVGStopElement Tag */
 export class StopTag extends SvgTagBase<StopTagAttrs,SVGStopElement> {}
 
+/** SVGStyleElement Attributes */
 export type StyleTagAttrs = DefaultTagAttrs & {
     disabled?: boolean
     media?: string
@@ -847,20 +952,26 @@ export type StyleTagAttrs = DefaultTagAttrs & {
     type?: string
 }
 
+/** SVGStyleElement Tag */
 export class StyleTag extends SvgTagBase<StyleTagAttrs,SVGStyleElement> {}
 
+/** SVGSwitchElement Attributes */
 export type SwitchTagAttrs = GraphicsTagAttrs & {
 }
 
+/** SVGSwitchElement Tag */
 export class SwitchTag extends SvgTagBase<SwitchTagAttrs,SVGSwitchElement> {}
 
+/** SVGSymbolElement Attributes */
 export type SymbolTagAttrs = DefaultTagAttrs & {
     preserveAspectRatio?: string
     viewBox?: IRect
 }
 
+/** SVGSymbolElement Tag */
 export class SymbolTag extends SvgTagBase<SymbolTagAttrs,SVGSymbolElement> {}
 
+/** SVGTextContentElement Attributes */
 export type TextContentTagAttrs = GraphicsTagAttrs & {
     lengthAdjust?: string|number
     textLength?: number
@@ -869,13 +980,17 @@ export type TextContentTagAttrs = GraphicsTagAttrs & {
     LENGTHADJUST_UNKNOWN?: number
 }
 
+/** SVGTextContentElement Tag */
 export class TextContentTag extends SvgTagBase<TextContentTagAttrs,SVGTextContentElement> {}
 
+/** SVGTitleElement Attributes */
 export type TitleTagAttrs = DefaultTagAttrs & {
 }
 
+/** SVGTitleElement Tag */
 export class TitleTag extends SvgTagBase<TitleTagAttrs,SVGTitleElement> {}
 
+/** SVGUseElement Attributes */
 export type UseTagAttrs = GraphicsTagAttrs & {
     height?: number
     width?: number
@@ -883,19 +998,23 @@ export type UseTagAttrs = GraphicsTagAttrs & {
     y?: number
 }
 
+/** SVGUseElement Tag */
 export class UseTag extends SvgTagBase<UseTagAttrs,SVGUseElement> {}
 
+/** SVGViewElement Attributes */
 export type ViewTagAttrs = DefaultTagAttrs & {
     preserveAspectRatio?: string
     viewBox?: IRect
 }
 
+/** SVGViewElement Tag */
 export class ViewTag extends SvgTagBase<ViewTagAttrs,SVGViewElement> {}
 
 //// End Tag Classes
 
 //// Begin Tag Map
 
+/** Map the names of SVG tags to their classes. */
 export interface SvgTagMap {
     "a": ATag
     "circle": CircleTag

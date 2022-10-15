@@ -126,7 +126,7 @@ for (let t of tagTypes) {
     file.replaceRegion("Tag Methods", tagMethods)
 
     // tag map
-    const tagMap = [`\nexport interface ${titleize(t)}TagMap {`]
+    const tagMap = [`\n/** Map the names of ${t.toUpperCase()} tags to their classes. */\nexport interface ${titleize(t)}TagMap {`]
     Object.entries(taggedElements[t]).forEach(([tag, elem]) => {
         tagMap.push(`    "${tag}": ${elem.className}`)
     })

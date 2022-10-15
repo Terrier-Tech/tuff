@@ -282,6 +282,9 @@ export type SelectOption = {
     title: string
 }
 
+/**
+ * An array of `SelectOption`s that can be passed to `optionsForSelect`.
+ */
 export type SelectOptions = SelectOption[]
 
 /**

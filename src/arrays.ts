@@ -22,7 +22,7 @@ export function groupBy<T extends object, K extends keyof T, TK extends T[K] & (
 /**
  * Type for a function that returns a groupBy key from a type.
  */
-type KeyFun<T, K> = (item: T) => K | undefined
+export type KeyFun<T, K> = (item: T) => K | undefined
 
 
 /**
@@ -69,6 +69,9 @@ export function indexBy<T extends object, K extends KeyOfType<T,string> & string
     return obj
 }
 
+/**
+ * Whether to perform an ascending or descending sort.
+ */
 export type SortDir = "asc" | "desc"
 
 /**
@@ -89,7 +92,7 @@ export function sortBy<T extends object, K extends KeyOfType<T,string> & string>
  * Generates an array ranging between two numbers
  * @param start The starting number
  * @param end The ending number
- * @returns An array containing integers from {start} to {end}
+ * @returns An array containing integers from `start` to `end`
  */
 export function range(start: number, end: number): number[] {
     return Array.from(Array(end - start + 1).keys()).map(x => x + start)
@@ -158,7 +161,7 @@ export function compact<T>(array: Array<T | null | undefined>): T[] {
 /**
  * A readonly wrapper around an array that lets you chain method calls.
  */
-class Stream<T> {
+export class Stream<T> {
     constructor(readonly array: T[]) {}
 
     /**

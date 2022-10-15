@@ -523,6 +523,7 @@ export abstract class HtmlTagBase<AttrsType extends Attrs,ElementType extends HT
 // DO NOT EDIT THE CODE BELOW!
 //// Begin Tag Classes
 
+/** HTMLAnchorElement Attributes */
 export type AnchorTagAttrs = DefaultTagAttrs & {
     href?: string
     download?: string
@@ -535,8 +536,10 @@ export type AnchorTagAttrs = DefaultTagAttrs & {
     type?: string
 }
 
+/** HTMLAnchorElement Tag */
 export class AnchorTag extends HtmlTagBase<AnchorTagAttrs,HTMLAnchorElement> {}
 
+/** HTMLAreaElement Attributes */
 export type AreaTagAttrs = DefaultTagAttrs & {
     alt?: string
     coords?: string
@@ -548,25 +551,33 @@ export type AreaTagAttrs = DefaultTagAttrs & {
     target?: string
 }
 
+/** HTMLAreaElement Tag */
 export class AreaTag extends HtmlTagBase<AreaTagAttrs,HTMLAreaElement> {}
 
+/** HTMLBRElement Attributes */
 export type BRTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLBRElement Tag */
 export class BRTag extends HtmlTagBase<BRTagAttrs,HTMLBRElement> {}
 
+/** HTMLBaseElement Attributes */
 export type BaseTagAttrs = DefaultTagAttrs & {
     href?: string
     target?: string
 }
 
+/** HTMLBaseElement Tag */
 export class BaseTag extends HtmlTagBase<BaseTagAttrs,HTMLBaseElement> {}
 
+/** HTMLBodyElement Attributes */
 export type BodyTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLBodyElement Tag */
 export class BodyTag extends HtmlTagBase<BodyTagAttrs,HTMLBodyElement> {}
 
+/** HTMLButtonElement Attributes */
 export type ButtonTagAttrs = DefaultTagAttrs & {
     disabled?: boolean
     formAction?: string
@@ -579,42 +590,56 @@ export type ButtonTagAttrs = DefaultTagAttrs & {
     value?: string
 }
 
+/** HTMLButtonElement Tag */
 export class ButtonTag extends HtmlTagBase<ButtonTagAttrs,HTMLButtonElement> {}
 
+/** HTMLCanvasElement Attributes */
 export type CanvasTagAttrs = DefaultTagAttrs & {
     height?: number
     width?: number
 }
 
+/** HTMLCanvasElement Tag */
 export class CanvasTag extends HtmlTagBase<CanvasTagAttrs,HTMLCanvasElement> {}
 
+/** HTMLDListElement Attributes */
 export type DListTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLDListElement Tag */
 export class DListTag extends HtmlTagBase<DListTagAttrs,HTMLDListElement> {}
 
+/** HTMLDataElement Attributes */
 export type DataTagAttrs = DefaultTagAttrs & {
     value?: string
 }
 
+/** HTMLDataElement Tag */
 export class DataTag extends HtmlTagBase<DataTagAttrs,HTMLDataElement> {}
 
+/** HTMLDataListElement Attributes */
 export type DataListTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLDataListElement Tag */
 export class DataListTag extends HtmlTagBase<DataListTagAttrs,HTMLDataListElement> {}
 
+/** HTMLDetailsElement Attributes */
 export type DetailsTagAttrs = DefaultTagAttrs & {
     open?: boolean
 }
 
+/** HTMLDetailsElement Tag */
 export class DetailsTag extends HtmlTagBase<DetailsTagAttrs,HTMLDetailsElement> {}
 
+/** HTMLDivElement Attributes */
 export type DivTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLDivElement Tag */
 export class DivTag extends HtmlTagBase<DivTagAttrs,HTMLDivElement> {}
 
+/** HTMLElement Attributes */
 export type DefaultTagAttrs = HtmlBaseAttrs & {
     accessKey?: string
     autocapitalize?: string
@@ -629,8 +654,10 @@ export type DefaultTagAttrs = HtmlBaseAttrs & {
     translate?: boolean
 }
 
+/** HTMLElement Tag */
 export class DefaultTag extends HtmlTagBase<DefaultTagAttrs,HTMLElement> {}
 
+/** HTMLEmbedElement Attributes */
 export type EmbedTagAttrs = DefaultTagAttrs & {
     height?: string
     src?: string
@@ -638,15 +665,19 @@ export type EmbedTagAttrs = DefaultTagAttrs & {
     width?: string
 }
 
+/** HTMLEmbedElement Tag */
 export class EmbedTag extends HtmlTagBase<EmbedTagAttrs,HTMLEmbedElement> {}
 
+/** HTMLFieldSetElement Attributes */
 export type FieldSetTagAttrs = DefaultTagAttrs & {
     disabled?: boolean
     name?: string
 }
 
+/** HTMLFieldSetElement Tag */
 export class FieldSetTag extends HtmlTagBase<FieldSetTagAttrs,HTMLFieldSetElement> {}
 
+/** HTMLFormElement Attributes */
 export type FormTagAttrs = DefaultTagAttrs & {
     acceptCharset?: string
     action?: string
@@ -659,33 +690,45 @@ export type FormTagAttrs = DefaultTagAttrs & {
     target?: string
 }
 
+/** HTMLFormElement Tag */
 export class FormTag extends HtmlTagBase<FormTagAttrs,HTMLFormElement> {}
 
+/** HTMLFrameSetElement Attributes */
 export type FrameSetTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLFrameSetElement Tag */
 export class FrameSetTag extends HtmlTagBase<FrameSetTagAttrs,HTMLFrameSetElement> {}
 
+/** HTMLHRElement Attributes */
 export type HRTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLHRElement Tag */
 export class HRTag extends HtmlTagBase<HRTagAttrs,HTMLHRElement> {}
 
+/** HTMLHeadElement Attributes */
 export type HeadTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLHeadElement Tag */
 export class HeadTag extends HtmlTagBase<HeadTagAttrs,HTMLHeadElement> {}
 
+/** HTMLHeadingElement Attributes */
 export type HeadingTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLHeadingElement Tag */
 export class HeadingTag extends HtmlTagBase<HeadingTagAttrs,HTMLHeadingElement> {}
 
+/** HTMLHtmlElement Attributes */
 export type HtmlTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLHtmlElement Tag */
 export class HtmlTag extends HtmlTagBase<HtmlTagAttrs,HTMLHtmlElement> {}
 
+/** HTMLIFrameElement Attributes */
 export type IFrameTagAttrs = DefaultTagAttrs & {
     allow?: string
     allowFullscreen?: boolean
@@ -697,15 +740,17 @@ export type IFrameTagAttrs = DefaultTagAttrs & {
     width?: string
 }
 
+/** HTMLIFrameElement Tag */
 export class IFrameTag extends HtmlTagBase<IFrameTagAttrs,HTMLIFrameElement> {}
 
+/** HTMLImageElement Attributes */
 export type ImageTagAttrs = DefaultTagAttrs & {
     alt?: string
     crossOrigin?: string | null
     decoding?: "async" | "sync" | "auto"
     height?: number
     isMap?: boolean
-    loading?: string
+    loading?: "eager" | "lazy"
     referrerPolicy?: string
     sizes?: string
     src?: string
@@ -714,8 +759,10 @@ export type ImageTagAttrs = DefaultTagAttrs & {
     width?: number
 }
 
+/** HTMLImageElement Tag */
 export class ImageTag extends HtmlTagBase<ImageTagAttrs,HTMLImageElement> {}
 
+/** HTMLInputElement Attributes */
 export type InputTagAttrs = DefaultTagAttrs & {
     accept?: string
     alt?: string
@@ -758,25 +805,33 @@ export type InputTagAttrs = DefaultTagAttrs & {
     width?: number
 }
 
+/** HTMLInputElement Tag */
 export class InputTag extends HtmlTagBase<InputTagAttrs,HTMLInputElement> {}
 
+/** HTMLLIElement Attributes */
 export type LITagAttrs = DefaultTagAttrs & {
     value?: number
 }
 
+/** HTMLLIElement Tag */
 export class LITag extends HtmlTagBase<LITagAttrs,HTMLLIElement> {}
 
+/** HTMLLabelElement Attributes */
 export type LabelTagAttrs = DefaultTagAttrs & {
     htmlFor?: string
 }
 
+/** HTMLLabelElement Tag */
 export class LabelTag extends HtmlTagBase<LabelTagAttrs,HTMLLabelElement> {}
 
+/** HTMLLegendElement Attributes */
 export type LegendTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLLegendElement Tag */
 export class LegendTag extends HtmlTagBase<LegendTagAttrs,HTMLLegendElement> {}
 
+/** HTMLLinkElement Attributes */
 export type LinkTagAttrs = DefaultTagAttrs & {
     as?: string
     crossOrigin?: string | null
@@ -792,14 +847,18 @@ export type LinkTagAttrs = DefaultTagAttrs & {
     type?: string
 }
 
+/** HTMLLinkElement Tag */
 export class LinkTag extends HtmlTagBase<LinkTagAttrs,HTMLLinkElement> {}
 
+/** HTMLMapElement Attributes */
 export type MapTagAttrs = DefaultTagAttrs & {
     name?: string
 }
 
+/** HTMLMapElement Tag */
 export class MapTag extends HtmlTagBase<MapTagAttrs,HTMLMapElement> {}
 
+/** HTMLMediaElement Attributes */
 export type MediaTagAttrs = DefaultTagAttrs & {
     autoplay?: boolean
     controls?: boolean
@@ -819,21 +878,28 @@ export type MediaTagAttrs = DefaultTagAttrs & {
     volume?: number
 }
 
+/** HTMLMediaElement Tag */
 export class MediaTag extends HtmlTagBase<MediaTagAttrs,HTMLMediaElement> {}
 
+/** HTMLMenuElement Attributes */
 export type MenuTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLMenuElement Tag */
 export class MenuTag extends HtmlTagBase<MenuTagAttrs,HTMLMenuElement> {}
 
+/** HTMLMetaElement Attributes */
 export type MetaTagAttrs = DefaultTagAttrs & {
     content?: string
     httpEquiv?: string
+    media?: string
     name?: string
 }
 
+/** HTMLMetaElement Tag */
 export class MetaTag extends HtmlTagBase<MetaTagAttrs,HTMLMetaElement> {}
 
+/** HTMLMeterElement Attributes */
 export type MeterTagAttrs = DefaultTagAttrs & {
     high?: number
     low?: number
@@ -843,23 +909,29 @@ export type MeterTagAttrs = DefaultTagAttrs & {
     value?: number
 }
 
+/** HTMLMeterElement Tag */
 export class MeterTag extends HtmlTagBase<MeterTagAttrs,HTMLMeterElement> {}
 
+/** HTMLModElement Attributes */
 export type ModTagAttrs = DefaultTagAttrs & {
     cite?: string
     dateTime?: string
 }
 
+/** HTMLModElement Tag */
 export class ModTag extends HtmlTagBase<ModTagAttrs,HTMLModElement> {}
 
+/** HTMLOListElement Attributes */
 export type OListTagAttrs = DefaultTagAttrs & {
     reversed?: boolean
     start?: number
     type?: string
 }
 
+/** HTMLOListElement Tag */
 export class OListTag extends HtmlTagBase<OListTagAttrs,HTMLOListElement> {}
 
+/** HTMLObjectElement Attributes */
 export type ObjectTagAttrs = DefaultTagAttrs & {
     data?: string
     height?: string
@@ -869,15 +941,19 @@ export type ObjectTagAttrs = DefaultTagAttrs & {
     width?: string
 }
 
+/** HTMLObjectElement Tag */
 export class ObjectTag extends HtmlTagBase<ObjectTagAttrs,HTMLObjectElement> {}
 
+/** HTMLOptGroupElement Attributes */
 export type OptGroupTagAttrs = DefaultTagAttrs & {
     disabled?: boolean
     label?: string
 }
 
+/** HTMLOptGroupElement Tag */
 export class OptGroupTag extends HtmlTagBase<OptGroupTagAttrs,HTMLOptGroupElement> {}
 
+/** HTMLOptionElement Attributes */
 export type OptionTagAttrs = DefaultTagAttrs & {
     defaultSelected?: boolean
     disabled?: boolean
@@ -887,51 +963,67 @@ export type OptionTagAttrs = DefaultTagAttrs & {
     value?: string
 }
 
+/** HTMLOptionElement Tag */
 export class OptionTag extends HtmlTagBase<OptionTagAttrs,HTMLOptionElement> {}
 
+/** HTMLOutputElement Attributes */
 export type OutputTagAttrs = DefaultTagAttrs & {
     defaultValue?: string
     name?: string
     value?: string
 }
 
+/** HTMLOutputElement Tag */
 export class OutputTag extends HtmlTagBase<OutputTagAttrs,HTMLOutputElement> {}
 
+/** HTMLParagraphElement Attributes */
 export type ParagraphTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLParagraphElement Tag */
 export class ParagraphTag extends HtmlTagBase<ParagraphTagAttrs,HTMLParagraphElement> {}
 
+/** HTMLParamElement Attributes */
 export type ParamTagAttrs = DefaultTagAttrs & {
     name?: string
     value?: string
 }
 
+/** HTMLParamElement Tag */
 export class ParamTag extends HtmlTagBase<ParamTagAttrs,HTMLParamElement> {}
 
+/** HTMLPictureElement Attributes */
 export type PictureTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLPictureElement Tag */
 export class PictureTag extends HtmlTagBase<PictureTagAttrs,HTMLPictureElement> {}
 
+/** HTMLPreElement Attributes */
 export type PreTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLPreElement Tag */
 export class PreTag extends HtmlTagBase<PreTagAttrs,HTMLPreElement> {}
 
+/** HTMLProgressElement Attributes */
 export type ProgressTagAttrs = DefaultTagAttrs & {
     max?: number
     value?: number
 }
 
+/** HTMLProgressElement Tag */
 export class ProgressTag extends HtmlTagBase<ProgressTagAttrs,HTMLProgressElement> {}
 
+/** HTMLQuoteElement Attributes */
 export type QuoteTagAttrs = DefaultTagAttrs & {
     cite?: string
 }
 
+/** HTMLQuoteElement Tag */
 export class QuoteTag extends HtmlTagBase<QuoteTagAttrs,HTMLQuoteElement> {}
 
+/** HTMLScriptElement Attributes */
 export type ScriptTagAttrs = DefaultTagAttrs & {
     async?: boolean
     crossOrigin?: string | null
@@ -944,8 +1036,10 @@ export type ScriptTagAttrs = DefaultTagAttrs & {
     type?: string
 }
 
+/** HTMLScriptElement Tag */
 export class ScriptTag extends HtmlTagBase<ScriptTagAttrs,HTMLScriptElement> {}
 
+/** HTMLSelectElement Attributes */
 export type SelectTagAttrs = DefaultTagAttrs & {
     autocomplete?: string
     disabled?: boolean
@@ -958,40 +1052,54 @@ export type SelectTagAttrs = DefaultTagAttrs & {
     value?: string
 }
 
+/** HTMLSelectElement Tag */
 export class SelectTag extends HtmlTagBase<SelectTagAttrs,HTMLSelectElement> {}
 
+/** HTMLSlotElement Attributes */
 export type SlotTagAttrs = DefaultTagAttrs & {
     name?: string
 }
 
+/** HTMLSlotElement Tag */
 export class SlotTag extends HtmlTagBase<SlotTagAttrs,HTMLSlotElement> {}
 
+/** HTMLSourceElement Attributes */
 export type SourceTagAttrs = DefaultTagAttrs & {
+    height?: number
     media?: string
     sizes?: string
     src?: string
     srcset?: string
     type?: string
+    width?: number
 }
 
+/** HTMLSourceElement Tag */
 export class SourceTag extends HtmlTagBase<SourceTagAttrs,HTMLSourceElement> {}
 
+/** HTMLSpanElement Attributes */
 export type SpanTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLSpanElement Tag */
 export class SpanTag extends HtmlTagBase<SpanTagAttrs,HTMLSpanElement> {}
 
+/** HTMLStyleElement Attributes */
 export type StyleTagAttrs = DefaultTagAttrs & {
     media?: string
 }
 
+/** HTMLStyleElement Tag */
 export class StyleTag extends HtmlTagBase<StyleTagAttrs,HTMLStyleElement> {}
 
+/** HTMLTableCaptionElement Attributes */
 export type TableCaptionTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLTableCaptionElement Tag */
 export class TableCaptionTag extends HtmlTagBase<TableCaptionTagAttrs,HTMLTableCaptionElement> {}
 
+/** HTMLTableCellElement Attributes */
 export type TableCellTagAttrs = DefaultTagAttrs & {
     abbr?: string
     colSpan?: number
@@ -1000,37 +1108,49 @@ export type TableCellTagAttrs = DefaultTagAttrs & {
     scope?: string
 }
 
+/** HTMLTableCellElement Tag */
 export class TableCellTag extends HtmlTagBase<TableCellTagAttrs,HTMLTableCellElement> {}
 
+/** HTMLTableColElement Attributes */
 export type TableColTagAttrs = DefaultTagAttrs & {
     span?: number
 }
 
+/** HTMLTableColElement Tag */
 export class TableColTag extends HtmlTagBase<TableColTagAttrs,HTMLTableColElement> {}
 
+/** HTMLTableElement Attributes */
 export type TableTagAttrs = DefaultTagAttrs & {
     caption?: HTMLTableCaptionElement | null
     tFoot?: HTMLTableSectionElement | null
     tHead?: HTMLTableSectionElement | null
 }
 
+/** HTMLTableElement Tag */
 export class TableTag extends HtmlTagBase<TableTagAttrs,HTMLTableElement> {}
 
+/** HTMLTableRowElement Attributes */
 export type TableRowTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLTableRowElement Tag */
 export class TableRowTag extends HtmlTagBase<TableRowTagAttrs,HTMLTableRowElement> {}
 
+/** HTMLTableSectionElement Attributes */
 export type TableSectionTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLTableSectionElement Tag */
 export class TableSectionTag extends HtmlTagBase<TableSectionTagAttrs,HTMLTableSectionElement> {}
 
+/** HTMLTemplateElement Attributes */
 export type TemplateTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLTemplateElement Tag */
 export class TemplateTag extends HtmlTagBase<TemplateTagAttrs,HTMLTemplateElement> {}
 
+/** HTMLTextAreaElement Attributes */
 export type TextAreaTagAttrs = DefaultTagAttrs & {
     autocomplete?: string
     cols?: number
@@ -1051,20 +1171,26 @@ export type TextAreaTagAttrs = DefaultTagAttrs & {
     wrap?: string
 }
 
+/** HTMLTextAreaElement Tag */
 export class TextAreaTag extends HtmlTagBase<TextAreaTagAttrs,HTMLTextAreaElement> {}
 
+/** HTMLTimeElement Attributes */
 export type TimeTagAttrs = DefaultTagAttrs & {
     dateTime?: string
 }
 
+/** HTMLTimeElement Tag */
 export class TimeTag extends HtmlTagBase<TimeTagAttrs,HTMLTimeElement> {}
 
+/** HTMLTitleElement Attributes */
 export type TitleTagAttrs = DefaultTagAttrs & {
     text?: string
 }
 
+/** HTMLTitleElement Tag */
 export class TitleTag extends HtmlTagBase<TitleTagAttrs,HTMLTitleElement> {}
 
+/** HTMLTrackElement Attributes */
 export type TrackTagAttrs = DefaultTagAttrs & {
     default?: boolean
     kind?: string
@@ -1073,22 +1199,28 @@ export type TrackTagAttrs = DefaultTagAttrs & {
     srclang?: string
 }
 
+/** HTMLTrackElement Tag */
 export class TrackTag extends HtmlTagBase<TrackTagAttrs,HTMLTrackElement> {}
 
+/** HTMLUListElement Attributes */
 export type UListTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLUListElement Tag */
 export class UListTag extends HtmlTagBase<UListTagAttrs,HTMLUListElement> {}
 
+/** HTMLUnknownElement Attributes */
 export type UnknownTagAttrs = DefaultTagAttrs & {
 }
 
+/** HTMLUnknownElement Tag */
 export class UnknownTag extends HtmlTagBase<UnknownTagAttrs,HTMLUnknownElement> {}
 
 //// End Tag Classes
 
 //// Begin Tag Map
 
+/** Map the names of HTML tags to their classes. */
 export interface HtmlTagMap {
     "a": AnchorTag
     "abbr": DefaultTag
