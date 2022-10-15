@@ -1,3 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400&display=swap');
+
+body {
+    font-family: 'Source Sans Pro', sans-serif;
+}
 
 /** I don't think the settings menu is very interesting */
 .tsd-navigation.settings {
@@ -7,7 +13,7 @@
 /** The default typography is a little tight */
 .tsd-typography {
     line-height: 1.6em;
-
+    font-size: 16px;
 }
 
 /** Add some separation between headers and the previous content */
@@ -18,4 +24,9 @@ h2, h3, h4 {
 /** Less padding in module nav */
 .tsd-navigation.primary a {
     padding: 0.5rem 1rem;
+}
+
+pre {
+    font-family: 'Source Code Pro', Menlo, Monaco, Consolas, "Courier New", monospace;
+    font-size: 16px;
 }
