@@ -1,14 +1,12 @@
 {
     "$schema": "https://typedoc.org/schema.json",
     "entryPoints": ["./src/index.ts"],
-    "out": "docs/html",
+    "out": "docs",
     "name": "Tuff",
     "excludeNotDocumented": true,
-    "media": "docs/media",
-    "customCss": "docs/docs.css",
+    "customCss": "assets/docs.css",
     "cname": "tuff.terrier.tech",
     "plugin": [
         "typedoc-plugin-extras"
-    ],
-    "customDescription": "This is a custom description"
+    ]
 }
