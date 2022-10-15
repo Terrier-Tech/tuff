@@ -1,0 +1,21 @@
+
+/** I don't think the settings menu is very interesting */
+.tsd-navigation.settings {
+    display: none;
+}
+
+/** The default typography is a little tight */
+.tsd-typography {
+    line-height: 1.6em;
+
+}
+
+/** Add some separation between headers and the previous content */
+h2, h3, h4 {
+    margin-top: 2em;
+}
+
+/** Less padding in module nav */
+.tsd-navigation.primary a {
+    padding: 0.5rem 1rem;
+}

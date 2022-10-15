@@ -2,11 +2,12 @@
     "$schema": "https://typedoc.org/schema.json",
     "entryPoints": ["./src/index.ts"],
     "out": "docs/html",
-    "compilerOptions": {
-        "stripInternal": false
-    },
     "name": "Tuff",
     "excludeNotDocumented": true,
     "media": "docs/media",
-    "customCss": "docs/docs.css"
+    "customCss": "docs/docs.css",
+    "plugin": [
+        "typedoc-plugin-extras"
+    ],
+    "customDescription": "This is a custom description"
 }
