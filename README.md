@@ -1,3 +1,5 @@
+![Logo](assets/tuff-logo.svg?raw=true)
+
 Tuff is a *Typescript UI Frontend Framework*.
 It is designed to create dynamic, client-side web applications driven by type-safe, declarative code.
 
