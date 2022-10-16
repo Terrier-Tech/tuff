@@ -5,6 +5,16 @@ body {
     font-family: 'Source Sans Pro', sans-serif;
 }
 
+/** Hide the page title since we have a logo */
+.tsd-page-title {
+    display: none;
+}
+
+.tsd-panel p img {
+    display: block;
+    margin: 0 auto;
+}
+
 /** I don't think the settings menu is very interesting */
 .tsd-navigation.settings {
     display: none;
