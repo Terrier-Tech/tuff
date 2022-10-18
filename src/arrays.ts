@@ -158,7 +158,7 @@ export function compact<T>(array: Array<T | null | undefined>): T[] {
 
 /**
  * Filters out elements for which the given properties are null or undefined.
- * Elements that are null or undefined themselves are filtered out
+ * Elements that are null or undefined themselves are filtered out.
  * @param array the array to filter
  * @param props the properties by which to compact the array
  */
@@ -226,6 +226,14 @@ export class Stream<T> {
      */
     compact(): Stream<T> {
         return new Stream(compact(this.array))
+    }
+
+    /**
+     * Filters out elements for which the given properties are null or undefined.
+     * Elements that are null or undefined themselves are filtered out.
+     */
+    compactBy<K extends keyof T>(...props: K[]): Stream<RequireProps<T, K>> {
+        return new Stream(compactBy(this.array, ...props))
     }
 }
 
