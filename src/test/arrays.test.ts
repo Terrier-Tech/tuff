@@ -129,6 +129,18 @@ test("compact", () => {
     }
 })
 
+test("compactBy", () => {
+    const array: ({a?: string, b?:string} | null)[] = [{ a: "alpha", b: "bravo" }, null, { a: "alpha" }]
+    const compactArray = arrays.compactBy(array, 'b')
+
+    expect(compactArray.length).toBe(1)
+    for (const val of compactArray) {
+        expect(val).toBeDefined()
+        const bVal: string = val.b
+        expect(bVal).toBeDefined()
+    }
+})
+
 
 test("streams", () => {
     const input = [

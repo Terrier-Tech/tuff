@@ -1,5 +1,6 @@
 import { KeyOfType } from "./forms"
-import { notNull } from "./objects"
+import { notNull, propNotNull } from "./objects"
+import { RequireProps } from "./types"
 
 /**
  * Groups the elements of `array` by the value of key `key`
@@ -153,6 +154,16 @@ export function unique<T>(array: Array<T>, by?: (a: T) => number|string): Array<
  */
 export function compact<T>(array: Array<T | null | undefined>): T[] {
     return array.filter(notNull)
+}
+
+/**
+ * Filters out elements for which the given properties are null or undefined.
+ * Elements that are null or undefined themselves are filtered out
+ * @param array the array to filter
+ * @param props the properties by which to compact the array
+ */
+export function compactBy<T, K extends keyof T>(array: Array<T | null | undefined>, ...props: Array<K>): RequireProps<T, K>[] {
+    return array.filter((el): el is RequireProps<T, K> => propNotNull(el, ...props))
 }
 
 
