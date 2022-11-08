@@ -83,11 +83,6 @@ export type MountOptions = {
 }
 
 /**
- * Constrains X to exclude any property that does not belong to T
- */
-type Exactly<T, X extends T> = T & Record<Exclude<keyof X, keyof T>, never>
-
-/**
  * Base class for all parts.
  */
 export abstract class Part<StateType> {
@@ -165,7 +160,7 @@ export abstract class Part<StateType> {
     makePart<
         PartType extends Part<PartStateType>,
         PartStateType,
-        InferredPartStateType extends Exactly<PartStateType, InferredPartStateType>
+        InferredPartStateType extends PartStateType
     >(
         constructor: {new (p: PartParent, id: string, state: PartStateType): PartType},
         state: InferredPartStateType,
@@ -187,7 +182,7 @@ export abstract class Part<StateType> {
     private _makeParentedPart<
         PartType extends Part<PartStateType>,
         PartStateType,
-        InferredPartStateType extends Exactly<PartStateType, InferredPartStateType>
+        InferredPartStateType extends PartStateType
     >(
         constructor: {new (p: PartParent, id: string, state: PartStateType): PartType}, 
         parent: PartParent, 
