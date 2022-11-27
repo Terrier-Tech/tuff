@@ -142,6 +142,14 @@ test("compactBy", () => {
 })
 
 
+test("without", () => {
+    const a = ['one', 'two', 'three']
+    const b = arrays.without(a, 'two')
+    expect(b.length).toBe(2)
+    expect(b[1]).toBe('three')
+})
+
+
 test("streams", () => {
     const input = [
         {id: "one", foo: "bar"},

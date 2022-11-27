@@ -166,6 +166,18 @@ export function compactBy<T, K extends keyof T>(array: Array<T | null | undefine
     return array.filter((el): el is RequireProps<T, K> => propNotNull(el, ...props))
 }
 
+/**
+ * Create a new array without the given element.
+ * @param array the input array
+ * @param element the element to remove
+ * @returns a new array without element
+ */
+export function without<T>(array: Array<T>, element: T): Array<T> {
+    return array.filter(el => {
+        return el != element
+    })
+}
+
 
 /// Stream
 
