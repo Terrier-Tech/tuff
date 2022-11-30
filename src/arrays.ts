@@ -8,7 +8,7 @@ import { RequireProps } from "./types"
  * @param key the key by which to group
  * @returns on objects mapping key to grouped elements
  */
-export function groupBy<T extends object, K extends keyof T, TK extends T[K] & (string | number | symbol)>(array: T[], key: K): Record<TK, T[]> {
+export function groupBy<T extends Record<string | symbol, any>, K extends keyof T, TK extends T[K]>(array: T[], key: K): Record<TK, T[]> {
     return array.reduce((previous, currentItem) => {
         const group = currentItem[key] as TK
         if (group) {
@@ -32,7 +32,7 @@ export type KeyFun<T, K> = (item: T) => K | undefined
  * @param getKey a function returning the key by which to group
  * @returns on objects mapping key to grouped elements
  */ 
-export function groupByFunction<T extends object, TK extends string | number | symbol>(list: T[], getKey: KeyFun<T, TK>): Record<TK, T[]> {
+export function groupByFunction<T extends Record<string | symbol, any>, TK extends string | number | symbol>(list: T[], getKey: KeyFun<T, TK>): Record<TK, T[]> {
     return list.reduce((previous, currentItem) => {
         const group = getKey(currentItem)
         if (group) {
@@ -46,7 +46,7 @@ export function groupByFunction<T extends object, TK extends string | number | s
 /**
  * Iterates over the results of groupByFunction
  */
-export function eachGroupByFunction<T extends object, TK extends string | number | symbol>(list: T[], getKey: KeyFun<T, TK>, fun: (key: TK, values: T[]) => any) {
+export function eachGroupByFunction<T extends Record<string | symbol, any>, TK extends string | number | symbol>(list: T[], getKey: KeyFun<T, TK>, fun: (key: TK, values: T[]) => any) {
     for (let [k, v] of Object.entries(groupByFunction(list, getKey))) {
         fun(k as TK, v as T[])
     }
@@ -58,7 +58,7 @@ export function eachGroupByFunction<T extends object, TK extends string | number
  * @param key the object key by which to index
  * @returns an object mapping the keys to the individual objects
  */
-export function indexBy<T extends object, K extends KeyOfType<T,string> & string>(array: T[], key: K): Record<string,T> {
+export function indexBy<T extends Record<string | symbol, any>, K extends keyof T, TK extends T[K]>(array: T[], key: K): Record<TK,T> {
     const obj: Record<string,T> = {}
     for (let item of array) {
         // I don't know why typescript can't figure this out
@@ -82,7 +82,7 @@ export type SortDir = "asc" | "desc"
  * @param dir the sort direction (default ascending)
  * @returns (a new) sorted array
  */
-export function sortBy<T extends object, K extends KeyOfType<T,string> & string>(array: T[], key: K, dir: SortDir = "asc"): T[] {
+export function sortBy<T extends Record<string | symbol, any>, K extends keyof T>(array: T[], key: K, dir: SortDir = "asc"): T[] {
     const dirMult = dir == "asc" ? 1 : -1
     return Array(...array).sort((a, b) => {
         return dirMult * (a[key] > b[key] ? 1 : -1)
@@ -188,11 +188,35 @@ export class Stream<T> {
     constructor(readonly array: T[]) {}
 
     /**
-     * Exits the chain.
+     * Exits the chain by returning the modified array
      * @returns the actual array
      */
     toArray(): T[] {
         return this.array
+    }
+
+    /**
+     * Exits the chain by grouping elements into an object of arrays based on the given property key
+     * @param key the property to group by
+     */
+    groupBy<K extends keyof T, TK extends T[K] & (string | number | symbol)>(key: K): Record<TK, T[]> {
+        return groupBy(this.array, key)
+    }
+
+    /**
+     * Exits the chain by grouping elements into an object of arrays based on the results the getKey function
+     * @param getKey a function that returns the value to group by
+     */
+    groupByFunction<TK extends string | number | symbol>(getKey: KeyFun<T, TK>): Record<TK, T[]> {
+        return groupByFunction(this.array, getKey)
+    }
+
+    /**
+     * Exits the chain by mapping each item to a unique key
+     * @param key
+     */
+    indexBy<K extends keyof T, TK extends T[K] & (string | number | symbol)>(key: K): Record<TK,T> {
+        return indexBy(this.array, key)
     }
 
     /**
