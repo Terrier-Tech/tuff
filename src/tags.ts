@@ -10,34 +10,6 @@ import * as strings from './strings'
 export type DataAttrs = {[key: string]: any}
 
 /**
- * Sanitizes the given data-attribute key based on the rules described here:
- * https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset#:~:text=Using%20data%20attributes.-,Name%20conversion,-dash%2Dstyle%20to
- * @param k a data-attribute key
- */
-function sanitizeDataKey(k: string): string {
-    return strings.ropeCase(k)
-}
-
-/**
- * Resursively constructs data attributes into key/value strings.
- * Nested keys are joined with dashes.
- * @param builder - An array of strings on which to append the attributes
- * @param data - The data attributes object
- * @param prefix - A prefix for each attribute name
- */
-const buildDataAttrs = (builder: string[], data: DataAttrs, prefix='data-') => {
-    for (let kv of Object.entries(data)) {
-        const k = sanitizeDataKey(kv[0])
-        if (typeof kv[1] == 'object') {
-            buildDataAttrs(builder, kv[1], `${prefix}${k}-`)
-        }
-        else {
-            builder.push(`${prefix}${k}="${kv[1]}"`)
-        }
-    }
-}
-
-/**
  * An object containing inline style declarations.
  */
 export type InlineStyle = Partial<CSSStyleDeclaration>
@@ -247,6 +219,34 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
     }
 
     /**
+     * Sanitizes the given data-attribute key based on the rules described here:
+     * https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset#:~:text=Using%20data%20attributes.-,Name%20conversion,-dash%2Dstyle%20to
+     * @param k a data-attribute key
+     */
+    protected sanitizeDataKey(k: string): string {
+        return strings.ropeCase(k)
+    }
+
+    /**
+     * Recursively constructs data attributes into key/value strings.
+     * Nested keys are joined with dashes.
+     * @param builder - An array of strings on which to append the attributes
+     * @param data - The data attributes object
+     * @param prefix - A prefix for each attribute name
+     */
+    protected buildDataAttrs(builder: string[], data: DataAttrs, prefix='data-') {
+        for (let kv of Object.entries(data)) {
+            const k = this.sanitizeDataKey(kv[0])
+            if (typeof kv[1] == 'object') {
+                this.buildDataAttrs(builder, kv[1], `${prefix}${k}-`)
+            }
+            else {
+                builder.push(`${prefix}${k}="${this.escapeAttrValue(kv[1])}"`)
+            }
+        }
+    }
+
+    /**
      * Builds the resulting HTML by appending lines to the `output` array.
      * @param output - A string array on which to append the output
      */
@@ -263,7 +263,7 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
             allAttrs.push(this.serializeAttribute(kv[0], kv[1]))
         }
         if (this._data) {
-            buildDataAttrs(allAttrs, this._data)
+            this.buildDataAttrs(allAttrs, this._data)
         }
         if (this._css) {
             allAttrs.push(`style="${buildStyleAttr(this._css)}"`)
