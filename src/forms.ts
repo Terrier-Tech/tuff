@@ -53,6 +53,10 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
         return this.input<Key>(parent, "text", name, TextInputField, attrs)
     }
 
+    fileInput<Key extends KeyOfType<DataType,File> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "file", name, FileInputField, attrs)
+    }
+
     emailInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
         return this.input<Key>(parent, "email", name, TextInputField, attrs)
     }
@@ -121,6 +125,30 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
             if (field) {
                 const value = field.getValue(elems)
                 Object.assign(data, {[field.name]: value})
+            }
+        })
+        return data
+    }
+
+    /**
+     * Serializes the form into a FormData object.
+     * This is async so that subclasses can override it and do async things.
+     */
+    async serializeFormData(): Promise<FormData> {
+        const root = this.element
+        const data: FormData = new FormData()
+
+        if (!root) {
+            return data
+        }
+
+        const allElems = Array.from(root.getElementsByClassName(this.className))
+        // there may be more than one actual element for any given key, so group them together and let the Field determine the value
+        arrays.eachGroupByFunction(allElems, e => (e.getAttribute('name')||undefined), (name, elems) => {
+            const field = this.fields[name]
+            if (field) {
+                const value = field.getValue(elems)
+                data.append(field.name, value)
             }
         })
         return data
@@ -213,6 +241,36 @@ class TextInputField extends Field<string, HTMLInputElement> {
 
     getValue(elems: HTMLInputElement[]): string | null {
         return elems[0].value
+    }
+
+}
+
+class FileInputField extends Field<File | FileList, HTMLInputElement> {
+
+    assignAttrValue(_attrs: InputTagAttrs, _value?: File | FileList) {
+        // CTN_TODO
+        // if (value) {
+        //     if (value instanceof File) {
+        //         attrs.value = value?.name
+        //         attrs.files = new FileList()
+        //         attrs.files[0] = value
+        //     } else if (value.length) {
+        //         attrs.value = value[0].name
+        //         attrs.files = value
+        //     }
+        // }
+    }
+
+    getValue(elem: HTMLInputElement[]): File | FileList | null {
+        if (elem[0].files) {
+            if (elem[0].files.length <= 1) {
+                return elem[0].files[0]
+            } else {
+                return elem[0].files
+            }
+        } else {
+            return null
+        }
     }
 
 }

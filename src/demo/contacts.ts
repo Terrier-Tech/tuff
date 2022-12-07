@@ -72,17 +72,21 @@ type ContactState = {
     id: string
     name: string
     email?: string
+    photo?: File
     role: Role
     status: Status
     isAdmin: boolean
     birthday?: string
-    notes?: string,
+    notes?: string
     phones: PhoneState[]
 }
 
 class ContactFormPart extends forms.FormPart<ContactState> {
 
     phoneForms: {[id: string]: PhoneFormPart} = {}
+    photoKey = messages.untypedKey()
+    photo?: File
+    photoSrc?: string
 
     async init() {
         this.onClick(newPhoneKey, _ => {
@@ -98,6 +102,20 @@ class ContactFormPart extends forms.FormPart<ContactState> {
 
         this.onDataChanged(this.dataChangedKey, m => {
             log.info("Contact form data changed", m)
+        })
+
+        this.onChange(this.photoKey, async _ => {
+            let data: FormData = await this.serializeFormData()
+            let photo: File = data.get('photo')
+
+            if (data && photo) {
+                const reader = new FileReader()
+                reader.onload = () => {
+                    this.photoSrc = reader.result
+                    this.dirty()
+                }
+                reader.readAsDataURL(photo)
+            }
         })
     }
 
@@ -115,10 +133,22 @@ class ContactFormPart extends forms.FormPart<ContactState> {
     }
 
     render(parent: PartTag) {
-        parent.div(styles.contactForm, form => { 
+        parent.div(styles.contactForm, form => {
             this.textInput(form, "name", {placeholder: 'Name'})
             this.emailInput(form, "email", {placeholder: 'E-Mail'})
-            
+
+            form.div(styles.flexColumn, col => {
+                col.label(label => {
+                    label.span({text: "Photo(s)"})
+                })
+                this.fileInput(col, "photo", {accept: "image/png, image/jpeg", multiple: true})
+                    .emitChange(this.photoKey)
+
+                if (this.photoSrc) {
+                    col.img({src: this.photoSrc})
+                }
+            })
+
             this.select(form, "role", roleOptions)
             
             form.div(styles.flexRow, row => {
@@ -160,7 +190,7 @@ class ContactFormPart extends forms.FormPart<ContactState> {
             for (let [_, phoneForm] of Object.entries(this.phoneForms)) {
                 form.part(phoneForm)
             }
-            
+
             this.textArea(form, "notes", {placeholder: 'Notes', rows: 3})
         })
     }
