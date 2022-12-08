@@ -85,7 +85,7 @@ class ContactFormPart extends forms.FormPart<ContactState> {
 
     phoneForms: {[id: string]: PhoneFormPart} = {}
     photoKey = messages.untypedKey()
-    photoSrc?: string
+    photoSrcs: Array<string> = new Array<string>()
 
     async init() {
         this.onClick(newPhoneKey, _ => {
@@ -105,15 +105,27 @@ class ContactFormPart extends forms.FormPart<ContactState> {
 
         this.onChange(this.photoKey, async _ => {
             let data: FormData = await this.serializeFormData()
-            let photo: File | null = data.get('photo') as File
+            let photos: File | Array<File> | null = data.getAll('photo') as File | Array<File>
 
-            if (data && photo) {
-                const reader = new FileReader()
-                reader.onload = () => {
-                    this.photoSrc = reader.result as string
-                    this.dirty()
+            if (data && photos) {
+                if (photos instanceof File) {
+                    const reader = new FileReader()
+                    reader.onload = () => {
+                        this.photoSrcs.push(reader.result as string)
+                        this.dirty()
+                    }
+                    reader.readAsDataURL(photos)
+                } else {
+                    for (const photo of photos) {
+                        // use a new FileReader for each photo
+                        const reader = new FileReader()
+                        reader.onload = () => {
+                            this.photoSrcs.push(reader.result as string)
+                            this.dirty()
+                        }
+                        reader.readAsDataURL(photo)
+                    }
                 }
-                reader.readAsDataURL(photo)
             }
         })
     }
@@ -143,8 +155,10 @@ class ContactFormPart extends forms.FormPart<ContactState> {
                 this.fileInput(col, "photo", {accept: "image/png, image/jpeg", multiple: true})
                     .emitChange(this.photoKey)
 
-                if (this.photoSrc) {
-                    col.img({src: this.photoSrc, width: 200, height: 200})
+                if (this.photoSrcs.length) {
+                    for (const src of this.photoSrcs) {
+                        col.img({src: src, width: 200, height: 200})
+                    }
                 }
             })
 

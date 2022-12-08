@@ -148,7 +148,13 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
             const field = this.fields[name]
             if (field) {
                 const value = field.getValue(elems)
-                data.append(field.name, value)
+                if (value instanceof FileList) {
+                    for (let i = 0; i < value.length; i++) {
+                        data.append(field.name, value[i])
+                    }
+                } else {
+                    data.append(field.name, value)
+                }
             }
         })
         return data
@@ -248,17 +254,7 @@ class TextInputField extends Field<string, HTMLInputElement> {
 class FileInputField extends Field<File | FileList, HTMLInputElement> {
 
     assignAttrValue(_attrs: InputTagAttrs, _value?: File | FileList) {
-        // CTN_TODO
-        // if (value) {
-        //     if (value instanceof File) {
-        //         attrs.value = value?.name
-        //         attrs.files = new FileList()
-        //         attrs.files[0] = value
-        //     } else if (value.length) {
-        //         attrs.value = value[0].name
-        //         attrs.files = value
-        //     }
-        // }
+
     }
 
     getValue(elem: HTMLInputElement[]): File | FileList | null {
