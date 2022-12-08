@@ -251,22 +251,14 @@ class TextInputField extends Field<string, HTMLInputElement> {
 
 }
 
-class FileInputField extends Field<File | FileList, HTMLInputElement> {
+class FileInputField extends Field<FileList, HTMLInputElement> {
 
-    assignAttrValue(_attrs: InputTagAttrs, _value?: File | FileList) {
-
+    assignAttrValue(attrs: InputTagAttrs, value?: FileList) {
+        attrs.files = value
     }
 
-    getValue(elem: HTMLInputElement[]): File | FileList | null {
-        if (elem[0].files) {
-            if (elem[0].files.length <= 1) {
-                return elem[0].files[0]
-            } else {
-                return elem[0].files
-            }
-        } else {
-            return null
-        }
+    getValue(elem: HTMLInputElement[]): FileList | null {
+        return elem[0].files ?? null
     }
 
 }

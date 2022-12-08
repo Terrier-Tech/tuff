@@ -104,27 +104,20 @@ class ContactFormPart extends forms.FormPart<ContactState> {
         })
 
         this.onChange(this.photoKey, async _ => {
-            let data: FormData = await this.serializeFormData()
-            let photos: File | Array<File> | null = data.getAll('photo') as File | Array<File>
+            this.photoSrcs.splice(0)
 
-            if (data && photos) {
-                if (photos instanceof File) {
+            let data: FormData = await this.serializeFormData()
+            let photos: Array<File> | null = data.getAll('photo') as Array<File>
+
+            if (data && photos.length) {
+                for (const photo of photos) {
+                    // use a new FileReader for each photo
                     const reader = new FileReader()
                     reader.onload = () => {
                         this.photoSrcs.push(reader.result as string)
                         this.dirty()
                     }
-                    reader.readAsDataURL(photos)
-                } else {
-                    for (const photo of photos) {
-                        // use a new FileReader for each photo
-                        const reader = new FileReader()
-                        reader.onload = () => {
-                            this.photoSrcs.push(reader.result as string)
-                            this.dirty()
-                        }
-                        reader.readAsDataURL(photo)
-                    }
+                    reader.readAsDataURL(photo)
                 }
             }
         })
