@@ -85,7 +85,6 @@ class ContactFormPart extends forms.FormPart<ContactState> {
 
     phoneForms: {[id: string]: PhoneFormPart} = {}
     photoKey = messages.untypedKey()
-    photo?: File
     photoSrc?: string
 
     async init() {
@@ -106,12 +105,12 @@ class ContactFormPart extends forms.FormPart<ContactState> {
 
         this.onChange(this.photoKey, async _ => {
             let data: FormData = await this.serializeFormData()
-            let photo: File = data.get('photo')
+            let photo: File | null = data.get('photo') as File
 
             if (data && photo) {
                 const reader = new FileReader()
                 reader.onload = () => {
-                    this.photoSrc = reader.result
+                    this.photoSrc = reader.result as string
                     this.dirty()
                 }
                 reader.readAsDataURL(photo)
@@ -145,7 +144,7 @@ class ContactFormPart extends forms.FormPart<ContactState> {
                     .emitChange(this.photoKey)
 
                 if (this.photoSrc) {
-                    col.img({src: this.photoSrc})
+                    col.img({src: this.photoSrc, width: 200, height: 200})
                 }
             })
 

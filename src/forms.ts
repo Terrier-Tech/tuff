@@ -20,7 +20,7 @@ export type KeyOfType<T, ValueType> =
 /**
  * All form elements are keyed by a string.
  */
-export type FormData = Record<string, any>
+export type FormPartData = Record<string, any>
 
 /**
  * These get added to the possible events for which messages can be sent and received.
@@ -29,7 +29,7 @@ export interface EventMap {
     "datachanged": Event
 }
 
-export abstract class FormPart<DataType extends FormData> extends Part<DataType> {
+export abstract class FormPart<DataType extends FormPartData> extends Part<DataType> {
 
     fields: {[name: string]: Field<any,Element>} = {}
 
