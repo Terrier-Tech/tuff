@@ -88,6 +88,8 @@ class ContactFormPart extends forms.FormPart<ContactState> {
     photoSrcs: Array<string> = new Array<string>()
 
     async init() {
+        await super.init()
+
         this.onClick(newPhoneKey, _ => {
             this.addPhone()
         })
@@ -115,6 +117,7 @@ class ContactFormPart extends forms.FormPart<ContactState> {
                     const reader = new FileReader()
                     reader.onload = () => {
                         this.photoSrcs.push(reader.result as string)
+                        debugger
                         this.dirty()
                     }
                     reader.readAsDataURL(photo)

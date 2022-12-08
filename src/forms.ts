@@ -32,8 +32,18 @@ export interface EventMap {
 export abstract class FormPart<DataType extends FormPartData> extends Part<DataType> {
 
     fields: {[name: string]: Field<any,Element>} = {}
+    files: {[name: string]: FileList | null} = {}
 
     readonly dataChangedKey = messages.typedKey<DataType>()
+
+    async init() {
+        this.onDataChanged(this.dataChangedKey, m => {
+            const field: HTMLInputElement = m.event.target as HTMLInputElement
+            if (field.type == 'file') {
+                this.files[field.name] = field.files
+            }
+        })
+    }
 
     get className(): string {
         return `form-${this.id}`
@@ -44,6 +54,9 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
         attrs.name = `${this.id}-${name}`
         if (!this.fields[attrs.name]) {
             this.fields[attrs.name] = new serializerType(name)
+        }
+        if (type == 'file' && !this.files[attrs.name]) {
+            this.files[attrs.name] = null
         }
         this.fields[attrs.name].assignAttrValue(attrs, this.state[name])
         return parent.input(attrs, this.className)
@@ -98,6 +111,17 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
             optionsForSelect(tag, options, this.state[name])
         }
         return tag
+    }
+
+    update(elem: HTMLElement) {
+        if (Object.keys(this.files).length) {
+            for (let fieldName in this.files) {
+                if (this.files[fieldName]) {
+                    const field: HTMLInputElement = elem.querySelector(`input[name=${fieldName}]`) as HTMLInputElement
+                    field.files = this.files[fieldName]
+                }
+            }
+        }
     }
 
     /**
