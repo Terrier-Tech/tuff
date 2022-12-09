@@ -108,8 +108,8 @@ class ContactFormPart extends forms.FormPart<ContactState> {
         this.onChange(this.photoKey, async _ => {
             this.photoSrcs.splice(0)
 
-            let data: FormData = await this.serializeFormData()
-            let photos: Array<File> | null = data.getAll('photo') as Array<File>
+            let data = await this.serializeFormData()
+            let photos = data.getAll('photo') as Array<File>
 
             if (data && photos.length) {
                 for (const photo of photos) {

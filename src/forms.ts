@@ -38,7 +38,7 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
 
     async init() {
         this.onDataChanged(this.dataChangedKey, m => {
-            const field: HTMLInputElement = m.event.target as HTMLInputElement
+            const field = m.event.target as HTMLInputElement
             if (field.type == 'file') {
                 this.files[field.name] = field.files
             }
@@ -115,9 +115,9 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
 
     update(elem: HTMLElement) {
         if (Object.keys(this.files).length) {
-            for (let fieldName in this.files) {
+            for (const fieldName in this.files) {
                 if (this.files[fieldName]) {
-                    const field: HTMLInputElement = elem.querySelector(`input[name=${fieldName}]`) as HTMLInputElement
+                    const field = elem.querySelector(`input[name=${fieldName}]`) as HTMLInputElement
                     field.files = this.files[fieldName]
                 }
             }
@@ -277,8 +277,8 @@ class TextInputField extends Field<string, HTMLInputElement> {
 
 class FileInputField extends Field<FileList, HTMLInputElement> {
 
-    assignAttrValue(attrs: InputTagAttrs, value?: FileList) {
-        attrs.files = value
+    assignAttrValue(_attrs: InputTagAttrs, _value?: FileList) {
+        // FileList is assigned to HTMLInputElement's .files attribute by FormPart
     }
 
     getValue(elem: HTMLInputElement[]): FileList | null {
