@@ -123,6 +123,13 @@ export function max(array: Array<number>): number {
 }
 
 /**
+ * Returns the maximum value in an array of numbers.
+ */
+export function sum(array: Array<number>): number {
+    return array.reduce((a, v) => a + v, 0)
+}
+
+/**
  * Returns the last element in an array.
  */
 export function last<T>(array: Array<T>): T {
