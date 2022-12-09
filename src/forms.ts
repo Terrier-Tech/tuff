@@ -278,7 +278,7 @@ class TextInputField extends Field<string, HTMLInputElement> {
 class FileInputField extends Field<FileList, HTMLInputElement> {
 
     assignAttrValue(_attrs: InputTagAttrs, _value?: FileList) {
-        // FileList is assigned to HTMLInputElement's .files attribute by FormPart
+        // FileList is assigned to HTMLInputElement's .files attribute by FormPart#update
     }
 
     getValue(elem: HTMLInputElement[]): FileList | null {
