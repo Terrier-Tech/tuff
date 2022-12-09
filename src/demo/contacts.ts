@@ -72,19 +72,24 @@ type ContactState = {
     id: string
     name: string
     email?: string
+    photo?: File
     role: Role
     status: Status
     isAdmin: boolean
     birthday?: string
-    notes?: string,
+    notes?: string
     phones: PhoneState[]
 }
 
 class ContactFormPart extends forms.FormPart<ContactState> {
 
     phoneForms: {[id: string]: PhoneFormPart} = {}
+    photoKey = messages.untypedKey()
+    photoSrcs: Array<string> = new Array<string>()
 
     async init() {
+        await super.init()
+
         this.onClick(newPhoneKey, _ => {
             this.addPhone()
         })
@@ -98,6 +103,25 @@ class ContactFormPart extends forms.FormPart<ContactState> {
 
         this.onDataChanged(this.dataChangedKey, m => {
             log.info("Contact form data changed", m)
+        })
+
+        this.onChange(this.photoKey, async _ => {
+            this.photoSrcs.splice(0)
+
+            let data = await this.serializeFormData()
+            let photos = data.getAll('photo') as Array<File>
+
+            if (data && photos.length) {
+                for (const photo of photos) {
+                    // use a new FileReader for each photo
+                    const reader = new FileReader()
+                    reader.onload = () => {
+                        this.photoSrcs.push(reader.result as string)
+                        this.dirty()
+                    }
+                    reader.readAsDataURL(photo)
+                }
+            }
         })
     }
 
@@ -115,10 +139,24 @@ class ContactFormPart extends forms.FormPart<ContactState> {
     }
 
     render(parent: PartTag) {
-        parent.div(styles.contactForm, form => { 
+        parent.div(styles.contactForm, form => {
             this.textInput(form, "name", {placeholder: 'Name'})
             this.emailInput(form, "email", {placeholder: 'E-Mail'})
-            
+
+            form.div(styles.flexColumn, col => {
+                col.label(label => {
+                    label.span({text: "Photo(s)"})
+                })
+                this.fileInput(col, "photo", {accept: "image/png, image/jpeg", multiple: true})
+                    .emitChange(this.photoKey)
+
+                if (this.photoSrcs.length) {
+                    for (const src of this.photoSrcs) {
+                        col.img({src: src, width: 200, height: 200})
+                    }
+                }
+            })
+
             this.select(form, "role", roleOptions)
             
             form.div(styles.flexRow, row => {
@@ -160,7 +198,7 @@ class ContactFormPart extends forms.FormPart<ContactState> {
             for (let [_, phoneForm] of Object.entries(this.phoneForms)) {
                 form.part(phoneForm)
             }
-            
+
             this.textArea(form, "notes", {placeholder: 'Notes', rows: 3})
         })
     }

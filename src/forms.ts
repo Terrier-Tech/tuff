@@ -20,7 +20,7 @@ export type KeyOfType<T, ValueType> =
 /**
  * All form elements are keyed by a string.
  */
-export type FormData = Record<string, any>
+export type FormPartData = Record<string, any>
 
 /**
  * These get added to the possible events for which messages can be sent and received.
@@ -29,11 +29,21 @@ export interface EventMap {
     "datachanged": Event
 }
 
-export abstract class FormPart<DataType extends FormData> extends Part<DataType> {
+export abstract class FormPart<DataType extends FormPartData> extends Part<DataType> {
 
     fields: {[name: string]: Field<any,Element>} = {}
+    files: {[name: string]: FileList | null} = {}
 
     readonly dataChangedKey = messages.typedKey<DataType>()
+
+    async init() {
+        this.onDataChanged(this.dataChangedKey, m => {
+            const field = m.event.target as HTMLInputElement
+            if (field.type == 'file') {
+                this.files[field.name] = field.files
+            }
+        })
+    }
 
     get className(): string {
         return `form-${this.id}`
@@ -45,12 +55,19 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
         if (!this.fields[attrs.name]) {
             this.fields[attrs.name] = new serializerType(name)
         }
+        if (type == 'file' && !this.files[attrs.name]) {
+            this.files[attrs.name] = null
+        }
         this.fields[attrs.name].assignAttrValue(attrs, this.state[name])
         return parent.input(attrs, this.className)
     }
 
     textInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
         return this.input<Key>(parent, "text", name, TextInputField, attrs)
+    }
+
+    fileInput<Key extends KeyOfType<DataType,File> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "file", name, FileInputField, attrs)
     }
 
     emailInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
@@ -96,6 +113,17 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
         return tag
     }
 
+    update(elem: HTMLElement) {
+        if (Object.keys(this.files).length) {
+            for (const fieldName in this.files) {
+                if (this.files[fieldName]) {
+                    const field = elem.querySelector(`input[name=${fieldName}]`) as HTMLInputElement
+                    field.files = this.files[fieldName]
+                }
+            }
+        }
+    }
+
     /**
      *  Create a form tag in the given parent.
      */
@@ -121,6 +149,36 @@ export abstract class FormPart<DataType extends FormData> extends Part<DataType>
             if (field) {
                 const value = field.getValue(elems)
                 Object.assign(data, {[field.name]: value})
+            }
+        })
+        return data
+    }
+
+    /**
+     * Serializes the form into a FormData object.
+     * This is async so that subclasses can override it and do async things.
+     */
+    async serializeFormData(): Promise<FormData> {
+        const root = this.element
+        const data: FormData = new FormData()
+
+        if (!root) {
+            return data
+        }
+
+        const allElems = Array.from(root.getElementsByClassName(this.className))
+        // there may be more than one actual element for any given key, so group them together and let the Field determine the value
+        arrays.eachGroupByFunction(allElems, e => (e.getAttribute('name')||undefined), (name, elems) => {
+            const field = this.fields[name]
+            if (field) {
+                const value = field.getValue(elems)
+                if (value instanceof FileList) {
+                    for (let i = 0; i < value.length; i++) {
+                        data.append(field.name, value[i])
+                    }
+                } else {
+                    data.append(field.name, value)
+                }
             }
         })
         return data
@@ -213,6 +271,18 @@ class TextInputField extends Field<string, HTMLInputElement> {
 
     getValue(elems: HTMLInputElement[]): string | null {
         return elems[0].value
+    }
+
+}
+
+class FileInputField extends Field<FileList, HTMLInputElement> {
+
+    assignAttrValue(_attrs: InputTagAttrs, _value?: FileList) {
+        // FileList is assigned to HTMLInputElement's .files attribute by FormPart#update
+    }
+
+    getValue(elem: HTMLInputElement[]): FileList | null {
+        return elem[0].files ?? null
     }
 
 }
