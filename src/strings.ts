@@ -1,14 +1,64 @@
 
-
-const wordRegex = /(?<=[a-z\d])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|\s+|_+|-+/g
-
 /**
  * Splits a string into words (based on spaces, dashes, underscores, or capitalization)
  * @param s A string to split
  * @returns The string split into words
  */
 export function splitWords(s: string): Array<string> {
-    return s.split(wordRegex)
+    const words = []
+
+    let currentWord: string[] = []
+
+    for (let i = 0; i < s.length; i++) {
+        const char = s[i]
+
+        if (isDiscardable(char)) {
+            if (currentWord.length) {
+                words.push(currentWord.join(''))
+                currentWord = []
+            }
+            continue
+        }
+
+        const prevChar = i > 0 ? s[i - 1] : undefined
+        const nextChar = i < s.length - 1 ? s[i + 1] : undefined
+
+        const changedNumberness = prevChar && isNumber(prevChar) != isNumber(char)
+        const newUppercase = prevChar && !isUpperCase(prevChar) && isUpperCase(char)
+        const endAcronym = nextChar && isUpperCase(char) && isWord(nextChar) && !isUpperCase(nextChar)
+
+        if (changedNumberness || newUppercase || endAcronym) {
+            if (currentWord.length) {
+                words.push(currentWord.join(''))
+                currentWord = []
+            }
+        }
+
+        currentWord.push(char)
+    }
+
+    if (currentWord.length)
+    {
+        words.push(currentWord.join(''))
+    }
+
+    return words
+}
+
+function isDiscardable(char: string) {
+    return !!char.match(/[\s\-_]+/g)
+}
+
+function isNumber(s: string) {
+    return !!s.match(/^\d+$/)
+}
+
+function isWord(s: string) {
+    return !!s.match(/^[a-zA-Z]$/)
+}
+
+function isUpperCase(s: string) {
+    return s == s.toUpperCase() && s != s.toLowerCase()
 }
 
 /**
