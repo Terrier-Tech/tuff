@@ -90,6 +90,22 @@ export function sortBy<T extends Record<string | symbol, any>, K extends keyof T
 }
 
 /**
+ * Sorts an array of objects by a function.
+ * @param array an array to sort
+ * @param getKey a function returning the sort key for the given element
+ * @param dir the sort direction (default ascending)
+ * @returns (a new) sorted array
+ */
+export function sortByFunction<T extends Record<string | symbol, any>>(array: T[], getKey: (e: T) => number | string, dir: SortDir = "asc"): T[] {
+    const dirMult = dir == "asc" ? 1 : -1
+    return Array(...array).sort((a, b) => {
+        const aSort = getKey(a)
+        const bSort = getKey(b)
+        return dirMult * (aSort > bSort ? 1 : -1)
+    })
+}
+
+/**
  * Generates an array ranging between two numbers
  * @param start The starting number
  * @param end The ending number

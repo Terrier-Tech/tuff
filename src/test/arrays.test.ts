@@ -111,6 +111,24 @@ test("sortBy", () => {
     expect(array[0].name).eq("barry")
 })
 
+test("sortByFunction", () => {
+    const array = [
+        {first_name: "barry", last_name: "wilson"},
+        {first_name: "barry", last_name: "bonds"},
+        {first_name: "larry", last_name: "evans"}
+    ]
+
+    // ascending
+    const ascending = arrays.sortByFunction(array, e => `${e.first_name} ${e.last_name}`)
+    expect(ascending.length).eq(array.length)
+    expect(ascending[0].last_name).eq("bonds")
+    expect(ascending[1].last_name).eq("wilson")
+    expect(ascending[2].last_name).eq("evans")
+
+    // make sure the original array wasn't altered
+    expect(array[0].last_name).eq("wilson")
+})
+
 test("sample", () => {
     const array = ['one', 'two', 'three']
     for (const _ in arrays.range(0, 100)) {
