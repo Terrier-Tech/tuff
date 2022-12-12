@@ -23,11 +23,10 @@ export function splitWords(s: string): Array<string> {
         const prevChar = i > 0 ? s[i - 1] : undefined
         const nextChar = i < s.length - 1 ? s[i + 1] : undefined
 
-        const changedNumberness = prevChar && isNumber(prevChar) != isNumber(char)
         const newUppercase = prevChar && !isUpperCase(prevChar) && isUpperCase(char)
         const endAcronym = nextChar && isUpperCase(char) && isWord(nextChar) && !isUpperCase(nextChar)
 
-        if (changedNumberness || newUppercase || endAcronym) {
+        if (newUppercase || endAcronym) {
             if (currentWord.length) {
                 words.push(currentWord.join(''))
                 currentWord = []
@@ -47,10 +46,6 @@ export function splitWords(s: string): Array<string> {
 
 function isDiscardable(char: string) {
     return !!char.match(/[\s\-_]+/g)
-}
-
-function isNumber(s: string) {
-    return !!s.match(/^\d+$/)
 }
 
 function isWord(s: string) {

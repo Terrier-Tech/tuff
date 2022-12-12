@@ -32,9 +32,14 @@ describe("splitWords", () => {
         expect(res).toMatchObject(['alpha', 'BRAVO', 'charlie', 'delta'])
     })
 
-    test("splits on number borders in camelCase", () => {
+    test("does not split on number borders in camelCase", () => {
         const res = strings.splitWords("alphaBravo1337CharlieDelta")
-        expect(res).toMatchObject(['alpha', 'Bravo', '1337', 'Charlie', 'Delta'])
+        expect(res).toMatchObject(['alpha', 'Bravo1337', 'Charlie', 'Delta'])
+    })
+
+    test("does not split on number borders in camelCase followed by a lowercase", () => {
+        const res = strings.splitWords("alphaBravo1337charlieDelta")
+        expect(res).toMatchObject(['alpha', 'Bravo1337charlie', 'Delta'])
     })
 
     test("handles leading and trailing whitespace", () => {
