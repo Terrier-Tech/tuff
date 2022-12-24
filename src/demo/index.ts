@@ -45,8 +45,14 @@ class App extends Part<{}> {
 
         this.output.write("Initialized!")
 
+        // specific keypress
         this.onKeyPress(messages.keyPress("z", "control/command"), m => {
-            log.debug("Key press message", m)
+            log.info("Undo", m)
+        })
+
+        // wildcard keypress
+        this.onAnyKeyPress(m => {
+            log.info(`Wildcard Keypress: ${m.data.id}`, m)
         })
 
         // test creating an arbitrary element

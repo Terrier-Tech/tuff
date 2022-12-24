@@ -435,6 +435,17 @@ async init() {
 }
 ```
 
+Alternatively, you can register a listener for _any_ global keyboard event using `onAnyKeyPress`:
+
+```typescript
+async init() {
+    this.onAnyKeyPress(m => {
+        // this gets called when any key is pressed
+        // m.data will contain the key and modifier
+    })
+}
+```
+
 
 ### Logging
 

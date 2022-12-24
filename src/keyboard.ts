@@ -4,10 +4,17 @@ import * as parts from './parts'
 
 const log = new Logger('Keyboard')
 
+export type Listener = (m: messages.Message<"keypress",messages.KeyPress>) => void
+
+type RegisteredPart = {
+    part: parts.StatelessPart
+    listeners: Listener[]
+}
+
 // Singleton class that handles the global events and sends them to parts.
 class GlobalHandler {
 
-    private parts: {[id: string]: parts.StatelessPart} = {}
+    private parts: {[id: string]: RegisteredPart} = {}
 
     isApple: boolean
 
@@ -15,10 +22,20 @@ class GlobalHandler {
      * Registers the part's root to receive global keyboard events.
      * @param part A part that wishes to receive global keyboard events
      */
-    addPart(part: parts.StatelessPart) {
+    addPart(part: parts.StatelessPart, listener?: Listener) {
         const root = part.root
-        if (!this.parts[root.id] && root.isAttached) {
-            this.parts[root.id] = root
+        if (!root.isAttached) {
+            log.warn(`Trying to listen for keyboard events on an unattached part`)
+            return
+        }
+        if (!this.parts[root.id]) { // not already registered
+            this.parts[root.id] = {
+                part: root,
+                listeners: []
+            }
+        }
+        if (listener) {
+            this.parts[root.id].listeners.push(listener)
         }
     }
 
@@ -37,6 +54,7 @@ class GlobalHandler {
 
     emit(evt: KeyboardEvent) {
         const key = evt.key.toLowerCase()
+        log.debug(`Raw event: ${key}`, evt)
         
         // parse the modifiers
         const modifiers = new Array<messages.KeyModifier>()
@@ -58,9 +76,13 @@ class GlobalHandler {
         }
 
         const press = messages.keyPress(key, ...modifiers)
-        for (let [id, part] of Object.entries(this.parts)) {
-            if (part.isAttached) {
-                part.emit("keypress", press, evt, press)
+        const message = {data: press, event: evt, type: 'keypress'} as const
+        for (let [id, reg] of Object.entries(this.parts)) {
+            if (reg.part.isAttached) {
+                reg.part.emit("keypress", press, evt, press)
+                for (const listener of reg.listeners) {
+                    listener(message)
+                }
             }
             else {
                 delete this.parts[id]
@@ -83,7 +105,8 @@ const getGlobalHandler = () => {
 /**
  * Registers the part's root to receive global keyboard events.
  * @param part A part that wishes to receive global keyboard events
+ * @param listener An optional wildcard listener
  */
-export const registerPart = (part: parts.StatelessPart) => {
-    getGlobalHandler().addPart(part)
+export const registerPart = (part: parts.StatelessPart, listener?: Listener) => {
+    getGlobalHandler().addPart(part, listener)
 }

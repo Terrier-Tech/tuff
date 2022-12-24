@@ -508,10 +508,21 @@ export abstract class Part<StateType> {
 
     /// Key Press Events
 
-    // Register a hanlder for a global key press event.
+    /**
+     * Register a listener for a specific global key press event.
+     */ 
     onKeyPress(press: messages.KeyPress, listener: (m: messages.Message<"keypress",messages.KeyPress>) => void) {
         keyboard.registerPart(this) // make sure we're registered to receive global keyboard events
         this.listen<"keypress",messages.KeyPress>("keypress", press, listener, {attach: "active"})
+    }
+
+
+    /**
+     * Register a wildcard listener for all global keyboard events.
+     * @param listener the listener function
+     */
+    onAnyKeyPress(listener: keyboard.Listener) {
+        keyboard.registerPart(this, listener) // make sure we're registered to receive global keyboard events
     }
 
 
