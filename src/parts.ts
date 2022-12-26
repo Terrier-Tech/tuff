@@ -633,15 +633,15 @@ export abstract class Part<StateType> {
             return
         }
         if (this._renderState == "dirty") {
+            // get the exiting container element
+            const elem = this.element
+            if (!elem) {
+                // trying to render part with no container element, it's parent must not've been rendered yet
+                return
+            }
+
             // stop the chain, re-render the whole tree from here on down
             log.debugTime(`Render ${this.id}`, () => {
-                // get the exiting container element
-                const elem = this.element
-                if (!elem) {
-                    log.warn(`Trying to render part ${this.id} with no container element, it's parent must not've been rendered yet`)
-                    return
-                }
-
                 // render the part's content to the container
                 let parent = new DivTag('div')
                 parent.class(...this.parentClasses)
