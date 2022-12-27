@@ -4,6 +4,7 @@ import * as forms from './forms'
 import * as html from './html'
 import * as keyboard from './keyboard'
 import * as logging from './logging'
+import * as mat from './mat'
 import * as messages from './messages'
 import * as nav from './nav'
 import * as objects from './objects'
@@ -17,4 +18,4 @@ import * as types from './types'
 import * as urls from './urls'
 import * as vec from './vec'
 
-export {arrays, box, forms, html, keyboard, logging, messages, nav, objects, parts, routing, sets, strings, svg, tags, types, urls, vec}
+export {arrays, box, forms, html, keyboard, logging, mat, messages, nav, objects, parts, routing, sets, strings, svg, tags, types, urls, vec}

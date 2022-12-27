@@ -1,3 +1,5 @@
+import { Sides } from "./box"
+
 /**
  * Immutable 2D vector, the only kind.
  */
@@ -122,3 +124,15 @@ export const mirror = (v: Vec): Vec => {
         Math.abs(len1-len2)/maxLen < EpsilonRatio && 
         Math.abs(v1.x+v2.x)/maxLen < EpsilonRatio
  }
+
+/**
+ * @returns a `Sides` containing the vector.
+ */
+export const toSides = (v: Vec): Sides => {
+    return {
+        left: v.x,
+        right: v.x,
+        top: v.y,
+        bottom: v.y
+    }
+}
