@@ -14,8 +14,9 @@ import * as sets from './sets'
 import * as strings from './strings'
 import * as svg from './svg'
 import * as tags from './tags'
+import * as trig from './trig'
 import * as types from './types'
 import * as urls from './urls'
 import * as vec from './vec'
 
-export {arrays, box, forms, html, keyboard, logging, mat, messages, nav, objects, parts, routing, sets, strings, svg, tags, types, urls, vec}
+export {arrays, box, forms, html, keyboard, logging, mat, messages, nav, objects, parts, routing, sets, strings, svg, tags, trig, types, urls, vec}
