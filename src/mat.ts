@@ -70,6 +70,28 @@ export function translate(m: Mat, vx: vec.Vec|number, y?: number): Mat {
     }
 }
 
+/**
+ * Inverts the given transformation matrix.
+ * @param m a matrix to invert
+ * @returns the inverted marix
+ */
+export const invert = (m: Mat): Mat => {
+    const determinant = m.a * m.d - m.b * m.c
+
+    if (determinant === 0) {
+        throw new Error("Cannot invert matrix with determinant 0")
+    }
+
+    return {
+        a: m.d / determinant,
+        b: -m.b / determinant,
+        c: -m.c / determinant,
+        d: m.a / determinant,
+        tx: (m.c * m.ty - m.d * m.tx) / determinant,
+        ty: (m.b * m.tx - m.a * m.ty) / determinant,
+    }
+}
+
 
 /**
  * @returns matrix `m` rotated by `angle` degrees.

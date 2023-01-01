@@ -51,6 +51,16 @@ test("Matrix multiplcation", () => {
 
 })
 
+test("Matrix inversion", () => {
+    const m1 = mat.make(1, 0, 0, 1, 0, 0 )
+    const m1Inverted = mat.invert(m1)
+    expectMatEquaility(m1, m1Inverted)
+
+    const m2 = mat.make(1, 0, 0, 2, 3, 4 )
+    const m2Inverted = mat.invert(m2)
+    expectMatEquaility(m2, mat.invert(m2Inverted))
+})
+
 test("matrix builder", () => {
     const builder = mat.builder()
         .translate(1, 2)
