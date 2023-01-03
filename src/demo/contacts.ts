@@ -109,8 +109,8 @@ class ContactFormPart extends forms.FormPart<ContactState> {
             this.photoSrcs.splice(0)
 
             const fileInput = m.event.target as HTMLInputElement
-            let data = await this.serializeFileInput(fileInput)
-            let photos = data.getAll(fileInput.name) as Array<File>
+            const data = await this.serializeFileInput(fileInput)
+            const photos = data.getAll(fileInput.name) as Array<File>
 
             if (data && photos.length) {
                 for (const photo of photos) {
