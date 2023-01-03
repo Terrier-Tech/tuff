@@ -155,35 +155,21 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
     }
 
     /**
-     * Serializes the form into a FormData object.
+     * Serializes the file input into a FormData object.
      * This is async so that subclasses can override it and do async things.
      */
-    async serializeFormData(): Promise<FormData> {
+    async serializeFileInput(input: HTMLInputElement): Promise<FormData> {
         const root = this.element
         const data: FormData = new FormData()
 
-        if (!root) {
+        if (!root || input.type != 'file' || !(input.files instanceof FileList)) {
             return data
         }
 
-        for (const [key, value] of Object.entries(this.state)) {
-            data.append(key, value)
+        const fileList: FileList = input.files
+        for (let i = 0; i < fileList.length; i++) {
+            data.append(input.name, fileList[i])
         }
-        const allElems = Array.from(root.getElementsByClassName(this.className))
-        // there may be more than one actual element for any given key, so group them together and let the Field determine the value
-        arrays.eachGroupByFunction(allElems, e => (e.getAttribute('name')||undefined), (name, elems) => {
-            const field = this.fields[name]
-            if (field) {
-                const value = field.getValue(elems)
-                if (value instanceof FileList) {
-                    for (let i = 0; i < value.length; i++) {
-                        data.append(field.name, value[i])
-                    }
-                } else {
-                    data.append(field.name, value)
-                }
-            }
-        })
         return data
     }
 
