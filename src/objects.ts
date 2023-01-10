@@ -37,7 +37,7 @@ export function slice<T, K extends keyof T>(obj: T, ...props: K[]): Pick<T, K>
  * Whether the given value is defined
  * @param value
  */
-export function notNull<TValue>(value: TValue | null | undefined): value is TValue {
+export function notNull<TValue>(value: TValue | null | undefined): value is NonNullable<TValue> {
     return value != null
 }
 
@@ -46,7 +46,7 @@ export function notNull<TValue>(value: TValue | null | undefined): value is TVal
  * @param value
  * @param props
  */
-export function propNotNull<TValue, K extends keyof TValue>(value: TValue | null | undefined, ...props: K[]): value is RequireProps<TValue, K> {
+export function propNotNull<TValue, K extends keyof TValue>(value: TValue | null | undefined, ...props: K[]): value is RequireProps<NonNullable<TValue>, K> {
     if (value == null) return false
     for (const prop of props) {
         if (value[prop] == null) return false

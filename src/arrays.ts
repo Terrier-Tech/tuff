@@ -175,7 +175,7 @@ export function unique<T>(array: Array<T>, by?: (a: T) => number|string): Array<
  * @param array an array
  * @returns a new array without any null or undefined values
  */
-export function compact<T>(array: Array<T | null | undefined>): T[] {
+export function compact<T>(array: Array<T | null | undefined>): NonNullable<T>[] {
     return array.filter(notNull)
 }
 
@@ -185,8 +185,8 @@ export function compact<T>(array: Array<T | null | undefined>): T[] {
  * @param array the array to filter
  * @param props the properties by which to compact the array
  */
-export function compactBy<T, K extends keyof T>(array: Array<T | null | undefined>, ...props: Array<K>): RequireProps<T, K>[] {
-    return array.filter((el): el is RequireProps<T, K> => propNotNull(el, ...props))
+export function compactBy<T, K extends keyof T>(array: Array<T | null | undefined>, ...props: Array<K>): RequireProps<NonNullable<T>, K>[] {
+    return array.filter((el): el is RequireProps<NonNullable<T>, K> => propNotNull(el, ...props))
 }
 
 /**
@@ -283,7 +283,7 @@ export class Stream<T> {
      * Removes all null and undefined values from the array.
      * @returns a new array without any null or undefined values
      */
-    compact(): Stream<T> {
+    compact(): Stream<NonNullable<T>> {
         return new Stream(compact(this.array))
     }
 
@@ -291,7 +291,7 @@ export class Stream<T> {
      * Filters out elements for which the given properties are null or undefined.
      * Elements that are null or undefined themselves are filtered out.
      */
-    compactBy<K extends keyof T>(...props: K[]): Stream<RequireProps<T, K>> {
+    compactBy<K extends keyof T>(...props: K[]): Stream<RequireProps<NonNullable<T>, K>> {
         return new Stream(compactBy(this.array, ...props))
     }
 }
