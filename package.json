@@ -4,7 +4,7 @@
   "files": [
     "*"
   ],
-  "version": "0.21.06",
+  "version": "0.21.07",
   "repository": {
     "type": "git",
     "url": "https://github.com/Terrier-Tech/tuff"
@@ -42,73 +42,73 @@
       "import": "./index.js"
     },
     "./keyboard": {
-      "import": "./dist/keyboard.js"
+      "import": "./keyboard.js"
     },
     "./state": {
-      "import": "./dist/state.js"
+      "import": "./state.js"
     },
     "./strings": {
-      "import": "./dist/strings.js"
+      "import": "./strings.js"
     },
     "./sets": {
-      "import": "./dist/sets.js"
+      "import": "./sets.js"
     },
     "./urls": {
-      "import": "./dist/urls.js"
+      "import": "./urls.js"
     },
     "./objects": {
-      "import": "./dist/objects.js"
+      "import": "./objects.js"
     },
     "./parts": {
-      "import": "./dist/parts.js"
+      "import": "./parts.js"
     },
     "./messages": {
-      "import": "./dist/messages.js"
+      "import": "./messages.js"
     },
     "./nav": {
-      "import": "./dist/nav.js"
+      "import": "./nav.js"
     },
     "./routing": {
-      "import": "./dist/routing.js"
+      "import": "./routing.js"
     },
     "./svg": {
-      "import": "./dist/svg.js"
+      "import": "./svg.js"
     },
     "./mat": {
-      "import": "./dist/mat.js"
+      "import": "./mat.js"
     },
     "./forms": {
-      "import": "./dist/forms.js"
+      "import": "./forms.js"
     },
     "./types": {
-      "import": "./dist/types.js"
+      "import": "./types.js"
     },
     "./vite-env": {
-      "import": "./dist/vite-env.js"
+      "import": "./vite-env.js"
     },
     "./html": {
-      "import": "./dist/html.js"
+      "import": "./html.js"
     },
     "./index": {
-      "import": "./dist/index.js"
+      "import": "./index.js"
     },
     "./trig": {
-      "import": "./dist/trig.js"
+      "import": "./trig.js"
     },
     "./box": {
-      "import": "./dist/box.js"
+      "import": "./box.js"
     },
     "./vec": {
-      "import": "./dist/vec.js"
+      "import": "./vec.js"
     },
     "./tags": {
-      "import": "./dist/tags.js"
+      "import": "./tags.js"
     },
     "./arrays": {
-      "import": "./dist/arrays.js"
+      "import": "./arrays.js"
     },
     "./logging": {
-      "import": "./dist/logging.js"
+      "import": "./logging.js"
     }
   },
   "dependencies": {
