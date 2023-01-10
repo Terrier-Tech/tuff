@@ -4,7 +4,7 @@
   "files": [
     "*"
   ],
-  "version": "0.21.01",
+  "version": "0.21.02",
   "repository": {
     "type": "git",
     "url": "https://github.com/Terrier-Tech/tuff"
@@ -40,6 +40,9 @@
   "exports": {
     ".": {
       "import": "./index.js"
+    },
+    "./logging": {
+      "import": "./logging.d.ts"
     }
   },
   "dependencies": {
