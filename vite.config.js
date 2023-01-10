@@ -13,10 +13,10 @@ export default defineConfig({
   ],
   build: {
     emptyOutDir: false,
+    sourcemap: true,
     lib: {
       name: 'Tuff',
       formats: ['es'],
-      fileName: (format) => `index.js`,
       entry: {
         keyboard: './src/keyboard.ts',
         state: './src/state.ts',
