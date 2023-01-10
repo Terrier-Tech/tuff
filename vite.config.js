@@ -32,7 +32,6 @@ export default defineConfig({
         mat: './src/mat',
         forms: './src/forms',
         types: './src/types',
-        vite-env: './src/vite-env',
         html: './src/html',
         trig: './src/trig',
         box: './src/box',
