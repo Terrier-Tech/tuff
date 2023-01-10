@@ -14,10 +14,33 @@ export default defineConfig({
   build: {
     emptyOutDir: false,
     lib: {
-      entry: path.resolve(dirname, 'src/index.ts'),
       name: 'Tuff',
       formats: ['es'],
-      fileName: (format) => `index.js`
+      fileName: (format) => `index.js`,
+      entry: {
+        keyboard: './src/keyboard',
+        state: './src/state',
+        strings: './src/strings',
+        sets: './src/sets',
+        urls: './src/urls',
+        objects: './src/objects',
+        parts: './src/parts',
+        messages: './src/messages',
+        nav: './src/nav',
+        routing: './src/routing',
+        svg: './src/svg',
+        mat: './src/mat',
+        forms: './src/forms',
+        types: './src/types',
+        vite-env: './src/vite-env',
+        html: './src/html',
+        trig: './src/trig',
+        box: './src/box',
+        vec: './src/vec',
+        tags: './src/tags',
+        arrays: './src/arrays',
+        logging: './src/logging',
+      }
     }
   },
 })
