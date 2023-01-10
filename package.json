@@ -4,7 +4,7 @@
   "files": [
     "*"
   ],
-  "version": "0.21.02",
+  "version": "0.21.03",
   "repository": {
     "type": "git",
     "url": "https://github.com/Terrier-Tech/tuff"
@@ -40,6 +40,72 @@
   "exports": {
     ".": {
       "import": "./index.js"
+    },
+    "./keyboard": {
+      "import": "./keyboard.d.ts"
+    },
+    "./state": {
+      "import": "./state.d.ts"
+    },
+    "./strings": {
+      "import": "./strings.d.ts"
+    },
+    "./sets": {
+      "import": "./sets.d.ts"
+    },
+    "./urls": {
+      "import": "./urls.d.ts"
+    },
+    "./objects": {
+      "import": "./objects.d.ts"
+    },
+    "./parts": {
+      "import": "./parts.d.ts"
+    },
+    "./messages": {
+      "import": "./messages.d.ts"
+    },
+    "./nav": {
+      "import": "./nav.d.ts"
+    },
+    "./routing": {
+      "import": "./routing.d.ts"
+    },
+    "./svg": {
+      "import": "./svg.d.ts"
+    },
+    "./mat": {
+      "import": "./mat.d.ts"
+    },
+    "./forms": {
+      "import": "./forms.d.ts"
+    },
+    "./types": {
+      "import": "./types.d.ts"
+    },
+    "./vite-env": {
+      "import": "./vite-env.d.ts"
+    },
+    "./html": {
+      "import": "./html.d.ts"
+    },
+    "./index": {
+      "import": "./index.d.ts"
+    },
+    "./trig": {
+      "import": "./trig.d.ts"
+    },
+    "./box": {
+      "import": "./box.d.ts"
+    },
+    "./vec": {
+      "import": "./vec.d.ts"
+    },
+    "./tags": {
+      "import": "./tags.d.ts"
+    },
+    "./arrays": {
+      "import": "./arrays.d.ts"
     },
     "./logging": {
       "import": "./logging.d.ts"
