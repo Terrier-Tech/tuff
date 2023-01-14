@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { describe, expect, test, it } from 'vitest'
 import * as vec from '../vec'
 import * as mat from '../mat'
 
@@ -36,7 +36,7 @@ function expectMatEquaility(actual: mat.Mat, expected: mat.Mat) {
     }
 }
 
-test("Matrix multiplcation", () => {
+test("matrix multiplcation", () => {
     // combine a scaling matrix with a translation matrix
     const mat1 = mat.make(2, 0, 0, 2, 0, 0)
     const mat2 = mat.make(1, 0, 0, 1, 10, 20)
@@ -51,7 +51,7 @@ test("Matrix multiplcation", () => {
 
 })
 
-test("Matrix inversion", () => {
+test("matrix inversion", () => {
     const m1 = mat.make(1, 0, 0, 1, 0, 0 )
     const m1Inverted = mat.invert(m1)
     expectMatEquaility(m1, m1Inverted)
@@ -73,4 +73,34 @@ test("matrix builder", () => {
         mat.transform(builder.build(), v)
     )
     expect(v1).toMatchObject(v)
+})
+
+describe("matrix from boxes", () => {
+    it('should return the correct matrix for identity transform', () => {
+        const from = { x: 0, y: 0, width: 1, height: 1 }
+        const to = { x: 0, y: 0, width: 1, height: 1 }
+        const expected = { a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0 }
+        expectMatEquaility(mat.fromBoxes(from, to), expected)
+    })
+
+    it('should return the correct matrix for scaling', () => {
+        const from = { x: 0, y: 0, width: 1, height: 1 }
+        const to = { x: 0, y: 0, width: 2, height: 3 }
+        const expected = { a: 2, b: 0, c: 0, d: 3, tx: 0, ty: 0 }
+        expectMatEquaility(mat.fromBoxes(from, to), expected)
+    })
+
+    it('should return the correct matrix for translation', () => {
+        const from = { x: 0, y: 0, width: 1, height: 1 }
+        const to = { x: 1, y: 2, width: 1, height: 1 }
+        const expected = { a: 1, b: 0, c: 0, d: 1, tx: 1, ty: 2 }
+        expectMatEquaility(mat.fromBoxes(from, to), expected)
+    })
+
+    it('should return the correct matrix for scaling and translation', () => {
+        const from = { x: 0, y: 0, width: 1, height: 1 }
+        const to = { x: 1, y: 2, width: 2, height: 3 }
+        const expected = { a: 2, b: 0, c: 0, d: 3, tx: 1, ty: 2 }
+        expectMatEquaility(mat.fromBoxes(from, to), expected)
+    })
 })

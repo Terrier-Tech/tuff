@@ -219,3 +219,13 @@ class Builder {
 export function builder(): Builder {
     return new Builder()
 }
+
+
+export function fromBoxes(from: box.Box, to: box.Box): Mat {
+    const scaleX = to.width / from.width
+    const scaleY = to.height / from.height
+    const translateX = to.x - from.x * scaleX
+    const translateY = to.y - from.y * scaleY
+    return { a: scaleX, b: 0, c: 0, d: scaleY, tx: translateX, ty: translateY }
+}
+
