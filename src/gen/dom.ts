@@ -37,9 +37,9 @@ const configs: {[type: string]: ConfigType} = {
         elementBlacklist: []
     },
     "svg": {
-        elementBaseInterfaces: ["SVGElement", "SVGGraphicsElement", "SVGGeometryElement", "SVGGradientElement", "SVGFitToViewBox"],
+        elementBaseInterfaces: ["SVGElement", "SVGGraphicsElement", "SVGGeometryElement", "SVGGradientElement", "SVGFitToViewBox", "SVGAnimatedPoints"],
         tagBaseClass: "SvgTagBase",
-        elementBlacklist: ['SVGFitToViewBox'] // don't write this element since it's not an SVGElement
+        elementBlacklist: ['SVGFitToViewBox', 'SVGAnimatedPoints'] // don't write this element since it's not an SVGElement
     }
 } as const
 type TagType = keyof typeof configs

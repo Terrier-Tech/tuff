@@ -875,6 +875,8 @@ export class PatternTag extends SvgTagBase<PatternTagAttrs,SVGPatternElement> {}
 
 /** SVGPolygonElement Attributes */
 export type PolygonTagAttrs = GeometryTagAttrs & {
+    animatedPoints?: string
+    points?: string
 }
 
 /** SVGPolygonElement Tag */
@@ -882,6 +884,8 @@ export class PolygonTag extends SvgTagBase<PolygonTagAttrs,SVGPolygonElement> {}
 
 /** SVGPolylineElement Attributes */
 export type PolylineTagAttrs = GeometryTagAttrs & {
+    animatedPoints?: string
+    points?: string
 }
 
 /** SVGPolylineElement Tag */

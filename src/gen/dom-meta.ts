@@ -50,6 +50,7 @@ export class Element {
                     case 'SVGAnimatedTransformList':
                     case 'SVGAnimatedString':
                     case 'SVGAnimatedPreserveAspectRatio':
+                    case 'SVGPointList':
                         type = 'string'
                         break
                     case 'SVGAnimatedNumberList':
