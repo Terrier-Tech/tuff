@@ -37,7 +37,7 @@ const configs: {[type: string]: ConfigType} = {
         elementBlacklist: []
     },
     "svg": {
-        elementBaseInterfaces: ["SVGElement", "SVGGraphicsElement", "SVGGeometryElement", "SVGGradientElement", "SVGFitToViewBox", "SVGAnimatedPoints"],
+        elementBaseInterfaces: ["SVGElement", "SVGGraphicsElement", "SVGGeometryElement", "SVGGradientElement", "SVGFitToViewBox", "SVGAnimatedPoints", "SVGTextPositioningElement"],
         tagBaseClass: "SvgTagBase",
         elementBlacklist: ['SVGFitToViewBox', 'SVGAnimatedPoints'] // don't write this element since it's not an SVGElement
     }

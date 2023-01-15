@@ -30,6 +30,13 @@ export interface SvgBaseAttrs extends Attrs {
     filter?: string
     floodColor?: string
     floodOpacity?: number
+    fontFamily?: string
+    fontSize?: number
+    fontSizeAdjust?: string
+    fontStretch?: string
+    fontStyle?: 'normal' | 'italic' | 'oblique'
+    fontVariant?: string
+    fontWeight?: 'normal' | 'bold' | 'lighter' | 'bolder' | '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900'
     href?: string
     imageRendering?: 'auto'|'optimizeQuality'|'optimizeSpeed'
     letterSpacing?: string
@@ -322,8 +329,16 @@ export abstract class SvgTagBase<AttrsType extends Attrs,ElementType extends Ele
         return this.child(SymbolTag, 'symbol', ...args)
     }
 
+    text(...args: TagArgs<TextTag,TextTagAttrs>[]) : TextTag {
+        return this.child(TextTag, 'text', ...args)
+    }
+
     title(...args: TagArgs<TitleTag,TitleTagAttrs>[]) : TitleTag {
         return this.child(TitleTag, 'title', ...args)
+    }
+
+    tspan(...args: TagArgs<TSpanTag,TSpanTagAttrs>[]) : TSpanTag {
+        return this.child(TSpanTag, 'tspan', ...args)
     }
 
     use(...args: TagArgs<UseTag,UseTagAttrs>[]) : UseTag {
@@ -975,6 +990,13 @@ export type SymbolTagAttrs = DefaultTagAttrs & {
 /** SVGSymbolElement Tag */
 export class SymbolTag extends SvgTagBase<SymbolTagAttrs,SVGSymbolElement> {}
 
+/** SVGTSpanElement Attributes */
+export type TSpanTagAttrs = TextPositioningTagAttrs & {
+}
+
+/** SVGTSpanElement Tag */
+export class TSpanTag extends SvgTagBase<TSpanTagAttrs,SVGTSpanElement> {}
+
 /** SVGTextContentElement Attributes */
 export type TextContentTagAttrs = GraphicsTagAttrs & {
     lengthAdjust?: string|number
@@ -986,6 +1008,25 @@ export type TextContentTagAttrs = GraphicsTagAttrs & {
 
 /** SVGTextContentElement Tag */
 export class TextContentTag extends SvgTagBase<TextContentTagAttrs,SVGTextContentElement> {}
+
+/** SVGTextElement Attributes */
+export type TextTagAttrs = TextPositioningTagAttrs & {
+}
+
+/** SVGTextElement Tag */
+export class TextTag extends SvgTagBase<TextTagAttrs,SVGTextElement> {}
+
+/** SVGTextPositioningElement Attributes */
+export type TextPositioningTagAttrs = SvgBaseAttrs & {
+    dx?: number
+    dy?: number
+    rotate?: Array<number>
+    x?: number
+    y?: number
+}
+
+/** SVGTextPositioningElement Tag */
+export class TextPositioningTag extends SvgTagBase<TextPositioningTagAttrs,SVGTextPositioningElement> {}
 
 /** SVGTitleElement Attributes */
 export type TitleTagAttrs = DefaultTagAttrs & {
@@ -1069,7 +1110,9 @@ export interface SvgTagMap {
     "svg": SVGTag
     "switch": SwitchTag
     "symbol": SymbolTag
+    "text": TextTag
     "title": TitleTag
+    "tspan": TSpanTag
     "use": UseTag
     "view": ViewTag
 }
@@ -1127,7 +1170,9 @@ export const svgTagMap: Record<SvgTagName, {new (tag: SvgTagName): SvgTagMap[typ
     svg: SVGTag,
     switch: SwitchTag,
     symbol: SymbolTag,
+    text: TextTag,
     title: TitleTag,
+    tspan: TSpanTag,
     use: UseTag,
     view: ViewTag,
 }

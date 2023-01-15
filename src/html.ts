@@ -74,6 +74,29 @@ export abstract class HtmlTagBase<AttrsType extends Attrs,ElementType extends HT
     }
 
 
+    /// Text
+
+    /**
+     * Set the inner text content of the element.
+     * @param {string} s - The inner text of the element
+     * @returns this
+     */
+    text(s: string) {
+        this._text = s
+        return this
+    }
+
+    attrs(attrs: AttrsType) {
+        super.attrs(attrs)
+        // text is an actual element in SVG, 
+        // so this function only works in HTML
+        if (attrs.text?.length) {
+            this.text(attrs.text)
+        }
+        return this
+    }
+
+
     //// Begin Tag Methods
 
     a(...args: TagArgs<AnchorTag,AnchorTagAttrs>[]) : AnchorTag {

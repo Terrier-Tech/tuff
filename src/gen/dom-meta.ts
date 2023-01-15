@@ -58,6 +58,7 @@ export class Element {
                         break
                     case 'SVGAnimatedNumber':
                     case 'SVGAnimatedLength':
+                    case 'SVGAnimatedLengthList':
                     case 'SVGAnimatedInteger':
                     case 'SVGAnimatedAngle':
                         type = 'number'

@@ -59,7 +59,7 @@ export type TagArgs<TagType extends Tag<AttrsType,any>, AttrsType extends Attrs>
 export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> {
 
     private children: Tag<Attrs,any>[] = []
-    private _text?: string
+    protected _text?: string
     private _id?: string
     private _classes: string[] = []
     private _attrs: {[key: string]: any} = {}
@@ -118,16 +118,6 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
     }
 
     /**
-     * Set the inner text content of the element.
-     * @param {string} s - The inner text of the element
-     * @returns this
-     */
-    text(s: string) {
-        this._text = s
-        return this
-    }
-
-    /**
      * Apply an inline style using the +style+ attribute.
      * @param {InlineStyle} s - An inline style to apply to the element
      * @returns this
@@ -178,9 +168,6 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
         }
         if (attrs.sel?.length) {
             this.sel(attrs.sel)
-        }
-        if (attrs.text?.length) {
-            this.text(attrs.text)
         }
         if (attrs.data && Object.keys(attrs.data).length) {
             this.data(attrs.data)
