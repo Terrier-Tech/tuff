@@ -139,6 +139,11 @@ test("sample", () => {
     }
 })
 
+test("range with step", () => {
+    const array = arrays.range(0, 1, 0.2)
+    expect(array).toStrictEqual([0, 0.2, 0.4, 0.6, 0.8, 1])
+})
+
 test("compact", () => {
     const array = ['one', null, 'three', undefined]
     const compactArray = arrays.compact(array)

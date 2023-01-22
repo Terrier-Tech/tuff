@@ -106,13 +106,28 @@ export function sortByFunction<T extends Record<string | symbol, any>>(array: T[
 }
 
 /**
+ * The order of magnitude considered for niceRound().
+ */
+const N = 100000
+
+/**
+ * Rounds a number to it's nearest 'nice' number, e.g. rounds 0.30000000000000004 to 0.3
+ * @param n a number
+ * @returns the number rounded to the nearest 'nice' number
+ */
+export function niceRound(n: number): number {
+    return (Math.round(n*N))/N
+}
+
+/**
  * Generates an array ranging between two numbers
  * @param start The starting number
  * @param end The ending number
- * @returns An array containing integers from `start` to `end`
+ * @param step The increment used to step between the start and end
+ * @returns An array containing numbers from `start` to `end`
  */
-export function range(start: number, end: number): number[] {
-    return Array.from(Array(end - start + 1).keys()).map(x => x + start)
+export function range(start: number, end: number, step: number=1): number[] {
+    return Array.from(Array((end - start)/step + 1).keys()).map(x => niceRound(x*step + start))
 }
 
 /**
