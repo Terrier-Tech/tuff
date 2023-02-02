@@ -157,8 +157,11 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
     /**
      * Serializes the file input into a FormData object.
      * This is async so that subclasses can override it and do async things.
+     * @param   input       file input
+     * @param   key         key to associate files with in FormData
+     * @returns FormData    contains files
      */
-    async serializeFileInput(input: HTMLInputElement): Promise<FormData> {
+    async serializeFileInput(input: HTMLInputElement, key?: string): Promise<FormData> {
         const root = this.element
         const data: FormData = new FormData()
 
@@ -167,8 +170,9 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
         }
 
         const fileList: FileList = input.files
+        key = key ?? 'files'
         for (let i = 0; i < fileList.length; i++) {
-            data.append(input.name, fileList[i])
+            data.append(key, fileList[i])
         }
         return data
     }
