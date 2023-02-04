@@ -4,7 +4,7 @@
   "files": [
     "*"
   ],
-  "version": "0.22.4",
+  "version": "0.22.6",
   "repository": {
     "type": "git",
     "url": "https://github.com/Terrier-Tech/tuff"
@@ -14,7 +14,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "prepub": "tsc && vite build && npm-prepare-dist -s prepub -s pub -s dev -s gen -s docs",
+    "prepub": "rm -r dist && tsc && vite build && npm-prepare-dist -s prepub -s pub -s dev -s gen -s typedoc",
     "pub": "npm publish ./dist",
     "tsc": "tsc",
     "gen": "node --loader ts-node/esm  --experimental-modules --experimental-specifier-resolution=node src/gen/dom.ts",

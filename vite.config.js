@@ -17,7 +17,9 @@ export default defineConfig({
     lib: {
       name: 'Tuff',
       formats: ['es'],
+      fileName: (format) => `[name].js`,
       entry: {
+        index: './src/index.ts',
         keyboard: './src/keyboard.ts',
         state: './src/state.ts',
         strings: './src/strings.ts',
