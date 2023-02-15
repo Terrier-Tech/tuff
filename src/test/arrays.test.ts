@@ -191,6 +191,18 @@ test("streams", () => {
     expect(output[1]).toBe('baz')
 })
 
+test("find", () => {
+    const input = [1, 2, 3, 4, 5];
+    const expected = 3;
+    const callback = (element: number) => element === 3;
+    expect(arrays.find(input, callback)).toEqual(expected);
+
+    const input2 = [1, 3, 5];
+    const expected2 = null;
+    const callback2 = (element: number) => element === 2;
+    expect(arrays.find(input2, callback2)).toEqual(expected2);
+})
+
 test("pluck", () => {
     const input = [{id: 1, name: 'Alice'}, {id: 2, name: 'Bob'}, {id: 3, name: 'Charlie'}];
     const expected = [1, 2, 3];
