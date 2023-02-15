@@ -216,6 +216,67 @@ export function without<T>(array: Array<T>, element: T): Array<T> {
     })
 }
 
+/**
+ * Find the first element of an array that satisfies the callback.
+ * @param array the input array
+ * @param callback the callback functioning as a search query
+ * @returns the first element satisfying the callback, or null
+ */
+export function find<T>(array: T[], callback: (value: T, index: number, array: T[]) => boolean): T | null {
+    for (let i = 0; i < array.length; i++) {
+        if (callback(array[i], i, array)) {
+            return array[i];
+        }
+    }
+    return null;
+}
+
+/**
+ * Extracts an array of values from an array of objects, based on a given key.
+ * @param array the input array
+ * @param key the key to extract values from objects in the array
+ * @returns an array of values extracted from the objects in the input array
+ * @throws an error if a key is not found in an object
+ */
+export function pluck<T, K extends keyof T>(array: T[], key: K): T[K][] {
+    return array.map(item => {
+        if (key in item) {
+            return item[key];
+        } else {
+            throw new Error(`Key '${key}' not found in object: ${JSON.stringify(item)}`);
+        }
+    });
+}
+
+/**
+ * Searches an array of objects for those that match a given search query based on a specific key.
+ * @param array the input array of objects
+ * @param key the key to search for a match in the objects in the array
+ * @param query the search query to match against the value of the specified key
+ * @returns an array of objects that contain a matching key-value pair
+ */
+export function ilike(array: any[], key: string, query: string) {
+    const lowercaseQuery = query.toLowerCase();
+    return array.filter((item) => {
+        if (!(key in item)) return false;
+        return item[key].toLowerCase().includes(lowercaseQuery);
+    });
+}
+
+/**
+ * Finds the index of the first element in an array that satisfies a given callback function.
+ * @param array the input array
+ * @param callback the function to test each element with
+ * @returns the index of the first element that satisfies the callback function, or null if no element satisfies the callback function
+ */
+export function findIndex<T>(array: T[], callback: (element: T, index: number, array: T[]) => boolean): number | null {
+    for (let i = 0; i < array.length; i++) {
+        if (callback(array[i], i, array)) {
+            return i;
+        }
+    }
+    return null;
+}
 
 /// Stream
 

@@ -190,3 +190,22 @@ test("streams", () => {
     expect(output[0]).toBe('bat')
     expect(output[1]).toBe('baz')
 })
+
+test("pluck", () => {
+    const input = [{id: 1, name: 'Alice'}, {id: 2, name: 'Bob'}, {id: 3, name: 'Charlie'}];
+    const expected = [1, 2, 3];
+    expect(arrays.pluck(input, 'id')).toMatchObject(expected);
+})
+
+test("ilike", () => {
+    const input = [{id: 1, name: 'Alice'}, {id: 2, name: 'Bob'}, {id: 3, name: 'Charlie'}, {id: 4, name: 'Molly'}];
+    const expected = [{id: 2, name: 'Bob'}, {id: 4, name: 'Molly'}];
+    expect(arrays.ilike(input, 'name', 'o')).toMatchObject(expected);
+})
+
+test("findIndex", () => {
+    const input = [1, 2, 3, 4, 5];
+    const expected = 2;
+    const callback = (element: number) => element === 3;
+    expect(arrays.findIndex(input, callback)).toEqual(expected);
+})
