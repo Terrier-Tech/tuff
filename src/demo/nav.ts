@@ -19,6 +19,12 @@ class UnknownPathPart extends Part<{}> {
 class StaticChildPart extends Part<{}> {
     message = 'Not Loaded'
 
+    async init() {
+        log.info("Before wait")
+        await new Promise((resolve) => setTimeout(resolve, 100))
+        log.info("After wait")
+    }
+
     load() {
         log.info(`Loaded static part at ${this.context.path}`)
         this.message = `Static: ${this.context.path}`

@@ -229,13 +229,11 @@ export abstract class Part<StateType> {
         this._context = root._context
         if (!this._initializing) { // don't initialize more than once, even if the first time hasn't completed
             this._initializing = true
-            log.debug('Initializing', this)
+            log.debug(`Initializing ${this.name}`, this)
             this.init().then(_ => {
                 this._initialized = true
-                if (this._context.frame) {
-                    log.debug(`Loading ${this.name} after init`, this)
-                    this.load()
-                }
+                log.debug(`Loading ${this.name} after init at frame ${this._context.frame}`, this)
+                this.load()
             })
         }
         this.eachChild(child => {
@@ -271,10 +269,10 @@ export abstract class Part<StateType> {
     }
 
     private _load() {
-        // if (!this.isInitialized) {
-        //     // don't load before init() is done
-        //     return
-        // }
+        if (!this.isInitialized) {
+            // don't load before init() is done
+            return
+        }
         this.load()
         this.eachChild(child => {
             child._context = this._context
@@ -321,7 +319,7 @@ export abstract class Part<StateType> {
      * Mark this part as dirty, meaning it needs to be fully re-rendered.
      */
     dirty() {
-        log.debug("Dirty", this)
+        log.debug(`Dirty ${this.name}`, this)
         this._renderState = "dirty"
         this.root._requestFrame()
     }
@@ -330,7 +328,7 @@ export abstract class Part<StateType> {
      * Mark this part as stale, meaning it needs to be updated but not rendered.
      */
     stale() {
-        log.debug("Stale", this)
+        log.debug(`Stale ${this.name}`, this)
         if (this._renderState == "clean") {
             this._renderState = "stale"
             this.root._requestFrame()
@@ -347,7 +345,7 @@ export abstract class Part<StateType> {
         this._frameRequested = true
         requestAnimationFrame(frame => {
             this._frameRequested = false
-            log.debug('Frame', frame)
+            log.debug('Animation frame', frame)
             this._context.frame = frame
             this._markClean(frame)
             this._attachEventListeners()
