@@ -146,6 +146,13 @@ export abstract class Part<StateType> {
         }
     }
 
+    /**
+     * @return the name of the part class.
+     */
+    get name(): string {
+        return this.constructor.name
+    }
+
     makeStatelessPart<PartType extends StatelessPart>(
         constructor: {new (p: PartParent, id: string, state: {}): PartType},
         name?: string): PartType 
@@ -209,6 +216,10 @@ export abstract class Part<StateType> {
     private _initializing = false
     private _initialized = false
 
+    get isInitializing(): boolean {
+        return this._initializing
+    }
+
     get isInitialized(): boolean {
         return this._initialized
     }
@@ -222,7 +233,7 @@ export abstract class Part<StateType> {
             this.init().then(_ => {
                 this._initialized = true
                 if (this._context.frame) {
-                    log.debug("Loading", this)
+                    log.debug(`Loading ${this.name} after init`, this)
                     this.load()
                 }
             })
@@ -260,6 +271,10 @@ export abstract class Part<StateType> {
     }
 
     private _load() {
+        // if (!this.isInitialized) {
+        //     // don't load before init() is done
+        //     return
+        // }
         this.load()
         this.eachChild(child => {
             child._context = this._context
@@ -575,7 +590,7 @@ export abstract class Part<StateType> {
             this._mountElement = document.getElementById(elem)!
         }
 
-        const partClass = this.constructor.name
+        const partClass = this.name
         this._mountElement.classList.add(`tuff-part-${partClass}`)
         this._mountElement.dataset.tuffPart = partClass
 
@@ -605,7 +620,7 @@ export abstract class Part<StateType> {
     /// Rendering
 
     renderInTag(container: HtmlParentTag) {
-        const partClass = this.constructor.name;
+        const partClass = this.name;
         container.div({ id: this.id, class: `tuff-part-${partClass}`, data: { tuffPart: partClass }}, parent => {
             parent.class(...this.parentClasses)
             if (this.isInitialized) {

@@ -38,6 +38,10 @@ class IdChildPart extends Part<IdState> {
     render(parent: PartTag) {
         parent.div(styles.output).text(`Foo id: ${this.state.id}`)
     }
+
+    load() {
+        log.info(`Loaded ID part with id=${this.state.id} at ${this.context.path}`)
+    }
 }
 
 class OptionalParamPart extends Part<{ bravo: number | undefined, delta: string | undefined }> {

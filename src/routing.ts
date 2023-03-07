@@ -184,7 +184,7 @@ export abstract class RouterPart extends Part<{}> {
                     // it's a proper part route
                     const state = route.parse(path, this.context.queryParams)
                     this.currentPart = this.makePart(route.destination, state)
-                    log.debug(`Routed ${path} to part`, this.currentPart)
+                    log.debug(`Routed ${path} to part: ${this.currentPart.name}`, this.currentPart)
                     this.dirty()
                     return
                 }

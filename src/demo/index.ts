@@ -65,7 +65,7 @@ class App extends Part<{}> {
     }
 
     load() {
-        log.info("Loaded with context", this.context)
+        log.info("Loaded app with context", this.context)
     }
 
     render(parent: PartTag) {
