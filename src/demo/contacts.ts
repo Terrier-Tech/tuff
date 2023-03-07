@@ -110,7 +110,7 @@ class ContactFormPart extends forms.FormPart<ContactState> {
 
             const fileInput = m.event.target as HTMLInputElement
             const data = await this.serializeFileInput(fileInput)
-            const photos = data.getAll(fileInput.name) as Array<File>
+            const photos = data.getAll('files') as Array<File>
 
             if (data && photos.length) {
                 for (const photo of photos) {

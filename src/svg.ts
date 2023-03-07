@@ -131,6 +131,18 @@ export abstract class SvgTagBase<AttrsType extends Attrs,ElementType extends Ele
         }
     }
 
+
+    /// Text
+
+    // get textContent(): string | undefined {
+    //     return this._text
+    // }
+
+    textContent(t: string | undefined) {
+        this._text = t
+    }
+
+
     //// Begin Tag Methods
 
     a(...args: TagArgs<ATag,ATagAttrs>[]) : ATag {

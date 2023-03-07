@@ -51,6 +51,11 @@ const nonBubblingEvents: EventKey[] = [
     'blur', 'focus', 'load', 'scroll'
 ]
 
+/**
+ * Counter for incrementing tuff part ids
+ */
+let _idCount : number = 0
+
 /** 
  * Parts can be mounted either directly to DOM elements or by id string
  */
@@ -176,8 +181,6 @@ export abstract class Part<StateType> {
         }
         return part
     }
-    
-    private _idCount = 0
 
     private _makeParentedPart<
         PartType extends Part<PartStateType>,
@@ -188,8 +191,8 @@ export abstract class Part<StateType> {
         parent: PartParent, 
         state: InferredPartStateType
     ): PartType {
-        this._idCount += 1
-        let part = new constructor(parent || this, `tuff-part-${this._idCount.toString()}`, state)
+        _idCount += 1
+        let part = new constructor(parent || this, `tuff-part-${ _idCount.toString() }`, state)
         if (parent) { 
             // don't register as a root-level part if there's a different parent
         }

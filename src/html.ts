@@ -86,16 +86,6 @@ export abstract class HtmlTagBase<AttrsType extends Attrs,ElementType extends HT
         return this
     }
 
-    attrs(attrs: AttrsType) {
-        super.attrs(attrs)
-        // text is an actual element in SVG, 
-        // so this function only works in HTML
-        if (attrs.text?.length) {
-            this.text(attrs.text)
-        }
-        return this
-    }
-
 
     //// Begin Tag Methods
 

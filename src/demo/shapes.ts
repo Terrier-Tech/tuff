@@ -128,7 +128,7 @@ export class ShapesApp extends Part<{}> {
                             tag = svg.rect({id: shape.id, x: shape.x, y: shape.y, height: shape.height, width: shape.width})
                             break
                         case 'ellipse':
-                            tag = svg.ellipse({id: shape.id, cx: shape.x, cy: shape.y, rx: shape.width/2, ry: shape.height/2})
+                            tag = svg.ellipse({id: shape.id, cx: shape.x+shape.width/2, cy: shape.y+shape.height/2, rx: shape.width/2, ry: shape.height/2})
                             break
                         case 'diamond':
                             const d = `M ${shape.x},${shape.y+shape.height/2} L ${shape.x+shape.width/2},${shape.y} L ${shape.x+shape.width},${shape.y+shape.height/2} L ${shape.x+shape.width/2},${shape.y+shape.height} Z`
@@ -140,6 +140,8 @@ export class ShapesApp extends Part<{}> {
                             .attrs({fill: shape.fill, stroke: shape.color, strokeWidth: shape.strokeWidth})
                             .emitMouseDown(shapeKey, shape)
                             .emitClick(demo.OutputKey, {output: `Clicked ${shape.type} ${shape.id}!`})
+                        const center = {x: shape.x + shape.width/2, y: shape.y + shape.height/2}
+                        svg.text(center, {text: shape.id, textAnchor: 'middle', alignmentBaseline: 'middle'})
                     }
                 }
 

@@ -166,6 +166,9 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
         if (attrs.id?.length) {
             this._id = attrs.id
         }
+        if (attrs.text?.length) {
+            this._text = attrs.text
+        }
         if (attrs.sel?.length) {
             this.sel(attrs.sel)
         }
