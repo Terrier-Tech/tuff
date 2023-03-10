@@ -80,7 +80,7 @@ class OtherPart extends Part<OtherState> {
 }
 ```
 
-![Tuff Messages](messages.svg)
+![Tuff Messages](messages.png)
 
 
 ## Arbitrary Messages
