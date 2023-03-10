@@ -518,6 +518,7 @@ export abstract class Part<StateType> {
         data: DataType,
         options?: EmitOptions)
     {
+        options ||= {scope: 'bubble'}
         this.emit("message", key, {part: this}, data, options)
     }
 

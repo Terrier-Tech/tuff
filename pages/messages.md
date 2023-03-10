@@ -61,7 +61,11 @@ class Toolbar extends Part<ToolbarState> {
 }
 ```
 
-Parts that are not in the same branch of the DOM/Part tree can listen for messages as well with the `attach: "passive"` option:
+## Listener Attachment
+
+The `attach` option for listeners specifies whether to listen only for messages from itself or child parts (`'active'`) or from parts anywhere else in the tree (`'passive'`).
+
+Listeners are **active by default** but can be made passive with the `attach: "passive"` option:
 
 ```typescript
 class OtherPart extends Part<OtherState> {
@@ -75,6 +79,34 @@ class OtherPart extends Part<OtherState> {
     }
 }
 ```
+
+![Tuff Messages](messages.svg)
+
+
+## Arbitrary Messages
+
+While the Tuff messaging system is used to handle UI events emitted by the DOM, it can also be used to pass arbitrary messages throughout an application. 
+
+Instead of calling one of the `emit*` methods on a tag while rendering, you can use the `emitMessage()` method on parts to directly emit an arbitrary message and the `listenMessage()` method to handle them:
+
+```typescript
+const arbitraryKey = messages.typedKey<{id: string}>()
+
+async init() {
+    this.listenMessage(arbitraryKey, m => {
+        console.log(`id: ${m.data.id}`)
+    })
+}
+
+anotherMethod() {
+    this.emitMessage(arbitraryKey, {id: 'foo'})
+}
+```
+
+By default, messages sent with `emitMessage()` will bubble to the top of the part hierarchy like messages emitted by DOM events. 
+To keep the message local to the part, pass `{scope: 'single'}` as the third argument to `emitMessage()`.
+
+
 
 ## Global Keyboard Events
 
