@@ -3,11 +3,10 @@ import {
     route,
     ExtractParserReturnTypes,
     RouteNode,
-    InferParamGroups,
     Parser,
-    MergeParamGroups,
     stringParser, floatParser, intParser, dateParser, booleanParser
 } from "typesafe-routes"
+import { AllParamNames, InferParamFromPath } from "typesafe-routes/build/route"
 import {pathToRegexp} from 'path-to-regexp'
 import {Part, PartConstructor, PartTag, StatelessPart} from './parts'
 import {QueryParams} from "./urls";
@@ -36,8 +35,8 @@ export declare type ParserMap<K extends string> = Record<K, Parser<any>>;
  */
 export class Route<PartType extends Part<StateType>, 
         StateType extends ExtractParserReturnTypes<PM, keyof PM>, 
-        T extends string, 
-        PM extends ParserMap<MergeParamGroups<InferParamGroups<T>>> > 
+        T extends string,
+        PM extends ParserMap<AllParamNames<InferParamFromPath<T>>> >
         implements IRoute {
 
     readonly routeNode!: RouteNode<string,PM,{},false>
@@ -107,8 +106,8 @@ export class Route<PartType extends Part<StateType>,
  */
 export function partRoute<PartType extends Part<StateType>, 
         StateType extends ExtractParserReturnTypes<PM, keyof PM>, 
-        T extends string, 
-        PM extends ParserMap<MergeParamGroups<InferParamGroups<T>>> >
+        T extends string,
+        PM extends ParserMap<AllParamNames<InferParamFromPath<T>>> >
         (partType: PartConstructor<PartType,StateType>, template: T, parserMap: PM): Route<PartType, StateType, T, PM> {
     return new Route(partType, template, parserMap)
 }

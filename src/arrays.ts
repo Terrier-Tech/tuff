@@ -238,7 +238,7 @@ export function find<T>(array: T[], callback: (value: T, index: number, array: T
  * @returns an array of values extracted from the objects in the input array
  * @throws an error if a key is not found in an object
  */
-export function pluck<T, K extends keyof T>(array: T[], key: K): T[K][] {
+export function pluck<T extends object, K extends keyof T & string>(array: T[], key: K): T[K][] {
     return array.map(item => {
         if (key in item) {
             return item[key];
@@ -299,7 +299,9 @@ export class Stream<T> {
      * @param key the property to group by
      */
     groupBy<K extends keyof T, TK extends T[K] & (string | number | symbol)>(key: K): Record<TK, T[]> {
-        return groupBy(this.array, key)
+        // have to cast here because the compiler doesn't know for sure that T as defined on the Stream class is an object
+        type TAsObject = (Record<keyof T, T[keyof T]> & T)
+        return groupBy(this.array as TAsObject[], key)
     }
 
     /**
@@ -307,7 +309,9 @@ export class Stream<T> {
      * @param getKey a function that returns the value to group by
      */
     groupByFunction<TK extends string | number | symbol>(getKey: KeyFun<T, TK>): Record<TK, T[]> {
-        return groupByFunction(this.array, getKey)
+        // have to cast here because the compiler doesn't know for sure that T as defined on the Stream class is an object
+        type TAsObject = (Record<keyof T, T[keyof T]> & T)
+        return groupByFunction(this.array as TAsObject[], getKey as KeyFun<TAsObject, TK>)
     }
 
     /**
@@ -315,7 +319,9 @@ export class Stream<T> {
      * @param key
      */
     indexBy<K extends keyof T, TK extends T[K] & (string | number | symbol)>(key: K): Record<TK,T> {
-        return indexBy(this.array, key)
+        // have to cast here because the compiler doesn't know for sure that T as defined on the Stream class is an object
+        type TAsObject = (Record<keyof T, T[keyof T]> & T)
+        return indexBy(this.array as TAsObject[], key)
     }
 
     /**
