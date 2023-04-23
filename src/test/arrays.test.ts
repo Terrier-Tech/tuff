@@ -144,6 +144,11 @@ test("range with step", () => {
     expect(array).toStrictEqual([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
 })
 
+test("range with step that isn't a divisor", () => {
+    const array = arrays.range(0, 1, 0.15)
+    expect(array).toStrictEqual([0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9])
+})
+
 test("compact", () => {
     const array = ['one', null, 'three', undefined]
     const compactArray = arrays.compact(array)

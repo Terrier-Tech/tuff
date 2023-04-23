@@ -127,7 +127,8 @@ export function niceRound(n: number): number {
  * @returns An array containing numbers from `start` to `end`
  */
 export function range(start: number, end: number, step: number=1): number[] {
-    return Array.from(Array((end - start)/step + 1).keys()).map(x => niceRound(x*step + start))
+    const numElems = Math.floor((end - start) / step + 1)
+    return Array.from(Array(numElems).keys()).map(x => niceRound(x*step + start))
 }
 
 /**
