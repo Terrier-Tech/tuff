@@ -24,6 +24,8 @@ export class Logger {
         let s = this.prefixMessage(m, level)
         switch (level) {
             case "debug":
+                console.debug(s, ...args)
+                break
             case "info":
                 console.log(s, ...args)
                 break
