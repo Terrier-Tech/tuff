@@ -9,8 +9,10 @@ export class Logger {
     // Only messages at or above this level will be shown
     static level: LogLevel = "info"
 
-    static shouldPrintLevel(l: LogLevel): boolean {
-        return levels.indexOf(l) <= levels.indexOf(Logger.level)
+    level?: LogLevel = undefined
+
+    static shouldPrintLevel(printLevel: LogLevel, localLevel: LogLevel | undefined = undefined): boolean {
+        return levels.indexOf(printLevel) <= levels.indexOf(localLevel ?? Logger.level)
     }
 
     constructor(public prefix: string) {
@@ -18,7 +20,7 @@ export class Logger {
     }
 
     log(level: LogLevel, m: string, ...args: any[]) {
-        if (!Logger.shouldPrintLevel(level)) {
+        if (!Logger.shouldPrintLevel(level, this.level)) {
             return
         }
         let s = this.prefixMessage(m, level)
@@ -66,7 +68,7 @@ export class Logger {
 
     // Prints the execution time of the passed function at the given level
     levelTime(label: string, level: LogLevel, fun: () => any) {
-        if (Logger.shouldPrintLevel(level)) {
+        if (Logger.shouldPrintLevel(level, this.level)) {
             const s = this.prefixMessage(label, level)
             console.time(s)
             fun()
