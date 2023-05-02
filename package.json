@@ -4,7 +4,7 @@
   "files": [
     "*"
   ],
-  "version": "0.24.3",
+  "version": "0.25.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/Terrier-Tech/tuff"
@@ -109,10 +109,12 @@
     },
     "./logging": {
       "import": "./logging.js"
+    },
+    "./time": {
+      "import": "./time.js"
     }
   },
   "dependencies": {
-    "@types/path-to-regexp": "^1.7.0",
     "path-to-regexp": "^6.2.0",
     "typesafe-routes": "^10.0.2"
   }

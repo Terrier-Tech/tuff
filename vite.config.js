@@ -33,6 +33,7 @@ export default defineConfig({
         svg: './src/svg.ts',
         mat: './src/mat.ts',
         forms: './src/forms.ts',
+        time: './src/time.ts',
         types: './src/types.ts',
         html: './src/html.ts',
         trig: './src/trig.ts',

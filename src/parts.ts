@@ -13,6 +13,11 @@ const log = new Logger('Part')
 export type StatelessPart = Part<any>
 
 /**
+ * The state type for a Part that should have *empty* state.
+ */
+export type NoState = Record<string, never>
+
+/**
  * Parent parts can possibly be null.
  */
 export type PartParent = StatelessPart | null

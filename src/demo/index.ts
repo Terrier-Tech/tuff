@@ -7,7 +7,7 @@ import * as shapes from './shapes'
 import * as nav from './nav'
 import * as demo from './demo'
 import * as messages from '../messages'
-import { createHtmlElement} from '../html'
+import Html from '../html'
 
 const log = new Logger("Demo")
 Logger.level = 'debug'
@@ -56,7 +56,7 @@ class App extends Part<{}> {
         })
 
         // test creating an arbitrary element
-        const divTag = createHtmlElement("div", div => {
+        const divTag = Html.createElement("div", div => {
             div.class('global').css({padding: '1em'}).text("Hello Global Element")
         })
         document.body.appendChild(divTag)

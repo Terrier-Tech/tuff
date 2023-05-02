@@ -6,6 +6,40 @@ import {Logger} from './logging'
 
 const log = new Logger('HTML')
 
+
+/** Utilities **/
+
+/**
+ * Given an html string, extracts text content that would be rendered to the screen
+ * @param html
+ */
+function getTextContent(html: string) {
+    const div = document.createElement('div')
+    div.innerHTML = html
+    return div.innerText
+}
+
+/**
+ * Creates an arbitrary HTML element using the associated tag builder.
+ * @param tagName the name of the HTML tag
+ * @param fn a function to call on the tag before it's created
+ * @returns the resulting element
+ */
+export function createElement<T extends keyof HtmlTagMap & keyof HTMLElementTagNameMap>(tagName: T, fn: (t: HtmlTagMap[T]) => any): HTMLElementTagNameMap[T] {
+    const tag = new htmlTagMap[tagName](tagName) as HtmlTagMap[T]
+    fn(tag)
+    return tag.createElement() as HTMLElementTagNameMap[T]
+}
+
+const Html = {
+    getTextContent,
+    createElement
+}
+export default Html
+
+
+/** Tags **/
+
 /**
  * Any HTML-specific attributes that aren't in the types would go here.
  */
@@ -17,18 +51,6 @@ export interface HtmlBaseAttrs extends Attrs {
  * General HTML tag type with no specific attributes.
  */
 export type HtmlParentTag = HtmlTagBase<HtmlBaseAttrs,any>
-
-/**
- * Creates an arbitray HTML element using the associated tag builder.
- * @param tagName the name of the HTML tag
- * @param fn a function to call on the tag before it's created
- * @returns the resulting element
- */
-export function createHtmlElement<T extends keyof HtmlTagMap & keyof HTMLElementTagNameMap>(tagName: T, fn: (t: HtmlTagMap[T]) => any): HTMLElementTagNameMap[T] {
-    const tag = new htmlTagMap[tagName](tagName) as HtmlTagMap[T]
-    fn(tag)
-    return tag.createElement() as HTMLElementTagNameMap[T]
-}
 
 
 /**
