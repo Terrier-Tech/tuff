@@ -1,8 +1,9 @@
 import * as messages from './messages'
-import { Logger } from './logging'
+import {EventMessageTypeMap, ValueEvents, ValueMessage} from './messages'
+import {Logger} from './logging'
 import * as keyboard from './keyboard'
 import * as urls from './urls'
-import Html, { DivTag, HtmlBaseAttrs, HtmlParentTag, HtmlTagBase } from './html'
+import Html, {DivTag, HtmlBaseAttrs, HtmlParentTag, HtmlTagBase} from './html'
 import Nav from './nav'
 import {slugify} from "./strings"
 
@@ -386,13 +387,13 @@ export abstract class Part<StateType> {
     listen<EventType extends keyof messages.EventMap, DataType>(
         type: EventType, 
         key: messages.UntypedKey,
-        handler: (m: messages.Message<EventType,DataType>) => void,
+        handler: (m: messages.EventMessageTypeMap<EventType,DataType>[EventType]) => void,
         options: messages.ListenOptions): void
 
     listen<EventType extends keyof messages.EventMap, DataType>(
         type: EventType, 
         key: messages.TypedKey<DataType>,
-        handler: (m: messages.Message<EventType,DataType>) => void,
+        handler: (m: messages.EventMessageTypeMap<EventType,DataType>[EventType]) => void,
         options?: messages.ListenOptions): void
 
     /**
@@ -405,7 +406,7 @@ export abstract class Part<StateType> {
     listen<EventType extends keyof messages.EventMap, DataType>(
         type: EventType, 
         key: messages.UntypedKey | messages.TypedKey<DataType>,
-        handler: (m: messages.Message<EventType,DataType>) => void,
+        handler: (m: messages.EventMessageTypeMap<EventType,DataType>[EventType]) => void,
         options: messages.ListenOptions={}): void
     { 
         if (options?.attach == "passive" && this != this.root) {
@@ -512,19 +513,26 @@ export abstract class Part<StateType> {
 
     /** 
      * Creates and emits a message for the given type and key.
-     */ 
+     */
     emit<EventType extends keyof messages.EventMap, DataType>(
-        type: EventType, 
+        type: EventType,
         key: messages.TypedKey<DataType>,
-        evt: messages.EventMap[typeof type],
+        evt: messages.EventMap[EventType],
         data: DataType,
-        options: EmitOptions={}) 
-    {
+        options: EmitOptions={}
+    ): void {
         const message = {
             type: type,
             event: evt,
             data: data
+        } as EventMessageTypeMap<EventType, DataType>[EventType]
+
+        if ('target' in evt && evt.target && 'value' in evt.target) {
+            if (type === 'change' || type === 'input') {
+                (message as ValueMessage<ValueEvents, DataType>).value = evt.target.value as string
+            }
         }
+
         this.handlerMap.each(type, key, handler => {
             handler.callback(message)
         })
@@ -856,51 +864,51 @@ export abstract class Part<StateType> {
 
     //// Begin Listen Methods
 
-    onAbort<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"abort",DataType>) => void, options?: messages.ListenOptions): void
-    onAbort<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"abort",DataType>) => void, options?: messages.ListenOptions): void
-    onAbort<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"abort",DataType>) => void, options?: messages.ListenOptions): void {
+    onAbort<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"abort", DataType>["abort"]) => void, options?: messages.ListenOptions): void
+    onAbort<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"abort", DataType>["abort"]) => void, options?: messages.ListenOptions): void
+    onAbort<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"abort", DataType>["abort"]) => void, options?: messages.ListenOptions): void {
         this.listen<"abort",DataType>("abort", key, listener, options)
     }
     
-    onAnimationCancel<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"animationcancel",DataType>) => void, options?: messages.ListenOptions): void
-    onAnimationCancel<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"animationcancel",DataType>) => void, options?: messages.ListenOptions): void
-    onAnimationCancel<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"animationcancel",DataType>) => void, options?: messages.ListenOptions): void {
+    onAnimationCancel<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"animationcancel", DataType>["animationcancel"]) => void, options?: messages.ListenOptions): void
+    onAnimationCancel<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"animationcancel", DataType>["animationcancel"]) => void, options?: messages.ListenOptions): void
+    onAnimationCancel<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"animationcancel", DataType>["animationcancel"]) => void, options?: messages.ListenOptions): void {
         this.listen<"animationcancel",DataType>("animationcancel", key, listener, options)
     }
     
-    onAnimationEnd<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"animationend",DataType>) => void, options?: messages.ListenOptions): void
-    onAnimationEnd<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"animationend",DataType>) => void, options?: messages.ListenOptions): void
-    onAnimationEnd<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"animationend",DataType>) => void, options?: messages.ListenOptions): void {
+    onAnimationEnd<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"animationend", DataType>["animationend"]) => void, options?: messages.ListenOptions): void
+    onAnimationEnd<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"animationend", DataType>["animationend"]) => void, options?: messages.ListenOptions): void
+    onAnimationEnd<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"animationend", DataType>["animationend"]) => void, options?: messages.ListenOptions): void {
         this.listen<"animationend",DataType>("animationend", key, listener, options)
     }
     
-    onAnimationIteration<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"animationiteration",DataType>) => void, options?: messages.ListenOptions): void
-    onAnimationIteration<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"animationiteration",DataType>) => void, options?: messages.ListenOptions): void
-    onAnimationIteration<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"animationiteration",DataType>) => void, options?: messages.ListenOptions): void {
+    onAnimationIteration<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"animationiteration", DataType>["animationiteration"]) => void, options?: messages.ListenOptions): void
+    onAnimationIteration<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"animationiteration", DataType>["animationiteration"]) => void, options?: messages.ListenOptions): void
+    onAnimationIteration<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"animationiteration", DataType>["animationiteration"]) => void, options?: messages.ListenOptions): void {
         this.listen<"animationiteration",DataType>("animationiteration", key, listener, options)
     }
     
-    onAnimationStart<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"animationstart",DataType>) => void, options?: messages.ListenOptions): void
-    onAnimationStart<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"animationstart",DataType>) => void, options?: messages.ListenOptions): void
-    onAnimationStart<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"animationstart",DataType>) => void, options?: messages.ListenOptions): void {
+    onAnimationStart<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"animationstart", DataType>["animationstart"]) => void, options?: messages.ListenOptions): void
+    onAnimationStart<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"animationstart", DataType>["animationstart"]) => void, options?: messages.ListenOptions): void
+    onAnimationStart<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"animationstart", DataType>["animationstart"]) => void, options?: messages.ListenOptions): void {
         this.listen<"animationstart",DataType>("animationstart", key, listener, options)
     }
     
-    onAuxClick<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"auxclick",DataType>) => void, options?: messages.ListenOptions): void
-    onAuxClick<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"auxclick",DataType>) => void, options?: messages.ListenOptions): void
-    onAuxClick<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"auxclick",DataType>) => void, options?: messages.ListenOptions): void {
+    onAuxClick<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"auxclick", DataType>["auxclick"]) => void, options?: messages.ListenOptions): void
+    onAuxClick<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"auxclick", DataType>["auxclick"]) => void, options?: messages.ListenOptions): void
+    onAuxClick<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"auxclick", DataType>["auxclick"]) => void, options?: messages.ListenOptions): void {
         this.listen<"auxclick",DataType>("auxclick", key, listener, options)
     }
     
-    onBeforeInput<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"beforeinput",DataType>) => void, options?: messages.ListenOptions): void
-    onBeforeInput<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"beforeinput",DataType>) => void, options?: messages.ListenOptions): void
-    onBeforeInput<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"beforeinput",DataType>) => void, options?: messages.ListenOptions): void {
+    onBeforeInput<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"beforeinput", DataType>["beforeinput"]) => void, options?: messages.ListenOptions): void
+    onBeforeInput<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"beforeinput", DataType>["beforeinput"]) => void, options?: messages.ListenOptions): void
+    onBeforeInput<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"beforeinput", DataType>["beforeinput"]) => void, options?: messages.ListenOptions): void {
         this.listen<"beforeinput",DataType>("beforeinput", key, listener, options)
     }
     
-    onBlur<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"blur",DataType>) => void, options?: messages.ListenOptions): void
-    onBlur<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"blur",DataType>) => void, options?: messages.ListenOptions): void
-    onBlur<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"blur",DataType>) => void, options?: messages.ListenOptions): void {
+    onBlur<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"blur", DataType>["blur"]) => void, options?: messages.ListenOptions): void
+    onBlur<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"blur", DataType>["blur"]) => void, options?: messages.ListenOptions): void
+    onBlur<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"blur", DataType>["blur"]) => void, options?: messages.ListenOptions): void {
         this.listen<"blur",DataType>("blur", key, listener, options)
     }
     
@@ -909,550 +917,550 @@ export abstract class Part<StateType> {
     onCancel<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"cancel",DataType>) => void, options?: messages.ListenOptions): void {
         this.listen<"cancel",DataType>("cancel", key, listener, options)
     }
-    
+
     onCanPlay<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"canplay",DataType>) => void, options?: messages.ListenOptions): void
     onCanPlay<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"canplay",DataType>) => void, options?: messages.ListenOptions): void
     onCanPlay<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"canplay",DataType>) => void, options?: messages.ListenOptions): void {
         this.listen<"canplay",DataType>("canplay", key, listener, options)
     }
     
-    onCanPlayThrough<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"canplaythrough",DataType>) => void, options?: messages.ListenOptions): void
-    onCanPlayThrough<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"canplaythrough",DataType>) => void, options?: messages.ListenOptions): void
-    onCanPlayThrough<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"canplaythrough",DataType>) => void, options?: messages.ListenOptions): void {
+    onCanPlayThrough<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"canplaythrough", DataType>["canplaythrough"]) => void, options?: messages.ListenOptions): void
+    onCanPlayThrough<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"canplaythrough", DataType>["canplaythrough"]) => void, options?: messages.ListenOptions): void
+    onCanPlayThrough<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"canplaythrough", DataType>["canplaythrough"]) => void, options?: messages.ListenOptions): void {
         this.listen<"canplaythrough",DataType>("canplaythrough", key, listener, options)
     }
     
-    onChange<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"change",DataType>) => void, options?: messages.ListenOptions): void
-    onChange<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"change",DataType>) => void, options?: messages.ListenOptions): void
-    onChange<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"change",DataType>) => void, options?: messages.ListenOptions): void {
+    onChange<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"change", DataType>["change"]) => void, options?: messages.ListenOptions): void
+    onChange<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"change", DataType>["change"]) => void, options?: messages.ListenOptions): void
+    onChange<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"change", DataType>["change"]) => void, options?: messages.ListenOptions): void {
         this.listen<"change",DataType>("change", key, listener, options)
     }
     
-    onClick<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"click",DataType>) => void, options?: messages.ListenOptions): void
-    onClick<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"click",DataType>) => void, options?: messages.ListenOptions): void
-    onClick<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"click",DataType>) => void, options?: messages.ListenOptions): void {
+    onClick<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"click", DataType>["click"]) => void, options?: messages.ListenOptions): void
+    onClick<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"click", DataType>["click"]) => void, options?: messages.ListenOptions): void
+    onClick<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"click", DataType>["click"]) => void, options?: messages.ListenOptions): void {
         this.listen<"click",DataType>("click", key, listener, options)
     }
     
-    onClose<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"close",DataType>) => void, options?: messages.ListenOptions): void
-    onClose<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"close",DataType>) => void, options?: messages.ListenOptions): void
-    onClose<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"close",DataType>) => void, options?: messages.ListenOptions): void {
+    onClose<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"close", DataType>["close"]) => void, options?: messages.ListenOptions): void
+    onClose<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"close", DataType>["close"]) => void, options?: messages.ListenOptions): void
+    onClose<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"close", DataType>["close"]) => void, options?: messages.ListenOptions): void {
         this.listen<"close",DataType>("close", key, listener, options)
     }
     
-    onCompositionEnd<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"compositionend",DataType>) => void, options?: messages.ListenOptions): void
-    onCompositionEnd<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"compositionend",DataType>) => void, options?: messages.ListenOptions): void
-    onCompositionEnd<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"compositionend",DataType>) => void, options?: messages.ListenOptions): void {
+    onCompositionEnd<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"compositionend", DataType>["compositionend"]) => void, options?: messages.ListenOptions): void
+    onCompositionEnd<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"compositionend", DataType>["compositionend"]) => void, options?: messages.ListenOptions): void
+    onCompositionEnd<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"compositionend", DataType>["compositionend"]) => void, options?: messages.ListenOptions): void {
         this.listen<"compositionend",DataType>("compositionend", key, listener, options)
     }
     
-    onCompositionStart<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"compositionstart",DataType>) => void, options?: messages.ListenOptions): void
-    onCompositionStart<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"compositionstart",DataType>) => void, options?: messages.ListenOptions): void
-    onCompositionStart<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"compositionstart",DataType>) => void, options?: messages.ListenOptions): void {
+    onCompositionStart<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"compositionstart", DataType>["compositionstart"]) => void, options?: messages.ListenOptions): void
+    onCompositionStart<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"compositionstart", DataType>["compositionstart"]) => void, options?: messages.ListenOptions): void
+    onCompositionStart<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"compositionstart", DataType>["compositionstart"]) => void, options?: messages.ListenOptions): void {
         this.listen<"compositionstart",DataType>("compositionstart", key, listener, options)
     }
     
-    onCompositionUpdate<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"compositionupdate",DataType>) => void, options?: messages.ListenOptions): void
-    onCompositionUpdate<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"compositionupdate",DataType>) => void, options?: messages.ListenOptions): void
-    onCompositionUpdate<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"compositionupdate",DataType>) => void, options?: messages.ListenOptions): void {
+    onCompositionUpdate<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"compositionupdate", DataType>["compositionupdate"]) => void, options?: messages.ListenOptions): void
+    onCompositionUpdate<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"compositionupdate", DataType>["compositionupdate"]) => void, options?: messages.ListenOptions): void
+    onCompositionUpdate<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"compositionupdate", DataType>["compositionupdate"]) => void, options?: messages.ListenOptions): void {
         this.listen<"compositionupdate",DataType>("compositionupdate", key, listener, options)
     }
     
-    onContextMenu<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"contextmenu",DataType>) => void, options?: messages.ListenOptions): void
-    onContextMenu<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"contextmenu",DataType>) => void, options?: messages.ListenOptions): void
-    onContextMenu<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"contextmenu",DataType>) => void, options?: messages.ListenOptions): void {
+    onContextMenu<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"contextmenu", DataType>["contextmenu"]) => void, options?: messages.ListenOptions): void
+    onContextMenu<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"contextmenu", DataType>["contextmenu"]) => void, options?: messages.ListenOptions): void
+    onContextMenu<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"contextmenu", DataType>["contextmenu"]) => void, options?: messages.ListenOptions): void {
         this.listen<"contextmenu",DataType>("contextmenu", key, listener, options)
     }
     
-    onCopy<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"copy",DataType>) => void, options?: messages.ListenOptions): void
-    onCopy<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"copy",DataType>) => void, options?: messages.ListenOptions): void
-    onCopy<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"copy",DataType>) => void, options?: messages.ListenOptions): void {
+    onCopy<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"copy", DataType>["copy"]) => void, options?: messages.ListenOptions): void
+    onCopy<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"copy", DataType>["copy"]) => void, options?: messages.ListenOptions): void
+    onCopy<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"copy", DataType>["copy"]) => void, options?: messages.ListenOptions): void {
         this.listen<"copy",DataType>("copy", key, listener, options)
     }
     
-    onCueChange<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"cuechange",DataType>) => void, options?: messages.ListenOptions): void
-    onCueChange<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"cuechange",DataType>) => void, options?: messages.ListenOptions): void
-    onCueChange<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"cuechange",DataType>) => void, options?: messages.ListenOptions): void {
+    onCueChange<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"cuechange", DataType>["cuechange"]) => void, options?: messages.ListenOptions): void
+    onCueChange<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"cuechange", DataType>["cuechange"]) => void, options?: messages.ListenOptions): void
+    onCueChange<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"cuechange", DataType>["cuechange"]) => void, options?: messages.ListenOptions): void {
         this.listen<"cuechange",DataType>("cuechange", key, listener, options)
     }
     
-    onCut<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"cut",DataType>) => void, options?: messages.ListenOptions): void
-    onCut<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"cut",DataType>) => void, options?: messages.ListenOptions): void
-    onCut<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"cut",DataType>) => void, options?: messages.ListenOptions): void {
+    onCut<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"cut", DataType>["cut"]) => void, options?: messages.ListenOptions): void
+    onCut<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"cut", DataType>["cut"]) => void, options?: messages.ListenOptions): void
+    onCut<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"cut", DataType>["cut"]) => void, options?: messages.ListenOptions): void {
         this.listen<"cut",DataType>("cut", key, listener, options)
     }
     
-    onDblClick<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"dblclick",DataType>) => void, options?: messages.ListenOptions): void
-    onDblClick<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"dblclick",DataType>) => void, options?: messages.ListenOptions): void
-    onDblClick<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"dblclick",DataType>) => void, options?: messages.ListenOptions): void {
+    onDblClick<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"dblclick", DataType>["dblclick"]) => void, options?: messages.ListenOptions): void
+    onDblClick<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"dblclick", DataType>["dblclick"]) => void, options?: messages.ListenOptions): void
+    onDblClick<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"dblclick", DataType>["dblclick"]) => void, options?: messages.ListenOptions): void {
         this.listen<"dblclick",DataType>("dblclick", key, listener, options)
     }
     
-    onDrag<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"drag",DataType>) => void, options?: messages.ListenOptions): void
-    onDrag<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"drag",DataType>) => void, options?: messages.ListenOptions): void
-    onDrag<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"drag",DataType>) => void, options?: messages.ListenOptions): void {
+    onDrag<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"drag", DataType>["drag"]) => void, options?: messages.ListenOptions): void
+    onDrag<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"drag", DataType>["drag"]) => void, options?: messages.ListenOptions): void
+    onDrag<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"drag", DataType>["drag"]) => void, options?: messages.ListenOptions): void {
         this.listen<"drag",DataType>("drag", key, listener, options)
     }
     
-    onDragEnd<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"dragend",DataType>) => void, options?: messages.ListenOptions): void
-    onDragEnd<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"dragend",DataType>) => void, options?: messages.ListenOptions): void
-    onDragEnd<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"dragend",DataType>) => void, options?: messages.ListenOptions): void {
+    onDragEnd<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"dragend", DataType>["dragend"]) => void, options?: messages.ListenOptions): void
+    onDragEnd<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"dragend", DataType>["dragend"]) => void, options?: messages.ListenOptions): void
+    onDragEnd<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"dragend", DataType>["dragend"]) => void, options?: messages.ListenOptions): void {
         this.listen<"dragend",DataType>("dragend", key, listener, options)
     }
     
-    onDragEnter<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"dragenter",DataType>) => void, options?: messages.ListenOptions): void
-    onDragEnter<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"dragenter",DataType>) => void, options?: messages.ListenOptions): void
-    onDragEnter<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"dragenter",DataType>) => void, options?: messages.ListenOptions): void {
+    onDragEnter<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"dragenter", DataType>["dragenter"]) => void, options?: messages.ListenOptions): void
+    onDragEnter<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"dragenter", DataType>["dragenter"]) => void, options?: messages.ListenOptions): void
+    onDragEnter<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"dragenter", DataType>["dragenter"]) => void, options?: messages.ListenOptions): void {
         this.listen<"dragenter",DataType>("dragenter", key, listener, options)
     }
     
-    onDragLeave<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"dragleave",DataType>) => void, options?: messages.ListenOptions): void
-    onDragLeave<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"dragleave",DataType>) => void, options?: messages.ListenOptions): void
-    onDragLeave<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"dragleave",DataType>) => void, options?: messages.ListenOptions): void {
+    onDragLeave<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"dragleave", DataType>["dragleave"]) => void, options?: messages.ListenOptions): void
+    onDragLeave<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"dragleave", DataType>["dragleave"]) => void, options?: messages.ListenOptions): void
+    onDragLeave<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"dragleave", DataType>["dragleave"]) => void, options?: messages.ListenOptions): void {
         this.listen<"dragleave",DataType>("dragleave", key, listener, options)
     }
     
-    onDragOver<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"dragover",DataType>) => void, options?: messages.ListenOptions): void
-    onDragOver<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"dragover",DataType>) => void, options?: messages.ListenOptions): void
-    onDragOver<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"dragover",DataType>) => void, options?: messages.ListenOptions): void {
+    onDragOver<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"dragover", DataType>["dragover"]) => void, options?: messages.ListenOptions): void
+    onDragOver<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"dragover", DataType>["dragover"]) => void, options?: messages.ListenOptions): void
+    onDragOver<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"dragover", DataType>["dragover"]) => void, options?: messages.ListenOptions): void {
         this.listen<"dragover",DataType>("dragover", key, listener, options)
     }
     
-    onDragStart<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"dragstart",DataType>) => void, options?: messages.ListenOptions): void
-    onDragStart<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"dragstart",DataType>) => void, options?: messages.ListenOptions): void
-    onDragStart<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"dragstart",DataType>) => void, options?: messages.ListenOptions): void {
+    onDragStart<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"dragstart", DataType>["dragstart"]) => void, options?: messages.ListenOptions): void
+    onDragStart<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"dragstart", DataType>["dragstart"]) => void, options?: messages.ListenOptions): void
+    onDragStart<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"dragstart", DataType>["dragstart"]) => void, options?: messages.ListenOptions): void {
         this.listen<"dragstart",DataType>("dragstart", key, listener, options)
     }
     
-    onDrop<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"drop",DataType>) => void, options?: messages.ListenOptions): void
-    onDrop<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"drop",DataType>) => void, options?: messages.ListenOptions): void
-    onDrop<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"drop",DataType>) => void, options?: messages.ListenOptions): void {
+    onDrop<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"drop", DataType>["drop"]) => void, options?: messages.ListenOptions): void
+    onDrop<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"drop", DataType>["drop"]) => void, options?: messages.ListenOptions): void
+    onDrop<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"drop", DataType>["drop"]) => void, options?: messages.ListenOptions): void {
         this.listen<"drop",DataType>("drop", key, listener, options)
     }
     
-    onDurationChange<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"durationchange",DataType>) => void, options?: messages.ListenOptions): void
-    onDurationChange<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"durationchange",DataType>) => void, options?: messages.ListenOptions): void
-    onDurationChange<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"durationchange",DataType>) => void, options?: messages.ListenOptions): void {
+    onDurationChange<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"durationchange", DataType>["durationchange"]) => void, options?: messages.ListenOptions): void
+    onDurationChange<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"durationchange", DataType>["durationchange"]) => void, options?: messages.ListenOptions): void
+    onDurationChange<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"durationchange", DataType>["durationchange"]) => void, options?: messages.ListenOptions): void {
         this.listen<"durationchange",DataType>("durationchange", key, listener, options)
     }
     
-    onEmptied<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"emptied",DataType>) => void, options?: messages.ListenOptions): void
-    onEmptied<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"emptied",DataType>) => void, options?: messages.ListenOptions): void
-    onEmptied<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"emptied",DataType>) => void, options?: messages.ListenOptions): void {
+    onEmptied<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"emptied", DataType>["emptied"]) => void, options?: messages.ListenOptions): void
+    onEmptied<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"emptied", DataType>["emptied"]) => void, options?: messages.ListenOptions): void
+    onEmptied<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"emptied", DataType>["emptied"]) => void, options?: messages.ListenOptions): void {
         this.listen<"emptied",DataType>("emptied", key, listener, options)
     }
     
-    onEnded<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"ended",DataType>) => void, options?: messages.ListenOptions): void
-    onEnded<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"ended",DataType>) => void, options?: messages.ListenOptions): void
-    onEnded<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"ended",DataType>) => void, options?: messages.ListenOptions): void {
+    onEnded<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"ended", DataType>["ended"]) => void, options?: messages.ListenOptions): void
+    onEnded<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"ended", DataType>["ended"]) => void, options?: messages.ListenOptions): void
+    onEnded<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"ended", DataType>["ended"]) => void, options?: messages.ListenOptions): void {
         this.listen<"ended",DataType>("ended", key, listener, options)
     }
     
-    onError<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"error",DataType>) => void, options?: messages.ListenOptions): void
-    onError<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"error",DataType>) => void, options?: messages.ListenOptions): void
-    onError<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"error",DataType>) => void, options?: messages.ListenOptions): void {
+    onError<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"error", DataType>["error"]) => void, options?: messages.ListenOptions): void
+    onError<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"error", DataType>["error"]) => void, options?: messages.ListenOptions): void
+    onError<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"error", DataType>["error"]) => void, options?: messages.ListenOptions): void {
         this.listen<"error",DataType>("error", key, listener, options)
     }
     
-    onFocus<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"focus",DataType>) => void, options?: messages.ListenOptions): void
-    onFocus<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"focus",DataType>) => void, options?: messages.ListenOptions): void
-    onFocus<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"focus",DataType>) => void, options?: messages.ListenOptions): void {
+    onFocus<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"focus", DataType>["focus"]) => void, options?: messages.ListenOptions): void
+    onFocus<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"focus", DataType>["focus"]) => void, options?: messages.ListenOptions): void
+    onFocus<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"focus", DataType>["focus"]) => void, options?: messages.ListenOptions): void {
         this.listen<"focus",DataType>("focus", key, listener, options)
     }
     
-    onFocusIn<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"focusin",DataType>) => void, options?: messages.ListenOptions): void
-    onFocusIn<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"focusin",DataType>) => void, options?: messages.ListenOptions): void
-    onFocusIn<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"focusin",DataType>) => void, options?: messages.ListenOptions): void {
+    onFocusIn<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"focusin", DataType>["focusin"]) => void, options?: messages.ListenOptions): void
+    onFocusIn<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"focusin", DataType>["focusin"]) => void, options?: messages.ListenOptions): void
+    onFocusIn<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"focusin", DataType>["focusin"]) => void, options?: messages.ListenOptions): void {
         this.listen<"focusin",DataType>("focusin", key, listener, options)
     }
     
-    onFocusOut<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"focusout",DataType>) => void, options?: messages.ListenOptions): void
-    onFocusOut<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"focusout",DataType>) => void, options?: messages.ListenOptions): void
-    onFocusOut<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"focusout",DataType>) => void, options?: messages.ListenOptions): void {
+    onFocusOut<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"focusout", DataType>["focusout"]) => void, options?: messages.ListenOptions): void
+    onFocusOut<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"focusout", DataType>["focusout"]) => void, options?: messages.ListenOptions): void
+    onFocusOut<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"focusout", DataType>["focusout"]) => void, options?: messages.ListenOptions): void {
         this.listen<"focusout",DataType>("focusout", key, listener, options)
     }
     
-    onFormData<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"formdata",DataType>) => void, options?: messages.ListenOptions): void
-    onFormData<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"formdata",DataType>) => void, options?: messages.ListenOptions): void
-    onFormData<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"formdata",DataType>) => void, options?: messages.ListenOptions): void {
+    onFormData<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"formdata", DataType>["formdata"]) => void, options?: messages.ListenOptions): void
+    onFormData<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"formdata", DataType>["formdata"]) => void, options?: messages.ListenOptions): void
+    onFormData<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"formdata", DataType>["formdata"]) => void, options?: messages.ListenOptions): void {
         this.listen<"formdata",DataType>("formdata", key, listener, options)
     }
     
-    onFullscreenChange<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"fullscreenchange",DataType>) => void, options?: messages.ListenOptions): void
-    onFullscreenChange<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"fullscreenchange",DataType>) => void, options?: messages.ListenOptions): void
-    onFullscreenChange<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"fullscreenchange",DataType>) => void, options?: messages.ListenOptions): void {
+    onFullscreenChange<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"fullscreenchange", DataType>["fullscreenchange"]) => void, options?: messages.ListenOptions): void
+    onFullscreenChange<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"fullscreenchange", DataType>["fullscreenchange"]) => void, options?: messages.ListenOptions): void
+    onFullscreenChange<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"fullscreenchange", DataType>["fullscreenchange"]) => void, options?: messages.ListenOptions): void {
         this.listen<"fullscreenchange",DataType>("fullscreenchange", key, listener, options)
     }
     
-    onFullscreenError<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"fullscreenerror",DataType>) => void, options?: messages.ListenOptions): void
-    onFullscreenError<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"fullscreenerror",DataType>) => void, options?: messages.ListenOptions): void
-    onFullscreenError<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"fullscreenerror",DataType>) => void, options?: messages.ListenOptions): void {
+    onFullscreenError<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"fullscreenerror", DataType>["fullscreenerror"]) => void, options?: messages.ListenOptions): void
+    onFullscreenError<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"fullscreenerror", DataType>["fullscreenerror"]) => void, options?: messages.ListenOptions): void
+    onFullscreenError<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"fullscreenerror", DataType>["fullscreenerror"]) => void, options?: messages.ListenOptions): void {
         this.listen<"fullscreenerror",DataType>("fullscreenerror", key, listener, options)
     }
     
-    onGotPointerCapture<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"gotpointercapture",DataType>) => void, options?: messages.ListenOptions): void
-    onGotPointerCapture<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"gotpointercapture",DataType>) => void, options?: messages.ListenOptions): void
-    onGotPointerCapture<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"gotpointercapture",DataType>) => void, options?: messages.ListenOptions): void {
+    onGotPointerCapture<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"gotpointercapture", DataType>["gotpointercapture"]) => void, options?: messages.ListenOptions): void
+    onGotPointerCapture<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"gotpointercapture", DataType>["gotpointercapture"]) => void, options?: messages.ListenOptions): void
+    onGotPointerCapture<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"gotpointercapture", DataType>["gotpointercapture"]) => void, options?: messages.ListenOptions): void {
         this.listen<"gotpointercapture",DataType>("gotpointercapture", key, listener, options)
     }
     
-    onInput<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"input",DataType>) => void, options?: messages.ListenOptions): void
-    onInput<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"input",DataType>) => void, options?: messages.ListenOptions): void
-    onInput<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"input",DataType>) => void, options?: messages.ListenOptions): void {
+    onInput<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"input", DataType>["input"]) => void, options?: messages.ListenOptions): void
+    onInput<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"input", DataType>["input"]) => void, options?: messages.ListenOptions): void
+    onInput<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"input", DataType>["input"]) => void, options?: messages.ListenOptions): void {
         this.listen<"input",DataType>("input", key, listener, options)
     }
     
-    onInvalid<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"invalid",DataType>) => void, options?: messages.ListenOptions): void
-    onInvalid<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"invalid",DataType>) => void, options?: messages.ListenOptions): void
-    onInvalid<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"invalid",DataType>) => void, options?: messages.ListenOptions): void {
+    onInvalid<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"invalid", DataType>["invalid"]) => void, options?: messages.ListenOptions): void
+    onInvalid<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"invalid", DataType>["invalid"]) => void, options?: messages.ListenOptions): void
+    onInvalid<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"invalid", DataType>["invalid"]) => void, options?: messages.ListenOptions): void {
         this.listen<"invalid",DataType>("invalid", key, listener, options)
     }
     
-    onKeyDown<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"keydown",DataType>) => void, options?: messages.ListenOptions): void
-    onKeyDown<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"keydown",DataType>) => void, options?: messages.ListenOptions): void
-    onKeyDown<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"keydown",DataType>) => void, options?: messages.ListenOptions): void {
+    onKeyDown<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"keydown", DataType>["keydown"]) => void, options?: messages.ListenOptions): void
+    onKeyDown<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"keydown", DataType>["keydown"]) => void, options?: messages.ListenOptions): void
+    onKeyDown<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"keydown", DataType>["keydown"]) => void, options?: messages.ListenOptions): void {
         this.listen<"keydown",DataType>("keydown", key, listener, options)
     }
     
-    onKeyUp<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"keyup",DataType>) => void, options?: messages.ListenOptions): void
-    onKeyUp<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"keyup",DataType>) => void, options?: messages.ListenOptions): void
-    onKeyUp<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"keyup",DataType>) => void, options?: messages.ListenOptions): void {
+    onKeyUp<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"keyup", DataType>["keyup"]) => void, options?: messages.ListenOptions): void
+    onKeyUp<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"keyup", DataType>["keyup"]) => void, options?: messages.ListenOptions): void
+    onKeyUp<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"keyup", DataType>["keyup"]) => void, options?: messages.ListenOptions): void {
         this.listen<"keyup",DataType>("keyup", key, listener, options)
     }
     
-    onLoad<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"load",DataType>) => void, options?: messages.ListenOptions): void
-    onLoad<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"load",DataType>) => void, options?: messages.ListenOptions): void
-    onLoad<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"load",DataType>) => void, options?: messages.ListenOptions): void {
+    onLoad<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"load", DataType>["load"]) => void, options?: messages.ListenOptions): void
+    onLoad<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"load", DataType>["load"]) => void, options?: messages.ListenOptions): void
+    onLoad<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"load", DataType>["load"]) => void, options?: messages.ListenOptions): void {
         this.listen<"load",DataType>("load", key, listener, options)
     }
     
-    onLoadedData<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"loadeddata",DataType>) => void, options?: messages.ListenOptions): void
-    onLoadedData<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"loadeddata",DataType>) => void, options?: messages.ListenOptions): void
-    onLoadedData<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"loadeddata",DataType>) => void, options?: messages.ListenOptions): void {
+    onLoadedData<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"loadeddata", DataType>["loadeddata"]) => void, options?: messages.ListenOptions): void
+    onLoadedData<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"loadeddata", DataType>["loadeddata"]) => void, options?: messages.ListenOptions): void
+    onLoadedData<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"loadeddata", DataType>["loadeddata"]) => void, options?: messages.ListenOptions): void {
         this.listen<"loadeddata",DataType>("loadeddata", key, listener, options)
     }
     
-    onLoadedMetadata<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"loadedmetadata",DataType>) => void, options?: messages.ListenOptions): void
-    onLoadedMetadata<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"loadedmetadata",DataType>) => void, options?: messages.ListenOptions): void
-    onLoadedMetadata<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"loadedmetadata",DataType>) => void, options?: messages.ListenOptions): void {
+    onLoadedMetadata<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"loadedmetadata", DataType>["loadedmetadata"]) => void, options?: messages.ListenOptions): void
+    onLoadedMetadata<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"loadedmetadata", DataType>["loadedmetadata"]) => void, options?: messages.ListenOptions): void
+    onLoadedMetadata<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"loadedmetadata", DataType>["loadedmetadata"]) => void, options?: messages.ListenOptions): void {
         this.listen<"loadedmetadata",DataType>("loadedmetadata", key, listener, options)
     }
     
-    onLoadStart<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"loadstart",DataType>) => void, options?: messages.ListenOptions): void
-    onLoadStart<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"loadstart",DataType>) => void, options?: messages.ListenOptions): void
-    onLoadStart<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"loadstart",DataType>) => void, options?: messages.ListenOptions): void {
+    onLoadStart<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"loadstart", DataType>["loadstart"]) => void, options?: messages.ListenOptions): void
+    onLoadStart<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"loadstart", DataType>["loadstart"]) => void, options?: messages.ListenOptions): void
+    onLoadStart<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"loadstart", DataType>["loadstart"]) => void, options?: messages.ListenOptions): void {
         this.listen<"loadstart",DataType>("loadstart", key, listener, options)
     }
     
-    onLostPointerCapture<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"lostpointercapture",DataType>) => void, options?: messages.ListenOptions): void
-    onLostPointerCapture<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"lostpointercapture",DataType>) => void, options?: messages.ListenOptions): void
-    onLostPointerCapture<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"lostpointercapture",DataType>) => void, options?: messages.ListenOptions): void {
+    onLostPointerCapture<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"lostpointercapture", DataType>["lostpointercapture"]) => void, options?: messages.ListenOptions): void
+    onLostPointerCapture<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"lostpointercapture", DataType>["lostpointercapture"]) => void, options?: messages.ListenOptions): void
+    onLostPointerCapture<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"lostpointercapture", DataType>["lostpointercapture"]) => void, options?: messages.ListenOptions): void {
         this.listen<"lostpointercapture",DataType>("lostpointercapture", key, listener, options)
     }
     
-    onMouseDown<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"mousedown",DataType>) => void, options?: messages.ListenOptions): void
-    onMouseDown<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"mousedown",DataType>) => void, options?: messages.ListenOptions): void
-    onMouseDown<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"mousedown",DataType>) => void, options?: messages.ListenOptions): void {
+    onMouseDown<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"mousedown", DataType>["mousedown"]) => void, options?: messages.ListenOptions): void
+    onMouseDown<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"mousedown", DataType>["mousedown"]) => void, options?: messages.ListenOptions): void
+    onMouseDown<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"mousedown", DataType>["mousedown"]) => void, options?: messages.ListenOptions): void {
         this.listen<"mousedown",DataType>("mousedown", key, listener, options)
     }
     
-    onMouseEnter<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"mouseenter",DataType>) => void, options?: messages.ListenOptions): void
-    onMouseEnter<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseenter",DataType>) => void, options?: messages.ListenOptions): void
-    onMouseEnter<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseenter",DataType>) => void, options?: messages.ListenOptions): void {
+    onMouseEnter<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"mouseenter", DataType>["mouseenter"]) => void, options?: messages.ListenOptions): void
+    onMouseEnter<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"mouseenter", DataType>["mouseenter"]) => void, options?: messages.ListenOptions): void
+    onMouseEnter<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"mouseenter", DataType>["mouseenter"]) => void, options?: messages.ListenOptions): void {
         this.listen<"mouseenter",DataType>("mouseenter", key, listener, options)
     }
     
-    onMouseLeave<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"mouseleave",DataType>) => void, options?: messages.ListenOptions): void
-    onMouseLeave<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseleave",DataType>) => void, options?: messages.ListenOptions): void
-    onMouseLeave<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseleave",DataType>) => void, options?: messages.ListenOptions): void {
+    onMouseLeave<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"mouseleave", DataType>["mouseleave"]) => void, options?: messages.ListenOptions): void
+    onMouseLeave<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"mouseleave", DataType>["mouseleave"]) => void, options?: messages.ListenOptions): void
+    onMouseLeave<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"mouseleave", DataType>["mouseleave"]) => void, options?: messages.ListenOptions): void {
         this.listen<"mouseleave",DataType>("mouseleave", key, listener, options)
     }
     
-    onMouseMove<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"mousemove",DataType>) => void, options?: messages.ListenOptions): void
-    onMouseMove<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"mousemove",DataType>) => void, options?: messages.ListenOptions): void
-    onMouseMove<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"mousemove",DataType>) => void, options?: messages.ListenOptions): void {
+    onMouseMove<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"mousemove", DataType>["mousemove"]) => void, options?: messages.ListenOptions): void
+    onMouseMove<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"mousemove", DataType>["mousemove"]) => void, options?: messages.ListenOptions): void
+    onMouseMove<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"mousemove", DataType>["mousemove"]) => void, options?: messages.ListenOptions): void {
         this.listen<"mousemove",DataType>("mousemove", key, listener, options)
     }
     
-    onMouseOut<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"mouseout",DataType>) => void, options?: messages.ListenOptions): void
-    onMouseOut<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseout",DataType>) => void, options?: messages.ListenOptions): void
-    onMouseOut<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseout",DataType>) => void, options?: messages.ListenOptions): void {
+    onMouseOut<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"mouseout", DataType>["mouseout"]) => void, options?: messages.ListenOptions): void
+    onMouseOut<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"mouseout", DataType>["mouseout"]) => void, options?: messages.ListenOptions): void
+    onMouseOut<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"mouseout", DataType>["mouseout"]) => void, options?: messages.ListenOptions): void {
         this.listen<"mouseout",DataType>("mouseout", key, listener, options)
     }
     
-    onMouseOver<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"mouseover",DataType>) => void, options?: messages.ListenOptions): void
-    onMouseOver<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseover",DataType>) => void, options?: messages.ListenOptions): void
-    onMouseOver<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseover",DataType>) => void, options?: messages.ListenOptions): void {
+    onMouseOver<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"mouseover", DataType>["mouseover"]) => void, options?: messages.ListenOptions): void
+    onMouseOver<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"mouseover", DataType>["mouseover"]) => void, options?: messages.ListenOptions): void
+    onMouseOver<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"mouseover", DataType>["mouseover"]) => void, options?: messages.ListenOptions): void {
         this.listen<"mouseover",DataType>("mouseover", key, listener, options)
     }
     
-    onMouseUp<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"mouseup",DataType>) => void, options?: messages.ListenOptions): void
-    onMouseUp<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseup",DataType>) => void, options?: messages.ListenOptions): void
-    onMouseUp<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"mouseup",DataType>) => void, options?: messages.ListenOptions): void {
+    onMouseUp<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"mouseup", DataType>["mouseup"]) => void, options?: messages.ListenOptions): void
+    onMouseUp<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"mouseup", DataType>["mouseup"]) => void, options?: messages.ListenOptions): void
+    onMouseUp<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"mouseup", DataType>["mouseup"]) => void, options?: messages.ListenOptions): void {
         this.listen<"mouseup",DataType>("mouseup", key, listener, options)
     }
     
-    onPaste<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"paste",DataType>) => void, options?: messages.ListenOptions): void
-    onPaste<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"paste",DataType>) => void, options?: messages.ListenOptions): void
-    onPaste<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"paste",DataType>) => void, options?: messages.ListenOptions): void {
+    onPaste<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"paste", DataType>["paste"]) => void, options?: messages.ListenOptions): void
+    onPaste<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"paste", DataType>["paste"]) => void, options?: messages.ListenOptions): void
+    onPaste<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"paste", DataType>["paste"]) => void, options?: messages.ListenOptions): void {
         this.listen<"paste",DataType>("paste", key, listener, options)
     }
     
-    onPause<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"pause",DataType>) => void, options?: messages.ListenOptions): void
-    onPause<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pause",DataType>) => void, options?: messages.ListenOptions): void
-    onPause<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pause",DataType>) => void, options?: messages.ListenOptions): void {
+    onPause<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"pause", DataType>["pause"]) => void, options?: messages.ListenOptions): void
+    onPause<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"pause", DataType>["pause"]) => void, options?: messages.ListenOptions): void
+    onPause<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"pause", DataType>["pause"]) => void, options?: messages.ListenOptions): void {
         this.listen<"pause",DataType>("pause", key, listener, options)
     }
     
-    onPlay<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"play",DataType>) => void, options?: messages.ListenOptions): void
-    onPlay<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"play",DataType>) => void, options?: messages.ListenOptions): void
-    onPlay<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"play",DataType>) => void, options?: messages.ListenOptions): void {
+    onPlay<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"play", DataType>["play"]) => void, options?: messages.ListenOptions): void
+    onPlay<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"play", DataType>["play"]) => void, options?: messages.ListenOptions): void
+    onPlay<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"play", DataType>["play"]) => void, options?: messages.ListenOptions): void {
         this.listen<"play",DataType>("play", key, listener, options)
     }
     
-    onPlaying<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"playing",DataType>) => void, options?: messages.ListenOptions): void
-    onPlaying<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"playing",DataType>) => void, options?: messages.ListenOptions): void
-    onPlaying<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"playing",DataType>) => void, options?: messages.ListenOptions): void {
+    onPlaying<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"playing", DataType>["playing"]) => void, options?: messages.ListenOptions): void
+    onPlaying<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"playing", DataType>["playing"]) => void, options?: messages.ListenOptions): void
+    onPlaying<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"playing", DataType>["playing"]) => void, options?: messages.ListenOptions): void {
         this.listen<"playing",DataType>("playing", key, listener, options)
     }
     
-    onPointerCancel<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"pointercancel",DataType>) => void, options?: messages.ListenOptions): void
-    onPointerCancel<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointercancel",DataType>) => void, options?: messages.ListenOptions): void
-    onPointerCancel<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointercancel",DataType>) => void, options?: messages.ListenOptions): void {
+    onPointerCancel<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"pointercancel", DataType>["pointercancel"]) => void, options?: messages.ListenOptions): void
+    onPointerCancel<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"pointercancel", DataType>["pointercancel"]) => void, options?: messages.ListenOptions): void
+    onPointerCancel<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"pointercancel", DataType>["pointercancel"]) => void, options?: messages.ListenOptions): void {
         this.listen<"pointercancel",DataType>("pointercancel", key, listener, options)
     }
     
-    onPointerDown<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"pointerdown",DataType>) => void, options?: messages.ListenOptions): void
-    onPointerDown<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerdown",DataType>) => void, options?: messages.ListenOptions): void
-    onPointerDown<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerdown",DataType>) => void, options?: messages.ListenOptions): void {
+    onPointerDown<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"pointerdown", DataType>["pointerdown"]) => void, options?: messages.ListenOptions): void
+    onPointerDown<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"pointerdown", DataType>["pointerdown"]) => void, options?: messages.ListenOptions): void
+    onPointerDown<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"pointerdown", DataType>["pointerdown"]) => void, options?: messages.ListenOptions): void {
         this.listen<"pointerdown",DataType>("pointerdown", key, listener, options)
     }
     
-    onPointerEnter<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"pointerenter",DataType>) => void, options?: messages.ListenOptions): void
-    onPointerEnter<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerenter",DataType>) => void, options?: messages.ListenOptions): void
-    onPointerEnter<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerenter",DataType>) => void, options?: messages.ListenOptions): void {
+    onPointerEnter<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"pointerenter", DataType>["pointerenter"]) => void, options?: messages.ListenOptions): void
+    onPointerEnter<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"pointerenter", DataType>["pointerenter"]) => void, options?: messages.ListenOptions): void
+    onPointerEnter<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"pointerenter", DataType>["pointerenter"]) => void, options?: messages.ListenOptions): void {
         this.listen<"pointerenter",DataType>("pointerenter", key, listener, options)
     }
     
-    onPointerLeave<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"pointerleave",DataType>) => void, options?: messages.ListenOptions): void
-    onPointerLeave<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerleave",DataType>) => void, options?: messages.ListenOptions): void
-    onPointerLeave<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerleave",DataType>) => void, options?: messages.ListenOptions): void {
+    onPointerLeave<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"pointerleave", DataType>["pointerleave"]) => void, options?: messages.ListenOptions): void
+    onPointerLeave<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"pointerleave", DataType>["pointerleave"]) => void, options?: messages.ListenOptions): void
+    onPointerLeave<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"pointerleave", DataType>["pointerleave"]) => void, options?: messages.ListenOptions): void {
         this.listen<"pointerleave",DataType>("pointerleave", key, listener, options)
     }
     
-    onPointerMove<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"pointermove",DataType>) => void, options?: messages.ListenOptions): void
-    onPointerMove<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointermove",DataType>) => void, options?: messages.ListenOptions): void
-    onPointerMove<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointermove",DataType>) => void, options?: messages.ListenOptions): void {
+    onPointerMove<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"pointermove", DataType>["pointermove"]) => void, options?: messages.ListenOptions): void
+    onPointerMove<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"pointermove", DataType>["pointermove"]) => void, options?: messages.ListenOptions): void
+    onPointerMove<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"pointermove", DataType>["pointermove"]) => void, options?: messages.ListenOptions): void {
         this.listen<"pointermove",DataType>("pointermove", key, listener, options)
     }
     
-    onPointerOut<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"pointerout",DataType>) => void, options?: messages.ListenOptions): void
-    onPointerOut<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerout",DataType>) => void, options?: messages.ListenOptions): void
-    onPointerOut<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerout",DataType>) => void, options?: messages.ListenOptions): void {
+    onPointerOut<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"pointerout", DataType>["pointerout"]) => void, options?: messages.ListenOptions): void
+    onPointerOut<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"pointerout", DataType>["pointerout"]) => void, options?: messages.ListenOptions): void
+    onPointerOut<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"pointerout", DataType>["pointerout"]) => void, options?: messages.ListenOptions): void {
         this.listen<"pointerout",DataType>("pointerout", key, listener, options)
     }
     
-    onPointerOver<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"pointerover",DataType>) => void, options?: messages.ListenOptions): void
-    onPointerOver<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerover",DataType>) => void, options?: messages.ListenOptions): void
-    onPointerOver<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerover",DataType>) => void, options?: messages.ListenOptions): void {
+    onPointerOver<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"pointerover", DataType>["pointerover"]) => void, options?: messages.ListenOptions): void
+    onPointerOver<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"pointerover", DataType>["pointerover"]) => void, options?: messages.ListenOptions): void
+    onPointerOver<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"pointerover", DataType>["pointerover"]) => void, options?: messages.ListenOptions): void {
         this.listen<"pointerover",DataType>("pointerover", key, listener, options)
     }
     
-    onPointerUp<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"pointerup",DataType>) => void, options?: messages.ListenOptions): void
-    onPointerUp<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerup",DataType>) => void, options?: messages.ListenOptions): void
-    onPointerUp<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"pointerup",DataType>) => void, options?: messages.ListenOptions): void {
+    onPointerUp<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"pointerup", DataType>["pointerup"]) => void, options?: messages.ListenOptions): void
+    onPointerUp<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"pointerup", DataType>["pointerup"]) => void, options?: messages.ListenOptions): void
+    onPointerUp<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"pointerup", DataType>["pointerup"]) => void, options?: messages.ListenOptions): void {
         this.listen<"pointerup",DataType>("pointerup", key, listener, options)
     }
     
-    onProgress<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"progress",DataType>) => void, options?: messages.ListenOptions): void
-    onProgress<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"progress",DataType>) => void, options?: messages.ListenOptions): void
-    onProgress<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"progress",DataType>) => void, options?: messages.ListenOptions): void {
+    onProgress<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"progress", DataType>["progress"]) => void, options?: messages.ListenOptions): void
+    onProgress<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"progress", DataType>["progress"]) => void, options?: messages.ListenOptions): void
+    onProgress<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"progress", DataType>["progress"]) => void, options?: messages.ListenOptions): void {
         this.listen<"progress",DataType>("progress", key, listener, options)
     }
     
-    onRateChange<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"ratechange",DataType>) => void, options?: messages.ListenOptions): void
-    onRateChange<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"ratechange",DataType>) => void, options?: messages.ListenOptions): void
-    onRateChange<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"ratechange",DataType>) => void, options?: messages.ListenOptions): void {
+    onRateChange<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"ratechange", DataType>["ratechange"]) => void, options?: messages.ListenOptions): void
+    onRateChange<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"ratechange", DataType>["ratechange"]) => void, options?: messages.ListenOptions): void
+    onRateChange<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"ratechange", DataType>["ratechange"]) => void, options?: messages.ListenOptions): void {
         this.listen<"ratechange",DataType>("ratechange", key, listener, options)
     }
     
-    onReset<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"reset",DataType>) => void, options?: messages.ListenOptions): void
-    onReset<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"reset",DataType>) => void, options?: messages.ListenOptions): void
-    onReset<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"reset",DataType>) => void, options?: messages.ListenOptions): void {
+    onReset<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"reset", DataType>["reset"]) => void, options?: messages.ListenOptions): void
+    onReset<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"reset", DataType>["reset"]) => void, options?: messages.ListenOptions): void
+    onReset<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"reset", DataType>["reset"]) => void, options?: messages.ListenOptions): void {
         this.listen<"reset",DataType>("reset", key, listener, options)
     }
     
-    onResize<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"resize",DataType>) => void, options?: messages.ListenOptions): void
-    onResize<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"resize",DataType>) => void, options?: messages.ListenOptions): void
-    onResize<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"resize",DataType>) => void, options?: messages.ListenOptions): void {
+    onResize<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"resize", DataType>["resize"]) => void, options?: messages.ListenOptions): void
+    onResize<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"resize", DataType>["resize"]) => void, options?: messages.ListenOptions): void
+    onResize<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"resize", DataType>["resize"]) => void, options?: messages.ListenOptions): void {
         this.listen<"resize",DataType>("resize", key, listener, options)
     }
     
-    onScroll<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"scroll",DataType>) => void, options?: messages.ListenOptions): void
-    onScroll<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"scroll",DataType>) => void, options?: messages.ListenOptions): void
-    onScroll<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"scroll",DataType>) => void, options?: messages.ListenOptions): void {
+    onScroll<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"scroll", DataType>["scroll"]) => void, options?: messages.ListenOptions): void
+    onScroll<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"scroll", DataType>["scroll"]) => void, options?: messages.ListenOptions): void
+    onScroll<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"scroll", DataType>["scroll"]) => void, options?: messages.ListenOptions): void {
         this.listen<"scroll",DataType>("scroll", key, listener, options)
     }
     
-    onSecurityPolicyViolation<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"securitypolicyviolation",DataType>) => void, options?: messages.ListenOptions): void
-    onSecurityPolicyViolation<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"securitypolicyviolation",DataType>) => void, options?: messages.ListenOptions): void
-    onSecurityPolicyViolation<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"securitypolicyviolation",DataType>) => void, options?: messages.ListenOptions): void {
+    onSecurityPolicyViolation<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"securitypolicyviolation", DataType>["securitypolicyviolation"]) => void, options?: messages.ListenOptions): void
+    onSecurityPolicyViolation<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"securitypolicyviolation", DataType>["securitypolicyviolation"]) => void, options?: messages.ListenOptions): void
+    onSecurityPolicyViolation<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"securitypolicyviolation", DataType>["securitypolicyviolation"]) => void, options?: messages.ListenOptions): void {
         this.listen<"securitypolicyviolation",DataType>("securitypolicyviolation", key, listener, options)
     }
     
-    onSeeked<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"seeked",DataType>) => void, options?: messages.ListenOptions): void
-    onSeeked<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"seeked",DataType>) => void, options?: messages.ListenOptions): void
-    onSeeked<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"seeked",DataType>) => void, options?: messages.ListenOptions): void {
+    onSeeked<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"seeked", DataType>["seeked"]) => void, options?: messages.ListenOptions): void
+    onSeeked<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"seeked", DataType>["seeked"]) => void, options?: messages.ListenOptions): void
+    onSeeked<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"seeked", DataType>["seeked"]) => void, options?: messages.ListenOptions): void {
         this.listen<"seeked",DataType>("seeked", key, listener, options)
     }
     
-    onSeeking<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"seeking",DataType>) => void, options?: messages.ListenOptions): void
-    onSeeking<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"seeking",DataType>) => void, options?: messages.ListenOptions): void
-    onSeeking<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"seeking",DataType>) => void, options?: messages.ListenOptions): void {
+    onSeeking<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"seeking", DataType>["seeking"]) => void, options?: messages.ListenOptions): void
+    onSeeking<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"seeking", DataType>["seeking"]) => void, options?: messages.ListenOptions): void
+    onSeeking<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"seeking", DataType>["seeking"]) => void, options?: messages.ListenOptions): void {
         this.listen<"seeking",DataType>("seeking", key, listener, options)
     }
     
-    onSelect<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"select",DataType>) => void, options?: messages.ListenOptions): void
-    onSelect<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"select",DataType>) => void, options?: messages.ListenOptions): void
-    onSelect<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"select",DataType>) => void, options?: messages.ListenOptions): void {
+    onSelect<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"select", DataType>["select"]) => void, options?: messages.ListenOptions): void
+    onSelect<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"select", DataType>["select"]) => void, options?: messages.ListenOptions): void
+    onSelect<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"select", DataType>["select"]) => void, options?: messages.ListenOptions): void {
         this.listen<"select",DataType>("select", key, listener, options)
     }
     
-    onSelectionChange<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"selectionchange",DataType>) => void, options?: messages.ListenOptions): void
-    onSelectionChange<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"selectionchange",DataType>) => void, options?: messages.ListenOptions): void
-    onSelectionChange<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"selectionchange",DataType>) => void, options?: messages.ListenOptions): void {
+    onSelectionChange<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"selectionchange", DataType>["selectionchange"]) => void, options?: messages.ListenOptions): void
+    onSelectionChange<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"selectionchange", DataType>["selectionchange"]) => void, options?: messages.ListenOptions): void
+    onSelectionChange<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"selectionchange", DataType>["selectionchange"]) => void, options?: messages.ListenOptions): void {
         this.listen<"selectionchange",DataType>("selectionchange", key, listener, options)
     }
     
-    onSelectStart<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"selectstart",DataType>) => void, options?: messages.ListenOptions): void
-    onSelectStart<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"selectstart",DataType>) => void, options?: messages.ListenOptions): void
-    onSelectStart<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"selectstart",DataType>) => void, options?: messages.ListenOptions): void {
+    onSelectStart<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"selectstart", DataType>["selectstart"]) => void, options?: messages.ListenOptions): void
+    onSelectStart<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"selectstart", DataType>["selectstart"]) => void, options?: messages.ListenOptions): void
+    onSelectStart<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"selectstart", DataType>["selectstart"]) => void, options?: messages.ListenOptions): void {
         this.listen<"selectstart",DataType>("selectstart", key, listener, options)
     }
     
-    onSlotChange<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"slotchange",DataType>) => void, options?: messages.ListenOptions): void
-    onSlotChange<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"slotchange",DataType>) => void, options?: messages.ListenOptions): void
-    onSlotChange<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"slotchange",DataType>) => void, options?: messages.ListenOptions): void {
+    onSlotChange<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"slotchange", DataType>["slotchange"]) => void, options?: messages.ListenOptions): void
+    onSlotChange<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"slotchange", DataType>["slotchange"]) => void, options?: messages.ListenOptions): void
+    onSlotChange<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"slotchange", DataType>["slotchange"]) => void, options?: messages.ListenOptions): void {
         this.listen<"slotchange",DataType>("slotchange", key, listener, options)
     }
     
-    onStalled<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"stalled",DataType>) => void, options?: messages.ListenOptions): void
-    onStalled<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"stalled",DataType>) => void, options?: messages.ListenOptions): void
-    onStalled<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"stalled",DataType>) => void, options?: messages.ListenOptions): void {
+    onStalled<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"stalled", DataType>["stalled"]) => void, options?: messages.ListenOptions): void
+    onStalled<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"stalled", DataType>["stalled"]) => void, options?: messages.ListenOptions): void
+    onStalled<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"stalled", DataType>["stalled"]) => void, options?: messages.ListenOptions): void {
         this.listen<"stalled",DataType>("stalled", key, listener, options)
     }
     
-    onSubmit<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"submit",DataType>) => void, options?: messages.ListenOptions): void
-    onSubmit<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"submit",DataType>) => void, options?: messages.ListenOptions): void
-    onSubmit<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"submit",DataType>) => void, options?: messages.ListenOptions): void {
+    onSubmit<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"submit", DataType>["submit"]) => void, options?: messages.ListenOptions): void
+    onSubmit<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"submit", DataType>["submit"]) => void, options?: messages.ListenOptions): void
+    onSubmit<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"submit", DataType>["submit"]) => void, options?: messages.ListenOptions): void {
         this.listen<"submit",DataType>("submit", key, listener, options)
     }
     
-    onSuspend<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"suspend",DataType>) => void, options?: messages.ListenOptions): void
-    onSuspend<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"suspend",DataType>) => void, options?: messages.ListenOptions): void
-    onSuspend<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"suspend",DataType>) => void, options?: messages.ListenOptions): void {
+    onSuspend<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"suspend", DataType>["suspend"]) => void, options?: messages.ListenOptions): void
+    onSuspend<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"suspend", DataType>["suspend"]) => void, options?: messages.ListenOptions): void
+    onSuspend<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"suspend", DataType>["suspend"]) => void, options?: messages.ListenOptions): void {
         this.listen<"suspend",DataType>("suspend", key, listener, options)
     }
     
-    onTimeUpdate<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"timeupdate",DataType>) => void, options?: messages.ListenOptions): void
-    onTimeUpdate<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"timeupdate",DataType>) => void, options?: messages.ListenOptions): void
-    onTimeUpdate<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"timeupdate",DataType>) => void, options?: messages.ListenOptions): void {
+    onTimeUpdate<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"timeupdate", DataType>["timeupdate"]) => void, options?: messages.ListenOptions): void
+    onTimeUpdate<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"timeupdate", DataType>["timeupdate"]) => void, options?: messages.ListenOptions): void
+    onTimeUpdate<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"timeupdate", DataType>["timeupdate"]) => void, options?: messages.ListenOptions): void {
         this.listen<"timeupdate",DataType>("timeupdate", key, listener, options)
     }
     
-    onToggle<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"toggle",DataType>) => void, options?: messages.ListenOptions): void
-    onToggle<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"toggle",DataType>) => void, options?: messages.ListenOptions): void
-    onToggle<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"toggle",DataType>) => void, options?: messages.ListenOptions): void {
+    onToggle<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"toggle", DataType>["toggle"]) => void, options?: messages.ListenOptions): void
+    onToggle<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"toggle", DataType>["toggle"]) => void, options?: messages.ListenOptions): void
+    onToggle<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"toggle", DataType>["toggle"]) => void, options?: messages.ListenOptions): void {
         this.listen<"toggle",DataType>("toggle", key, listener, options)
     }
     
-    onTouchCancel<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"touchcancel",DataType>) => void, options?: messages.ListenOptions): void
-    onTouchCancel<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"touchcancel",DataType>) => void, options?: messages.ListenOptions): void
-    onTouchCancel<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"touchcancel",DataType>) => void, options?: messages.ListenOptions): void {
+    onTouchCancel<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"touchcancel", DataType>["touchcancel"]) => void, options?: messages.ListenOptions): void
+    onTouchCancel<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"touchcancel", DataType>["touchcancel"]) => void, options?: messages.ListenOptions): void
+    onTouchCancel<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"touchcancel", DataType>["touchcancel"]) => void, options?: messages.ListenOptions): void {
         this.listen<"touchcancel",DataType>("touchcancel", key, listener, options)
     }
     
-    onTouchEnd<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"touchend",DataType>) => void, options?: messages.ListenOptions): void
-    onTouchEnd<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"touchend",DataType>) => void, options?: messages.ListenOptions): void
-    onTouchEnd<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"touchend",DataType>) => void, options?: messages.ListenOptions): void {
+    onTouchEnd<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"touchend", DataType>["touchend"]) => void, options?: messages.ListenOptions): void
+    onTouchEnd<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"touchend", DataType>["touchend"]) => void, options?: messages.ListenOptions): void
+    onTouchEnd<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"touchend", DataType>["touchend"]) => void, options?: messages.ListenOptions): void {
         this.listen<"touchend",DataType>("touchend", key, listener, options)
     }
     
-    onTouchMove<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"touchmove",DataType>) => void, options?: messages.ListenOptions): void
-    onTouchMove<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"touchmove",DataType>) => void, options?: messages.ListenOptions): void
-    onTouchMove<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"touchmove",DataType>) => void, options?: messages.ListenOptions): void {
+    onTouchMove<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"touchmove", DataType>["touchmove"]) => void, options?: messages.ListenOptions): void
+    onTouchMove<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"touchmove", DataType>["touchmove"]) => void, options?: messages.ListenOptions): void
+    onTouchMove<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"touchmove", DataType>["touchmove"]) => void, options?: messages.ListenOptions): void {
         this.listen<"touchmove",DataType>("touchmove", key, listener, options)
     }
     
-    onTouchStart<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"touchstart",DataType>) => void, options?: messages.ListenOptions): void
-    onTouchStart<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"touchstart",DataType>) => void, options?: messages.ListenOptions): void
-    onTouchStart<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"touchstart",DataType>) => void, options?: messages.ListenOptions): void {
+    onTouchStart<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"touchstart", DataType>["touchstart"]) => void, options?: messages.ListenOptions): void
+    onTouchStart<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"touchstart", DataType>["touchstart"]) => void, options?: messages.ListenOptions): void
+    onTouchStart<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"touchstart", DataType>["touchstart"]) => void, options?: messages.ListenOptions): void {
         this.listen<"touchstart",DataType>("touchstart", key, listener, options)
     }
     
-    onTransitionCancel<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"transitioncancel",DataType>) => void, options?: messages.ListenOptions): void
-    onTransitionCancel<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"transitioncancel",DataType>) => void, options?: messages.ListenOptions): void
-    onTransitionCancel<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"transitioncancel",DataType>) => void, options?: messages.ListenOptions): void {
+    onTransitionCancel<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"transitioncancel", DataType>["transitioncancel"]) => void, options?: messages.ListenOptions): void
+    onTransitionCancel<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"transitioncancel", DataType>["transitioncancel"]) => void, options?: messages.ListenOptions): void
+    onTransitionCancel<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"transitioncancel", DataType>["transitioncancel"]) => void, options?: messages.ListenOptions): void {
         this.listen<"transitioncancel",DataType>("transitioncancel", key, listener, options)
     }
     
-    onTransitionEnd<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"transitionend",DataType>) => void, options?: messages.ListenOptions): void
-    onTransitionEnd<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"transitionend",DataType>) => void, options?: messages.ListenOptions): void
-    onTransitionEnd<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"transitionend",DataType>) => void, options?: messages.ListenOptions): void {
+    onTransitionEnd<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"transitionend", DataType>["transitionend"]) => void, options?: messages.ListenOptions): void
+    onTransitionEnd<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"transitionend", DataType>["transitionend"]) => void, options?: messages.ListenOptions): void
+    onTransitionEnd<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"transitionend", DataType>["transitionend"]) => void, options?: messages.ListenOptions): void {
         this.listen<"transitionend",DataType>("transitionend", key, listener, options)
     }
     
-    onTransitionRun<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"transitionrun",DataType>) => void, options?: messages.ListenOptions): void
-    onTransitionRun<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"transitionrun",DataType>) => void, options?: messages.ListenOptions): void
-    onTransitionRun<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"transitionrun",DataType>) => void, options?: messages.ListenOptions): void {
+    onTransitionRun<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"transitionrun", DataType>["transitionrun"]) => void, options?: messages.ListenOptions): void
+    onTransitionRun<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"transitionrun", DataType>["transitionrun"]) => void, options?: messages.ListenOptions): void
+    onTransitionRun<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"transitionrun", DataType>["transitionrun"]) => void, options?: messages.ListenOptions): void {
         this.listen<"transitionrun",DataType>("transitionrun", key, listener, options)
     }
     
-    onTransitionStart<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"transitionstart",DataType>) => void, options?: messages.ListenOptions): void
-    onTransitionStart<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"transitionstart",DataType>) => void, options?: messages.ListenOptions): void
-    onTransitionStart<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"transitionstart",DataType>) => void, options?: messages.ListenOptions): void {
+    onTransitionStart<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"transitionstart", DataType>["transitionstart"]) => void, options?: messages.ListenOptions): void
+    onTransitionStart<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"transitionstart", DataType>["transitionstart"]) => void, options?: messages.ListenOptions): void
+    onTransitionStart<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"transitionstart", DataType>["transitionstart"]) => void, options?: messages.ListenOptions): void {
         this.listen<"transitionstart",DataType>("transitionstart", key, listener, options)
     }
     
-    onVolumeChange<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"volumechange",DataType>) => void, options?: messages.ListenOptions): void
-    onVolumeChange<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"volumechange",DataType>) => void, options?: messages.ListenOptions): void
-    onVolumeChange<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"volumechange",DataType>) => void, options?: messages.ListenOptions): void {
+    onVolumeChange<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"volumechange", DataType>["volumechange"]) => void, options?: messages.ListenOptions): void
+    onVolumeChange<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"volumechange", DataType>["volumechange"]) => void, options?: messages.ListenOptions): void
+    onVolumeChange<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"volumechange", DataType>["volumechange"]) => void, options?: messages.ListenOptions): void {
         this.listen<"volumechange",DataType>("volumechange", key, listener, options)
     }
     
-    onWaiting<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"waiting",DataType>) => void, options?: messages.ListenOptions): void
-    onWaiting<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"waiting",DataType>) => void, options?: messages.ListenOptions): void
-    onWaiting<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"waiting",DataType>) => void, options?: messages.ListenOptions): void {
+    onWaiting<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"waiting", DataType>["waiting"]) => void, options?: messages.ListenOptions): void
+    onWaiting<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"waiting", DataType>["waiting"]) => void, options?: messages.ListenOptions): void
+    onWaiting<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"waiting", DataType>["waiting"]) => void, options?: messages.ListenOptions): void {
         this.listen<"waiting",DataType>("waiting", key, listener, options)
     }
     
-    onWebkitAnimationEnd<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"webkitanimationend",DataType>) => void, options?: messages.ListenOptions): void
-    onWebkitAnimationEnd<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"webkitanimationend",DataType>) => void, options?: messages.ListenOptions): void
-    onWebkitAnimationEnd<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"webkitanimationend",DataType>) => void, options?: messages.ListenOptions): void {
+    onWebkitAnimationEnd<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"webkitanimationend", DataType>["webkitanimationend"]) => void, options?: messages.ListenOptions): void
+    onWebkitAnimationEnd<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"webkitanimationend", DataType>["webkitanimationend"]) => void, options?: messages.ListenOptions): void
+    onWebkitAnimationEnd<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"webkitanimationend", DataType>["webkitanimationend"]) => void, options?: messages.ListenOptions): void {
         this.listen<"webkitanimationend",DataType>("webkitanimationend", key, listener, options)
     }
     
-    onWebkitAnimationIteration<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"webkitanimationiteration",DataType>) => void, options?: messages.ListenOptions): void
-    onWebkitAnimationIteration<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"webkitanimationiteration",DataType>) => void, options?: messages.ListenOptions): void
-    onWebkitAnimationIteration<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"webkitanimationiteration",DataType>) => void, options?: messages.ListenOptions): void {
+    onWebkitAnimationIteration<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"webkitanimationiteration", DataType>["webkitanimationiteration"]) => void, options?: messages.ListenOptions): void
+    onWebkitAnimationIteration<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"webkitanimationiteration", DataType>["webkitanimationiteration"]) => void, options?: messages.ListenOptions): void
+    onWebkitAnimationIteration<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"webkitanimationiteration", DataType>["webkitanimationiteration"]) => void, options?: messages.ListenOptions): void {
         this.listen<"webkitanimationiteration",DataType>("webkitanimationiteration", key, listener, options)
     }
     
-    onWebkitAnimationStart<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"webkitanimationstart",DataType>) => void, options?: messages.ListenOptions): void
-    onWebkitAnimationStart<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"webkitanimationstart",DataType>) => void, options?: messages.ListenOptions): void
-    onWebkitAnimationStart<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"webkitanimationstart",DataType>) => void, options?: messages.ListenOptions): void {
+    onWebkitAnimationStart<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"webkitanimationstart", DataType>["webkitanimationstart"]) => void, options?: messages.ListenOptions): void
+    onWebkitAnimationStart<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"webkitanimationstart", DataType>["webkitanimationstart"]) => void, options?: messages.ListenOptions): void
+    onWebkitAnimationStart<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"webkitanimationstart", DataType>["webkitanimationstart"]) => void, options?: messages.ListenOptions): void {
         this.listen<"webkitanimationstart",DataType>("webkitanimationstart", key, listener, options)
     }
     
-    onWebkitTransitionEnd<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"webkittransitionend",DataType>) => void, options?: messages.ListenOptions): void
-    onWebkitTransitionEnd<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"webkittransitionend",DataType>) => void, options?: messages.ListenOptions): void
-    onWebkitTransitionEnd<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"webkittransitionend",DataType>) => void, options?: messages.ListenOptions): void {
+    onWebkitTransitionEnd<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"webkittransitionend", DataType>["webkittransitionend"]) => void, options?: messages.ListenOptions): void
+    onWebkitTransitionEnd<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"webkittransitionend", DataType>["webkittransitionend"]) => void, options?: messages.ListenOptions): void
+    onWebkitTransitionEnd<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"webkittransitionend", DataType>["webkittransitionend"]) => void, options?: messages.ListenOptions): void {
         this.listen<"webkittransitionend",DataType>("webkittransitionend", key, listener, options)
     }
     
-    onWheel<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"wheel",DataType>) => void, options?: messages.ListenOptions): void
-    onWheel<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"wheel",DataType>) => void, options?: messages.ListenOptions): void
-    onWheel<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"wheel",DataType>) => void, options?: messages.ListenOptions): void {
+    onWheel<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.EventMessageTypeMap<"wheel", DataType>["wheel"]) => void, options?: messages.ListenOptions): void
+    onWheel<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"wheel", DataType>["wheel"]) => void, options?: messages.ListenOptions): void
+    onWheel<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.EventMessageTypeMap<"wheel", DataType>["wheel"]) => void, options?: messages.ListenOptions): void {
         this.listen<"wheel",DataType>("wheel", key, listener, options)
     }
     

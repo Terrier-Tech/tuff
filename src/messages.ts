@@ -18,11 +18,12 @@ interface InternalEventMap {
 /**
  * Maps event type strings to DOM event types
  */ 
-export interface EventMap extends HTMLElementEventMap, 
-    forms.EventMap, 
-    InternalEventMap {
+export interface EventMap extends HTMLElementEventMap, forms.EventMap, InternalEventMap {
 
 }
+
+export const ValueEventNames = ['change', 'input'] as const
+export type ValueEvents = typeof ValueEventNames[number]
 
 /**
  * The actual payload that gets delivered when a DOM message is handled
@@ -34,13 +35,25 @@ export type Message<EventType extends keyof EventMap, DataType> = {
 }
 
 /**
+ * Message payload with a value
+ */
+export type ValueMessage<EventType extends ValueEvents, DataType> = Message<EventType, DataType> & { value: string }
+
+/**
+ * Conditionally determines the appropriate message type based on the event type
+ */
+export type EventMessageTypeMap<EventType extends keyof EventMap, DataType> =
+    { [k in EventType]: Message<EventType, DataType> } &
+    { [k in ValueEvents]: ValueMessage<k, DataType> }
+
+/**
  * Stores a handler for a specific event type and key
  */ 
 export type Handler<EventType extends keyof EventMap, DataType> = {
     type: EventType
     key: TypedKey<DataType>
     options?: ListenOptions
-    callback: (m: Message<EventType,DataType>) => void
+    callback: (m: EventMessageTypeMap<EventType, DataType>[EventType]) => void
 }
 
 /** 
