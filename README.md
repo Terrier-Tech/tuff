@@ -268,6 +268,66 @@ Instead, an update is scheduled for the next animation frame and only dirty part
 3. As longs as the UI is composed of relatively fine-grained parts, updating small parts of the interface will result in only small re-renders, not a global virtual DOM diff
 
 
+### Collections
+
+When rendering an array of parts associated with an array of states, Tuff provides the collections API to ease the bookkeeping.
+
+The collections API lets you specified _named_ collections of states that can be assigned using the `assignCollection(name, partType, states)` method.
+Then the collection can be rendered with the `renderCollection(parent, name)` method: 
+
+```typescript
+class ContactsList extends Part<{}> {
+
+    // store a collection of states you'd like to render
+    contacts: ContactState[] = []
+
+    appendContact() {
+        this.contacts.push({...}) // append an object to the states collection
+        
+        // call assignCollection any time the collection changes
+        this.assignCollection('contacts', ContactFormPart, this.contacts)
+    }
+
+    async init() {
+        this.appendContact()
+
+        this.onClick(newContactKey, _ => {
+            this.appendContact()
+        })
+
+        this.onClick(deleteContactKey, m => {
+            const id = m.data.id
+            const contact = arrays.find(this.contacts, c => c.id == id)
+            if (contact) {
+                // remove an object from the array
+                this.contacts = arrays.without(this.contacts, contact)
+                
+                // this call will update the collection parts' state,
+                // removing the deleted contact
+                this.assignCollection('contacts', ContactFormPart, this.contacts)
+            }
+        })
+    }
+
+    render(parent: PartTag) {
+        // render the entire collection to the given container
+        // make sure to use the same name argument that was passed to assignCollection()
+        this.renderCollection(parent, 'contacts')
+        
+        parent.a({text: "+ Add"})
+            .emitClick(newContactKey)
+    }
+
+
+}
+```
+
+Successive calls to `assignCollection()` will automatically add/update/remove parts as necessary and _only re-render those that changed_.
+This means that parts can be added and removed without having to re-render the entire parent part,
+providing a considerable performance improvement over managing the collection manually.
+
+
+
 ### Routing and Navigation
 
 Tuff supports typesafe client client-side using the [Typesafe Routes](https://github.com/kruschid/typesafe-routes) library.
@@ -287,7 +347,7 @@ const routes = {
 
 `partRoute` routes a particular path to the given part.
 If the part's state type is non-empty, the route must match each property with a parser (i.e. `stringParser`).
-These properties are strongl-typed and matched to the part's state type at compile time.
+These properties are strongly-typed and matched to the part's state type at compile time.
 See the [Typesafe Routes documentation](https://github.com/kruschid/typesafe-routes) for more details about parsers.
 
 `redirectRoute` simply redirects one path to another. 

@@ -127,6 +127,12 @@ export abstract class Part<StateType> {
      * @param child the id of the part
      */
     removeChild(child: StatelessPart) {
+        // remove the corresponding DOM node, if it exists
+        const elem = child._attachedElement
+        if (elem) {
+            log.debug(`Deleting DOM node for part ${child.name} ${child.id}`, elem)
+            elem.remove()
+        }
         delete this.children[child.id]
     }
 
@@ -816,8 +822,9 @@ export abstract class Part<StateType> {
         }
 
         // remove any unused parts
-        if (oldCount > parts.length) {
-            for (let i = oldCount; i < parts.length; i++) {
+        if (parts.length > states.length) {
+            for (let i = states.length; i < parts.length; i++) {
+                log.debug(`Removing unused ${name} collection part ${i}`, parts[i])
                 this.removeChild(parts[i])
             }
             this._collectionParts[name] = parts.slice(0, states.length)
