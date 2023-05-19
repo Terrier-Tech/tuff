@@ -904,6 +904,12 @@ export abstract class Part<StateType> {
         this.listen<"blur",DataType>("blur", key, listener, options)
     }
     
+    onCancel<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"cancel",DataType>) => void, options?: messages.ListenOptions): void
+    onCancel<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"cancel",DataType>) => void, options?: messages.ListenOptions): void
+    onCancel<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"cancel",DataType>) => void, options?: messages.ListenOptions): void {
+        this.listen<"cancel",DataType>("cancel", key, listener, options)
+    }
+    
     onCanPlay<DataType extends object>(key: messages.UntypedKey, listener: (m: messages.Message<"canplay",DataType>) => void, options?: messages.ListenOptions): void
     onCanPlay<DataType extends object>(key: messages.TypedKey<DataType>, listener: (m: messages.Message<"canplay",DataType>) => void, options?: messages.ListenOptions): void
     onCanPlay<DataType extends object>(key: messages.UntypedKey | messages.TypedKey<DataType>, listener: (m: messages.Message<"canplay",DataType>) => void, options?: messages.ListenOptions): void {

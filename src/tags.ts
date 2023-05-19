@@ -440,6 +440,18 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
         return this
     }
     
+    emitCancel<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
+    emitCancel<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitCancel<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
+        if (data) {
+            this.emit('cancel', key, data)
+        }
+        else {
+            this.emit('cancel', key as messages.UntypedKey)
+        }
+        return this
+    }
+    
     emitCanPlay<DataType extends object>(key: messages.UntypedKey): Tag<AttrsType,ElementType>
     emitCanPlay<DataType extends object>(key: messages.TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
     emitCanPlay<DataType extends object>(key: messages.TypedKey<DataType> | messages.UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {

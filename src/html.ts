@@ -215,6 +215,10 @@ export abstract class HtmlTagBase<AttrsType extends Attrs,ElementType extends HT
         return this.child(DefaultTag, 'dfn', ...args)
     }
 
+    dialog(...args: TagArgs<DialogTag,DialogTagAttrs>[]) : DialogTag {
+        return this.child(DialogTag, 'dialog', ...args)
+    }
+
     div(...args: TagArgs<DivTag,DivTagAttrs>[]) : DivTag {
         return this.child(DivTag, 'div', ...args)
     }
@@ -253,10 +257,6 @@ export abstract class HtmlTagBase<AttrsType extends Attrs,ElementType extends HT
 
     form(...args: TagArgs<FormTag,FormTagAttrs>[]) : FormTag {
         return this.child(FormTag, 'form', ...args)
-    }
-
-    frameset(...args: TagArgs<FrameSetTag,FrameSetTagAttrs>[]) : FrameSetTag {
-        return this.child(FrameSetTag, 'frameset', ...args)
     }
 
     h1(...args: TagArgs<HeadingTag,HeadingTagAttrs>[]) : HeadingTag {
@@ -355,10 +355,6 @@ export abstract class HtmlTagBase<AttrsType extends Attrs,ElementType extends HT
         return this.child(DefaultTag, 'mark', ...args)
     }
 
-    menu(...args: TagArgs<MenuTag,MenuTagAttrs>[]) : MenuTag {
-        return this.child(MenuTag, 'menu', ...args)
-    }
-
     meta(...args: TagArgs<MetaTag,MetaTagAttrs>[]) : MetaTag {
         return this.child(MetaTag, 'meta', ...args)
     }
@@ -397,10 +393,6 @@ export abstract class HtmlTagBase<AttrsType extends Attrs,ElementType extends HT
 
     p(...args: TagArgs<ParagraphTag,ParagraphTagAttrs>[]) : ParagraphTag {
         return this.child(ParagraphTag, 'p', ...args)
-    }
-
-    param(...args: TagArgs<ParamTag,ParamTagAttrs>[]) : ParamTag {
-        return this.child(ParamTag, 'param', ...args)
     }
 
     picture(...args: TagArgs<PictureTag,PictureTagAttrs>[]) : PictureTag {
@@ -667,6 +659,15 @@ export type DetailsTagAttrs = DefaultTagAttrs & {
 /** HTMLDetailsElement Tag */
 export class DetailsTag extends HtmlTagBase<DetailsTagAttrs,HTMLDetailsElement> {}
 
+/** HTMLDialogElement Attributes */
+export type DialogTagAttrs = DefaultTagAttrs & {
+    open?: boolean
+    returnValue?: string
+}
+
+/** HTMLDialogElement Tag */
+export class DialogTag extends HtmlTagBase<DialogTagAttrs,HTMLDialogElement> {}
+
 /** HTMLDivElement Attributes */
 export type DivTagAttrs = DefaultTagAttrs & {
 }
@@ -681,6 +682,7 @@ export type DefaultTagAttrs = HtmlBaseAttrs & {
     dir?: string
     draggable?: boolean
     hidden?: boolean
+    inert?: boolean
     innerText?: string
     lang?: string
     outerText?: string
@@ -727,13 +729,6 @@ export type FormTagAttrs = DefaultTagAttrs & {
 
 /** HTMLFormElement Tag */
 export class FormTag extends HtmlTagBase<FormTagAttrs,HTMLFormElement> {}
-
-/** HTMLFrameSetElement Attributes */
-export type FrameSetTagAttrs = DefaultTagAttrs & {
-}
-
-/** HTMLFrameSetElement Tag */
-export class FrameSetTag extends HtmlTagBase<FrameSetTagAttrs,HTMLFrameSetElement> {}
 
 /** HTMLHRElement Attributes */
 export type HRTagAttrs = DefaultTagAttrs & {
@@ -908,6 +903,7 @@ export type MediaTagAttrs = DefaultTagAttrs & {
     onwaitingforkey?: ((this: HTMLMediaElement, ev: Event) => any) | null
     playbackRate?: number
     preload?: "none" | "metadata" | "auto" | ""
+    preservesPitch?: boolean
     src?: string
     srcObject?: MediaProvider | null
     volume?: number
@@ -915,13 +911,6 @@ export type MediaTagAttrs = DefaultTagAttrs & {
 
 /** HTMLMediaElement Tag */
 export class MediaTag extends HtmlTagBase<MediaTagAttrs,HTMLMediaElement> {}
-
-/** HTMLMenuElement Attributes */
-export type MenuTagAttrs = DefaultTagAttrs & {
-}
-
-/** HTMLMenuElement Tag */
-export class MenuTag extends HtmlTagBase<MenuTagAttrs,HTMLMenuElement> {}
 
 /** HTMLMetaElement Attributes */
 export type MetaTagAttrs = DefaultTagAttrs & {
@@ -1018,15 +1007,6 @@ export type ParagraphTagAttrs = DefaultTagAttrs & {
 /** HTMLParagraphElement Tag */
 export class ParagraphTag extends HtmlTagBase<ParagraphTagAttrs,HTMLParagraphElement> {}
 
-/** HTMLParamElement Attributes */
-export type ParamTagAttrs = DefaultTagAttrs & {
-    name?: string
-    value?: string
-}
-
-/** HTMLParamElement Tag */
-export class ParamTag extends HtmlTagBase<ParamTagAttrs,HTMLParamElement> {}
-
 /** HTMLPictureElement Attributes */
 export type PictureTagAttrs = DefaultTagAttrs & {
 }
@@ -1121,6 +1101,7 @@ export class SpanTag extends HtmlTagBase<SpanTagAttrs,HTMLSpanElement> {}
 
 /** HTMLStyleElement Attributes */
 export type StyleTagAttrs = DefaultTagAttrs & {
+    disabled?: boolean
     media?: string
 }
 
@@ -1283,6 +1264,7 @@ export interface HtmlTagMap {
     "del": ModTag
     "details": DetailsTag
     "dfn": DefaultTag
+    "dialog": DialogTag
     "div": DivTag
     "dl": DListTag
     "dt": DefaultTag
@@ -1293,7 +1275,6 @@ export interface HtmlTagMap {
     "figure": DefaultTag
     "footer": DefaultTag
     "form": FormTag
-    "frameset": FrameSetTag
     "h1": HeadingTag
     "h2": HeadingTag
     "h3": HeadingTag
@@ -1318,7 +1299,6 @@ export interface HtmlTagMap {
     "main": DefaultTag
     "map": MapTag
     "mark": DefaultTag
-    "menu": MenuTag
     "meta": MetaTag
     "meter": MeterTag
     "nav": DefaultTag
@@ -1329,7 +1309,6 @@ export interface HtmlTagMap {
     "option": OptionTag
     "output": OutputTag
     "p": ParagraphTag
-    "param": ParamTag
     "picture": PictureTag
     "pre": PreTag
     "progress": ProgressTag
@@ -1399,6 +1378,7 @@ export const htmlTagMap: Record<HtmlTagName, {new (tag: HtmlTagName): HtmlTagMap
     del: ModTag,
     details: DetailsTag,
     dfn: DefaultTag,
+    dialog: DialogTag,
     div: DivTag,
     dl: DListTag,
     dt: DefaultTag,
@@ -1409,7 +1389,6 @@ export const htmlTagMap: Record<HtmlTagName, {new (tag: HtmlTagName): HtmlTagMap
     figure: DefaultTag,
     footer: DefaultTag,
     form: FormTag,
-    frameset: FrameSetTag,
     h1: HeadingTag,
     h2: HeadingTag,
     h3: HeadingTag,
@@ -1434,7 +1413,6 @@ export const htmlTagMap: Record<HtmlTagName, {new (tag: HtmlTagName): HtmlTagMap
     main: DefaultTag,
     map: MapTag,
     mark: DefaultTag,
-    menu: MenuTag,
     meta: MetaTag,
     meter: MeterTag,
     nav: DefaultTag,
@@ -1445,7 +1423,6 @@ export const htmlTagMap: Record<HtmlTagName, {new (tag: HtmlTagName): HtmlTagMap
     option: OptionTag,
     output: OutputTag,
     p: ParagraphTag,
-    param: ParamTag,
     picture: PictureTag,
     pre: PreTag,
     progress: ProgressTag,

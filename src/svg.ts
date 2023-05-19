@@ -980,7 +980,6 @@ export type StyleTagAttrs = DefaultTagAttrs & {
     disabled?: boolean
     media?: string
     title?: string
-    type?: string
 }
 
 /** SVGStyleElement Tag */
