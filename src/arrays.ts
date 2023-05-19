@@ -135,7 +135,7 @@ export function range(start: number, end: number, step: number=1): number[] {
  * Picks a random value from an array.
  * @param array an array of values
  */
-export function sample<T>(array: Array<T>): T {
+export function sample<T>(array: readonly T[]): T {
     const i = Math.floor(Math.random()*array.length)
     return array[i]
 }
@@ -250,7 +250,7 @@ export function pluck<T extends object, K extends keyof T & string>(array: T[], 
 }
 
 /**
- * Searches an array of objects for those that match a given search query based on a specific key.
+ * Searches an array of obje cts for those that match a given search query based on a specific key.
  * @param array the input array of objects
  * @param key the key to search for a match in the objects in the array
  * @param query the search query to match against the value of the specified key

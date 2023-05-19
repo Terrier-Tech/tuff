@@ -98,10 +98,10 @@ globalStyle('a', {
 
 const scalePush = {
     ':hover': {
-        transform: 'scale(1.04)'
+        transform: 'scale(1.03)'
     },
     ':active': {
-        transform: 'scale(0.96)'
+        transform: 'scale(0.97)'
     }
 }
 

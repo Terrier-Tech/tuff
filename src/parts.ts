@@ -2,8 +2,9 @@ import * as messages from './messages'
 import { Logger } from './logging'
 import * as keyboard from './keyboard'
 import * as urls from './urls'
-import { DivTag, HtmlBaseAttrs, HtmlParentTag, HtmlTagBase } from './html'
+import Html, { DivTag, HtmlBaseAttrs, HtmlParentTag, HtmlTagBase } from './html'
 import Nav from './nav'
+import {slugify} from "./strings"
 
 const log = new Logger('Part')
 
@@ -319,6 +320,20 @@ export abstract class Part<StateType> {
     /// Dirty Tracking
 
     private _renderState: RenderState = "dirty"
+
+    /**
+     * Assigns a new state and marks the part dirty if it's different than the old one.
+     * @param state
+     * @return true if the state is different
+     */
+    assignState(state: StateType): boolean {
+        if (state == this.state) {
+            return false
+        }
+        this.state = state
+        this.dirty()
+        return true
+    }
 
     /**
      * Mark this part as dirty, meaning it needs to be fully re-rendered.
@@ -718,6 +733,115 @@ export abstract class Part<StateType> {
         this._renderState = "clean"
         this.eachChild(child => {
             child._update()
+        })
+    }
+
+
+    /// Collections
+
+    /**
+     * Computes the element ID where the given collection will be rendered.
+     * @param name the collection name passed to `updateCollection()` and `renderCollection()`.
+     */
+    computeCollectionId(name: string): string {
+        return `${this.id}-collection-${slugify(name)}`
+    }
+
+    /**
+     * Gets the DOM element that contains the rendered collection of the given name (if it's been rendered).
+     * @param name the collection name passed to `updateCollection()` and `renderCollection()`.
+     */
+    getCollectionContainer(name: string): HTMLElement | null {
+        return document.getElementById(this.computeCollectionId(name))
+    }
+
+    private _collectionParts: Record<string, StatelessPart[]> = {}
+
+    /**
+     * Creates/updates the parts used to render a named collection of states.
+     * This will intelligently make the parts dirty only if their state has changed.
+     * @param name the collection name passed to `renderCollection()` to render
+     * @param partType the type of part to create
+     * @param states an array of states to map to parts
+     */
+    assignCollection<ChildState>(name: string, partType: PartConstructor<Part<ChildState>, ChildState>, states: ChildState[]) {
+        log.debug(`Assigning ${name} collection`, states)
+        let parts = this._collectionParts[name] || []
+        const oldCount = parts.length
+
+        // determine where to add new children
+        const container = this.getCollectionContainer(name)
+        if (container) {
+            log.debug(`Collection ${name} container exists, appending new child parts to it`)
+        }
+        else {
+            // the collection must not have been rendered,
+            // mark this part dirty so that the whole thing gets rendered
+            log.debug(`Collection ${name} container doesn't exist, marking this part dirty`)
+            this.dirty()
+        }
+
+        // iterate through the states and assign them to the parts,
+        // creating new ones when necessary
+        for (let i = 0; i<states.length; i++) {
+            let state = states[i]
+            if (i < oldCount) {
+                // re-use an existing part, just updating its state
+                const part = parts[i]
+                if (part.assignState(state)) {
+                    log.debug(`State changed for ${name} collection part ${part.id} (${i}), marking it dirty`)
+                }
+                else {
+                    log.debug(`State remained the same for ${name} collection part ${part.id} (${i})`)
+                }
+            }
+            else {
+                // make a new part and attach it to the DOM
+                log.debug(`Creating new ${name} collection part (${i}) for`, state)
+                const part = this.makePart(partType, state)
+                parts.push(part)
+                if (container) {
+                    // if the collection has already been rendered,
+                    // add a new container for this part and attach it
+                    const elem = Html.createElement("div", div => {
+                        div.id(part.id)
+                    })
+                    container.append(elem)
+                    log.debug(`Created new ${name} collection part (${i}) element`, elem)
+                    part._attachedElement = elem
+                    part.dirty()
+                }
+
+            }
+        }
+
+        // remove any unused parts
+        if (oldCount > parts.length) {
+            for (let i = oldCount; i < parts.length; i++) {
+                this.removeChild(parts[i])
+            }
+            this._collectionParts[name] = parts.slice(0, states.length)
+        }
+        else {
+            this._collectionParts[name] = parts
+        }
+    }
+
+    /**
+     * Renders a named collection into the given parent.
+     * Note: you should call `assignCollection()` with this name first.
+     * @param parent the tag into which to render the collection
+     * @param name the name of the collection passed to `assignCollection()`
+     * @return the collection container tag
+     */
+    renderCollection(parent: PartTag, name: string) {
+        const parts = this._collectionParts[name] || []
+        // create the container even if there are no parts so that
+        // inserting new ones doesn't force this part to dirty
+        return parent.div({id: this.computeCollectionId(name)}, container => {
+            for (const part of parts) {
+                container.part(part)
+            }
         })
     }
 

@@ -9,8 +9,8 @@ import * as demo from './demo'
 import * as messages from '../messages'
 import Html from '../html'
 
-const log = new Logger("Demo")
 Logger.level = 'debug'
+const log = new Logger("Demo")
 
 class OutputPart extends Part<demo.OutputData> {
 

@@ -97,3 +97,11 @@ export function camelCase(s: string) {
         return i == 0 ? w.toLocaleLowerCase() : capitalize(w)
     }).join('')
 }
+
+/**
+ * Downcases and replaces all non-alphanumeric characters with dashes so the string is suitable to use as a slug.
+ * @param s the string to slugify
+ */
+export function slugify(s: string) {
+    return s.toLowerCase().replace(/\W/g, '-')
+}

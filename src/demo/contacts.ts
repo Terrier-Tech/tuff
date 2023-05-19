@@ -5,8 +5,13 @@ import * as styles from './styles.css'
 import * as strings from '../strings'
 import * as demo from './demo'
 import {Logger} from '../logging'
+import {arrays} from "../index"
 
 const log = new Logger('Contacts')
+
+
+const newContactKey = messages.untypedKey()
+const deleteContactKey = messages.typedKey<{ id: string }>()
 
 const PhoneTypes = ["home", "mobile"]
 
@@ -141,7 +146,12 @@ class ContactFormPart extends forms.FormPart<ContactState> {
 
     render(parent: PartTag) {
         parent.div(styles.contactForm, form => {
-            this.textInput(form, "name", {placeholder: 'Name'})
+            form.div(styles.flexRow, row => {
+                this.textInput(row, "name", {placeholder: 'Name'})
+                row.a(styles.characterLink, {text: "&times;"})
+                    .css({paddingTop: '14px'})
+                    .emitClick(deleteContactKey, {id: this.state.id})
+            })
             this.emailInput(form, "email", {placeholder: 'E-Mail'})
 
             form.div(styles.flexColumn, col => {
@@ -207,26 +217,50 @@ class ContactFormPart extends forms.FormPart<ContactState> {
 
 export class ContactsApp extends Part<{}> {
 
-    forms = new Array<ContactFormPart>()
+    contacts: ContactState[] = []
+    contactCounter = 0
 
-    async init() {
-        this.forms.push(this.makePart(ContactFormPart, {
+    appendContact() {
+        this.contactCounter += 1
+        this.contacts.push({
             id: demo.newId(),
-            name: "Bobby Tables", 
-            role: 'vendor',
-            isAdmin: true,
+            name: `Bobby Tables ${this.contactCounter}`,
+            role: arrays.sample(roles),
+            isAdmin: Math.random() < 0.5,
             status: 'active',
             birthday: '2021-12-01',
             phones: []
-        }))
+        })
+        this.assignCollection('contacts', ContactFormPart, this.contacts)
+    }
+
+    async init() {
+        this.appendContact()
+
+        this.onClick(newContactKey, _ => {
+            log.info("Appending new contact")
+            this.appendContact()
+        })
+
+        this.onClick(deleteContactKey, m => {
+            const id = m.data.id
+            const contact = arrays.find(this.contacts, c => c.id == id)
+            if (contact) {
+                log.info(`Delete contact ${id}`, contact)
+                this.contacts = arrays.without(this.contacts, contact)
+                this.assignCollection('contacts', ContactFormPart, this.contacts)
+            }
+            else {
+                log.warn(`No contact to delete with id ${id}`)
+            }
+        })
     }
 
     render(parent: PartTag) {
-        parent.div(styles.contactsContainer, container => {
-            for (let form of this.forms) {
-                container.part(form)
-            }
-        })
+        this.renderCollection(parent, 'contacts')
+            .class(styles.contactsContainer)
+        parent.a(styles.button, {text: "+ Add"})
+            .emitClick(newContactKey)
     }
 
 
