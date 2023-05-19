@@ -28,7 +28,15 @@ const newPhoneKey = messages.untypedKey()
 const deletePhoneKey = messages.typedKey<{id: string}>()
 
 class PhoneFormPart extends forms.FormPart<PhoneState> {
-    
+
+    phoneInputKey = messages.typedKey<{ id: string }>()
+
+    async init() {
+        this.onInput(this.phoneInputKey, m => {
+            console.log(`the value of the input '${m.data.id}' changed to '${m.value}'`)
+        })
+    }
+
     get parentClasses(): Array<string> {
         return [styles.phoneForm]
     }
@@ -50,6 +58,7 @@ class PhoneFormPart extends forms.FormPart<PhoneState> {
             })
         })
         this.phoneInput(parent, "number", {placeholder: "555-555-5555"})
+            .emitInput(this.phoneInputKey, { id: this.state.id })
     }
 
 }
