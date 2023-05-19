@@ -80,11 +80,13 @@ tst.eachInterface(iface => {
 
         // element subclass
         else if (configs[t].elementBaseInterfaces.some(i => tst.interfaceExtends(iface, i))) {
-            const comment = tst.fullText(iface).split('interface')[0]
+            const comment = tst.fullText(iface).split('*/')[0]
             if (!comment.includes('@deprecated')) { // skip deprecated elements
                 const baseNames = configs[t].elementBaseInterfaces.filter(i => tst.interfaceExtends(iface, i))
                 const elem = new meta.Element(t, name, baseNames, iface, tst)
                 elementTypes[t][name] = elem
+            } else {
+                console.log(`Skipping generating element meta for @deprecated element ${name}`)
             }
         }
 
