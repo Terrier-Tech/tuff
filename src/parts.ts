@@ -755,7 +755,7 @@ export abstract class Part<StateType> {
 
     /**
      * Computes the element ID where the given collection will be rendered.
-     * @param name the collection name passed to `updateCollection()` and `renderCollection()`.
+     * @param name the collection name passed to `assignCollection()` and `renderCollection()`.
      */
     computeCollectionId(name: string): string {
         return `${this.id}-collection-${slugify(name)}`
@@ -763,13 +763,21 @@ export abstract class Part<StateType> {
 
     /**
      * Gets the DOM element that contains the rendered collection of the given name (if it's been rendered).
-     * @param name the collection name passed to `updateCollection()` and `renderCollection()`.
+     * @param name the collection name passed to `assignCollection()` and `renderCollection()`.
      */
     getCollectionContainer(name: string): HTMLElement | null {
         return document.getElementById(this.computeCollectionId(name))
     }
 
     private _collectionParts: Record<string, StatelessPart[]> = {}
+
+    /**
+     * Gets the last generated set of parts for the given named collection.
+     * @param name the name passed to `assignCollection()` and `renderCollection()`
+     */
+    getCollectionParts(name: string): StatelessPart[] {
+        return this._collectionParts[name]
+    }
 
     /**
      * Creates/updates the parts used to render a named collection of states.
@@ -841,7 +849,8 @@ export abstract class Part<StateType> {
             this._collectionParts[name] = parts
         }
 
-        return parts
+        // return the updated parts collection
+        return this._collectionParts[name]
     }
 
     /**
