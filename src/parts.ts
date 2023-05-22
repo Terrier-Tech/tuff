@@ -827,6 +827,9 @@ export abstract class Part<StateType> {
                     // add a new container for this part and attach it
                     const elem = Html.createElement("div", div => {
                         div.id(part.id)
+                        const classes = part.parentClasses || []
+                        classes.push(`tuff-part-${part.name}`)
+                        div.class(...classes)
                     })
                     container.append(elem)
                     log.debug(`Created new ${name} collection part (${i}) element`, elem)

@@ -153,6 +153,11 @@ class ContactFormPart extends forms.FormPart<ContactState> {
         this.dirty()
     }
 
+
+    get parentClasses(): Array<string> {
+        return ['parent-class']
+    }
+
     render(parent: PartTag) {
         parent.div(styles.contactForm, form => {
             form.div(styles.flexRow, row => {
