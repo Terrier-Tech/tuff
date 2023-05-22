@@ -776,7 +776,7 @@ export abstract class Part<StateType> {
      * @param name the name passed to `assignCollection()` and `renderCollection()`
      */
     getCollectionParts(name: string): StatelessPart[] {
-        return this._collectionParts[name]
+        return this._collectionParts[name] || []
     }
 
     /**
