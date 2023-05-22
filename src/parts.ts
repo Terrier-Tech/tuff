@@ -778,7 +778,7 @@ export abstract class Part<StateType> {
      * @param partType the type of part to create
      * @param states an array of states to map to parts
      */
-    assignCollection<ChildState>(name: string, partType: PartConstructor<Part<ChildState>, ChildState>, states: ChildState[]) {
+    assignCollection<ChildState>(name: string, partType: PartConstructor<Part<ChildState>, ChildState>, states: ChildState[]): StatelessPart[] {
         log.debug(`Assigning ${name} collection`, states)
         let parts = this._collectionParts[name] || []
         const oldCount = parts.length
@@ -840,6 +840,8 @@ export abstract class Part<StateType> {
         else {
             this._collectionParts[name] = parts
         }
+
+        return parts
     }
 
     /**
