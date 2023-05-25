@@ -66,6 +66,10 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
         return this.input<Key>(parent, "text", name, TextInputField, attrs)
     }
 
+    numberInput<Key extends KeyOfType<DataType,number> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "number", name, NumberInputField, attrs)
+    }
+
     fileInput<Key extends KeyOfType<DataType,File> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
         return this.input<Key>(parent, "file", name, FileInputField, attrs)
     }
@@ -264,6 +268,24 @@ class TextInputField extends Field<string, HTMLInputElement> {
 
     getValue(elems: HTMLInputElement[]): string | null {
         return elems[0].value
+    }
+
+}
+
+class NumberInputField extends Field<number, HTMLInputElement> {
+
+    assignAttrValue(attrs: InputTagAttrs, value?: number) {
+        attrs.value = value?.toString()
+    }
+
+    getValue(elems: HTMLInputElement[]): number | null {
+        const val = elems[0].value
+        if (val?.length) {
+            return parseFloat(val)
+        }
+        else {
+            return null
+        }
     }
 
 }

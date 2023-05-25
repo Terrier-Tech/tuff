@@ -21,6 +21,7 @@ type PhoneState = {
     id: string
     number?: string
     type: PhoneType
+    extension?: number
 }
 
 const newPhoneKey = messages.untypedKey()
@@ -33,7 +34,7 @@ class PhoneFormPart extends forms.FormPart<PhoneState> {
 
     async init() {
         this.onInput(this.phoneInputKey, m => {
-            console.log(`the value of the input '${m.data.id}' changed to '${m.value}'`)
+            log.info(`The value of the input '${m.data.id}' changed to '${m.value}'`)
         })
     }
 
@@ -57,8 +58,11 @@ class PhoneFormPart extends forms.FormPart<PhoneState> {
                     .emitClick(demo.OutputKey, {output: `Delete Phone ${this.state.id} Clicked`})
             })
         })
-        this.phoneInput(parent, "number", {placeholder: "555-555-5555"})
-            .emitInput(this.phoneInputKey, { id: this.state.id })
+        parent.div(styles.flexRow, row => {
+            this.phoneInput(row, "number", {placeholder: "555-555-5555"})
+                .emitInput(this.phoneInputKey, {id: this.state.id})
+            this.numberInput(row, "extension", {placeholder: "ext"})
+        })
     }
 
 }

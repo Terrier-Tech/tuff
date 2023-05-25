@@ -149,6 +149,10 @@ globalStyle('input, textarea, select', {
     borderRadius: sizes.borderRadius-1,
     width: '100%'
 })
+globalStyle('input[type=number]', {
+    width: '80px',
+    flex: '0 0 auto'
+})
 globalStyle('select', {
     padding: '6px'
 })
