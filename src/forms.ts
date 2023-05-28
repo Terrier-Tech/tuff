@@ -1,4 +1,4 @@
-import {Part, PartTag} from './parts'
+import {Part, PartTag, StatelessPart} from './parts'
 import {Logger} from './logging'
 import * as arrays from './arrays'
 import * as messages from './messages'
@@ -387,5 +387,149 @@ export function optionsForSelect(tag: SelectTag, options: SelectOptions, selecte
             attrs.selected = true
         }
         tag.option(attrs).text(opt.title)
+    }
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Form Fields
+////////////////////////////////////////////////////////////////////////////////
+
+let _formCount = 0
+
+/**
+ * A lightweight alternative to `FormPart` that exposes the same field helper methods
+ * but maintains the form data separate from a part's state.
+ */
+export class FormFields<DataType extends FormPartData> {
+
+    readonly id!: string
+
+    constructor(readonly part: StatelessPart, readonly data: DataType) {
+        _formCount += 1
+        this.id = `tuff-form-${_formCount}`
+    }
+
+    fields: {[name: string]: Field<any,Element>} = {}
+    files: {[name: string]: FileList | null} = {}
+
+    get className(): string {
+        return `form-${this.id}`
+    }
+
+    readonly dataChangedKey = messages.typedKey<DataType>()
+
+    protected input<Key extends KeyOfType<DataType,any> & string>(parent: PartTag, type: InputType, name: Key, serializerType: (new (name: string)=> Field<any, Element>), attrs: InputTagAttrs={}): InputTag {
+        attrs.type = type
+        attrs.name = `${this.id}-${name}`
+        if (!this.fields[attrs.name]) {
+            this.fields[attrs.name] = new serializerType(name)
+        }
+        if (type == 'file' && !this.files[attrs.name]) {
+            this.files[attrs.name] = null
+        }
+        this.fields[attrs.name].assignAttrValue(attrs, this.data[name])
+        return parent.input(attrs, this.className)
+    }
+
+    textInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "text", name, TextInputField, attrs)
+    }
+
+    numberInput<Key extends KeyOfType<DataType,number> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "number", name, NumberInputField, attrs)
+    }
+
+    fileInput<Key extends KeyOfType<DataType,File> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "file", name, FileInputField, attrs)
+    }
+
+    emailInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "email", name, TextInputField, attrs)
+    }
+
+    phoneInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "tel", name, TextInputField, attrs)
+    }
+
+    textArea<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: TextAreaTagAttrs={}): TextAreaTag {
+        attrs.name = `${this.id}-${name}`
+        if (!this.fields[attrs.name]) {
+            this.fields[attrs.name] = new TextAreaField(name)
+        }
+        this.fields[attrs.name].assignAttrValue(attrs, this.data[name])
+        return parent.textarea(attrs, this.className)
+    }
+
+    dateInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "date", name, TextInputField, attrs)
+    }
+
+    checkbox<Key extends KeyOfType<DataType,boolean> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "checkbox", name, CheckboxField, attrs)
+    }
+
+    radio<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, value: string, attrs: InputTagAttrs={}): InputTag {
+        attrs.value = value
+        return this.input<Key>(parent, "radio", name, RadioField, attrs)
+    }
+
+    select<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, options?: SelectOptions, attrs: SelectTagAttrs={}): SelectTag {
+        attrs.name = `${this.id}-${name}`
+        if (!this.fields[attrs.name]) {
+            this.fields[attrs.name] = new SelectField(name)
+        }
+        this.fields[attrs.name].assignAttrValue(attrs, this.data[name])
+        const tag = parent.select(attrs, this.className)
+        if (options) {
+            optionsForSelect(tag, options, this.data[name])
+        }
+        return tag
+    }
+
+    /**
+     *  Create a form tag in the given parent.
+     */
+    formTag(parent: PartTag, fun: ((n: FormTag) => any)) {
+        const tag = parent.form({id: `${this.id}_tag`}, this.className)
+        fun(tag)
+    }
+
+    /**
+     * Call this from the part's `update()` method to populate file fields.
+     * @param elem the part's root element
+     */
+    update(elem: HTMLElement) {
+        if (Object.keys(this.files).length) {
+            for (const fieldName in this.files) {
+                if (this.files[fieldName]) {
+                    const field = elem.querySelector(`input[name=${fieldName}]`) as HTMLInputElement
+                    field.files = this.files[fieldName]
+                }
+            }
+        }
+    }
+
+    /**
+     * Serializes the form fields into a new copy of `this.data`.
+     * This is async so that subclasses can override it and do async things.
+     */
+    async serialize(): Promise<DataType> {
+        const root = this.part.element
+        if (!root) {
+            return {} as DataType
+        }
+        const data: DataType = {...this.data}
+        const allElems = Array.from(root.getElementsByClassName(this.className))
+        // there may be more than one actual element for any given key, so group them together and let the Field determine the value
+        arrays.eachGroupByFunction(allElems, e => (e.getAttribute('name')||undefined), (name, elems) => {
+            const field = this.fields[name]
+            if (field) {
+                const value = field.getValue(elems)
+                Object.assign(data, {[field.name]: value})
+            }
+        })
+        return data
     }
 }
