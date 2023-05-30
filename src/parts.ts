@@ -55,7 +55,7 @@ type EventKey = keyof HTMLElementEventMap
  * These event types do not bubble and thus should be handled in the capture phase
  */
 const nonBubblingEvents: EventKey[] = [
-    'blur', 'focus', 'load', 'scroll'
+    'blur', 'focus', 'load', 'scroll', 'mouseleave', 'resize', 'reset', 'mouseenter', 'mouseleave', 'submit'
 ]
 
 /**
