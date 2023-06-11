@@ -652,9 +652,11 @@ export abstract class Part<StateType> {
     
     /// Rendering
 
-    renderInTag(container: HtmlParentTag) {
+    renderInTag(container: HtmlParentTag, ...classes: string[]) {
         const partClass = this.name;
-        container.div({ id: this.id, class: `tuff-part-${partClass}`, data: { tuffPart: partClass }}, parent => {
+        const c = [...classes]
+        c.push(`tuff-part-${partClass}`)
+        container.div({ id: this.id, classes: c, data: { tuffPart: partClass }}, parent => {
             parent.class(...this.parentClasses)
             if (this.isInitialized) {
                 this._renderState = "clean"

@@ -84,8 +84,8 @@ export abstract class HtmlTagBase<AttrsType extends Attrs,ElementType extends HT
 
     /// Parts
 
-    part(part: Part<{}>) {
-        part.renderInTag(this)
+    part(part: Part<{}>, ...classes: string[]) {
+        part.renderInTag(this, ...classes)
     }
 
 

@@ -225,7 +225,7 @@ class ContactFormPart extends forms.FormPart<ContactState> {
                 })
             })
             for (let [_, phoneForm] of Object.entries(this.phoneForms)) {
-                form.part(phoneForm)
+                form.part(phoneForm, 'phone-form')
             }
 
             this.textArea(form, "notes", {placeholder: 'Notes', rows: 3})
