@@ -12,5 +12,9 @@ export type OutputData = {
     output: string
 }
 
+export function randomPhone(): string {
+    return Math.random().toString().substring(2, 11)
+}
+
 // Global key for listening to general text output messages
 export const OutputKey = messages.typedKey<OutputData>()

@@ -218,7 +218,7 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
      * Emits the datachanged event for this form and the given data
      */
     emitDataChanged(evt: Event, data: DataType) {
-        log.debug("Emitting datachaged event", this, evt, data)
+        log.debug("Emitting datachanged event", this, evt, data)
         this.emit("datachanged", this.dataChangedKey, evt, data, {scope: "bubble"})
     }
 
@@ -405,10 +405,19 @@ let _formCount = 0
 export class FormFields<DataType extends FormPartData> {
 
     readonly id!: string
+    readonly fieldChangeKey = messages.untypedKey()
+    readonly dataChangedKey = messages.typedKey<DataType>()
 
     constructor(readonly part: StatelessPart, readonly data: DataType) {
         _formCount += 1
         this.id = `tuff-form-${_formCount}`
+
+        // hijack the part's onChange listener to emit the datachanged message for the fields themselves
+        this.part.onChange(this.fieldChangeKey, async m => {
+            log.info(`FormFields ${this.id} field changed`, m)
+            const data = await this.serialize()
+            this.emitDataChanged(m.event, data)
+        })
     }
 
     fields: {[name: string]: Field<any,Element>} = {}
@@ -418,7 +427,6 @@ export class FormFields<DataType extends FormPartData> {
         return `form-${this.id}`
     }
 
-    readonly dataChangedKey = messages.typedKey<DataType>()
 
     protected input<Key extends KeyOfType<DataType,any> & string>(parent: PartTag, type: InputType, name: Key, serializerType: (new (name: string)=> Field<any, Element>), attrs: InputTagAttrs={}): InputTag {
         attrs.type = type
@@ -430,7 +438,9 @@ export class FormFields<DataType extends FormPartData> {
             this.files[attrs.name] = null
         }
         this.fields[attrs.name].assignAttrValue(attrs, this.data[name])
-        return parent.input(attrs, this.className)
+        const input = parent.input(attrs, this.className)
+        input.emitChange(this.fieldChangeKey)
+        return input
     }
 
     textInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
@@ -531,5 +541,13 @@ export class FormFields<DataType extends FormPartData> {
             }
         })
         return data
+    }
+
+    /**
+     * Emits the datachanged event for this form and the given data
+     */
+    emitDataChanged(evt: Event, data: DataType) {
+        log.debug("Emitting datachanged event", this, evt, data)
+        this.part.emit("datachanged", this.dataChangedKey, evt, data, {scope: "bubble"})
     }
 }

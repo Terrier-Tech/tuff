@@ -4,7 +4,7 @@
   "files": [
     "*"
   ],
-  "version": "0.28.2",
+  "version": "0.28.3",
   "repository": {
     "type": "git",
     "url": "https://github.com/Terrier-Tech/tuff"

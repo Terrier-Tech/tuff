@@ -6,6 +6,7 @@ import * as strings from '../strings'
 import * as demo from './demo'
 import {Logger} from '../logging'
 import {arrays} from "../index"
+import {FormFields} from "../forms"
 
 const log = new Logger('Contacts')
 
@@ -18,7 +19,6 @@ const PhoneTypes = ["home", "mobile"]
 type PhoneType = typeof PhoneTypes[number]
 
 type PhoneState = {
-    id: string
     number?: string
     type: PhoneType
     extension?: number
@@ -28,44 +28,6 @@ const newPhoneKey = messages.untypedKey()
 
 const deletePhoneKey = messages.typedKey<{id: string}>()
 
-class PhoneFormPart extends forms.FormPart<PhoneState> {
-
-    phoneInputKey = messages.typedKey<{ id: string }>()
-
-    async init() {
-        this.onInput(this.phoneInputKey, m => {
-            log.info(`The value of the input '${m.data.id}' changed to '${m.value}'`)
-        })
-    }
-
-    get parentClasses(): Array<string> {
-        return [styles.phoneForm]
-    }
-
-    render(parent: PartTag) {
-        parent.div(styles.flexRow, row => {
-            for (let t of PhoneTypes) {
-                row.div(styles.flexStretch, col => {
-                    col.label(label => {
-                        this.radio(label, "type", t)
-                        label.span({text: strings.titleize(t)})
-                    })
-                })
-            }
-            row.div(styles.flexShrink, col => {
-                col.a(styles.characterLink, {text: '-'})
-                    .emitClick(deletePhoneKey, {id: this.state.id})
-                    .emitClick(demo.OutputKey, {output: `Delete Phone ${this.state.id} Clicked`})
-            })
-        })
-        parent.div(styles.flexRow, row => {
-            this.phoneInput(row, "number", {placeholder: "555-555-5555"})
-                .emitInput(this.phoneInputKey, {id: this.state.id})
-            this.numberInput(row, "extension", {placeholder: "ext"})
-        })
-    }
-
-}
 
 const roles = ['customer', 'vendor'] as const
 
@@ -101,12 +63,17 @@ type ContactState = {
 
 class ContactFormPart extends forms.FormPart<ContactState> {
 
-    phoneForms: {[id: string]: PhoneFormPart} = {}
+    phoneInputKey = messages.typedKey<{ id: string }>()
+    phoneForms: {[id: string]: FormFields<PhoneState>} = {}
     photoKey = messages.untypedKey()
     photoSrcs: Array<string> = new Array<string>()
 
     async init() {
         await super.init()
+
+        this.onInput(this.phoneInputKey, m => {
+            log.info(`The value of the input '${m.data.id}' changed to '${m.value}'`)
+        })
 
         this.onClick(newPhoneKey, _ => {
             this.addPhone()
@@ -114,7 +81,6 @@ class ContactFormPart extends forms.FormPart<ContactState> {
 
         this.onClick(deletePhoneKey, m => {
             log.info("Deleting phone", m.data)
-            this.removeChild(this.phoneForms[m.data.id])
             delete this.phoneForms[m.data.id]
             this.dirty()
         })
@@ -145,12 +111,12 @@ class ContactFormPart extends forms.FormPart<ContactState> {
     }
 
     addPhone() {
-        const part = this.makePart(PhoneFormPart, {
-            id: demo.newId(),
-            type: "home"
+        const fields = new FormFields(this, {
+            type: "home",
+            number: demo.randomPhone()
         })
-        this.phoneForms[part.state.id] = part
-        this.onDataChanged(part.dataChangedKey, m => {
+        this.phoneForms[fields.id] = fields
+        this.onDataChanged(fields.dataChangedKey, m => {
             log.info("Phone data changed", m)
         })
         log.info("Adding phone", this)
@@ -224,11 +190,36 @@ class ContactFormPart extends forms.FormPart<ContactState> {
                         .emitClick(demo.OutputKey, {output: "New Phone Clicked"})
                 })
             })
-            for (let [_, phoneForm] of Object.entries(this.phoneForms)) {
-                form.part(phoneForm, 'phone-form')
+            for (let [_, phoneFields] of Object.entries(this.phoneForms)) {
+                this.renderPhoneFields(form, phoneFields)
             }
 
             this.textArea(form, "notes", {placeholder: 'Notes', rows: 3})
+        })
+    }
+
+    renderPhoneFields(parent: PartTag, fields: FormFields<PhoneState>) {
+        parent.div(styles.phoneForm, container => {
+            container.div(styles.flexRow, row => {
+                for (let t of PhoneTypes) {
+                    row.div(styles.flexStretch, col => {
+                        col.label(label => {
+                            fields.radio(label, "type", t)
+                            label.span({text: strings.titleize(t)})
+                        })
+                    })
+                }
+                row.div(styles.flexShrink, col => {
+                    col.a(styles.characterLink, {text: '-'})
+                        .emitClick(deletePhoneKey, {id: fields.id})
+                        .emitClick(demo.OutputKey, {output: `Delete Phone ${fields.id} Clicked`})
+                })
+            })
+            container.div(styles.flexRow, row => {
+                fields.phoneInput(row, "number", {placeholder: "555-555-5555"})
+                    .emitInput(this.phoneInputKey, {id: fields.id})
+                fields.numberInput(row, "extension", {placeholder: "ext"})
+            })
         })
     }
 }
