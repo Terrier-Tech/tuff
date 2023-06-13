@@ -465,7 +465,7 @@ export abstract class Part<StateType> {
                 }
             }
             else {
-                log.warn("Trying to attach event listeners to a part without an element", this)
+                log.debug(`Trying to attach event listeners to part ${this.id} without an element`, this)
             }
         }
         this.eachChild(child => {
