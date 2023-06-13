@@ -25,14 +25,29 @@ function getTextContent(html: string) {
  * @param fn a function to call on the tag before it's created
  * @returns the resulting element
  */
-export function createElement<T extends keyof HtmlTagMap & keyof HTMLElementTagNameMap>(tagName: T, fn: (t: HtmlTagMap[T]) => any): HTMLElementTagNameMap[T] {
+function createElement<T extends keyof HtmlTagMap & keyof HTMLElementTagNameMap>(tagName: T, fn: (t: HtmlTagMap[T]) => any): HTMLElementTagNameMap[T] {
     const tag = new htmlTagMap[tagName](tagName) as HtmlTagMap[T]
     fn(tag)
     return tag.createElement() as HTMLElementTagNameMap[T]
 }
 
+/**
+ * Escapes quotes and angle brackets so that the given string
+ * can be rendered verbatim in HTML.
+ * @param s
+ */
+function escape(s: string): string {
+    return s
+        .replaceAll(/&/g, "&amp;")
+        .replaceAll(/"/g, "&quot;")
+        .replaceAll(/'/g, "&#39;")
+        .replaceAll(/</g, '&lt;')
+        .replaceAll(/>/g, '&gt;')
+}
+
 const Html = {
     getTextContent,
+    escape,
     createElement
 }
 export default Html

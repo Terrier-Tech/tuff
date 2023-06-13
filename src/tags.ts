@@ -1,5 +1,6 @@
 import * as messages from './messages'
 import * as strings from './strings'
+import Html from "./html"
 
 // import {Logger} from './logging'
 // const log = new Logger('tags')
@@ -200,12 +201,7 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
     abstract serializeAttribute(name: string, value: any): string
 
     protected escapeAttrValue(unsafeValue: string): string {
-        return unsafeValue
-            .replaceAll(/&/g, "&amp;")
-            .replaceAll(/"/g, "&quot;")
-            .replaceAll(/'/g, "&#39;")
-            .replaceAll(/</g, '&lt;')
-            .replaceAll(/>/g, '&gt;')
+        return Html.escape(unsafeValue)
     }
 
     /**
