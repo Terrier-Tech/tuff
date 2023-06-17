@@ -179,6 +179,15 @@ test("without", () => {
 })
 
 
+test("deleteIf", () => {
+    const a = ['two', 'one', 'three']
+    const numDeleted = arrays.deleteIf(a, e => e.startsWith('t'))
+    expect(numDeleted).toBe(2)
+    expect(a.length).toBe(1)
+    expect(a[0]).toBe('one')
+})
+
+
 test("streams", () => {
     const input = [
         {id: "one", foo: "bar"},

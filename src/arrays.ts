@@ -218,6 +218,27 @@ export function without<T>(array: Array<T>, element: T): Array<T> {
 }
 
 /**
+ * Deletes elements from the array in place, based on the given predicate function.
+ * @param array
+ * @param predicate returns `true` to delete the given element
+ * @return the number of elements deleted
+ */
+export function deleteIf<T>(array: Array<T>, predicate: (element: T) => boolean): number {
+    let i = 0
+    let numDeleted = 0
+    while (i < array.length) {
+        if (predicate(array[i])) {
+            array.splice(i, 1)
+            numDeleted += 1
+        } else {
+            i++
+        }
+    }
+    return numDeleted
+}
+
+
+/**
  * Find the first element of an array that satisfies the callback.
  * @param array the input array
  * @param callback the callback functioning as a search query
