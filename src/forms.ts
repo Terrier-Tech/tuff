@@ -238,7 +238,7 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
 /**
  * Base class for classes that get and set values for concrete form elements.
  */
-abstract class Field<FieldType, ElementType extends Element> {
+export abstract class Field<FieldType, ElementType extends Element> {
 
     /**
      * @param name is the actual name of the property, not the element name attribute,
@@ -260,7 +260,7 @@ abstract class Field<FieldType, ElementType extends Element> {
 
 }
 
-class TextInputField extends Field<string, HTMLInputElement> {
+export class TextInputField extends Field<string, HTMLInputElement> {
     
     assignAttrValue(attrs: InputTagAttrs, value?: string) {
         attrs.value = value
@@ -272,7 +272,7 @@ class TextInputField extends Field<string, HTMLInputElement> {
 
 }
 
-class NumberInputField extends Field<number, HTMLInputElement> {
+export class NumberInputField extends Field<number, HTMLInputElement> {
 
     assignAttrValue(attrs: InputTagAttrs, value?: number) {
         attrs.value = value?.toString()
@@ -290,7 +290,7 @@ class NumberInputField extends Field<number, HTMLInputElement> {
 
 }
 
-class FileInputField extends Field<FileList, HTMLInputElement> {
+export class FileInputField extends Field<FileList, HTMLInputElement> {
 
     assignAttrValue(_attrs: InputTagAttrs, _value?: FileList) {
         // FileList is assigned to HTMLInputElement's .files attribute by FormPart#update
@@ -302,7 +302,7 @@ class FileInputField extends Field<FileList, HTMLInputElement> {
 
 }
 
-class TextAreaField extends Field<string, HTMLTextAreaElement> {
+export class TextAreaField extends Field<string, HTMLTextAreaElement> {
     
     assignAttrValue(attrs: InputTagAttrs, value?: string) {
         attrs.value = value
@@ -314,7 +314,7 @@ class TextAreaField extends Field<string, HTMLTextAreaElement> {
 
 }
 
-class SelectField extends Field<string, HTMLSelectElement> {
+export class SelectField extends Field<string, HTMLSelectElement> {
     
     assignAttrValue(attrs: SelectTagAttrs, value?: string) {
         attrs.value = value // even though `value` isn't a valid select attribute, it might be convenient to have this value later on
@@ -326,7 +326,7 @@ class SelectField extends Field<string, HTMLSelectElement> {
 
 }
 
-class CheckboxField extends Field<boolean, HTMLInputElement> {
+export class CheckboxField extends Field<boolean, HTMLInputElement> {
         
     assignAttrValue(attrs: InputTagAttrs, value?: boolean) {
         attrs.checked = value
@@ -337,7 +337,7 @@ class CheckboxField extends Field<boolean, HTMLInputElement> {
     }
 }
 
-class RadioField extends Field<string, HTMLInputElement> {
+export class RadioField extends Field<string, HTMLInputElement> {
         
     assignAttrValue(attrs: InputTagAttrs, value?: string) {
         attrs.checked = attrs.value == value
