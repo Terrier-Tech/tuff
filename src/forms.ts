@@ -408,7 +408,7 @@ export class FormFields<DataType extends FormPartData> {
     readonly fieldChangeKey = messages.untypedKey()
     readonly dataChangedKey = messages.typedKey<DataType>()
 
-    constructor(readonly part: StatelessPart, readonly data: DataType) {
+    constructor(readonly part: StatelessPart, public data: DataType) {
         _formCount += 1
         this.id = `tuff-form-${_formCount}`
 
@@ -416,6 +416,7 @@ export class FormFields<DataType extends FormPartData> {
         this.part.onChange(this.fieldChangeKey, async m => {
             log.info(`FormFields ${this.id} field changed`, m)
             const data = await this.serialize()
+            this.data = data
             this.emitDataChanged(m.event, data)
         })
     }
