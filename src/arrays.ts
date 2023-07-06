@@ -53,7 +53,7 @@ export function eachGroupByFunction<T extends Record<string | symbol, any>, TK e
 }
 
 /**
- * Similer to `groupBy`, but only matches a single object for each key.
+ * Similar to `groupBy`, but only matches a single object for each key.
  * @param array an array of objects
  * @param key the object key by which to index
  * @returns an object mapping the keys to the individual objects
@@ -63,6 +63,23 @@ export function indexBy<T extends Record<string | symbol, any>, K extends keyof 
     for (let item of array) {
         // I don't know why typescript can't figure this out
         const value = item[key] as unknown as string|undefined
+        if (value) {
+            obj[value] = item
+        }
+    }
+    return obj
+}
+
+/**
+ * Indexes an array of elements by the results of a function called for each element of the array.
+ * @param array an array of elements
+ * @param getKey a function that returns a unique value for each element of the array.
+ *               If the value is not unique, the last element in the array that maps to that value will be used.
+ */
+export function indexByFunction<T extends any, TK extends string | number | symbol>(array: T[], getKey: KeyFun<T, TK>): Record<TK,T> {
+    const obj: Record<TK,T> = {} as Record<TK, T>
+    for (let item of array) {
+        const value = getKey(item)
         if (value) {
             obj[value] = item
         }

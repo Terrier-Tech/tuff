@@ -86,6 +86,18 @@ test("indexBy", () => {
     expect(indexed["two"].foo).eq("bat") // it will take the last duplicate
 })
 
+test("indexByFunction", () => {
+    const array = [
+        {id: "one", foo: "bar"},
+        {id: "two", foo: "baz"},
+        {id: "two", foo: "bat"} // test duplicate entries
+    ]
+    const indexed = arrays.indexByFunction(array, a => a.id + "_key")
+    expect(Object.keys(indexed).length).eq(2)
+    expect(indexed["one_key"].foo).eq("bar")
+    expect(indexed["two_key"].foo).eq("bat") // it will take the last duplicate
+})
+
 test("sortBy", () => {
     const array = [
         {name: "barry"},
