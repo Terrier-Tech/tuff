@@ -33,6 +33,20 @@ export function slice<T, K extends keyof T>(obj: T, ...props: K[]): Pick<T, K> {
  }
 
 /**
+ * Omits keys of T that are null, undefined, or length 0
+ * @param obj
+ */
+export function omitEmpty<T extends Record<string, any>>(obj: T): T {
+     const newObj = {} as Record<string, any>
+     for (const [key, val] of Object.entries(obj)) {
+         if (val != undefined && ((typeof(val) != 'string' && !Array.isArray(val)) || val.length)) {
+             newObj[key] = val
+         }
+     }
+     return newObj as T
+ }
+
+/**
  * Whether the given value is defined
  * @param value
  */
