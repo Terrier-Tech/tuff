@@ -35,13 +35,18 @@ type Role = typeof roles[number]
 
 const roleOptions = [
     {
-        value: 'customer',
-        title: 'Customer'
+        group: "Customer Roles",
+        options: [
+            {
+                value: 'customer',
+                title: 'Customer'
+            },
+        ]
     },
     {
         value: 'vendor',
         title: 'Vendor'
-    }
+    },
 ]
 
 const statuses = ['active', 'inactive'] as const
