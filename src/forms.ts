@@ -2,7 +2,17 @@ import {Part, PartTag, StatelessPart} from './parts'
 import {Logger} from './logging'
 import * as arrays from './arrays'
 import * as messages from './messages'
-import { FormTag, InputTag, InputTagAttrs, OptionTagAttrs, SelectTag, SelectTagAttrs, TextAreaTag, TextAreaTagAttrs } from './html'
+import {
+    FormTag,
+    InputTag,
+    InputTagAttrs,
+    OptGroupTag,
+    OptionTagAttrs,
+    SelectTag,
+    SelectTagAttrs,
+    TextAreaTag,
+    TextAreaTagAttrs
+} from './html'
 
 const log = new Logger("Forms")
 
@@ -367,10 +377,15 @@ export type SelectOption = {
     title: string
 }
 
+export type SelectOptGroup = {
+    group: string
+    options: SelectOption[]
+}
+
 /**
  * An array of `SelectOption`s that can be passed to `optionsForSelect`.
  */
-export type SelectOptions = SelectOption[]
+export type SelectOptions = (SelectOption | SelectOptGroup)[]
 
 /**
  * Adds options to a select tag
@@ -378,15 +393,20 @@ export type SelectOptions = SelectOption[]
  * @param options the options to add
  * @param selected the currently selected option value
  */
-export function optionsForSelect(tag: SelectTag, options: SelectOptions, selected?: string) {
+export function optionsForSelect(tag: SelectTag | OptGroupTag, options: SelectOptions, selected?: string) {
     for (const opt of options) {
-        const attrs: OptionTagAttrs = {
-            value: opt.value
+        if ('group' in opt) {
+            const optgroup = tag.optgroup({ label: opt.group })
+            optionsForSelect(optgroup, opt.options, selected)
+        } else {
+            const attrs: OptionTagAttrs = {
+                value: opt.value
+            }
+            if (selected == opt.value) {
+                attrs.selected = true
+            }
+            tag.option(attrs).text(opt.title)
         }
-        if (selected == opt.value) {
-            attrs.selected = true
-        }
-        tag.option(attrs).text(opt.title)
     }
 }
 
