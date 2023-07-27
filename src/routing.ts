@@ -12,7 +12,6 @@ import {Part, PartConstructor, PartTag, StatelessPart} from './parts'
 import {QueryParams} from "./urls";
 
 const log = new Logger('Routing')
-Logger.level = "debug"
 
 /** 
  * Basic interface that all routes must implement.
