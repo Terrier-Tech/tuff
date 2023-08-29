@@ -1,9 +1,9 @@
 import {Part, PartTag} from '../parts'
-import * as messages from '../messages'
 import * as styles from './styles.css'
 import * as demo from './demo'
 import * as logging from '../logging'
 import HighlighterPlugin from "./highlighter"
+import Messages from "../messages"
 
 const log = new logging.Logger('Counter')
 
@@ -11,8 +11,8 @@ type ChangeData = {
     by: number
 }
 
-const ResetKey = messages.untypedKey()
-const ChangeKey = messages.typedKey<ChangeData>()
+const ResetKey = Messages.untypedKey()
+const ChangeKey = Messages.typedKey<ChangeData>()
 
 
 type CounterState = {

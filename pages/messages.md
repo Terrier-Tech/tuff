@@ -12,15 +12,15 @@ Instead of traditional DOM event handlers, events in Tuff are handled through a 
 ## Message Keys
 
 Messages are identified by *keys* (instead of e.g. strings) to allow the type system to force correctness and avoid typos.
-New message keys are created with the `messages.untypedKey()` and `messages.typedKey<T>()` functions and are used to declare which messages are emitted from a particular element:
+New message keys are created with the `Messages.untypedKey()` and `Messages.typedKey<T>()` functions and are used to declare which messages are emitted from a particular element:
 
 ```typescript
-const FooKey = messages.untypedKey()
+const FooKey = Messages.untypedKey()
 
 const type BarData = {
     value: number
 }
-const BarKey = messages.typedKey<BarData>()
+const BarKey = Messages.typedKey<BarData>()
 ```
 
 
@@ -90,7 +90,7 @@ While the Tuff messaging system is used to handle UI events emitted by the DOM, 
 Instead of calling one of the `emit*` methods on a tag while rendering, you can use the `emitMessage()` method on parts to directly emit an arbitrary message and the `listenMessage()` method to handle them:
 
 ```typescript
-const arbitraryKey = messages.typedKey<{id: string}>()
+const arbitraryKey = Messages.typedKey<{id: string}>()
 
 async init() {
     this.listenMessage(arbitraryKey, m => {
@@ -123,7 +123,7 @@ For example, the "control/command" modifier maps to the Command key on macOS and
 
 ```typescript
 async init() {
-    this.onKeyPress(messages.keyPress("z", "control/command"), m => {
+    this.onKeyPress(Messages.keyPress("z", "control/command"), m => {
         // this gets called when command+z is pressed on macOS 
         // and control+z if called on Windows and Linux
     })

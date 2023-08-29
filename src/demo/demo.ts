@@ -1,4 +1,4 @@
-import * as messages from '../messages'
+import Messages from '../messages'
 
 let idCounter = 0
 
@@ -17,4 +17,4 @@ export function randomPhone(): string {
 }
 
 // Global key for listening to general text output messages
-export const OutputKey = messages.typedKey<OutputData>()
+export const OutputKey = Messages.typedKey<OutputData>()

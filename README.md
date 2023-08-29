@@ -169,7 +169,7 @@ This is useful for executing code that depends on the DOM itself, needs to be ca
 ```typescript
 class Counter extends Part<CounterState> {
 
-    fooKey = messages.untypedKey()
+    fooKey = Messages.untypedKey()
 
     async init() {
         this.onClick(m => {
@@ -407,7 +407,7 @@ Nav.visit("/other")
 
 ### Messages
 
-Event handling in Tuff is done with its [messages system](pages/messages.md).
+Event handling in Tuff is done with its [messages system](pages/Messages.md).
 
 
 ### Logging

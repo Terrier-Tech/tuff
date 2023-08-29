@@ -1,6 +1,5 @@
 import {Part, PartTag, StatelessPart} from './parts'
 import {Logger} from './logging'
-import * as messages from './messages'
 import {
     FormTag,
     InputTag,
@@ -13,6 +12,7 @@ import {
     TextAreaTagAttrs
 } from './html'
 import Arrays from "./arrays"
+import Messages, {ListenOptions, Message, TypedKey} from "./messages"
 
 const log = new Logger("Forms")
 
@@ -44,7 +44,7 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
     fields: {[name: string]: Field<any,Element>} = {}
     files: {[name: string]: FileList | null} = {}
 
-    readonly dataChangedKey = messages.typedKey<DataType>()
+    readonly dataChangedKey = Messages.typedKey<DataType>()
 
     async init() {
         this.onDataChanged(this.dataChangedKey, m => {
@@ -236,9 +236,9 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
      *  Listens for datachanged events on this or child forms
      */
     onDataChanged<EvtDataType>(
-        key: messages.TypedKey<EvtDataType>, 
-        listener: (m: messages.Message<"datachanged",EvtDataType>) => void, 
-        options?: messages.ListenOptions) {
+        key: TypedKey<EvtDataType>, 
+        listener: (m: Message<"datachanged",EvtDataType>) => void, 
+        options?: ListenOptions) {
         this.listen<"datachanged",EvtDataType>("datachanged", key, listener, options)
     }
 
@@ -425,8 +425,8 @@ let _formCount = 0
 export class FormFields<DataType extends FormPartData> {
 
     readonly id!: string
-    readonly fieldChangeKey = messages.untypedKey()
-    readonly dataChangedKey = messages.typedKey<DataType>()
+    readonly fieldChangeKey = Messages.untypedKey()
+    readonly dataChangedKey = Messages.typedKey<DataType>()
 
     constructor(readonly part: StatelessPart, public data: DataType) {
         _formCount += 1

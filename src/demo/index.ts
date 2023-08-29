@@ -6,10 +6,10 @@ import * as contacts from './contacts'
 import * as shapes from './shapes'
 import * as nav from './nav'
 import * as demo from './demo'
-import * as messages from '../messages'
 import Html from '../html'
 import {OutputData} from "./demo"
 import HighlighterPlugin from "./highlighter"
+import Messages from "../messages"
 
 Logger.level = 'debug'
 const log = new Logger("Demo")
@@ -54,7 +54,7 @@ class App extends Part<{}> {
         this.output.write("Initialized!")
 
         // specific keypress
-        this.onKeyPress(messages.keyPress("z", "control/command"), m => {
+        this.onKeyPress(Messages.keyPress("z", "control/command"), m => {
             log.info("Undo", m)
         })
 

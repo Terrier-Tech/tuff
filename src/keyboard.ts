@@ -1,10 +1,10 @@
-import * as messages from './messages'
 import {Logger} from './logging'
 import * as parts from './parts'
+import Messages, {KeyModifier, KeyPress, Message} from "./messages"
 
 const log = new Logger('Keyboard')
 
-export type Listener = (m: messages.Message<"keypress",messages.KeyPress>) => void
+export type Listener = (m: Message<"keypress", KeyPress>) => void
 
 type RegisteredPart = {
     part: parts.StatelessPart
@@ -21,6 +21,7 @@ class GlobalHandler {
     /**
      * Registers the part's root to receive global keyboard events.
      * @param part A part that wishes to receive global keyboard events
+     * @param listener
      */
     addPart(part: parts.StatelessPart, listener?: Listener) {
         const root = part.root
@@ -57,7 +58,7 @@ class GlobalHandler {
         log.debug(`Raw event: ${key}`, evt)
         
         // parse the modifiers
-        const modifiers = new Array<messages.KeyModifier>()
+        const modifiers = new Array<KeyModifier>()
         if (this.isApple) {
             if (evt.metaKey) {
                 modifiers.push("control/command")
@@ -75,7 +76,7 @@ class GlobalHandler {
             modifiers.push("shift")
         }
 
-        const press = messages.keyPress(key, ...modifiers)
+        const press = Messages.keyPress(key, ...modifiers)
         const message = {data: press, event: evt, type: 'keypress'} as const
         for (let [id, reg] of Object.entries(this.parts)) {
             if (reg.part.isAttached) {

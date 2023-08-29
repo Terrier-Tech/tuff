@@ -22,7 +22,7 @@ export interface EventMap extends HTMLElementEventMap, forms.EventMap, InternalE
 
 }
 
-export const ValueEventNames = ['change', 'input'] as const
+const ValueEventNames = ['change', 'input'] as const
 export type ValueEvents = typeof ValueEventNames[number]
 
 /**
@@ -147,7 +147,7 @@ export interface UntypedKey extends Key {
 /**
  * Creates a unique untyped message key
  */
-export function untypedKey(): UntypedKey {
+function untypedKey(): UntypedKey {
     return {
         id: nextId(),
         typed: false
@@ -157,7 +157,7 @@ export function untypedKey(): UntypedKey {
 /**
  *  Creates a unique typed message key that binds to a specific data type
  */
-export function typedKey<T>(): TypedKey<T> {
+function typedKey<T>(): TypedKey<T> {
     return {
         id: nextId()
     }
@@ -211,6 +211,19 @@ export class KeyPress implements Key {
  * @param modifiers The press modifiers
  * @returns A new KeyPress key
  */
-export const keyPress = (key: string, ... modifiers: Array<KeyModifier>) => {
+const keyPress = (key: string, ... modifiers: Array<KeyModifier>) => {
     return new KeyPress(key, ...modifiers)
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Export
+////////////////////////////////////////////////////////////////////////////////
+
+const Messages = {
+    keyPress,
+    typedKey,
+    untypedKey
+}
+
+export default Messages

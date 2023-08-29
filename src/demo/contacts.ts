@@ -1,7 +1,7 @@
 import {Part, PartTag} from '../parts'
 import * as forms from '../forms'
 import {FormFields} from '../forms'
-import * as messages from '../messages'
+import Messages from '../messages'
 import * as styles from './styles.css'
 import Strings from '../strings'
 import * as demo from './demo'
@@ -11,8 +11,8 @@ import Arrays from "../arrays"
 const log = new Logger('Contacts')
 
 
-const newContactKey = messages.untypedKey()
-const deleteContactKey = messages.typedKey<{ id: string }>()
+const newContactKey = Messages.untypedKey()
+const deleteContactKey = Messages.typedKey<{ id: string }>()
 
 const PhoneTypes = ["home", "mobile"]
 
@@ -24,9 +24,9 @@ type PhoneState = {
     extension?: number
 }
 
-const newPhoneKey = messages.untypedKey()
+const newPhoneKey = Messages.untypedKey()
 
-const deletePhoneKey = messages.typedKey<{id: string}>()
+const deletePhoneKey = Messages.typedKey<{id: string}>()
 
 
 const roles = ['customer', 'vendor'] as const
@@ -68,9 +68,9 @@ type ContactState = {
 
 class ContactFormPart extends forms.FormPart<ContactState> {
 
-    phoneInputKey = messages.typedKey<{ id: string }>()
+    phoneInputKey = Messages.typedKey<{ id: string }>()
     phoneForms: {[id: string]: FormFields<PhoneState>} = {}
-    photoKey = messages.untypedKey()
+    photoKey = Messages.untypedKey()
     photoSrcs: Array<string> = new Array<string>()
 
     async init() {

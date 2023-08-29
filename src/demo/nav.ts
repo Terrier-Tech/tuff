@@ -1,10 +1,10 @@
 import {stringParser} from 'typesafe-routes'
-import * as messages from '../messages'
-import { Logger } from '../logging'
+import {Logger} from '../logging'
 import Nav from '../nav'
 import {Part, PartTag} from '../parts'
-import {partRoute, RouterPart, redirectRoute, optionalStringParser, optionalIntParser} from '../routing'
+import {optionalIntParser, optionalStringParser, partRoute, redirectRoute, RouterPart} from '../routing'
 import * as styles from './styles.css'
+import Messages from "../messages"
 
 const log = new Logger('Nav')
 
@@ -66,7 +66,7 @@ const routes = {
     withOptional: partRoute(OptionalParamPart, "/alpha/:bravo?/charlie&:delta?", { bravo: optionalIntParser, delta: optionalStringParser })
 }
 
-const navKey = messages.typedKey<{path: string}>()
+const navKey = Messages.typedKey<{path: string}>()
 
 export class NavApp extends RouterPart {
     

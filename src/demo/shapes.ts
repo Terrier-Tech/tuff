@@ -1,11 +1,12 @@
 import {Part, PartTag} from '../parts'
-import * as messages from '../messages'
+import Messages from '../messages'
 import * as styles from './styles.css'
 import * as demo from './demo'
 
 import {Logger} from '../logging'
-import { SvgParentTag } from '../svg'
+import {SvgParentTag} from '../svg'
 import Arrays from "../arrays"
+
 const log = new Logger('Shapes')
 
 const maxSize = 300 // the largest that any individual shape can be
@@ -53,15 +54,15 @@ class Shape {
 
 }
 
-const shapeKey = messages.typedKey<{id: string}>()
-const mouseKey = messages.untypedKey()
+const shapeKey = Messages.typedKey<{id: string}>()
+const mouseKey = Messages.untypedKey()
 
 export class ShapesApp extends Part<{}> {
 
     selected?: Shape
     shapes: {[id: string]: Shape} = {} 
     dragOffset = {x: 0, y: 0}
-    scrollKey = messages.untypedKey()
+    scrollKey = Messages.untypedKey()
 
     async init() {
         this.onMouseDown(shapeKey, m => {
