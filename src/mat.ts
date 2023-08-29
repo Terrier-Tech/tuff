@@ -1,6 +1,6 @@
 import * as vec from './vec'
-import * as box from './box'
 import * as trig from './trig'
+import Boxes, {Box} from "./boxes"
 
 /**
  * An immutable 2D matrix type.
@@ -137,12 +137,12 @@ export const transform = (m: Mat, v: vec.Vec): vec.Vec => {
 /**
  * @returns a copy of `b` that's been transformed by `m`.
  */
-export const transformBox = (m: Mat, b: box.Box): box.Box => {
+export const transformBox = (m: Mat, b: Box): Box => {
     let upperLeft = vec.make(b.x, b.y)
     let lowerRight = vec.make(b.x+b.width, b.y+b.height)
     upperLeft = transform(m, upperLeft)
     lowerRight = transform(m, lowerRight)
-    return box.make(upperLeft.x, upperLeft.y, lowerRight.x-upperLeft.x, lowerRight.y-upperLeft.y)
+    return Boxes.make(upperLeft.x, upperLeft.y, lowerRight.x-upperLeft.x, lowerRight.y-upperLeft.y)
 }
 
 
@@ -221,7 +221,7 @@ export function builder(): Builder {
 }
 
 
-export function fromBoxes(from: box.Box, to: box.Box): Mat {
+export function fromBoxes(from: Box, to: Box): Mat {
     const scaleX = to.width / from.width
     const scaleY = to.height / from.height
     const translateX = to.x - from.x * scaleX

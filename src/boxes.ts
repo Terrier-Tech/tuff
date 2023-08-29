@@ -27,7 +27,7 @@ export type MutableBox = Partial<Box>
 /**
  * Literal side names.
  */
-export const SideNames = ['left', 'right', 'top', 'bottom'] as const
+const SideNames = ['left', 'right', 'top', 'bottom'] as const
 
 /**
  * A key for one of the sides.
@@ -44,7 +44,7 @@ export type Sides = {
 /**
  * @returns the +Sides+ of the box.
  */
-export const toSides = (b: Box): Sides => {
+const toSides = (b: Box): Sides => {
     return {
         left: b.x,
         top: b.y,
@@ -56,7 +56,7 @@ export const toSides = (b: Box): Sides => {
 /**
  * @returns the +Box+ represented by the sides.
  */
-export const fromSides = (s: Sides): Box => {
+const fromSides = (s: Sides): Box => {
     return {
         x: s.left,
         y: s.top,
@@ -68,17 +68,17 @@ export const fromSides = (s: Sides): Box => {
 /**
  * @returns an empty box.
  */
-export const empty = (): Box => {
+const empty = (): Box => {
     return {x: 0, y: 0, width: 0, height: 0}
 }
 
 /**
  * Construct a box from either individual dimensions or vectors that represent them.
  */
-export function make(x: number, y: number, width: number, height: number): Box
-export function make(origin: vec.Vec, size: vec.Vec): Box
-export function make(array: number[]): Box
-export function make(xorigin: number|vec.Vec|number[], ysize?: number|vec.Vec, width?: number, height?: number): Box {
+function make(x: number, y: number, width: number, height: number): Box
+function make(origin: vec.Vec, size: vec.Vec): Box
+function make(array: number[]): Box
+function make(xorigin: number|vec.Vec|number[], ysize?: number|vec.Vec, width?: number, height?: number): Box {
     if (Array.isArray(xorigin)) {
         if (xorigin.length == 4) {
             return {x: xorigin[0], y: xorigin[1], width: xorigin[2], height: xorigin[3]}
@@ -102,7 +102,7 @@ export function make(xorigin: number|vec.Vec|number[], ysize?: number|vec.Vec, w
 /**
  * @returns the center of the box.
  */
-export const center = (b: Box): vec.Vec => {
+const center = (b: Box): vec.Vec => {
     return {
         x: b.x + b.width/2,
         y: b.y + b.height/2
@@ -112,7 +112,7 @@ export const center = (b: Box): vec.Vec => {
 /**
  * @returns a new box that includes both the passed box and the vector.
  */
-export const expand = (b: Box, v: vec.Vec): Box => {
+const expand = (b: Box, v: vec.Vec): Box => {
     const s = {
         left: Math.min(b.x, v.x),
         top: Math.min(b.y, v.y),
@@ -125,7 +125,7 @@ export const expand = (b: Box, v: vec.Vec): Box => {
 /**
  * @returns a +Box+ that contains both passed boxes.
  */
-export const union = (b1: Box, b2: Box): Box => {
+const union = (b1: Box, b2: Box): Box => {
     const s1 = toSides(b1)
     const s2 = toSides(b2)
     const s = {
@@ -140,7 +140,7 @@ export const union = (b1: Box, b2: Box): Box => {
 /**
  * @returns a single box containing all boxes.
  */
-export const unionAll = (boxes: Array<Box>): Box => {
+const unionAll = (boxes: Array<Box>): Box => {
     if (boxes.length == 1) {
         return boxes[0]
     }
@@ -158,7 +158,7 @@ export const unionAll = (boxes: Array<Box>): Box => {
 /**
  * @returns a box that encapsulates an array of points
  */
-export const fromPoints = (points: vec.Vec[]): Box => {
+const fromPoints = (points: vec.Vec[]): Box => {
     const allSides = points.map(v => vec.toSides(v))
     if (allSides.length == 1) {
         return fromSides(allSides[0])
@@ -171,3 +171,21 @@ export const fromPoints = (points: vec.Vec[]): Box => {
     }
     return fromSides(sidesUnion)
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Export
+////////////////////////////////////////////////////////////////////////////////
+
+const Boxes = {
+    center,
+    empty,
+    expand,
+    fromPoints,
+    fromSides,
+    make,
+    union,
+    unionAll
+}
+
+export default Boxes

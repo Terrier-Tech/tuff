@@ -1,4 +1,4 @@
-import { Sides } from "./box"
+import { Sides } from "./boxes"
 
 /**
  * Immutable 2D vector, the only kind.
