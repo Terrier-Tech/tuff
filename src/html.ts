@@ -1,7 +1,7 @@
-import { Part } from './parts'
-import { Attrs, Tag, TagArgs } from './tags'
-import { SVGTag } from "./svg"
-import * as strings from './strings'
+import {Part} from './parts'
+import {Attrs, Tag, TagArgs} from './tags'
+import {SVGTag} from "./svg"
+import Strings from './strings'
 import {Logger} from './logging'
 
 const log = new Logger('HTML')
@@ -77,7 +77,7 @@ export abstract class HtmlTagBase<AttrsType extends Attrs,ElementType extends HT
         if (typeof value == 'object') {
             log.warn(`Don't know how to serialize value for key ${name}`, value)
         }
-        return `${strings.ropeCase(name)}="${this.escapeAttrValue(value.toString())}"`
+        return `${Strings.ropeCase(name)}="${this.escapeAttrValue(value.toString())}"`
     }
 
 

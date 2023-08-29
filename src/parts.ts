@@ -5,8 +5,8 @@ import * as keyboard from './keyboard'
 import * as urls from './urls'
 import Html, {DivTag, HtmlBaseAttrs, HtmlParentTag, HtmlTagBase} from './html'
 import Nav from './nav'
-import {slugify} from "./strings"
 import {PartPlugin, PluginConstructor, StatelessPlugin} from "./plugins"
+import Strings from "./strings"
 
 const log = new Logger('Part')
 
@@ -832,7 +832,7 @@ export abstract class Part<StateType> {
      * @param name the collection name passed to `assignCollection()` and `renderCollection()`.
      */
     computeCollectionId(name: string): string {
-        return `${this.id}-collection-${slugify(name)}`
+        return `${this.id}-collection-${Strings.slugify(name)}`
     }
 
     /**

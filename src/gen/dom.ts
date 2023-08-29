@@ -1,10 +1,10 @@
-export {}
-
+import Strings from "../strings"
 import * as fs from 'fs'
 import TypescriptTree from './ts-tree'
 import * as meta from './dom-meta'
 import SourceFile from './source-file'
-import { titleize } from '../strings'
+
+export {}
 
 const info = console.log
 
@@ -74,8 +74,7 @@ tst.eachInterface(iface => {
     
         // base element
         else if (configs[t].elementBaseInterfaces.includes(name)) {
-            const elem = new meta.Element(t, name, [name], iface, tst)
-            elementTypes[t][name] = elem
+            elementTypes[t][name] = new meta.Element(t, name, [name], iface, tst)
         }
 
         // element subclass
@@ -83,8 +82,7 @@ tst.eachInterface(iface => {
             const comment = tst.fullText(iface).split('*/')[0]
             if (!comment.includes('@deprecated')) { // skip deprecated elements
                 const baseNames = configs[t].elementBaseInterfaces.filter(i => tst.interfaceExtends(iface, i))
-                const elem = new meta.Element(t, name, baseNames, iface, tst)
-                elementTypes[t][name] = elem
+                elementTypes[t][name] = new meta.Element(t, name, baseNames, iface, tst)
             } else {
                 console.log(`Skipping generating element meta for @deprecated element ${name}`)
             }
@@ -128,13 +126,13 @@ for (let t of tagTypes) {
     file.replaceRegion("Tag Methods", tagMethods)
 
     // tag map
-    const tagMap = [`\n/** Map the names of ${t.toUpperCase()} tags to their classes. */\nexport interface ${titleize(t)}TagMap {`]
+    const tagMap = [`\n/** Map the names of ${t.toUpperCase()} tags to their classes. */\nexport interface ${Strings.titleize(t)}TagMap {`]
     Object.entries(taggedElements[t]).forEach(([tag, elem]) => {
         tagMap.push(`    "${tag}": ${elem.className}`)
     })
     tagMap.push(`}\n`)
-    tagMap.push(`\nexport type ${titleize(t)}TagName = keyof ${titleize(t)}TagMap`)
-    tagMap.push(`\nexport const ${t}TagMap: Record<${titleize(t)}TagName, {new (tag: ${titleize(t)}TagName): ${titleize(t)}TagMap[typeof tag]}> = {`)
+    tagMap.push(`\nexport type ${Strings.titleize(t)}TagName = keyof ${Strings.titleize(t)}TagMap`)
+    tagMap.push(`\nexport const ${t}TagMap: Record<${Strings.titleize(t)}TagName, {new (tag: ${Strings.titleize(t)}TagName): ${Strings.titleize(t)}TagMap[typeof tag]}> = {`)
     Object.entries(taggedElements[t]).forEach(([tag, elem]) => {
         tagMap.push(`    ${tag}: ${elem.className},`)
     })

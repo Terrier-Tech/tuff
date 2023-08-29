@@ -1,7 +1,7 @@
 import ts from 'typescript'
 import TypescriptTree from './ts-tree'
-import * as strings from '../strings'
-import { info } from 'console'
+import Strings from '../strings'
+import {info} from 'console'
 
 const capitalize = (s: string) => s = s.charAt(0).toUpperCase() + s.slice(1)
 
@@ -14,7 +14,7 @@ export class Element {
     readonly typeName!: string // capitalized type name
 
     constructor(readonly type: string, readonly name: string, readonly baseNames: string[], iface: ts.InterfaceDeclaration, tst: TypescriptTree) {
-        this.typeName = strings.capitalize(type)
+        this.typeName = Strings.capitalize(type)
 
         // compute the class name
         const nameRegex = new RegExp(`^${this.type.toUpperCase()}`)

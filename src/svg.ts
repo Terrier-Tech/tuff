@@ -1,5 +1,5 @@
-import { Attrs, IRect, Tag, TagArgs } from './tags'
-import * as strings from './strings'
+import {Attrs, IRect, Tag, TagArgs} from './tags'
+import Strings from './strings'
 import {Logger} from './logging'
 
 const log = new Logger('SVG')
@@ -124,7 +124,7 @@ export abstract class SvgTagBase<AttrsType extends Attrs,ElementType extends Ele
             }
         }
         if (ropeCaseAttributes[name]) {
-            return `${strings.ropeCase(name)}="${this.escapeAttrValue(value.toString())}"`
+            return `${Strings.ropeCase(name)}="${this.escapeAttrValue(value.toString())}"`
         }
         else {
             return `${name}="${this.escapeAttrValue(value.toString())}"`

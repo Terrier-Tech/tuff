@@ -4,7 +4,7 @@
  * @param s A string to split
  * @returns The string split into words
  */
-export function splitWords(s: string): Array<string> {
+function splitWords(s: string): Array<string> {
     const words = []
 
     let currentWord: string[] = []
@@ -61,7 +61,7 @@ function isUpperCase(s: string) {
  * @param word - A string to capitalize
  * @returns The capitalized string
  */
-export function capitalize(word: string) {
+function capitalize(word: string) {
     if (!word) return word;
     return word[0].toUpperCase() + word.substring(1).toLowerCase();
 }
@@ -71,7 +71,7 @@ export function capitalize(word: string) {
  * @param s - A string to titleize
  * @returns - The titleized string
  */
-export function titleize(s: string) {
+function titleize(s: string) {
     if (!s) return s;
     return splitWords(s).map(s => {return capitalize(s)}).join(' ')
 }
@@ -81,7 +81,7 @@ export function titleize(s: string) {
  * @param s A string to rope-case
  * @returns The rope-cased string
  */
-export function ropeCase(s: string) {
+function ropeCase(s: string) {
     return splitWords(s).map(w => {
         return w.toLowerCase()
     }).join('-')
@@ -92,7 +92,7 @@ export function ropeCase(s: string) {
  * @param s The string to convert
  * @returns The camelCase version of the string
  */
-export function camelCase(s: string) {
+function camelCase(s: string) {
     return splitWords(s).map((w, i) => {
         return i == 0 ? w.toLocaleLowerCase() : capitalize(w)
     }).join('')
@@ -102,6 +102,25 @@ export function camelCase(s: string) {
  * Downcases and replaces all non-alphanumeric characters with dashes so the string is suitable to use as a slug.
  * @param s the string to slugify
  */
-export function slugify(s: string) {
+function slugify(s: string) {
     return s.toLowerCase().replace(/\W/g, '-')
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Export
+////////////////////////////////////////////////////////////////////////////////
+
+const Strings = {
+    camelCase,
+    capitalize,
+    isDiscardable,
+    isUpperCase,
+    isWord,
+    ropeCase,
+    slugify,
+    splitWords,
+    titleize
+}
+
+export default Strings

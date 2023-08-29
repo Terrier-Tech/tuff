@@ -1,11 +1,11 @@
 import {Part, PartTag} from '../parts'
 import * as forms from '../forms'
+import {FormFields} from '../forms'
 import * as messages from '../messages'
 import * as styles from './styles.css'
-import * as strings from '../strings'
+import Strings from '../strings'
 import * as demo from './demo'
 import {Logger} from '../logging'
-import {FormFields} from "../forms"
 import Arrays from "../arrays"
 
 const log = new Logger('Contacts')
@@ -210,7 +210,7 @@ class ContactFormPart extends forms.FormPart<ContactState> {
                     row.div(styles.flexStretch, col => {
                         col.label(label => {
                             fields.radio(label, "type", t)
-                            label.span({text: strings.titleize(t)})
+                            label.span({text: Strings.titleize(t)})
                         })
                     })
                 }

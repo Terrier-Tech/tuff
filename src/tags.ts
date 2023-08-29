@@ -1,5 +1,5 @@
 import * as messages from './messages'
-import * as strings from './strings'
+import Strings from './strings'
 import Html from "./html"
 
 // import {Logger} from './logging'
@@ -32,7 +32,7 @@ export interface IRect {
  */
 const buildStyleAttr = (styles: InlineStyle): string => {
     return Object.entries(styles).map(([k, v]): string => {
-        return `${strings.ropeCase(k)}: ${v};`
+        return `${Strings.ropeCase(k)}: ${v};`
     }).join('; ')
 }
 
@@ -210,11 +210,11 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
      * @param k a data-attribute key
      */
     protected sanitizeDataKey(k: string): string {
-        return strings.ropeCase(k)
+        return Strings.ropeCase(k)
     }
 
     /**
-     * Recursively constructs data attributes into key/value strings.
+     * Recursively constructs data attributes into key/value Strings.
      * Nested keys are joined with dashes.
      * @param builder - An array of strings on which to append the attributes
      * @param data - The data attributes object
