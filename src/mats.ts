@@ -1,5 +1,5 @@
 import Vecs, {Vec} from './vec'
-import * as trig from './trig'
+import Trig from './trig'
 import Boxes, {Box} from "./boxes"
 
 /**
@@ -97,8 +97,8 @@ const invert = (m: Mat): Mat => {
  * @returns matrix `m` rotated by `angle` degrees.
  */
 const rotate = (m: Mat, angle: number): Mat => {
-    const cos = trig.cos(angle)
-    const sin = trig.sin(angle)
+    const cos = Trig.cos(angle)
+    const sin = Trig.sin(angle)
     return multiply(m, make(cos, sin, -sin, cos, 0, 0))
 }
 
