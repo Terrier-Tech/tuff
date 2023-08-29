@@ -6,6 +6,7 @@ import * as urls from './urls'
 import Html, {DivTag, HtmlBaseAttrs, HtmlParentTag, HtmlTagBase} from './html'
 import Nav from './nav'
 import {slugify} from "./strings"
+import {PartPlugin, PluginConstructor, StatelessPlugin} from "./plugins"
 
 const log = new Logger('Part')
 
@@ -244,9 +245,17 @@ export abstract class Part<StateType> {
             this._initializing = true
             log.debug(`Initializing ${this.name}`, this)
             this.init().then(_ => {
-                this._initialized = true
-                log.debug(`Loading ${this.name} after init at frame ${this._context.frame}`, this)
-                this.load()
+                Promise.all(this.mapPlugins(plugin => {
+                    log.debug(`Initializing plugin ${plugin.id}`)
+                    return new Promise((resolve) => {
+                        plugin._initIfNeeded().then(resolve)
+                    })
+                })).then(_ => {
+                    this._initialized = true
+                    log.debug(`Loading ${this.name} after init at frame ${this._context.frame}`, this)
+                    this.load()
+                    this._loadPlugins()
+                })
             })
         }
         this.eachChild(child => {
@@ -281,12 +290,17 @@ export abstract class Part<StateType> {
         this._load()
     }
 
+    /**
+     * Calls `load()` for this part, all of its children, and all plugins.
+     * @private
+     */
     private _load() {
         if (!this.isInitialized) {
             // don't load before init() is done
             return
         }
         this.load()
+        this._loadPlugins()
         this.eachChild(child => {
             child._context = this._context
             child._load()
@@ -376,6 +390,61 @@ export abstract class Part<StateType> {
             this._context.frame = frame
             this._markClean(frame)
             this._attachEventListeners()
+        })
+    }
+
+
+    /// Plugins
+
+    private _plugins: Record<string, StatelessPlugin> = {}
+
+    get hasPlugins(): boolean {
+        return Object.keys(this._plugins).length > 0
+    }
+
+    mapPlugins<T>(fn: (plugin: StatelessPlugin) => T): T[] {
+        return Object.values(this._plugins).map(fn)
+    }
+
+    /**
+     * Create and register a `Plugin` with this part.
+     * @param pluginClass the plugin class
+     * @param state the plugin state
+     * @return the new plugin
+     */
+    makePlugin<PluginType extends PartPlugin<PluginStateType>, PluginStateType>(pluginClass: PluginConstructor<PluginType, PluginStateType>, state: PluginStateType): PluginType {
+        const plugin = new pluginClass(this, state)
+        this._plugins[plugin.id] = plugin
+
+        // initialize the plugin if the part has already been initialized
+        if (this.isInitialized || this.isInitializing) {
+            // dirty the part after the plugin is initialized so it has a chance to render/update
+            plugin.init().then(() => this.dirty())
+        }
+
+        return plugin
+    }
+
+    /**
+     * Remove the plugin with the given id
+     * @param id the id of the plugin
+     * @return the plugin that was removed
+     */
+    removePlugin(id: string): StatelessPlugin | undefined {
+        const plugin = this._plugins[id]
+        if (plugin) {
+            delete this._plugins[id]
+        }
+        return plugin
+    }
+
+    /**
+     * Calls the `load()` method on all plugins.
+     */
+    _loadPlugins() {
+        this.mapPlugins(plugin => {
+            log.debug(`Loading plugin ${plugin.id}`)
+            return plugin.load()
         })
     }
 
@@ -732,7 +801,7 @@ export abstract class Part<StateType> {
     }
 
     /**
-     * Recursively calls `update()` on this part and all of its children.
+     * Recursively calls `update()` on this part, all of its children, and all plugins.
      */
     private _update() {
         let elem = this.element
@@ -747,6 +816,9 @@ export abstract class Part<StateType> {
         }
         this.update(elem)
         this._renderState = "clean"
+        this.mapPlugins(plugin => {
+            plugin.update(elem!)
+        })
         this.eachChild(child => {
             child._update()
         })

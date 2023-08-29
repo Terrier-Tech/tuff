@@ -3,6 +3,7 @@ import * as messages from '../messages'
 import * as styles from './styles.css'
 import * as demo from './demo'
 import * as logging from '../logging'
+import HighlighterPlugin from "./highlighter"
 
 const log = new logging.Logger('Counter')
 
@@ -19,6 +20,10 @@ type CounterState = {
 }
 
 class Counter extends Part<CounterState> {
+
+    async init() {
+        this.makePlugin(HighlighterPlugin, {targetClass: styles.output, color: "#0aa"})
+    }
 
     change(data: ChangeData) {
         this.state.count += data.by

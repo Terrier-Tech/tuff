@@ -1,4 +1,4 @@
-import {Part, PartTag, StatelessPart} from '../parts'
+import {Part, PartParent, PartTag, StatelessPart} from '../parts'
 import {Logger} from '../logging'
 import * as styles from './styles.css'
 import * as counter from './counter'
@@ -8,11 +8,19 @@ import * as nav from './nav'
 import * as demo from './demo'
 import * as messages from '../messages'
 import Html from '../html'
+import {OutputData} from "./demo"
+import HighlighterPlugin from "./highlighter"
 
 Logger.level = 'debug'
 const log = new Logger("Demo")
 
 class OutputPart extends Part<demo.OutputData> {
+
+    constructor(parent: PartParent, id: string, state: OutputData) {
+        super(parent, id, state)
+
+        this.makePlugin(HighlighterPlugin, {targetClass: styles.output, color: "#0aa"})
+    }
 
     async init() {
         this.onClick(demo.OutputKey, m => {
