@@ -8,7 +8,7 @@ import { RequireProps } from "./types"
  * @param key the key by which to group
  * @returns on objects mapping key to grouped elements
  */
-export function groupBy<T extends Record<string | symbol, any>, K extends keyof T, TK extends T[K]>(array: T[], key: K): Record<TK, T[]> {
+function groupBy<T extends Record<string | symbol, any>, K extends keyof T, TK extends T[K]>(array: T[], key: K): Record<TK, T[]> {
     return array.reduce((previous, currentItem) => {
         const group = currentItem[key] as TK
         if (group) {
@@ -32,7 +32,7 @@ export type KeyFun<T, K> = (item: T) => K | undefined
  * @param getKey a function returning the key by which to group
  * @returns on objects mapping key to grouped elements
  */ 
-export function groupByFunction<T extends Record<string | symbol, any>, TK extends string | number | symbol>(list: T[], getKey: KeyFun<T, TK>): Record<TK, T[]> {
+function groupByFunction<T extends Record<string | symbol, any>, TK extends string | number | symbol>(list: T[], getKey: KeyFun<T, TK>): Record<TK, T[]> {
     return list.reduce((previous, currentItem) => {
         const group = getKey(currentItem)
         if (group) {
@@ -46,7 +46,7 @@ export function groupByFunction<T extends Record<string | symbol, any>, TK exten
 /**
  * Iterates over the results of groupByFunction
  */
-export function eachGroupByFunction<T extends Record<string | symbol, any>, TK extends string | number | symbol>(list: T[], getKey: KeyFun<T, TK>, fun: (key: TK, values: T[]) => any) {
+function eachGroupByFunction<T extends Record<string | symbol, any>, TK extends string | number | symbol>(list: T[], getKey: KeyFun<T, TK>, fun: (key: TK, values: T[]) => any) {
     for (let [k, v] of Object.entries(groupByFunction(list, getKey))) {
         fun(k as TK, v as T[])
     }
@@ -58,7 +58,7 @@ export function eachGroupByFunction<T extends Record<string | symbol, any>, TK e
  * @param key the object key by which to index
  * @returns an object mapping the keys to the individual objects
  */
-export function indexBy<T extends Record<string | symbol, any>, K extends keyof T, TK extends T[K]>(array: T[], key: K): Record<TK,T> {
+function indexBy<T extends Record<string | symbol, any>, K extends keyof T, TK extends T[K]>(array: T[], key: K): Record<TK,T> {
     const obj: Record<string,T> = {}
     for (let item of array) {
         // I don't know why typescript can't figure this out
@@ -76,7 +76,7 @@ export function indexBy<T extends Record<string | symbol, any>, K extends keyof 
  * @param getKey a function that returns a unique value for each element of the array.
  *               If the value is not unique, the last element in the array that maps to that value will be used.
  */
-export function indexByFunction<T extends any, TK extends string | number | symbol>(array: T[], getKey: KeyFun<T, TK>): Record<TK,T> {
+function indexByFunction<T extends any, TK extends string | number | symbol>(array: T[], getKey: KeyFun<T, TK>): Record<TK,T> {
     const obj: Record<TK,T> = {} as Record<TK, T>
     for (let item of array) {
         const value = getKey(item)
@@ -99,7 +99,7 @@ export type SortDir = "asc" | "desc"
  * @param dir the sort direction (default ascending)
  * @returns (a new) sorted array
  */
-export function sortBy<T extends Record<string | symbol, any>, K extends keyof T>(array: T[], key: K, dir: SortDir = "asc"): T[] {
+function sortBy<T extends Record<string | symbol, any>, K extends keyof T>(array: T[], key: K, dir: SortDir = "asc"): T[] {
     const dirMult = dir == "asc" ? 1 : -1
     return Array(...array).sort((a, b) => {
         return dirMult * (a[key] > b[key] ? 1 : -1)
@@ -113,7 +113,7 @@ export function sortBy<T extends Record<string | symbol, any>, K extends keyof T
  * @param dir the sort direction (default ascending)
  * @returns (a new) sorted array
  */
-export function sortByFunction<T extends Record<string | symbol, any>>(array: T[], getKey: (e: T) => number | string, dir: SortDir = "asc"): T[] {
+function sortByFunction<T extends Record<string | symbol, any>>(array: T[], getKey: (e: T) => number | string, dir: SortDir = "asc"): T[] {
     const dirMult = dir == "asc" ? 1 : -1
     return Array(...array).sort((a, b) => {
         const aSort = getKey(a)
@@ -132,7 +132,7 @@ const N = 100000
  * @param n a number
  * @returns the number rounded to the nearest 'nice' number
  */
-export function niceRound(n: number): number {
+function niceRound(n: number): number {
     return (Math.round(n*N))/N
 }
 
@@ -143,7 +143,7 @@ export function niceRound(n: number): number {
  * @param step The increment used to step between the start and end
  * @returns An array containing numbers from `start` to `end`
  */
-export function range(start: number, end: number, step: number=1): number[] {
+function range(start: number, end: number, step: number=1): number[] {
     const numElems = Math.floor((end - start) / step + 1)
     return Array.from(Array(numElems).keys()).map(x => niceRound(x*step + start))
 }
@@ -152,7 +152,7 @@ export function range(start: number, end: number, step: number=1): number[] {
  * Picks a random value from an array.
  * @param array an array of values
  */
-export function sample<T>(array: readonly T[]): T {
+function sample<T>(array: readonly T[]): T {
     const i = Math.floor(Math.random()*array.length)
     return array[i]
 }
@@ -160,28 +160,28 @@ export function sample<T>(array: readonly T[]): T {
 /**
  * Returns the minimum value in an array of numbers.
  */
-export function min(array: Array<number>): number {
+function min(array: Array<number>): number {
     return Math.min.apply(Math, array)
 }
 
 /**
  * Returns the maximum value in an array of numbers.
  */
-export function max(array: Array<number>): number {
+function max(array: Array<number>): number {
     return Math.max.apply(Math, array)
 }
 
 /**
  * Returns the maximum value in an array of numbers.
  */
-export function sum(array: Array<number>): number {
+function sum(array: Array<number>): number {
     return array.reduce((a, v) => a + v, 0)
 }
 
 /**
  * Returns the last element in an array.
  */
-export function last<T>(array: Array<T>): T {
+function last<T>(array: Array<T>): T {
     return array[array.length-1]
 }
 
@@ -192,7 +192,7 @@ export function last<T>(array: Array<T>): T {
  * @param by an optional function that returns a unique key for each value
  * @returns the unique values in `array`
  */
-export function unique<T>(array: Array<T>, by?: (a: T) => number|string): Array<T> {
+function unique<T>(array: Array<T>, by?: (a: T) => number|string): Array<T> {
     if (by) {
         const map: {[id: number|string]: T} = {}
         array.forEach(a => map[by(a)] = a)
@@ -208,7 +208,7 @@ export function unique<T>(array: Array<T>, by?: (a: T) => number|string): Array<
  * @param array an array
  * @returns a new array without any null or undefined values
  */
-export function compact<T>(array: Array<T | null | undefined>): NonNullable<T>[] {
+function compact<T>(array: Array<T | null | undefined>): NonNullable<T>[] {
     return array.filter(notNull)
 }
 
@@ -218,7 +218,7 @@ export function compact<T>(array: Array<T | null | undefined>): NonNullable<T>[]
  * @param array the array to filter
  * @param props the properties by which to compact the array
  */
-export function compactBy<T, K extends keyof T>(array: Array<T | null | undefined>, ...props: Array<K>): RequireProps<NonNullable<T>, K>[] {
+function compactBy<T, K extends keyof T>(array: Array<T | null | undefined>, ...props: Array<K>): RequireProps<NonNullable<T>, K>[] {
     return array.filter((el): el is RequireProps<NonNullable<T>, K> => propNotNull(el, ...props))
 }
 
@@ -228,7 +228,7 @@ export function compactBy<T, K extends keyof T>(array: Array<T | null | undefine
  * @param element the element to remove
  * @returns a new array without element
  */
-export function without<T>(array: Array<T>, element: T): Array<T> {
+function without<T>(array: Array<T>, element: T): Array<T> {
     return array.filter(el => {
         return el != element
     })
@@ -240,7 +240,7 @@ export function without<T>(array: Array<T>, element: T): Array<T> {
  * @param predicate returns `true` to delete the given element
  * @return the number of elements deleted
  */
-export function deleteIf<T>(array: Array<T>, predicate: (element: T) => boolean): number {
+function deleteIf<T>(array: Array<T>, predicate: (element: T) => boolean): number {
     let i = 0
     let numDeleted = 0
     while (i < array.length) {
@@ -261,7 +261,7 @@ export function deleteIf<T>(array: Array<T>, predicate: (element: T) => boolean)
  * @param callback the callback functioning as a search query
  * @returns the first element satisfying the callback, or null
  */
-export function find<T>(array: T[], callback: (value: T, index: number, array: T[]) => boolean): T | null {
+function find<T>(array: T[], callback: (value: T, index: number, array: T[]) => boolean): T | null {
     for (let i = 0; i < array.length; i++) {
         if (callback(array[i], i, array)) {
             return array[i];
@@ -277,7 +277,7 @@ export function find<T>(array: T[], callback: (value: T, index: number, array: T
  * @returns an array of values extracted from the objects in the input array
  * @throws an error if a key is not found in an object
  */
-export function pluck<T extends object, K extends keyof T & string>(array: T[], key: K): T[K][] {
+function pluck<T extends object, K extends keyof T & string>(array: T[], key: K): T[K][] {
     return array.map(item => {
         if (key in item) {
             return item[key];
@@ -294,7 +294,7 @@ export function pluck<T extends object, K extends keyof T & string>(array: T[], 
  * @param query the search query to match against the value of the specified key
  * @returns an array of objects that contain a matching key-value pair
  */
-export function ilike(array: any[], key: string, query: string) {
+function ilike(array: any[], key: string, query: string) {
     const lowercaseQuery = query.toLowerCase();
     return array.filter((item) => {
         if (!(key in item)) return false;
@@ -308,7 +308,7 @@ export function ilike(array: any[], key: string, query: string) {
  * @param callback the function to test each element with
  * @returns the index of the first element that satisfies the callback function, or null if no element satisfies the callback function
  */
-export function findIndex<T>(array: T[], callback: (element: T, index: number, array: T[]) => boolean): number | null {
+function findIndex<T>(array: T[], callback: (element: T, index: number, array: T[]) => boolean): number | null {
     for (let i = 0; i < array.length; i++) {
         if (callback(array[i], i, array)) {
             return i;
@@ -422,6 +422,41 @@ export class Stream<T> {
  * @param array an array to wrap
  * @returns the wrapped array stream
  */
-export function stream<T>(array: T[]): Stream<T> {
+function stream<T>(array: T[]): Stream<T> {
     return new Stream(array)
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Export
+////////////////////////////////////////////////////////////////////////////////
+
+const Arrays = {
+    groupBy,
+    compact,
+    compactBy,
+    groupByFunction,
+    eachGroupByFunction,
+    deleteIf,
+    find,
+    findIndex,
+    stream,
+    ilike,
+    min,
+    max,
+    last,
+    indexBy,
+    indexByFunction,
+    niceRound,
+    notNull,
+    pluck,
+    propNotNull,
+    range,
+    sample,
+    sum,
+    unique,
+    without,
+    sortByFunction,
+    sortBy
+}
+export default Arrays

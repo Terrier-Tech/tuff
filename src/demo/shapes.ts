@@ -4,8 +4,8 @@ import * as styles from './styles.css'
 import * as demo from './demo'
 
 import {Logger} from '../logging'
-import * as arrays from "../arrays"
 import { SvgParentTag } from '../svg'
+import Arrays from "../arrays"
 const log = new Logger('Shapes')
 
 const maxSize = 300 // the largest that any individual shape can be
@@ -23,7 +23,7 @@ function genSize(): number {
 }
 
 function genColor(): string {
-    return arrays.sample(colors)
+    return Arrays.sample(colors)
 }
 
 function genStrokeWidth(): number {
@@ -105,7 +105,7 @@ export class ShapesApp extends Part<{}> {
         })
 
         // generate the shapes
-        for (let i of arrays.range(0, num)) {
+        for (let i of Arrays.range(0, num)) {
             const type = ShapeTypes[i % 3]
             const shape = new Shape(type)
             this.shapes[shape.id] = shape

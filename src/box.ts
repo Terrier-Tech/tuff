@@ -1,5 +1,5 @@
 import * as vec from './vec'
-import * as arrays from './arrays'
+import Arrays from "./arrays"
 
 /**
  * The size of a box.
@@ -146,10 +146,10 @@ export const unionAll = (boxes: Array<Box>): Box => {
     }
     const allSides = boxes.map(b => toSides(b))
     const sidesUnion = {
-        left: arrays.min(allSides.map(s => s.left)),
-        right: arrays.max(allSides.map(s => s.right)),
-        top: arrays.min(allSides.map(s => s.top)),
-        bottom: arrays.max(allSides.map(s => s.bottom))
+        left: Arrays.min(allSides.map(s => s.left)),
+        right: Arrays.max(allSides.map(s => s.right)),
+        top: Arrays.min(allSides.map(s => s.top)),
+        bottom: Arrays.max(allSides.map(s => s.bottom))
     }
     return fromSides(sidesUnion)
 }
@@ -164,10 +164,10 @@ export const fromPoints = (points: vec.Vec[]): Box => {
         return fromSides(allSides[0])
     }
     const sidesUnion = {
-        left: arrays.min(allSides.map(s => s.left)),
-        right: arrays.max(allSides.map(s => s.right)),
-        top: arrays.min(allSides.map(s => s.top)),
-        bottom: arrays.max(allSides.map(s => s.bottom))
+        left: Arrays.min(allSides.map(s => s.left)),
+        right: Arrays.max(allSides.map(s => s.right)),
+        top: Arrays.min(allSides.map(s => s.top)),
+        bottom: Arrays.max(allSides.map(s => s.bottom))
     }
     return fromSides(sidesUnion)
 }

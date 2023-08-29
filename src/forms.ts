@@ -1,6 +1,5 @@
 import {Part, PartTag, StatelessPart} from './parts'
 import {Logger} from './logging'
-import * as arrays from './arrays'
 import * as messages from './messages'
 import {
     FormTag,
@@ -13,6 +12,7 @@ import {
     TextAreaTag,
     TextAreaTagAttrs
 } from './html'
+import Arrays from "./arrays"
 
 const log = new Logger("Forms")
 
@@ -158,7 +158,7 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
         const data: DataType = {...this.state}
         const allElems = Array.from(root.getElementsByClassName(this.className))
         // there may be more than one actual element for any given key, so group them together and let the Field determine the value
-        arrays.eachGroupByFunction(allElems, e => (e.getAttribute('name')||undefined), (name, elems) => {
+        Arrays.eachGroupByFunction(allElems, e => (e.getAttribute('name')||undefined), (name, elems) => {
             const field = this.fields[name]
             if (field) {
                 const value = field.getValue(elems)
@@ -554,7 +554,7 @@ export class FormFields<DataType extends FormPartData> {
         const data: DataType = {...this.data}
         const allElems = Array.from(root.getElementsByClassName(this.className))
         // there may be more than one actual element for any given key, so group them together and let the Field determine the value
-        arrays.eachGroupByFunction(allElems, e => (e.getAttribute('name')||undefined), (name, elems) => {
+        Arrays.eachGroupByFunction(allElems, e => (e.getAttribute('name')||undefined), (name, elems) => {
             const field = this.fields[name]
             if (field) {
                 const value = field.getValue(elems)

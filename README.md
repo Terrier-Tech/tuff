@@ -297,10 +297,10 @@ class ContactsList extends Part<{}> {
 
         this.onClick(deleteContactKey, m => {
             const id = m.data.id
-            const contact = arrays.find(this.contacts, c => c.id == id)
+            const contact = Arrays.find(this.contacts, c => c.id == id)
             if (contact) {
                 // remove an object from the array
-                this.contacts = arrays.without(this.contacts, contact)
+                this.contacts = Arrays.without(this.contacts, contact)
                 
                 // this call will update the collection parts' state,
                 // removing the deleted contact

@@ -6,7 +6,7 @@ import * as strings from '../strings'
 import * as demo from './demo'
 import {Logger} from '../logging'
 import {FormFields} from "../forms"
-import * as arrays from "../arrays"
+import Arrays from "../arrays"
 
 const log = new Logger('Contacts')
 
@@ -239,7 +239,7 @@ export class ContactsApp extends Part<{}> {
         this.contacts.push({
             id: demo.newId(),
             name: `Bobby Tables ${this.contactCounter}`,
-            role: arrays.sample(roles),
+            role: Arrays.sample(roles),
             isAdmin: Math.random() < 0.5,
             status: 'active',
             birthday: '2021-12-01',
@@ -258,10 +258,10 @@ export class ContactsApp extends Part<{}> {
 
         this.onClick(deleteContactKey, m => {
             const id = m.data.id
-            const contact = arrays.find(this.contacts, c => c.id == id)
+            const contact = Arrays.find(this.contacts, c => c.id == id)
             if (contact) {
                 log.info(`Delete contact ${id}`, contact)
-                this.contacts = arrays.without(this.contacts, contact)
+                this.contacts = Arrays.without(this.contacts, contact)
                 this.assignCollection('contacts', ContactFormPart, this.contacts)
             }
             else {
