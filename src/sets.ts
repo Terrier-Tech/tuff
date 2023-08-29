@@ -5,7 +5,7 @@
  * @param a
  * @param b
  */
-export function union<T>(a: Iterable<T>, b: Iterable<T>): Set<T> {
+function union<T>(a: Iterable<T>, b: Iterable<T>): Set<T> {
     const set = new Set<T>(a)
     for (const t of b) {
         set.add(t)
@@ -18,14 +18,14 @@ export function union<T>(a: Iterable<T>, b: Iterable<T>): Set<T> {
  * @param a
  * @param b
  */
-export function unionMut<T>(a: Set<T>, b: Iterable<T>): Set<T> {
+function unionMut<T>(a: Set<T>, b: Iterable<T>): Set<T> {
     for (const t of b) {
         a.add(t)
     }
     return a
 }
 
-export function diff<T>(a: Iterable<T>, b: Iterable<T>): Set<T> {
+function diff<T>(a: Iterable<T>, b: Iterable<T>): Set<T> {
     const set = new Set<T>(a)
     for (const t of b) {
         set.delete(t)
@@ -33,14 +33,14 @@ export function diff<T>(a: Iterable<T>, b: Iterable<T>): Set<T> {
     return set
 }
 
-export function diffMut<T>(a: Set<T>, b: Iterable<T>): Set<T> {
+function diffMut<T>(a: Set<T>, b: Iterable<T>): Set<T> {
     for (const t of b) {
         a.delete(t)
     }
     return a
 }
 
-export function intersect<T>(a: Iterable<T>, b: Iterable<T>): Set<T> {
+function intersect<T>(a: Iterable<T>, b: Iterable<T>): Set<T> {
     const set = new Set<T>()
     const bSet = b instanceof Set ? b as Set<T> : new Set<T>(b)
     for (const t of a) {
@@ -51,7 +51,7 @@ export function intersect<T>(a: Iterable<T>, b: Iterable<T>): Set<T> {
     return set
 }
 
-export function intersectMut<T>(a: Set<T>, b: Iterable<T>): Set<T> {
+function intersectMut<T>(a: Set<T>, b: Iterable<T>): Set<T> {
     const bSet = b instanceof Set ? b as Set<T> : new Set<T>(b)
     for (const t of a) {
         if (!bSet.has(t)) {
@@ -60,3 +60,19 @@ export function intersectMut<T>(a: Set<T>, b: Iterable<T>): Set<T> {
     }
     return a
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Export
+////////////////////////////////////////////////////////////////////////////////
+
+const Sets = {
+    diff,
+    diffMut,
+    intersect,
+    intersectMut,
+    union,
+    unionMut
+}
+
+export default Sets
