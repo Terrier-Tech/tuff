@@ -1,4 +1,4 @@
-import * as vec from './vec'
+import Vecs, {Vec} from './vec'
 import * as trig from './trig'
 import Boxes, {Box} from "./boxes"
 
@@ -59,9 +59,9 @@ const multiply = (m1: Mat, m2: Mat): Mat => {
 /**
  * @returns matrix `m` translated by `v`.
  */
-function translate(m: Mat, v: vec.Vec): Mat
+function translate(m: Mat, v: Vec): Mat
 function translate(m: Mat, x: number, y: number): Mat
-function translate(m: Mat, vx: vec.Vec|number, y?: number): Mat {
+function translate(m: Mat, vx: Vec|number, y?: number): Mat {
     if (typeof vx == 'number') {
         return multiply(m, make(1, 0, 0, 1, vx, y || 0))
     }
@@ -127,7 +127,7 @@ const skewY = (m: Mat, a: number): Mat => {
 /**
  * @returns `v` transformed by `m`.
  */
-const transform = (m: Mat, v: vec.Vec): vec.Vec => {
+const transform = (m: Mat, v: Vec): Vec => {
     return {
         x: v.x * m.a + v.y * m.c + m.tx,
         y: v.x * m.b + v.y * m.d + m.ty
@@ -138,8 +138,8 @@ const transform = (m: Mat, v: vec.Vec): vec.Vec => {
  * @returns a copy of `b` that's been transformed by `m`.
  */
 const transformBox = (m: Mat, b: Box): Box => {
-    let upperLeft = vec.make(b.x, b.y)
-    let lowerRight = vec.make(b.x+b.width, b.y+b.height)
+    let upperLeft = Vecs.make(b.x, b.y)
+    let lowerRight = Vecs.make(b.x+b.width, b.y+b.height)
     upperLeft = transform(m, upperLeft)
     lowerRight = transform(m, lowerRight)
     return Boxes.make(upperLeft.x, upperLeft.y, lowerRight.x-upperLeft.x, lowerRight.y-upperLeft.y)
@@ -156,7 +156,7 @@ class Builder {
     /**
      * Translate the transformation by the given amount.
      */
-    translate(x: number|vec.Vec, y?: number) {
+    translate(x: number|Vec, y?: number) {
         if (typeof x == 'object') {
             this.steps.push(m => translate(m, x))
             this.inverseSteps.unshift(m => translate(m, -x.x, -x.y))

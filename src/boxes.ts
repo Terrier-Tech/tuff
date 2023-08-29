@@ -1,4 +1,4 @@
-import * as vec from './vec'
+import Vecs, {Vec} from './vec'
 import Arrays from "./arrays"
 
 /**
@@ -76,9 +76,9 @@ const empty = (): Box => {
  * Construct a box from either individual dimensions or vectors that represent them.
  */
 function make(x: number, y: number, width: number, height: number): Box
-function make(origin: vec.Vec, size: vec.Vec): Box
+function make(origin: Vec, size: Vec): Box
 function make(array: number[]): Box
-function make(xorigin: number|vec.Vec|number[], ysize?: number|vec.Vec, width?: number, height?: number): Box {
+function make(xorigin: number|Vec|number[], ysize?: number|Vec, width?: number, height?: number): Box {
     if (Array.isArray(xorigin)) {
         if (xorigin.length == 4) {
             return {x: xorigin[0], y: xorigin[1], width: xorigin[2], height: xorigin[3]}
@@ -102,7 +102,7 @@ function make(xorigin: number|vec.Vec|number[], ysize?: number|vec.Vec, width?: 
 /**
  * @returns the center of the box.
  */
-const center = (b: Box): vec.Vec => {
+const center = (b: Box): Vec => {
     return {
         x: b.x + b.width/2,
         y: b.y + b.height/2
@@ -112,7 +112,7 @@ const center = (b: Box): vec.Vec => {
 /**
  * @returns a new box that includes both the passed box and the vector.
  */
-const expand = (b: Box, v: vec.Vec): Box => {
+const expand = (b: Box, v: Vec): Box => {
     const s = {
         left: Math.min(b.x, v.x),
         top: Math.min(b.y, v.y),
@@ -158,8 +158,8 @@ const unionAll = (boxes: Array<Box>): Box => {
 /**
  * @returns a box that encapsulates an array of points
  */
-const fromPoints = (points: vec.Vec[]): Box => {
-    const allSides = points.map(v => vec.toSides(v))
+const fromPoints = (points: Vec[]): Box => {
+    const allSides = points.map(v => Vecs.toSides(v))
     if (allSides.length == 1) {
         return fromSides(allSides[0])
     }

@@ -1,13 +1,13 @@
-import { describe, expect, test, it } from 'vitest'
-import * as vec from '../vec'
+import {describe, expect, it, test} from 'vitest'
+import Vecs from '../vec'
 import Mats, {Mat} from "../mats"
 
 const epsilon = 0.0000001
 
 test("matrix translation", () => {
-    const delta = vec.make(1, 2)
+    const delta = Vecs.make(1, 2)
     const m = Mats.translate(Mats.identity(), delta)
-    const v = vec.identity()
+    const v = Vecs.identity()
     const v1 = Mats.transform(m, v)
     expect(v1.x).eq(delta.x)
     expect(v1.y).eq(delta.y)
@@ -15,7 +15,7 @@ test("matrix translation", () => {
 
 test("matrix rotation", () => {
     const m = Mats.rotate(Mats.identity(), 90)
-    const v = vec.make(1, 0)
+    const v = Vecs.make(1, 0)
     const v1 = Mats.transform(m, v)
     expect(v1.x).approximately(0, epsilon)
     expect(v1.y).approximately(1, epsilon)
@@ -23,7 +23,7 @@ test("matrix rotation", () => {
 
 test("matrix scaling", () => {
     const m = Mats.scale(Mats.identity(), 2, 3)
-    const v = vec.make(1, 1)
+    const v = Vecs.make(1, 1)
     const v1 = Mats.transform(m, v)
     expect(v1.x).approximately(2, epsilon)
     expect(v1.y).approximately(3, epsilon)
@@ -67,7 +67,7 @@ test("matrix builder", () => {
         .rotate(30)
         .scale(0.9)
         .translate(-0.5, 1.5)
-    const v = vec.make(3, -4)
+    const v = Vecs.make(3, -4)
     const v1 = Mats.transform(
         builder.buildInverse(),
         Mats.transform(builder.build(), v)
