@@ -417,7 +417,7 @@ export abstract class Part<StateType> {
         this._plugins[plugin.id] = plugin
 
         // initialize the plugin if the part has already been initialized
-        if (this.isInitialized || this.isInitializing) {
+        if (this.isInitialized) {
             // dirty the part after the plugin is initialized so it has a chance to render/update
             plugin.init().then(() => this.dirty())
         }

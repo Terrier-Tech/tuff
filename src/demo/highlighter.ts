@@ -10,21 +10,22 @@ const log = new Logger("Highlighter")
 export default class HighlighterPlugin extends PartPlugin<{ targetClass: string, color: string }> {
 
     async init() {
-        log.info(`Initializing HighlighterPlugin plugin`, this.state)
+        log.info(`Initializing HighlighterPlugin plugin ${this.id}`, this.state)
     }
 
 
     load() {
-        log.info(`Loading HighlighterPlugin plugin`, this.state)
+        log.info(`Loading HighlighterPlugin plugin ${this.id}`, this.state)
     }
 
 
     update(elem: HTMLElement) {
-        log.info(`Updating HighlighterPlugin plugin`, this.state, elem)
+        log.info(`Updating HighlighterPlugin plugin ${this.id}`, this.state, elem)
 
         elem.querySelectorAll('.' + this.state.targetClass).forEach(target => {
-            log.info(`Highlighting element`, target)
-            ;(target as HTMLElement).style.border = `1px solid ${this.state.color}`
+            if (target instanceof HTMLElement) {
+                target.style.border = `1px solid ${this.state.color}`
+            }
         })
     }
 }
