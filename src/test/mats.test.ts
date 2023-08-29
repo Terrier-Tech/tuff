@@ -1,6 +1,6 @@
 import { describe, expect, test, it } from 'vitest'
 import * as vec from '../vec'
-import Mats, {Mat} from "../mat"
+import Mats, {Mat} from "../mats"
 
 const epsilon = 0.0000001
 
