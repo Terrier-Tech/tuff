@@ -4,7 +4,7 @@ import * as styles from './styles.css'
 import * as demo from './demo'
 
 import {Logger} from '../logging'
-import { arrays } from '..'
+import * as arrays from "../arrays"
 import { SvgParentTag } from '../svg'
 const log = new Logger('Shapes')
 

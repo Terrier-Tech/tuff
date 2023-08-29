@@ -1,5 +1,5 @@
 import {stringParser} from 'typesafe-routes'
-import { messages } from '..'
+import * as messages from '../messages'
 import { Logger } from '../logging'
 import Nav from '../nav'
 import {Part, PartTag} from '../parts'

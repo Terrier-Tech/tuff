@@ -5,8 +5,8 @@ import * as styles from './styles.css'
 import * as strings from '../strings'
 import * as demo from './demo'
 import {Logger} from '../logging'
-import {arrays} from "../index"
 import {FormFields} from "../forms"
+import * as arrays from "../arrays"
 
 const log = new Logger('Contacts')
 
