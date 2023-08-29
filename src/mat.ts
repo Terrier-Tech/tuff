@@ -24,28 +24,28 @@ export type Mat = {
  * @param ty position (2,1) translation by y
  * @returns a new `Matrix` from the given components.
  */
-export function make(a: number, b: number, c: number, d: number, tx: number, ty: number): Mat {
+function make(a: number, b: number, c: number, d: number, tx: number, ty: number): Mat {
     return {a, b, c, d, tx, ty}
 }
 
 /**
  * @returns a new identity matrix.
  */
-export const identity = (): Mat => {
+const identity = (): Mat => {
     return make(1, 0, 0, 1, 0, 0)
 }
 
 /**
  * @returns an exact copy of `m`
  */
-export const dup = (m: Mat): Mat => {
+const dup = (m: Mat): Mat => {
     return {...m}
 }
 
 /**
  * @returns the multiplication of `m1` by `m2`.
  */
-export const multiply = (m1: Mat, m2: Mat): Mat => {
+const multiply = (m1: Mat, m2: Mat): Mat => {
     return make(
         m1.a * m2.a + m1.c * m2.b,
         m1.b * m2.a + m1.d * m2.b,
@@ -59,9 +59,9 @@ export const multiply = (m1: Mat, m2: Mat): Mat => {
 /**
  * @returns matrix `m` translated by `v`.
  */
-export function translate(m: Mat, v: vec.Vec): Mat
-export function translate(m: Mat, x: number, y: number): Mat
-export function translate(m: Mat, vx: vec.Vec|number, y?: number): Mat {
+function translate(m: Mat, v: vec.Vec): Mat
+function translate(m: Mat, x: number, y: number): Mat
+function translate(m: Mat, vx: vec.Vec|number, y?: number): Mat {
     if (typeof vx == 'number') {
         return multiply(m, make(1, 0, 0, 1, vx, y || 0))
     }
@@ -75,7 +75,7 @@ export function translate(m: Mat, vx: vec.Vec|number, y?: number): Mat {
  * @param m a matrix to invert
  * @returns the inverted marix
  */
-export const invert = (m: Mat): Mat => {
+const invert = (m: Mat): Mat => {
     const determinant = m.a * m.d - m.b * m.c
 
     if (determinant === 0) {
@@ -96,7 +96,7 @@ export const invert = (m: Mat): Mat => {
 /**
  * @returns matrix `m` rotated by `angle` degrees.
  */
-export const rotate = (m: Mat, angle: number): Mat => {
+const rotate = (m: Mat, angle: number): Mat => {
     const cos = trig.cos(angle)
     const sin = trig.sin(angle)
     return multiply(m, make(cos, sin, -sin, cos, 0, 0))
@@ -105,21 +105,21 @@ export const rotate = (m: Mat, angle: number): Mat => {
 /**
  * @returns matrix `m` scaled by `sx` and `sy`.
  */
-export const scale = (m: Mat, sx: number, sy?: number): Mat =>  {
+const scale = (m: Mat, sx: number, sy?: number): Mat =>  {
     return multiply(m, make(sx, 0, 0, sy||sx, 0, 0))
 }
 
 /**
  * @returns matrix `m` skewed by `a` degrees along the x axis.
  */
-export const skewX = (m: Mat, a: number): Mat => {
+const skewX = (m: Mat, a: number): Mat => {
     return multiply(m, make(1,0,Math.tan(a),1,0,0))
 }
 
 /**
  * @returns matrix `m` skewed by `a` degrees along the y axis.
  */
-export const skewY = (m: Mat, a: number): Mat => {
+const skewY = (m: Mat, a: number): Mat => {
     return multiply(m, make(1,Math.tan(a),0,1,0,0))
 }
 
@@ -127,7 +127,7 @@ export const skewY = (m: Mat, a: number): Mat => {
 /**
  * @returns `v` transformed by `m`.
  */
-export const transform = (m: Mat, v: vec.Vec): vec.Vec => {
+const transform = (m: Mat, v: vec.Vec): vec.Vec => {
     return {
         x: v.x * m.a + v.y * m.c + m.tx,
         y: v.x * m.b + v.y * m.d + m.ty
@@ -137,7 +137,7 @@ export const transform = (m: Mat, v: vec.Vec): vec.Vec => {
 /**
  * @returns a copy of `b` that's been transformed by `m`.
  */
-export const transformBox = (m: Mat, b: Box): Box => {
+const transformBox = (m: Mat, b: Box): Box => {
     let upperLeft = vec.make(b.x, b.y)
     let lowerRight = vec.make(b.x+b.width, b.y+b.height)
     upperLeft = transform(m, upperLeft)
@@ -216,12 +216,12 @@ class Builder {
 /**
  * Creates a builder that composes transformations to generate matrices (and their inverses).
  */
-export function builder(): Builder {
+function builder(): Builder {
     return new Builder()
 }
 
 
-export function fromBoxes(from: Box, to: Box): Mat {
+function fromBoxes(from: Box, to: Box): Mat {
     const scaleX = to.width / from.width
     const scaleY = to.height / from.height
     const translateX = to.x - from.x * scaleX
@@ -229,3 +229,26 @@ export function fromBoxes(from: Box, to: Box): Mat {
     return { a: scaleX, b: 0, c: 0, d: scaleY, tx: translateX, ty: translateY }
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+// Export
+////////////////////////////////////////////////////////////////////////////////
+
+const Mats = {
+    builder,
+    dup,
+    fromBoxes,
+    identity,
+    invert,
+    make,
+    multiply,
+    rotate,
+    scale,
+    skewX,
+    skewY,
+    transform,
+    transformBox,
+    translate
+}
+
+export default Mats
