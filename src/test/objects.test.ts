@@ -1,16 +1,16 @@
 import {describe, expect, test} from 'vitest'
-import * as objects from '../objects'
+import Objects from "../objects"
 
 
 test("slice", () => {
     const obj = {foo: 'one', bar: 'two'}
-    const sliced = objects.slice(obj, 'foo')
+    const sliced = Objects.slice(obj, 'foo')
     expect(sliced.foo).toBe('one')
 })
 
 test("omit", () => {
     const obj = {foo: 'one', bar: 'two'}
-    const sliced = objects.omit(obj, 'foo')
+    const sliced = Objects.omit(obj, 'foo')
     expect(sliced.bar).toBe('two')
 })
 
@@ -25,7 +25,7 @@ describe("omitEmpty", () => {
         { name: "does not non-empty array",  obj: { foo: 'bar', baz: ['qux'] },   expected: { foo: 'bar', baz: ['qux'] } },
     ].forEach(testCase => {
         test(testCase.name, () => {
-            const actual = objects.omitEmpty(testCase.obj)
+            const actual = Objects.omitEmpty(testCase.obj)
             expect(actual).toStrictEqual(testCase.expected)
         })
     })

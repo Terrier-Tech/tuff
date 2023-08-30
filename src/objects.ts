@@ -5,9 +5,9 @@ import { RequireProps } from "./types"
  * @param obj the object to copy
  * @param props the properties to include in the returned object
  */
-export function slice<T, K extends keyof T>(obj: T, ...props: K[]): Pick<T, K>
-export function slice<T>(obj: T): T
-export function slice<T, K extends keyof T>(obj: T, ...props: K[]): Pick<T, K> {
+function slice<T, K extends keyof T>(obj: T, ...props: K[]): Pick<T, K>
+function slice<T>(obj: T): T
+function slice<T, K extends keyof T>(obj: T, ...props: K[]): Pick<T, K> {
     if (props?.length) {
         const newObj = {} as Pick<T, K>
         for (const prop of props) {
@@ -24,7 +24,7 @@ export function slice<T, K extends keyof T>(obj: T, ...props: K[]): Pick<T, K> {
   * @param obj the object ot copy
   * @param props the properties to omit in the returned object
   */
- export function omit<T, K extends keyof T>(obj: T, ...props: K[]): Omit<T, K> {
+ function omit<T, K extends keyof T>(obj: T, ...props: K[]): Omit<T, K> {
      const newObj = {...obj}
      for (const prop of props) {
          delete newObj[prop]
@@ -36,7 +36,7 @@ export function slice<T, K extends keyof T>(obj: T, ...props: K[]): Pick<T, K> {
  * Omits keys of T that are null, undefined, or length 0
  * @param obj
  */
-export function omitEmpty<T extends Record<string, any>>(obj: T): T {
+function omitEmpty<T extends Record<string, any>>(obj: T): T {
      const newObj = {} as Record<string, any>
      for (const [key, val] of Object.entries(obj)) {
          if (val != undefined && ((typeof(val) != 'string' && !Array.isArray(val)) || val.length)) {
@@ -50,7 +50,7 @@ export function omitEmpty<T extends Record<string, any>>(obj: T): T {
  * Whether the given value is defined
  * @param value
  */
-export function notNull<TValue>(value: TValue | null | undefined): value is NonNullable<TValue> {
+function notNull<TValue>(value: TValue | null | undefined): value is NonNullable<TValue> {
     return value != null
 }
 
@@ -59,7 +59,7 @@ export function notNull<TValue>(value: TValue | null | undefined): value is NonN
  * @param value
  * @param props
  */
-export function propNotNull<TValue, K extends keyof TValue>(value: TValue | null | undefined, ...props: K[]): value is RequireProps<NonNullable<TValue>, K> {
+function propNotNull<TValue, K extends keyof TValue>(value: TValue | null | undefined, ...props: K[]): value is RequireProps<NonNullable<TValue>, K> {
     if (value == null) return false
     for (const prop of props) {
         if (value[prop] == null) return false
@@ -104,8 +104,10 @@ function safeToString(obj: unknown): string {
 const Objects = {
     slice,
     omit,
+    omitEmpty,
     shallowCopy,
     safeToString,
     notNull,
+    propNotNull,
 }
 export default Objects

@@ -1,6 +1,6 @@
 import { KeyOfType } from "./forms"
-import { notNull, propNotNull } from "./objects"
 import { RequireProps } from "./types"
+import Objects from "./objects"
 
 /**
  * Groups the elements of `array` by the value of key `key`
@@ -209,7 +209,7 @@ function unique<T>(array: Array<T>, by?: (a: T) => number|string): Array<T> {
  * @returns a new array without any null or undefined values
  */
 function compact<T>(array: Array<T | null | undefined>): NonNullable<T>[] {
-    return array.filter(notNull)
+    return array.filter(Objects.notNull)
 }
 
 /**
@@ -219,7 +219,7 @@ function compact<T>(array: Array<T | null | undefined>): NonNullable<T>[] {
  * @param props the properties by which to compact the array
  */
 function compactBy<T, K extends keyof T>(array: Array<T | null | undefined>, ...props: Array<K>): RequireProps<NonNullable<T>, K>[] {
-    return array.filter((el): el is RequireProps<NonNullable<T>, K> => propNotNull(el, ...props))
+    return array.filter((el): el is RequireProps<NonNullable<T>, K> => Objects.propNotNull(el, ...props))
 }
 
 /**
@@ -448,9 +448,7 @@ const Arrays = {
     indexBy,
     indexByFunction,
     niceRound,
-    notNull,
     pluck,
-    propNotNull,
     range,
     sample,
     sum,
