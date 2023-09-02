@@ -46,9 +46,30 @@ test('center() function should return the center of the box', () => {
 
 
 test('distance() function should calculate the distance between two boxes', () => {
-    const box1: Box = {x: 1, y: 2, width: 4, height: 6}
-    const box2: Box = {x: 5, y: 4, width: 3, height: 2}
-    expect(Boxes.distance(box1, box2)).toBe(4)
+    // touching
+    let box1: Box = {x: 1, y: 2, width: 4, height: 6}
+    let box2: Box = {x: 5, y: 4, width: 3, height: 2}
+    expect(Boxes.distance(box1, box2)).toBe(0)
+
+    // overlapping y, use x distance
+    box1 = {x: 49, y: 213, width: 114, height: 58}
+    box2 = {x: 179, y: 213, width: 390, height: 58}
+    expect(Boxes.distance(box1, box2)).toBe(16)
+
+    // overlapping x, use y distance
+    box1 = {x: 0, y: 0, width: 10, height: 2}
+    box2 = {x: 5, y: 3, width: 10, height: 4}
+    expect(Boxes.distance(box1, box2)).toBe(1)
+
+    // overlapping, compute negative area of box1 that's overlapped by box2
+    box1 = {x: 10, y: 1, width: 4, height: 4}
+    box2 = {x: 12, y: 3, width: 3, height: 3}
+    expect(Boxes.distance(box1, box2)).toBe(-0.25)
+
+    // not overlapping in either x nor y, compute euclidean distance
+    box1 = {x: 1, y: 1, width: 2, height: 2}
+    box2 = {x: 5, y: 4, width: 3, height: 2}
+    expect(Boxes.distance(box1, box2)).toBe(Math.sqrt(5))
 })
 
 

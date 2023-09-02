@@ -241,6 +241,16 @@ function distance(b1: Box, b2: Box): number {
         const deltaX = Math.abs(r1CenterX - r2CenterX) - (b1.width + b2.width) / 2
         const deltaY = Math.abs(r1CenterY - r2CenterY) - (b1.height + b2.height) / 2
 
+        if (deltaX < 0) {
+            // they overlap in x, return the y distance
+            return Math.abs(deltaY)
+        }
+        else if (deltaY < 0) {
+            // they overlap in y, return the x distance
+            return Math.abs(deltaX)
+        }
+
+        // return the euclidean distance
         return Math.sqrt(deltaX ** 2 + deltaY ** 2)
     }
 
