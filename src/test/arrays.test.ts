@@ -77,8 +77,8 @@ test("groupByFunction with non-object-key group key", () => {
 
 test("mapPairs maps the pairs of an array", () => {
     const array = [1, 2, 3, 4, 5, 6]
-    const res = Arrays.mapPairs(array, pair => {
-        return pair[0] + pair[1]
+    const res = Arrays.mapPairs(array, (a1, a2) => {
+        return a1 + a2
     })
     expect(res).toMatchObject([3, 5, 7, 9, 11])
 })

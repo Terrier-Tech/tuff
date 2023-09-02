@@ -57,11 +57,10 @@ function eachGroupByFunction<T extends Record<string | symbol, any>, TK extends 
  * @param array
  * @param fn
  */
-function mapPairs<T, R>(array: T[], fn: (pair: T[]) => R): R[] {
+function mapPairs<T, R>(array: T[], fn: (a1: T, a2: T) => R): R[] {
     const res: R[] = []
     for (let i=0; i<array.length-1; i++) {
-        const pair = [array[i], array[i+1]]
-        res.push(fn(pair))
+        res.push(fn(array[i], array[i + 1]))
     }
     return res
 }
