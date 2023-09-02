@@ -22,10 +22,21 @@ export class PartPlugin<StateType> {
 
     id!: string
     _isInitialized = false
+    _state!: StateType
 
-    constructor(readonly part: StatelessPart, protected state: StateType) {
+    constructor(readonly part: StatelessPart, state: StateType) {
         _idCount += 1
         this.id = `tuff-plugin-${_idCount.toString()}`
+        this._state = state
+    }
+
+    get state(): StateType {
+        return this._state
+    }
+
+    assignState(newState: StateType) {
+        this._state = newState
+        this.dirty()
     }
 
     async _initIfNeeded() {
