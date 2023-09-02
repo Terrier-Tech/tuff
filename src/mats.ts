@@ -1,4 +1,4 @@
-import Vecs, {Vec} from './vec'
+import Vecs, {Vec} from './vecs'
 import Trig from './trig'
 import Boxes, {Box} from "./boxes"
 

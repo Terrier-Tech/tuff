@@ -1,4 +1,4 @@
-import Vecs, {Vec} from './vec'
+import Vecs, {Vec} from './vecs'
 import Arrays from "./arrays"
 
 /**
@@ -41,10 +41,11 @@ export type Sides = {
     readonly [side in Side]: number
 }
 
+
 /**
  * @returns the +Sides+ of the box.
  */
-const toSides = (b: Box): Sides => {
+function toSides(b: Box): Sides {
     return {
         left: b.x,
         top: b.y,
@@ -53,10 +54,11 @@ const toSides = (b: Box): Sides => {
     }
 }
 
+
 /**
  * @returns the +Box+ represented by the sides.
  */
-const fromSides = (s: Sides): Box => {
+function fromSides(s: Sides): Box {
     return {
         x: s.left,
         y: s.top,
@@ -65,10 +67,11 @@ const fromSides = (s: Sides): Box => {
     }
 }
 
+
 /**
  * @returns an empty box.
  */
-const empty = (): Box => {
+function empty(): Box {
     return {x: 0, y: 0, width: 0, height: 0}
 }
 
@@ -99,20 +102,22 @@ function make(xorigin: number|Vec|number[], ysize?: number|Vec, width?: number, 
     }
 }
 
+
 /**
  * @returns the center of the box.
  */
-const center = (b: Box): Vec => {
+function center(b: Box): Vec {
     return {
-        x: b.x + b.width/2,
-        y: b.y + b.height/2
+        x: b.x + b.width / 2,
+        y: b.y + b.height / 2
     }
 }
+
 
 /**
  * @returns a new box that includes both the passed box and the vector.
  */
-const expand = (b: Box, v: Vec): Box => {
+function expand(b: Box, v: Vec): Box {
     const s = {
         left: Math.min(b.x, v.x),
         top: Math.min(b.y, v.y),
@@ -122,10 +127,11 @@ const expand = (b: Box, v: Vec): Box => {
     return fromSides(s)
 }
 
+
 /**
  * @returns a +Box+ that contains both passed boxes.
  */
-const union = (b1: Box, b2: Box): Box => {
+function union(b1: Box, b2: Box): Box {
     const s1 = toSides(b1)
     const s2 = toSides(b2)
     const s = {
@@ -137,10 +143,11 @@ const union = (b1: Box, b2: Box): Box => {
     return fromSides(s)
 }
 
+
 /**
  * @returns a single box containing all boxes.
  */
-const unionAll = (boxes: Array<Box>): Box => {
+function unionAll(boxes: Array<Box>): Box {
     if (boxes.length == 1) {
         return boxes[0]
     }
@@ -158,7 +165,7 @@ const unionAll = (boxes: Array<Box>): Box => {
 /**
  * @returns a box that encapsulates an array of points
  */
-const fromPoints = (points: Vec[]): Box => {
+function fromPoints(points: Vec[]): Box {
     const allSides = points.map(v => Vecs.toSides(v))
     if (allSides.length == 1) {
         return fromSides(allSides[0])
@@ -173,17 +180,89 @@ const fromPoints = (points: Vec[]): Box => {
 }
 
 
+/**
+ * Add a vector to a box.
+ * @param r1
+ * @param v
+ */
+function add(r1: Box, v: Vec): Box {
+    return {
+        x: r1.x + v.x,
+        y: r1.y + v.y,
+        width: r1.width,
+        height: r1.height
+    }
+}
+
+/**
+ * Subtract a vector from a box.
+ * @param r1
+ * @param v
+ */
+function subtract(r1: Box, v: Vec): Box {
+    return {
+        x: r1.x - v.x,
+        y: r1.y - v.y,
+        width: r1.width,
+        height: r1.height
+    }
+}
+
+/**
+ * Compute the distance between two boxes.
+ * If they overlap, returns the negative ratio of the area of b1 that is overlapped by b2.
+ * @param b1
+ * @param b2
+ */
+function distance(b1: Box, b2: Box): number {
+    // Calculate the intersection area between the boxes
+    const overlapLeft = Math.max(b1.x, b2.x)
+    const overlapRight = Math.min(b1.x + b1.width, b2.x + b2.width)
+    const overlapTop = Math.max(b1.y, b2.y)
+    const overlapBottom = Math.min(b1.y + b1.height, b2.y + b2.height)
+
+    const overlapWidth = Math.max(0, overlapRight - overlapLeft)
+    const overlapHeight = Math.max(0, overlapBottom - overlapTop)
+    const overlapArea = overlapWidth * overlapHeight
+
+    // Calculate the area of b1
+    const r1Area = b1.width * b1.height
+
+    // Calculate the fraction of b1's area covered by b2
+    const fractionCovered = overlapArea / r1Area
+
+    // If the boxes don't overlap, calculate the shortest distance
+    if (fractionCovered === 0) {
+        const r1CenterX = b1.x + b1.width / 2
+        const r1CenterY = b1.y + b1.height / 2
+        const r2CenterX = b2.x + b2.width / 2
+        const r2CenterY = b2.y + b2.height / 2
+
+        const deltaX = Math.abs(r1CenterX - r2CenterX) - (b1.width + b2.width) / 2
+        const deltaY = Math.abs(r1CenterY - r2CenterY) - (b1.height + b2.height) / 2
+
+        return Math.sqrt(deltaX ** 2 + deltaY ** 2)
+    }
+
+    // Otherwise, return the fraction
+    return -fractionCovered
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // Export
 ////////////////////////////////////////////////////////////////////////////////
 
 const Boxes = {
+    add,
     center,
+    distance,
     empty,
     expand,
     fromPoints,
     fromSides,
     make,
+    subtract,
     union,
     unionAll
 }

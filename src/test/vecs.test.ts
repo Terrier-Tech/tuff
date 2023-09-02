@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import Vecs from "../vec"
+import Vecs from "../vecs"
 
 const epsilon = 0.0000001
 
