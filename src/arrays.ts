@@ -53,6 +53,20 @@ function eachGroupByFunction<T extends Record<string | symbol, any>, TK extends 
 }
 
 /**
+ * Evaluates a function on each neighboring pair of an array.
+ * @param array
+ * @param fn
+ */
+function mapPairs<T, R>(array: T[], fn: (pair: T[]) => R): R[] {
+    const res: R[] = []
+    for (let i=0; i<array.length-1; i++) {
+        const pair = [array[i], array[i+1]]
+        res.push(fn(pair))
+    }
+    return res
+}
+
+/**
  * Similar to `groupBy`, but only matches a single object for each key.
  * @param array an array of objects
  * @param key the object key by which to index
@@ -317,6 +331,7 @@ function findIndex<T>(array: T[], callback: (element: T, index: number, array: T
     return null;
 }
 
+
 /// Stream
 
 /**
@@ -447,6 +462,7 @@ const Arrays = {
     last,
     indexBy,
     indexByFunction,
+    mapPairs,
     niceRound,
     pluck,
     range,

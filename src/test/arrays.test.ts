@@ -74,6 +74,15 @@ test("groupByFunction with non-object-key group key", () => {
     expect(grouped["two_key"]).toMatchObject([{id: "two", foo: "baz"}, {id: "two", foo: "world"}])
 })
 
+
+test("mapPairs maps the pairs of an array", () => {
+    const array = [1, 2, 3, 4, 5, 6]
+    const res = Arrays.mapPairs(array, pair => {
+        return pair[0] + pair[1]
+    })
+    expect(res).toMatchObject([3, 5, 7, 9, 11])
+})
+
 test("indexBy", () => {
     const array = [
         {id: "one", foo: "bar"},
@@ -199,6 +208,10 @@ test("deleteIf", () => {
     expect(a[0]).toBe('one')
 })
 
+test("niceRound", () => {
+    expect(Arrays.niceRound(0.3000001)).eq(0.3)
+    expect(Arrays.niceRound(0.2999999)).eq(0.3)
+})
 
 test("streams", () => {
     const input = [
@@ -227,6 +240,11 @@ test("find", () => {
     const expected2 = null;
     const callback2 = (element: number) => element === 2;
     expect(Arrays.find(input2, callback2)).toEqual(expected2);
+})
+
+test("last", () => {
+    const last = Arrays.last([1, 2, 3])
+    expect(last).eq(3)
 })
 
 test("pluck", () => {
