@@ -267,6 +267,15 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
     }
 
     /**
+     * Builds a raw HTML string from the tag.
+     */
+    buildString(): string {
+        const output: string[] = []
+        this.build(output)
+        return output.join('')
+    }
+
+    /**
      * Appends the children
      * @param output a string array on which to append the output
      */
