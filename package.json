@@ -16,7 +16,7 @@
     "preview": "vite preview",
     "prepub": "tsc && rm -rf dist/* && cp -a ./src/*.ts ./dist/ && node --loader ts-node/esm src/gen/publish.ts ",
     "pub": "npm publish ./dist",
-    "tsc": "tsc",
+    "check": "tsc",
     "gen": "node --loader ts-node/esm  --experimental-modules --experimental-specifier-resolution=node src/gen/dom.ts",
     "test": "vitest",
     "typedoc": "typedoc --plugin typedoc-plugin-extras --footerDate"
