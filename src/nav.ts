@@ -36,11 +36,17 @@ function initCapture(part: StatelessPart, path: string = '/') {
 
         // if there's an href, see if it's captured
         if (href && href.toLowerCase().startsWith(capturePath)) {
-            evt.stopPropagation()
-            evt.preventDefault()
-            log.debug(`Captured navigation to ${href}`)
-            history.pushState(null, '', href)
-            part.loadAll()
+            log.debug(`Captured navigation to ${href}`, evt)
+            if (evt.metaKey || evt.ctrlKey) {
+                // don't stop the event, let the native ctrl+click behavior happen
+            }
+            else {
+                // stop the event, update the URL, and notify the part that it's changed
+                evt.stopPropagation()
+                evt.preventDefault()
+                history.pushState(null, '', href)
+                part.loadAll()
+            }
         }
     })
 
