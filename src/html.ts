@@ -77,6 +77,11 @@ export abstract class HtmlTagBase<AttrsType extends Attrs,ElementType extends HT
         if (typeof value == 'object') {
             log.warn(`Don't know how to serialize value for key ${name}`, value)
         }
+
+        // The `for` attribute on a label element is a special case since it's a reserved keyword.
+        // In the DOM API it's aliased as `htmlFor`, so we need to unalias it when serializing.
+        if (name == 'htmlFor') name = 'for'
+
         return `${Strings.ropeCase(name)}="${this.escapeAttrValue(value.toString())}"`
     }
 
