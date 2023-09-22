@@ -510,7 +510,9 @@ export class FormFields<DataType extends FormPartData> {
             this.fields[attrs.name] = new TextAreaField(name)
         }
         this.fields[attrs.name].assignAttrValue(attrs, this.data[name])
-        return parent.textarea(attrs, this.className)
+        const tag = parent.textarea(attrs, this.className)
+        tag.emitChange(this.fieldChangeKey)
+        return tag
     }
 
     dateInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
@@ -536,6 +538,7 @@ export class FormFields<DataType extends FormPartData> {
         if (options) {
             optionsForSelect(tag, options, this.data[name])
         }
+        tag.emitChange(this.fieldChangeKey)
         return tag
     }
 
