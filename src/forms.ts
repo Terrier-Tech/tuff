@@ -410,6 +410,26 @@ export function optionsForSelect(tag: SelectTag | OptGroupTag, options: SelectOp
     }
 }
 
+/**
+ * Transforms a rails-style options array to a tuff SelectOptions
+ * @param options
+ */
+export function toSelectOptions(options: [string, string][]) : SelectOption[]
+export function toSelectOptions(options: [string, [string, string][]][]) : SelectOptions
+export function toSelectOptions(options: [string, string][] | [string, [string, string][]][]) : SelectOptions {
+    const results: SelectOptions = []
+    for (const option of options) {
+        const value = option[1]
+        if (Array.isArray(value)) {
+            results.push({ group: option[0], options: toSelectOptions(value)})
+        } else {
+            results.push({ title: option[0], value })
+        }
+    }
+
+    return results
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
