@@ -76,6 +76,16 @@ function shallowCopy<T>(obj: T): T {
     return Object.assign({}, obj)
 }
 
+
+/**
+ * Creates a deep copy of `obj` by serializing then deserializing it from JSON.
+ * @param obj
+ */
+function deepCopy<T>(obj: T): T {
+    return JSON.parse(JSON.stringify(obj)) as T
+}
+
+
 /**
  * Takes an unknown value and returns a string representation of it, if possible. Otherwise throws.
  *
@@ -107,6 +117,7 @@ const Objects = {
     omitEmpty,
     shallowCopy,
     safeToString,
+    deepCopy,
     notNull,
     propNotNull,
 }

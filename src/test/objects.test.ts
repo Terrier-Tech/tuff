@@ -30,3 +30,24 @@ describe("omitEmpty", () => {
         })
     })
 })
+
+test("Copying", () => {
+    const original = {
+        foo: 'bar',
+        child: {
+            name: 'original'
+        }
+    }
+
+    // make both a deep and shallow copy
+    const shallowCopy = Objects.shallowCopy(original)
+    const deepCopy = Objects.deepCopy(original)
+
+    // modifying the deep copy does not affect the original
+    deepCopy.child.name = 'deep'
+    expect(original.child.name).toBe('original')
+
+    // modifying (a nested attributed of) the shallow copy does affect the original
+    shallowCopy.child.name = 'shallow'
+    expect(original.child.name).toBe('shallow')
+})
