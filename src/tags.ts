@@ -59,7 +59,6 @@ export type TagArgs<TagType extends Tag<AttrsType,any>, AttrsType extends Attrs>
 
 export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> {
 
-    private children: Tag<Attrs,any>[] = []
     protected _text?: string
     private _id?: string
     private _classes: string[] = []
@@ -288,6 +287,34 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
 
     /// Children
 
+    private children: Tag<Attrs, any>[] = []
+
+    /**
+     * Append an existing tag to the end of this tag's children.
+     * @param child
+     * @return the new number of children
+     */
+    append<TagType extends Tag<ChildAttrsType, any>, ChildAttrsType extends Attrs>(child: TagType): number {
+        this.children.push(child)
+        return this.children.length
+    }
+
+    /**
+     * Prepend an existing tag to the start of this tag's children.
+     * @param child
+     * @return the new number of children
+     */
+    unshift<TagType extends Tag<ChildAttrsType, any>, ChildAttrsType extends Attrs>(child: TagType): number {
+        return this.children.unshift(child)
+    }
+
+
+    /**
+     * Create a new child tag of an arbitrary type.
+     * @param c
+     * @param tag
+     * @param args
+     */
     child<TagType extends Tag<ChildAttrsType,any>, ChildAttrsType extends Attrs>(
             c: { new (tag: string): TagType },
             tag: string,
