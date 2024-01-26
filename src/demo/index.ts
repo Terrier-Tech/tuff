@@ -11,8 +11,8 @@ import {OutputData} from "./demo"
 import HighlighterPlugin from "./highlighter"
 import Messages from "../messages"
 
-Logger.level = 'debug'
 const log = new Logger("Demo")
+log.level = 'debug'
 
 class OutputPart extends Part<demo.OutputData> {
 
