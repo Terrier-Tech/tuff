@@ -142,8 +142,15 @@ export abstract class Part<StateType> {
             log.debug(`Deleting DOM node for part ${child.name} ${child.id}`, elem)
             elem.remove()
         }
+        child.onRemoved()
         delete this.children[child.id]
     }
+
+    /**
+     * Called when this part is removed from its parent. Can be used to clean up resources that are no longer needed
+     * when the part is not displayed.
+     */
+    onRemoved(): void { }
 
     /**
      * Looks up a child part by name.

@@ -158,6 +158,15 @@ The difference between `init()` and `load()` is that `load()` may be called mult
 
 `init()` is also `async` since it may need to perform some IO while initializing and the part's `isInitialized` will not get set until after it's complete.
 
+### Part Removal
+
+A part can be removed from its parent by calling `removeChild()`:
+
+```typescript
+this.removeChild(childPart)
+```
+
+When a child is removed, the `onRemoved()` function is called on the child so it can clean up any resources that are no longer in use.
 
 ### Update
 
