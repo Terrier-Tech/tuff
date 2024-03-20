@@ -12,6 +12,7 @@ const log = new Logger('Contacts')
 
 
 const newContactKey = Messages.untypedKey()
+const serializeKey = Messages.untypedKey()
 const deleteContactKey = Messages.typedKey<{ id: string }>()
 
 const PhoneTypes = ["home", "mobile"]
@@ -243,7 +244,8 @@ export class ContactsApp extends Part<{}> {
             isAdmin: Math.random() < 0.5,
             status: 'active',
             birthday: '2021-12-01',
-            phones: []
+            phones: [],
+            notes: "Pre-filled notes"
         })
         this.assignCollection('contacts', ContactFormPart, this.contacts)
     }
@@ -268,6 +270,13 @@ export class ContactsApp extends Part<{}> {
                 log.warn(`No contact to delete with id ${id}`)
             }
         })
+
+        this.onClick(serializeKey, async _ => {
+            log.info("Serializing Contacts")
+            const forms = this.getCollectionParts('contacts') as ContactFormPart[]
+            const serialized = await Promise.all(forms.map(f => f.serialize()))
+            console.log(serialized)
+        })
     }
 
     render(parent: PartTag) {
@@ -275,6 +284,8 @@ export class ContactsApp extends Part<{}> {
             .class(styles.contactsContainer)
         parent.a(styles.button, {text: "+ Add"})
             .emitClick(newContactKey)
+        parent.a(styles.button, {text: "To JSON"})
+            .emitClick(serializeKey)
     }
 
 
