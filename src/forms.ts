@@ -314,8 +314,8 @@ export class FileInputField extends Field<FileList, HTMLInputElement> {
 
 export class TextAreaField extends Field<string, HTMLTextAreaElement> {
     
-    assignAttrValue(attrs: InputTagAttrs, value?: string) {
-        attrs.value = value
+    assignAttrValue(attrs: TextAreaTagAttrs, value?: string) {
+        attrs.text = value
     }
 
     getValue(elems: HTMLTextAreaElement[]): string | null {
