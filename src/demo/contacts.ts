@@ -1,6 +1,6 @@
 import {Part, PartTag} from '../parts'
 import * as forms from '../forms'
-import {FormFields} from '../forms'
+import { FormFields, SelectOptions } from '../forms'
 import Messages from '../messages'
 import * as styles from './styles.css'
 import Strings from '../strings'
@@ -34,20 +34,15 @@ const roles = ['customer', 'vendor'] as const
 
 type Role = typeof roles[number]
 
-const roleOptions = [
+const roleOptions: SelectOptions = [
+    { value: "", title: "[Pick A Role]" },
     {
         group: "Customer Roles",
         options: [
-            {
-                value: 'customer',
-                title: 'Customer'
-            },
+            { value: 'customer', title: 'Customer' },
         ]
     },
-    {
-        value: 'vendor',
-        title: 'Vendor'
-    },
+    { value: 'vendor', title: 'Vendor' },
 ]
 
 const statuses = ['active', 'inactive'] as const
@@ -59,7 +54,7 @@ type ContactState = {
     name: string
     email?: string
     photo?: File
-    role: Role
+    role?: Role
     status: Status
     isAdmin: boolean
     birthday?: string
@@ -240,7 +235,7 @@ export class ContactsApp extends Part<{}> {
         this.contacts.push({
             id: demo.newId(),
             name: `Bobby Tables ${this.contactCounter}`,
-            role: Arrays.sample(roles),
+            role: undefined,
             isAdmin: Math.random() < 0.5,
             status: 'active',
             birthday: '2021-12-01',
@@ -275,7 +270,7 @@ export class ContactsApp extends Part<{}> {
             log.info("Serializing Contacts")
             const forms = this.getCollectionParts('contacts') as ContactFormPart[]
             const serialized = await Promise.all(forms.map(f => f.serialize()))
-            console.log(serialized)
+            console.log("Serialized Contact Forms", serialized)
         })
     }
 
