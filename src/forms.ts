@@ -331,7 +331,11 @@ export class SelectField extends Field<string, HTMLSelectElement> {
     }
 
     getValue(elems: HTMLSelectElement[]): string | null {
-        return elems[0].value
+        // The `value` property on <select> or <option> will return the text content of the <option> if the `value`
+        // attribute is null or undefined. Using `getAttribute` bypasses this custom behavior and returns the *actual*
+        // value.
+        // This assumes that the select does not have the `multiple` attribute.
+        return elems[0].selectedOptions[0].getAttribute("value")
     }
 
 }
