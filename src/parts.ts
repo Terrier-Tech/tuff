@@ -791,16 +791,16 @@ export abstract class Part<StateType> {
                 this._setNeedsEventListeners(false)
                 this._update()
             })
+
+            return
         }
-        else if (this._renderState == "stale") {
-            this._update()
-        }
-        else {
-            // keep propagating through the tree to see if anyone else needs to be rendered or updated
-            this.eachChild(child => {
-                child._markClean(frame)
-            })
-        }
+
+        if (this._renderState == "stale") this._update()
+
+        // keep propagating through the tree to see if anyone else needs to be rendered or updated
+        this.eachChild(child => {
+            child._markClean(frame)
+        })
     }
 
 
@@ -834,7 +834,8 @@ export abstract class Part<StateType> {
             plugin.update(elem!)
         })
         this.eachChild(child => {
-            child._update()
+            // if the child part is dirty, don't bother to call update on it because presumably it will be rerendered shortly
+            if (child._renderState != "dirty") child._update()
         })
     }
 
