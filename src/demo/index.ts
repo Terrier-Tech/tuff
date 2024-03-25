@@ -1,5 +1,6 @@
 import {Part, PartParent, PartTag, StatelessPart} from '../parts'
 import {Logger} from '../logging'
+import { AddedContactKey, ContactsApp } from "./contacts"
 import * as styles from './styles.css'
 import * as counter from './counter'
 import * as contacts from './contacts'
@@ -63,6 +64,10 @@ class App extends Part<{}> {
             log.info(`Wildcard Keypress: ${m.data.id}`, m)
         })
 
+        // Mark the container as stale so we can modify the "Contacts" header in place
+        // The newly added contact form should still re-render despite that one of its ancestors is stale
+        this.listenMessage(AddedContactKey, _ => this.stale())
+
         // test creating an arbitrary element
         const divTag = Html.createElement("div", div => {
             div.class('global').css({padding: '1em'}).text("Hello Global Element")
@@ -78,7 +83,7 @@ class App extends Part<{}> {
 
     render(parent: PartTag) {
         for (let [name, part] of Object.entries(this.parts)) {
-            parent.h2(styles.partPreviewTitle, {text: name})
+            parent.h2(styles.partPreviewTitle, `#${name}-section`, {text: name})
                 .css({textAlign: 'center'}) // test inline styles
             parent.div(styles.partPreview, d => {
                 d.part(part)
@@ -86,6 +91,13 @@ class App extends Part<{}> {
         }
 
         parent.part(this.output)
+    }
+
+    update(elem: HTMLElement) {
+        super.update(elem)
+
+        const contactsHeader = elem.querySelector("#Contacts-section")!
+        contactsHeader.textContent = `Contacts (${(this.parts.Contacts as ContactsApp).contactCounter})`
     }
 }
 

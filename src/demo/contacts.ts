@@ -225,6 +225,8 @@ class ContactFormPart extends forms.FormPart<ContactState> {
     }
 }
 
+export const AddedContactKey = Messages.untypedKey()
+
 export class ContactsApp extends Part<{}> {
 
     contacts: ContactState[] = []
@@ -251,6 +253,7 @@ export class ContactsApp extends Part<{}> {
         this.onClick(newContactKey, _ => {
             log.info("Appending new contact")
             this.appendContact()
+            this.emitMessage(AddedContactKey, {})
         })
 
         this.onClick(deleteContactKey, m => {
