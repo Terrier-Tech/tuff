@@ -72,6 +72,10 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
         return parent.input(attrs, this.className)
     }
 
+    hiddenInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "hidden", name, TextInputField, attrs)
+    }
+
     textInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
         return this.input<Key>(parent, "text", name, TextInputField, attrs)
     }
@@ -92,6 +96,18 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
         return this.input<Key>(parent, "tel", name, TextInputField, attrs)
     }
 
+    passwordInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "password", name, TextInputField, attrs)
+    }
+
+    searchInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "search", name, TextInputField, attrs)
+    }
+
+    urlInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "url", name, TextInputField, attrs)
+    }
+
     textArea<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: TextAreaTagAttrs={}): TextAreaTag {
         attrs.name = `${this.id}-${name}`
         if (!this.fields[attrs.name]) {
@@ -103,6 +119,22 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
 
     dateInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
         return this.input<Key>(parent, "date", name, TextInputField, attrs)
+    }
+
+    timeInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "time", name, TextInputField, attrs)
+    }
+
+    dateTimeInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "datetime-local", name, TextInputField, attrs)
+    }
+
+    monthInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "month", name, TextInputField, attrs)
+    }
+
+    weekInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "week", name, TextInputField, attrs)
     }
 
     checkbox<Key extends KeyOfType<DataType,boolean> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
@@ -125,6 +157,10 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
             optionsForSelect(tag, options, this.state[name])
         }
         return tag
+    }
+
+    colorInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "color", name, TextInputField, attrs)
     }
 
     update(elem: HTMLElement) {
@@ -488,6 +524,10 @@ export class FormFields<DataType extends FormPartData> {
         return input
     }
 
+    hiddenInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "hidden", name, TextInputField, attrs)
+    }
+
     textInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
         return this.input<Key>(parent, "text", name, TextInputField, attrs)
     }
@@ -508,6 +548,18 @@ export class FormFields<DataType extends FormPartData> {
         return this.input<Key>(parent, "tel", name, TextInputField, attrs)
     }
 
+    passwordInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "password", name, TextInputField, attrs)
+    }
+
+    searchInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "search", name, TextInputField, attrs)
+    }
+
+    urlInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "url", name, TextInputField, attrs)
+    }
+
     textArea<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: TextAreaTagAttrs={}): TextAreaTag {
         attrs.name = `${this.id}-${name}`
         if (!this.fields[attrs.name]) {
@@ -521,6 +573,22 @@ export class FormFields<DataType extends FormPartData> {
 
     dateInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
         return this.input<Key>(parent, "date", name, TextInputField, attrs)
+    }
+
+    timeInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "time", name, TextInputField, attrs)
+    }
+
+    dateTimeInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "datetime-local", name, TextInputField, attrs)
+    }
+
+    monthInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "month", name, TextInputField, attrs)
+    }
+
+    weekInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "week", name, TextInputField, attrs)
     }
 
     checkbox<Key extends KeyOfType<DataType,boolean> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
@@ -544,6 +612,10 @@ export class FormFields<DataType extends FormPartData> {
         }
         tag.emitChange(this.fieldChangeKey)
         return tag
+    }
+
+    colorInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        return this.input<Key>(parent, "color", name, TextInputField, attrs)
     }
 
     /**
