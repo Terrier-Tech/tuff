@@ -14,7 +14,7 @@ export class Table extends Part<{ people?: Person[] }> {
             { id: '3', name: "Charlie", birthday: "Jan 1" },
             { id: '4', name: "Denise", birthday: "Dec 31" },
         ]
-        this.rows = this.state.people.map(c => this.makePart(TableRow, c))
+        this.assignCollection('rows', TableRow, this.state.people)
     }
 
     render(parent: PartTag) {
@@ -24,9 +24,7 @@ export class Table extends Part<{ people?: Person[] }> {
                 tr.th().text("Name")
                 tr.th().text("Birthday")
             })
-            for (const row of this.rows) {
-                table.part(row)
-            }
+            this.renderCollection(table, 'rows', 'tbody')
         })
     }
 
