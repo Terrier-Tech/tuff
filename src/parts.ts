@@ -828,10 +828,6 @@ export abstract class Part<StateType> {
      */
     private _update() {
         let elem = this.element
-        if (!elem || !elem.isConnected) {
-            elem = document.getElementById(this.id)
-            this._attachedElement = elem!
-        }
         if (!elem) {
             // if the part has no element, it likely hasn't been rendered yet
             // it's fine to silently skip it for now
@@ -843,13 +839,26 @@ export abstract class Part<StateType> {
             plugin.update(elem!)
         })
         this.eachChild(child => {
+            // attach any child parts to their corresponding elements, regardless of renderState
+            child._attach()
+
             // if the child part is dirty, don't bother to call update on it because presumably it will be rerendered shortly
             if (child._renderState != "dirty") child._update()
         })
     }
 
+    /**
+     * Attaches this part to it's corresponding element in the DOM, if present
+     * @private
+     */
+    private _attach() {
+        let elem = this.element
+        if (!elem || !elem.isConnected) {
+            this._attachedElement = document.getElementById(this.id)!
+        }
+    }
 
-    /// Collections
+/// Collections
 
     /**
      * Computes the element ID where the given collection will be rendered.
