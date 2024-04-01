@@ -11,7 +11,9 @@ import {Logger} from './logging'
 import * as keyboard from './keyboard'
 import { TagArgs } from "./tags"
 import * as urls from './urls'
-import Html, { DivTag, HtmlBaseAttrs, HtmlParentTag, HtmlTagBase } from './html'
+import Html, {
+    DivTag, HtmlBaseAttrs, HtmlParentTag, HtmlTagBase, HtmlTagMap, HtmlTagName, UnknownTagAttrs
+} from './html'
 import Nav from './nav'
 import {PartPlugin, PluginConstructor, StatelessPlugin} from "./plugins"
 import Strings from "./strings"
@@ -921,7 +923,7 @@ export abstract class Part<StateType> {
                 if (container) {
                     // if the collection has already been rendered,
                     // add a new container for this part and attach it
-                    const elem = Html.createElement("div", div => {
+                    const elem = Html.createElement(part.renderAsElement, div => {
                         div.id(part.id)
                         const classes = part.parentClasses || []
                         classes.push(`tuff-part-${part.name}`)
@@ -959,11 +961,23 @@ export abstract class Part<StateType> {
      * @param name the name of the collection passed to `assignCollection()`
      * @return the collection container tag
      */
-    renderCollection(parent: PartTag, name: string) {
+    renderCollection(parent: PartTag, name: string): DivTag
+    /**
+     * Renders a named collection into the given parent as the given tag.
+     * Note: you should call `assignCollection()` with this name first.
+     * @param parent the tag into which to render the collection
+     * @param name the name of the collection passed to `assignCollection()`
+     * @param tagName the name of the HTML tag to
+     * @return the collection container tag
+     */
+    renderCollection<TTagName extends HtmlTagName & keyof PartTag>(parent: PartTag, name: string, tagName: TTagName): HtmlTagMap[TTagName]
+    renderCollection<TTagName extends HtmlTagName & keyof PartTag>(parent: PartTag, name: string, tagName?: TTagName): HtmlTagMap[TTagName] {
         const parts = this._collectionParts[name] || []
         // create the container even if there are no parts so that
         // inserting new ones doesn't force this part to dirty
-        return parent.div({id: this.computeCollectionId(name)}, container => {
+
+        const tagFunc = parent[tagName ?? 'div'] as (...args: TagArgs<HtmlTagMap[TTagName], UnknownTagAttrs>[]) => HtmlTagMap[TTagName]
+        return tagFunc.bind(parent)({id: this.computeCollectionId(name)}, container => {
             for (const part of parts) {
                 container.part(part)
             }
