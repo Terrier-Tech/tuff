@@ -265,3 +265,26 @@ export const navChild = style({
     padding: '2em',
     textAlign: 'center'
 })
+
+
+// Tables
+
+export const dataTable = style({
+    borderCollapse: "collapse",
+    width: "100%",
+    borderRadius: sizes.borderRadius,
+    overflow: "hidden",
+})
+
+globalStyle(`${dataTable} thead tr`, {
+    backgroundColor: colors.button,
+    color: '#fff',
+})
+
+globalStyle(`${dataTable} tbody tr:nth-child(even)`, {
+    backgroundColor: "rgba(0,0,0,0.1)",
+})
+
+globalStyle(`${dataTable} td, ${dataTable} th`, {
+    padding: "5px",
+})

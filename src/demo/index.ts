@@ -5,6 +5,7 @@ import * as styles from './styles.css'
 import * as counter from './counter'
 import * as contacts from './contacts'
 import * as shapes from './shapes'
+import * as table from './table'
 import * as nav from './nav'
 import * as demo from './demo'
 import Html from '../html'
@@ -50,6 +51,7 @@ class App extends Part<{}> {
         this.parts['Counter'] = this.makeStatelessPart(counter.CounterApp)
         this.parts['Contacts'] = this.makeStatelessPart(contacts.ContactsApp)
         this.parts['Shapes'] = this.makeStatelessPart(shapes.ShapesApp)
+        this.parts['Table'] = this.makePart(table.Table, {})
         this.parts['Nav'] = this.makeStatelessPart(nav.NavApp)
 
         this.output.write("Initialized!")

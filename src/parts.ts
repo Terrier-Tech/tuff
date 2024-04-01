@@ -9,8 +9,9 @@ import {
 } from './messages'
 import {Logger} from './logging'
 import * as keyboard from './keyboard'
+import { TagArgs } from "./tags"
 import * as urls from './urls'
-import Html, {DivTag, HtmlBaseAttrs, HtmlParentTag, HtmlTagBase} from './html'
+import Html, { DivTag, HtmlBaseAttrs, HtmlParentTag, HtmlTagBase } from './html'
 import Nav from './nav'
 import {PartPlugin, PluginConstructor, StatelessPlugin} from "./plugins"
 import Strings from "./strings"
@@ -735,11 +736,17 @@ export abstract class Part<StateType> {
     
     /// Rendering
 
+    get renderAsElement(): keyof HTMLElementTagNameMap & keyof HtmlParentTag {
+        return 'div'
+    }
+
     renderInTag(container: HtmlParentTag, ...classes: string[]) {
         const partClass = this.name;
         const c = [...classes]
         c.push(`tuff-part-${partClass}`)
-        container.div({ id: this.id, classes: c, data: { tuffPart: partClass }}, parent => {
+        const tagName = this.renderAsElement
+        const tagFunc = container[tagName] as (...args: TagArgs<HtmlParentTag,HtmlBaseAttrs>[]) => HtmlParentTag
+        tagFunc.bind(container)({ id: this.id, classes: c, data: { tuffPart: partClass }}, parent => {
             parent.class(...this.parentClasses)
             if (this.isInitialized) {
                 this._renderState = "clean"
