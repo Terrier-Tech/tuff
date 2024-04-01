@@ -2,6 +2,7 @@ import {Part, PartTag} from '../parts'
 import * as forms from '../forms'
 import { FormFields, SelectOptions } from '../forms'
 import Messages from '../messages'
+import Time from "../time"
 import * as styles from './styles.css'
 import Strings from '../strings'
 import * as demo from './demo'
@@ -232,7 +233,10 @@ export class ContactsApp extends Part<{}> {
     contacts: ContactState[] = []
     contactCounter = 0
 
-    appendContact() {
+    async appendContact() {
+        // Simulate loading time to ensure that async init parts behave properly
+        await Time.wait(200)
+
         this.contactCounter += 1
         this.contacts.push({
             id: demo.newId(),
@@ -245,15 +249,16 @@ export class ContactsApp extends Part<{}> {
             notes: "Pre-filled notes"
         })
         this.assignCollection('contacts', ContactFormPart, this.contacts)
+        this.emitMessage(AddedContactKey, {})
     }
 
     async init() {
-        this.appendContact()
+        await this.appendContact()
+        this.dirty()
 
-        this.onClick(newContactKey, _ => {
+        this.onClick(newContactKey, async _ => {
             log.info("Appending new contact")
-            this.appendContact()
-            this.emitMessage(AddedContactKey, {})
+            await this.appendContact()
         })
 
         this.onClick(deleteContactKey, m => {
