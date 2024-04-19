@@ -64,6 +64,15 @@ function initCapture(part: StatelessPart, path: string = '/') {
 }
 
 /**
+ * Clears navigation capture.
+ */
+function clearCapture() {
+    capturePart = null
+    capturePath = '/'
+}
+
+
+/**
  * Navigates to a new page with the given path an query parameters.
  * @throws an exception unless `Nav.initCapture` has been called first.
  * If the path hasn't been captured, performs a tradition navigation with window.location.href.
@@ -91,6 +100,7 @@ export function visit(path: string, params?: QueryParams) {
 
 const Nav = {
     initCapture,
+    clearCapture,
     visit
 }
 
