@@ -46,6 +46,16 @@ function omitEmpty<T extends Record<string, any>>(obj: T): T {
      return newObj as T
  }
 
+
+/**
+ * Whether the given value is a Plain Old Javascript Object.
+ * Returns false for arrays, class instances, etc.
+ * @param value
+ */
+function isPojo(value: object | null): value is Record<string | symbol | number, unknown> {
+    return value?.constructor === Object
+}
+
 /**
  * Whether the given value is defined
  * @param value
@@ -118,6 +128,7 @@ const Objects = {
     shallowCopy,
     safeToString,
     deepCopy,
+    isPojo,
     notNull,
     propNotNull,
 }
