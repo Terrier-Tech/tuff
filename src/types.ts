@@ -1,6 +1,65 @@
 import Objects from "./objects"
 
 /**
+ * Internal type representing one part of a full index path
+ */
+type IndexPart<T, IsRoot = true, K extends keyof T = keyof T> =
+    K extends string | number
+        ? `${IsRoot extends true ? K : `.${K}`}${'' | (T[K] extends object ? IndexPath<T[K], false> : '')}`
+        : never
+
+/**
+ * Represents a dot-separated path to a nested property within type T
+ *
+ * @example
+ *    type Example = { alpha: { bravo: string }, charlie: { delta: number }[] }
+ *    type ExamplePath = IndexPath<Example> // 'alpha' | 'alpha.bravo' | 'charlie' | `charlie.${number}` | `charlie.${number}.delta`
+ */
+export type IndexPath<T, IsRoot = true, K extends keyof T = keyof T> =
+    K extends string | number
+        ? T extends unknown[]
+            ? K extends string
+                ? never
+                : IndexPart<T, IsRoot, K>
+            : IndexPart<T, IsRoot, K>
+        : never
+
+/**
+ * Given a nested index path, returns a type matching the structure implied by the path.
+ *
+ * @example
+ *     type Example = ExpandPath<'foo.bar.0.baz'> // { foo: { bar: { baz: any }[] } }
+ */
+export type ExpandPath<Path extends string, ValueType = any> = Path extends `${infer Head}.${infer Rest}`
+    ? Head extends `${infer _N extends number}`
+        ? ExpandPath<Rest>[]
+        : { [k in Head]: ExpandPath<Rest> }
+    : Path extends `${infer _N extends number}`
+        ? ValueType[]
+        : { [k in Path]: ValueType }
+
+/**
+ * Given a type and an IndexPath for that type, gives the type of the property at that path for that type.
+ *
+ * @example
+ *    type Example = { alpha: { bravo: string }, charlie: { delta: number }[] }
+ *    type PropertyType = TypeAtPath<Example, 'charlie.0.delta'> // number
+ */
+export type TypeAtPath<T, Path extends string> = T extends (infer TElement)[]
+    ? Path extends `${infer Head}.${infer Rest}`
+        ? Head extends `${infer _N extends number}`
+            ? TypeAtPath<TElement, Rest>
+            : never
+        : TElement
+    : Path extends `${infer Head}.${infer Rest}`
+        ? Head extends keyof T
+            ? TypeAtPath<T[Head], Rest>
+            : never
+        : Path extends keyof T
+            ? T[Path]
+            : never
+
+/**
  * Makes the specified properties of T required in the resulting type
  */
 export type RequireProps<T, K extends keyof T> = T & {
