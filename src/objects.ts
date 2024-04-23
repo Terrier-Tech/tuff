@@ -78,11 +78,11 @@ function shallowCopy<T>(obj: T): T {
 
 
 /**
- * Creates a deep copy of `obj` by serializing then deserializing it from JSON.
+ * Creates a deep copy of `obj`.
  * @param obj
  */
 function deepCopy<T>(obj: T): T {
-    return JSON.parse(JSON.stringify(obj)) as T
+    return structuredClone(obj)
 }
 
 
