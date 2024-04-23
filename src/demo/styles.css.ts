@@ -41,8 +41,22 @@ globalStyle('*', {
     boxSizing: 'border-box'
 })
 
+export const posRelative = style({
+    position: 'relative'
+})
+
+export const topRight = style({
+    position: 'absolute',
+    top: 0,
+    right: 0,
+})
+
 export const padded = style({
     padding: sizes.pad
+})
+
+export const bordered = style({
+    border: `1px solid ${colors.border}`,
 })
 
 export const flexRow = style({
@@ -62,6 +76,10 @@ export const flexStretch = style({
 
 export const flexShrink = style({
     flex: '0 0 auto'
+})
+
+export const scrollX = style({
+    overflowX: 'auto'
 })
 
 const frameShadow = {
