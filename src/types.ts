@@ -12,6 +12,16 @@ export type RequireProps<T, K extends keyof T> = T & {
  */
 export type OptionalProps<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
 
+/**
+ * Makes all properties of T and it's recursive children optional
+ */
+export type DeepPartial<T> = T extends object
+    ? T extends (infer TElem)[]
+        ? DeepPartial<TElem>[]
+        : T extends null
+            ? null
+            : { [P in keyof T]?: DeepPartial<T[P]> }
+    : T;
 
 /**
  * Indicates a type annotated with a type property that can be used to distinguish it from other types
