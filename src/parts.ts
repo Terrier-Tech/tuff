@@ -1,22 +1,20 @@
-import {
-    EventMap,
-    EventMessageTypeMap,
-    HandlerMap, KeyPress, ListenAttach,
-    ListenOptions, Message, TypedKey,
-    UntypedKey,
-    ValueEvents,
-    ValueMessage
-} from './messages'
-import {Logger} from './logging'
-import * as keyboard from './keyboard'
-import { TagArgs } from "./tags"
-import * as urls from './urls'
+import deepDiff from 'deep-diff'
 import Html, {
     DivTag, HtmlBaseAttrs, HtmlParentTag, HtmlTagBase, HtmlTagMap, HtmlTagName, UnknownTagAttrs
 } from './html'
+import * as keyboard from './keyboard'
+import { Logger } from './logging'
+import {
+    EventMap, EventMessageTypeMap, HandlerMap, KeyPress, ListenAttach, ListenOptions, Message, TypedKey, UntypedKey,
+    ValueEvents, ValueMessage
+} from './messages'
 import Nav from './nav'
-import {PartPlugin, PluginConstructor, StatelessPlugin} from "./plugins"
+import Objects from "./objects"
+import { PartPlugin, PluginConstructor, StatelessPlugin } from "./plugins"
 import Strings from "./strings"
+import { TagArgs } from "./tags"
+import { DeepPartial, IndexPath, TypeAtPath } from "./types"
+import * as urls from './urls'
 
 const log = new Logger('Part')
 
@@ -38,7 +36,10 @@ export type PartParent = StatelessPart | null
 /**
  * Generic type for a function that constructs a part.
  */
-export type PartConstructor<PartType extends Part<StateType>, StateType> = {new (parent: PartParent, id: string, state: StateType): PartType}
+export type PartConstructor<
+    PartType extends Part<StateType>,
+    StateType
+> = {new (parent: PartParent, id: string, state: StateType): PartType}
 
 /** 
  * Whether or not a particular message emit should emit on the parents as well
@@ -109,7 +110,6 @@ export type MountOptions = {
  * Base class for all parts.
  */
 export abstract class Part<StateType> {
-    
     /// Root
 
     // root parts themselves will not have a root
@@ -121,9 +121,12 @@ export abstract class Part<StateType> {
 
 
     /// Children
-    
-    private children: {[id: string]: StatelessPart} = {}
-    private namedChildren: {[id: string]: StatelessPart} = {}
+
+    private children: { [id: string]: StatelessPart } = {}
+    private namedChildren: { [id: string]: StatelessPart } = {}
+
+    // maps bound child part ids to the state index path they're bound to
+    private boundChildren: { [id: string]: string } = {}
 
     /**
      * Iterates over each direct child part.
@@ -169,7 +172,7 @@ export abstract class Part<StateType> {
     constructor(
         private readonly parent: PartParent,
         public readonly id: string,
-        public state: StateType
+        public state: StateType,
     ) {
         this._renderState = "dirty"
         if (parent) {
@@ -188,15 +191,7 @@ export abstract class Part<StateType> {
         constructor: {new (p: PartParent, id: string, state: {}): PartType},
         name?: string): PartType 
     {
-        let part = this.root._makeParentedPart(constructor, this, {})
-        this.children[part.id] = part
-        if (name) {
-            if (this.namedChildren[name]) {
-                this.removeChild(this.namedChildren[name])
-            }
-            this.namedChildren[name] = part
-        }
-        return part
+        return this._makeParentedPart(constructor, this, {}, name)
     }
 
 
@@ -209,34 +204,48 @@ export abstract class Part<StateType> {
         state: InferredPartStateType,
         name?: string
     ): PartType {
-        let part = this.root._makeParentedPart(constructor, this, state)
-        this.children[part.id] = part
-        if (name) {
-            if (this.namedChildren[name]) {
-                this.removeChild(this.namedChildren[name])
-            }
-            this.namedChildren[name] = part
-        }
+        return this._makeParentedPart(constructor, this, state, name)
+    }
+
+    // todo: support bound parts having state *not* bound to parent
+    // todo: support bound parts having multiple bindings to different parts of the parent state
+    makeBoundPart<
+        PartType extends Part<TypeAtPath<BindingType, Path>>,
+        Path extends IndexPath<BindingType>,
+        BindingType extends StateType & object
+    >(
+        constructor: PartConstructor<PartType, TypeAtPath<BindingType, Path>>,
+        stateBindingPath: Path,
+        name?: string
+    ): PartType {
+        const rootState = this.state as unknown as BindingType
+        const initialState = Objects.dig(rootState, stateBindingPath)
+        const part = this._makeParentedPart(constructor, this, initialState, name)
+        this.boundChildren[part.id] = stateBindingPath
         return part
     }
 
     private _makeParentedPart<
         PartType extends Part<PartStateType>,
         PartStateType,
-        InferredPartStateType extends PartStateType
+        InferredPartStateType extends PartStateType,
     >(
-        constructor: {new (p: PartParent, id: string, state: PartStateType): PartType}, 
+        constructor: PartConstructor<PartType, PartStateType>,
         parent: PartParent, 
-        state: InferredPartStateType
+        state: InferredPartStateType,
+        name?: string,
     ): PartType {
         _idCount += 1
         let part = new constructor(parent || this, `tuff-part-${ _idCount.toString() }`, state)
-        if (parent) { 
-            // don't register as a root-level part if there's a different parent
+        this.children[part.id] = part
+
+        if (name) {
+            if (this.namedChildren[name]) {
+                this.removeChild(this.namedChildren[name])
+            }
+            this.namedChildren[name] = part
         }
-        else { 
-            this.children[part.id] = part
-        }
+
         part._init()
         return part
     }
@@ -364,13 +373,36 @@ export abstract class Part<StateType> {
      * @param state
      * @return true if the state is different
      */
-    assignState(state: StateType): boolean {
-        if (state == this.state) {
-            return false
+    assignState(state: StateType): boolean
+    assignState(state: StateType, force: true): boolean
+    assignState(state: StateType, force?: boolean): boolean {
+        const diff = deepDiff.diff(this.state, state)
+        if (!diff) return false
+
+        if (!force && this.parent?.boundChildren.hasOwnProperty(this.id)) {
+            const newParentState = Objects.bury({}, this.parent.boundChildren[this.id], state)
+            return this.parent.mergeState(newParentState)
+        } else {
+            for (const [childId, bindPath] of Object.entries(this.boundChildren)) {
+                const child = this.children[childId]
+                const newChildState = Objects.dig(state as {}, bindPath as IndexPath<{}>) as {}
+                child.assignState(newChildState, true)
+            }
         }
+
         this.state = state
         this.dirty()
         return true
+    }
+
+    /**
+     * Merges the given partial state into this part's state
+     * @param state
+     * @return true if the state is different
+     */
+    mergeState(state: DeepPartial<StateType>) {
+        const newState = Objects.deepMerge(this.state, state)
+        return this.assignState(newState)
     }
 
     /**
@@ -711,6 +743,7 @@ export abstract class Part<StateType> {
 
         const partClass = this.name
         this._mountElement.classList.add(`tuff-part-${partClass}`)
+        this._mountElement.classList.add(...this.parentClasses)
         this._mountElement.dataset.tuffPart = partClass
 
         if (mountOptions?.capturePath?.length) {
