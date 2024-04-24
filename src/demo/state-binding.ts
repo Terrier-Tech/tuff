@@ -29,7 +29,7 @@ abstract class DemoPart<T> extends Part<T> {
 
     get parentClasses(): Array<string> {
         const classes = super.parentClasses.concat(styles.posRelative, styles.padded)
-        if (this.isBoundLeaf()) {
+        if (this.isBoundLeaf) {
             classes.push(styles.highlightBordered)
         } else {
             classes.push(styles.bordered)
@@ -204,8 +204,8 @@ function makeUser(): User {
 
 function makeComment(): Comment {
     return {
-        body: `<p>${faker.lorem.paragraph()}</p>`,
         author: makeUser(),
+        body: `<p>${faker.lorem.paragraph()}</p>`,
     }
 }
 
@@ -229,9 +229,9 @@ if (container) {
 
     const post: Post = {
         title: "A great post!",
-        body,
         author: makeUser(),
         assignee: makeUser(),
+        body,
         comments: [makeComment(), makeComment()]
     }
     Part.mount(PostApp, container, { post })
