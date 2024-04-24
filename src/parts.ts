@@ -129,12 +129,27 @@ export abstract class Part<StateType> {
     // maps bound child part ids to the state index path they're bound to
     private boundChildren: { [id: string]: string } = {}
 
-    protected isBoundChild() {
+    protected get isBoundChild() {
         return !!this.parent?.boundChildren.hasOwnProperty(this.id)
     }
 
-    protected isBoundLeaf() {
-        return this.isBoundChild() && Objects.isBlank(this.boundChildren)
+    protected get isBoundLeaf() {
+        return this.isBoundChild && Objects.isBlank(this.boundChildren)
+    }
+
+    private getBindingRoot(path?: string): { root: StatelessPart, path: string } | { root: null, path: null } {
+        if (!this.parent || !this.isBoundChild) return { root: null, path: null }
+
+        let parent: PartParent = this.parent
+        let current: StatelessPart = this
+        while (parent != null) {
+            const bindPath = parent.boundChildren[current.id]
+            if (!bindPath) break
+            path = path ? `${bindPath}.${path}` : bindPath
+            current = parent as StatelessPart
+            parent = parent.parent
+        }
+        return { root: current, path: path! }
     }
 
     /**
@@ -418,11 +433,10 @@ export abstract class Part<StateType> {
      * @return whether this part's state changed
      */
     assignState(state: StateType, forceRerender: boolean = false, _originatingPath?: string): boolean {
-        if (this.parent && this.isBoundChild()) {
-            const bindPath = this.parent.boundChildren[this.id]
-            const newParentState = Objects.bury({}, bindPath, state)
-            _originatingPath = _originatingPath ? `${bindPath}.${_originatingPath}` : bindPath
-            return this.parent.mergeState(newParentState, forceRerender, _originatingPath)
+        const { root, path } = this.getBindingRoot(_originatingPath)
+        if (root && path) {
+            const newParentState = Objects.bury({}, path, state)
+            return root.mergeState(newParentState, forceRerender, path)
         } else {
             const diff = Diffs.diff(this.state, state)
             this._updateState(state, diff, forceRerender)
