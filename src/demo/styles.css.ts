@@ -59,6 +59,10 @@ export const bordered = style({
     border: `1px solid ${colors.border}`,
 })
 
+export const highlightBordered = style({
+    border: `2px solid ${colors.selected}`,
+})
+
 export const flexRow = style({
     display: 'flex',
     gap: sizes.pad
