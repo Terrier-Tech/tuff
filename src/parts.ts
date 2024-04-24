@@ -1,4 +1,5 @@
-import deepDiff from 'deep-diff'
+import Arrays from "./arrays"
+import Diffs, { DiffResult } from "./diffs"
 import Html, {
     DivTag, HtmlBaseAttrs, HtmlParentTag, HtmlTagBase, HtmlTagMap, HtmlTagName, UnknownTagAttrs
 } from './html'
@@ -127,6 +128,14 @@ export abstract class Part<StateType> {
 
     // maps bound child part ids to the state index path they're bound to
     private boundChildren: { [id: string]: string } = {}
+
+    protected isBoundChild() {
+        return !!this.parent?.boundChildren.hasOwnProperty(this.id)
+    }
+
+    protected isBoundLeaf() {
+        return this.isBoundChild() && Objects.isBlank(this.boundChildren)
+    }
 
     /**
      * Iterates over each direct child part.
@@ -369,40 +378,67 @@ export abstract class Part<StateType> {
     private _renderState: RenderState = "dirty"
 
     /**
-     * Assigns a new state and marks the part dirty if it's different than the old one.
-     * @param state
-     * @return true if the state is different
+     * Updates the state of this part and marks the part dirty
+     * @param state the state to assign.
+     * @param diff a diff of the given state against this part's existing state.
+     * @param forceRerender force this part to rerender, regardless of whether the state changed
+     * @private
      */
-    assignState(state: StateType): boolean
-    assignState(state: StateType, force: true): boolean
-    assignState(state: StateType, force?: boolean): boolean {
-        const diff = deepDiff.diff(this.state, state)
-        if (!diff) return false
-
-        if (!force && this.parent?.boundChildren.hasOwnProperty(this.id)) {
-            const newParentState = Objects.bury({}, this.parent.boundChildren[this.id], state)
-            return this.parent.mergeState(newParentState)
-        } else {
-            for (const [childId, bindPath] of Object.entries(this.boundChildren)) {
-                const child = this.children[childId]
-                const newChildState = Objects.dig(state as {}, bindPath as IndexPath<{}>) as {}
-                child.assignState(newChildState, true)
-            }
+    private _updateState(state: StateType, diff: DiffResult<StateType>, forceRerender: boolean = false): void {
+        const children = Object.entries(this.boundChildren)
+        for (const [childId, bindPath] of children) {
+            const child = this.children[childId]
+            const newChildState = Objects.dig(state as {}, bindPath as IndexPath<{}>) as {}
+            const childDiff = Diffs.filterDiffByPath(diff, bindPath as IndexPath<{}>)
+            child._updateState(newChildState, childDiff, false)
         }
 
         this.state = state
-        this.dirty()
-        return true
+
+        // unless forced, a bound parent should not rerender by default. It is assumed that only "leaf" bound children
+        // will actually need to rerender when the state changes. In cases where this is assumption is untrue, the
+        // parent can override `assignState` to call `dirty` as necessary depending on whatever criteria is required.
+        const shouldRerender = Arrays.isBlank(children)
+        if (forceRerender) {
+            log.debug("Part", this.constructor.name, this.id, "force rerender")
+            this.dirty()
+        } else if (shouldRerender && diff) {
+            log.debug("Part", this.constructor.name, this.id, "state changed", diff)
+            this.dirty()
+        }
     }
 
     /**
-     * Merges the given partial state into this part's state
-     * @param state
+     * Assigns a new state and marks the part dirty if it's different than the old one.
+     * @param state the new state to assign to this part.
+     * @param forceRerender if true, the part will rerender regardless of whether the state actually changed.
+     * @param _originatingPath when called from a bound child part, originating path stores the binding path of the part
+     *                         that initiated the assignState, allowing us to determine whether the state of the
+     *                         initiating part changed after merging the changes into the root state.
+     * @return whether this part's state changed
+     */
+    assignState(state: StateType, forceRerender: boolean = false, _originatingPath?: string): boolean {
+        if (this.parent && this.isBoundChild()) {
+            const bindPath = this.parent.boundChildren[this.id]
+            const newParentState = Objects.bury({}, bindPath, state)
+            _originatingPath = _originatingPath ? `${bindPath}.${_originatingPath}` : bindPath
+            return this.parent.mergeState(newParentState, forceRerender, _originatingPath)
+        } else {
+            const diff = Diffs.diff(this.state, state)
+            this._updateState(state, diff, forceRerender)
+            return _originatingPath ? Diffs.anyInPathChanged(diff, _originatingPath as IndexPath<StateType>) : !!diff
+        }
+    }
+
+    /**
+     * Merges the given partial state into this part's state and re-renders the part if there is a difference.
+     * @param state partial state to merge into this part's state.
+     * @param forceRerender if true, the part will rerender regardless of whether the state actually changed.
      * @return true if the state is different
      */
-    mergeState(state: DeepPartial<StateType>) {
+    mergeState(state: DeepPartial<StateType>, forceRerender: boolean = false, originatingPath?: string): boolean {
         const newState = Objects.deepMerge(this.state, state)
-        return this.assignState(newState)
+        return this.assignState(newState, forceRerender, originatingPath)
     }
 
     /**
