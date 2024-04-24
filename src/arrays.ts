@@ -2,6 +2,11 @@ import { KeyOfType } from "./forms"
 import { RequireProps } from "./types"
 import Objects from "./objects"
 
+function isBlank(array: unknown[] | null | undefined): boolean {
+    if (!array) return false
+    return !array.length
+}
+
 /**
  * Groups the elements of `array` by the value of key `key`
  * @param array and array of objects
@@ -446,6 +451,7 @@ function stream<T>(array: T[]): Stream<T> {
 ////////////////////////////////////////////////////////////////////////////////
 
 const Arrays = {
+    isBlank,
     groupBy,
     compact,
     compactBy,

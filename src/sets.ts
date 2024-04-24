@@ -1,4 +1,8 @@
 
+function isBlank(set: Set<unknown> | null | undefined): boolean {
+    if (!set) return false
+    return !set.size
+}
 
 /**
  * Returns a new set with the union of the two given sets
@@ -67,6 +71,7 @@ function intersectMut<T>(a: Set<T>, b: Iterable<T>): Set<T> {
 ////////////////////////////////////////////////////////////////////////////////
 
 const Sets = {
+    isBlank,
     diff,
     diffMut,
     intersect,

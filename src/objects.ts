@@ -1,6 +1,11 @@
 import Sets from "./sets"
 import { DeepPartial, ExpandPath, IndexPath, RequireProps, TypeAtPath } from "./types"
 
+function isBlank(obj: Record<string | number | symbol, unknown> | null | undefined): boolean {
+    if (!obj) return false
+    return !Object.keys(obj).length
+}
+
 /**
  * Creates a shallow copy of `obj` containing only the properties specified in `props`
  * @param obj the object to copy
@@ -224,6 +229,7 @@ function safeToString(obj: unknown): string {
 }
 
 const Objects = {
+    isBlank,
     slice,
     dig,
     bury,
