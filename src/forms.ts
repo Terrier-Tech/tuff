@@ -413,7 +413,7 @@ export class RadioField extends Field<string, HTMLInputElement> {
  * Represents a single <option> tag.
  */
 export type SelectOption = {
-    value: string
+    value: string | null
     title: string
 }
 
@@ -440,7 +440,7 @@ export function optionsForSelect(tag: SelectTag | OptGroupTag, options: SelectOp
             optionsForSelect(optgroup, opt.options, selected)
         } else {
             const attrs: OptionTagAttrs = {
-                value: opt.value
+                value: opt.value == null ? undefined : opt.value
             }
             if (selected == opt.value) {
                 attrs.selected = true
