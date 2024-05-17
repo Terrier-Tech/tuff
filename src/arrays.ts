@@ -236,6 +236,15 @@ function compactBy<T, K extends keyof T>(array: Array<T | null | undefined>, ...
 }
 
 /**
+ * Removes all blank strings from the array.
+ * @param array an array
+ * @returns a new array without any blank values
+ */
+function compactStrings(array: Array<string | null | undefined>): string[] {
+    return array.filter(a => a?.length) as string[] // hopefully cole doesn't see...
+}
+
+/**
  * Create a new array without the given element.
  * @param array the input array
  * @param element the element to remove
@@ -449,6 +458,7 @@ const Arrays = {
     groupBy,
     compact,
     compactBy,
+    compactStrings,
     groupByFunction,
     eachGroupByFunction,
     deleteIf,

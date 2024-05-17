@@ -191,6 +191,15 @@ test("compactBy", () => {
     }
 })
 
+test("compactStrings", () => {
+    const array = ['one', '', 'three', null]
+    const compactArray = Arrays.compactStrings(array)
+    expect(compactArray.length).toBe(2)
+    for (const val of compactArray) {
+        expect(val).toBeDefined()
+    }
+})
+
 
 test("without", () => {
     const a = ['one', 'two', 'three']
