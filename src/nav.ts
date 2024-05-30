@@ -2,7 +2,6 @@ import { StatelessPart } from "./parts"
 import { Logger } from './logging'
 import { QueryParams } from "./urls"
 
-Logger.level = 'debug'
 const log = new Logger('Nav')
 
 let capturePart: StatelessPart | null = null
