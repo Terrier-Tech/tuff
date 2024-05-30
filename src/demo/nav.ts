@@ -103,6 +103,7 @@ export class NavApp extends RouterPart {
                 col.a(styles.button, styles.warnBg, {href: '/unknown'}).text("/unknown")
                 const navPath = '/foo/bar'
                 col.a(styles.button, styles.selectedBg).text(navPath).emitClick(navKey, {path: navPath})
+                col.a(styles.button, styles.warnBg, {href: '/', target: '_blank'}).text("target=_blank")
             })
             row.div(styles.flexStretch, styles.padded, col => {
                 super.render(col)

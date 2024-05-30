@@ -2,8 +2,8 @@ import { StatelessPart } from "./parts"
 import { Logger } from './logging'
 import { QueryParams } from "./urls"
 
+Logger.level = 'debug'
 const log = new Logger('Nav')
-
 
 let capturePart: StatelessPart | null = null
 let capturePath: string = '/'
@@ -30,6 +30,11 @@ function initCapture(part: StatelessPart, path: string = '/') {
             if (elem.tagName == 'A') {
                 href = elem.getAttribute('href')
                 log.debug("Clicked on anchor", elem)
+                const anchor = elem as HTMLAnchorElement
+                if (anchor.target == '_blank') {
+                    log.info(`Skippping routing because the anchor has target=_blank`)
+                    return
+                }
                 break
             }
         }
