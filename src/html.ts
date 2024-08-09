@@ -14,9 +14,9 @@ const log = new Logger('HTML')
  * @param html
  */
 function getTextContent(html: string) {
-    const div = document.createElement('div')
+    const div = document.createElement('template')
     div.innerHTML = html
-    return div.innerText
+    return div.content.textContent
 }
 
 /**
@@ -95,10 +95,9 @@ export abstract class HtmlTagBase<AttrsType extends Attrs,ElementType extends HT
         const output = Array<string>()
         this.build(output)
         // use a temporary container so that setting the innerHTML will insert the entire element
-        const container = document.createElement('div')
+        const container = document.createElement('template')
         container.innerHTML = output.join("\n")
-        const elem = container.childNodes[0] as ElementType
-        return elem
+        return container.content.firstElementChild as ElementType
     }
 
 
