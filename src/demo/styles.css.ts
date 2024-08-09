@@ -7,6 +7,8 @@ const colors = {
     bg: '#f8f8f8',
     button: '#08a',
     warn: '#ffa602',
+    alert: '#a00',
+    alertBg: '#f8e8e8',
     output: '#e8f0ff',
     border: '#ccc',
     preview: '#aaa',
@@ -186,6 +188,11 @@ globalStyle('label input', {
     width: 'initial'
 })
 
+globalStyle('code', {
+    color: colors.button,
+      fontWeight: 'bold',
+})
+
 
 // Part List
 
@@ -287,4 +294,17 @@ globalStyle(`${dataTable} tbody tr:nth-child(even)`, {
 
 globalStyle(`${dataTable} td, ${dataTable} th`, {
     padding: "5px",
+})
+
+
+
+// Errors
+
+globalStyle(`.tuff-part-error`, {
+    color: colors.alert,
+    fontWeight: 'bold',
+    padding: '1em',
+    border: `1px solid ${colors.alert}`,
+    borderRadius: sizes.borderRadius,
+    backgroundColor: colors.alertBg
 })

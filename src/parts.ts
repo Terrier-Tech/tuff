@@ -742,7 +742,11 @@ export abstract class Part<StateType> {
         return 'div'
     }
 
-    renderInTag(container: HtmlParentTag, ...classes: string[]) {
+    renderError(parent: PartTag, ex: any) {
+        parent.div(`.tuff-part-error`).text(ex.toString())
+    }
+
+    protected renderInTag(container: HtmlParentTag, ...classes: string[]) {
         const partClass = this.name;
         const c = [...classes]
         c.push(`tuff-part-${partClass}`)
@@ -752,7 +756,13 @@ export abstract class Part<StateType> {
             parent.class(...this.parentClasses)
             if (this.isInitialized) {
                 this._renderState = "clean"
-                this.render(parent)
+                try {
+                    this.render(parent)
+                }
+                catch (ex) {
+                    log.error(`Error rendering ${this.name}`, ex)
+                    this.renderError(parent, ex)
+                }
             }
         })
     }

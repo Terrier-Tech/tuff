@@ -12,6 +12,7 @@ import Html from '../html'
 import {OutputData} from "./demo"
 import HighlighterPlugin from "./highlighter"
 import Messages from "../messages"
+import { ErrorsPart } from './errors'
 
 const log = new Logger("Demo")
 log.level = 'debug'
@@ -53,6 +54,7 @@ class App extends Part<{}> {
         this.parts['Shapes'] = this.makeStatelessPart(shapes.ShapesApp)
         this.parts['Table'] = this.makePart(table.Table, {})
         this.parts['Nav'] = this.makeStatelessPart(nav.NavApp)
+        this.parts['Errors'] = this.makeStatelessPart(ErrorsPart)
 
         this.output.write("Initialized!")
 
