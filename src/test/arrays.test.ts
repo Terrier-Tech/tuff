@@ -217,6 +217,18 @@ test("deleteIf", () => {
     expect(a[0]).toBe('one')
 })
 
+
+test("replaceBy", () => {
+    const a = [
+        {id: "one", foo: "bar"},
+        {id: "two", foo: "baz"},
+        {id: "three", foo: "bat"}
+    ]
+    Arrays.replaceBy(a, {id: "two", foo: "qux"}, "id")
+    expect(a.length).toBe(3)
+    expect(a[1].foo).toBe("qux")
+})
+
 test("niceRound", () => {
     expect(Arrays.niceRound(0.3000001)).eq(0.3)
     expect(Arrays.niceRound(0.2999999)).eq(0.3)

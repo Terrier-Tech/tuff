@@ -256,6 +256,25 @@ function without<T>(array: Array<T>, element: T): Array<T> {
     })
 }
 
+
+/**
+ * Replaces any matching object in the array with the new one.
+ * @param array 
+ * @param newObject the new object to replace any old ones
+ * @param attribute the name of the attribute to match on
+ * @returns 
+ */
+function replaceBy<T extends Record<string, any>>(
+    array: T[],
+    newObject: T,
+    attribute: keyof T) {
+    for (let i = 0; i < array.length; i++) {
+        if (array[i][attribute] === newObject[attribute]) {
+            array[i] = newObject
+        }
+    }
+}
+
 /**
  * Deletes elements from the array in place, based on the given predicate function.
  * @param array
@@ -310,7 +329,7 @@ function pluck<T extends object, K extends keyof T & string>(array: T[], key: K)
 }
 
 /**
- * Searches an array of obje cts for those that match a given search query based on a specific key.
+ * Searches an array of objects for those that match a given search query based on a specific key.
  * @param array the input array of objects
  * @param key the key to search for a match in the objects in the array
  * @param query the search query to match against the value of the specified key
@@ -479,6 +498,7 @@ const Arrays = {
     sum,
     unique,
     without,
+    replaceBy,
     sortByFunction,
     sortBy
 }
