@@ -776,7 +776,7 @@ export abstract class Part<StateType> {
         parent.div(`.tuff-part-error`).text(ex.toString())
     }
 
-    protected renderInTag(container: HtmlParentTag, ...classes: string[]) {
+    renderInTag(container: HtmlParentTag, ...classes: string[]) {
         const partClass = this.name;
         const c = [...classes]
         c.push(`tuff-part-${partClass}`)
