@@ -1,15 +1,17 @@
 import { Part, PartTag } from "../parts"
 import * as styles from './styles.css'
 
-
+/**
+ * This part throws an error during init()
+ */
 class InitErrorPart extends Part<{}> {
 
     async init() {
-        throw "This error was thrown during init()"
+        throw "This error was thrown during init(). This part's render() method will never get called."
     }
 
     render(parent: PartTag) {
-        parent.p().text("Exceptions thrown during <code>init()</code> are caught and displayed.")
+        parent.p().text("Exceptions thrown during <code>init()</code> are caught and displayed instead of rendering, so this will never appear.")
     }
 
 }
@@ -19,18 +21,22 @@ class InitErrorPart extends Part<{}> {
  */
 class RenderErrorPart extends Part<{}> {
     render(parent: PartTag) {
-        parent.p().text("Exceptions thrown during <code>render()</code> are caught and displayed but any content rendered before the error will still be displayed.")
+        parent.p().text("Exceptions thrown during <code>render()</code> are caught and displayed but any content rendered before the error (like this) will still be displayed.")
         throw "This error was thrown during render()"
     }
 }
 
-
+/**
+ * This part throws an error during update()
+ */
 class UpdateErrorPart extends Part<{}> {
     render(parent: PartTag) {
         parent.p().text("Exceptions thrown during <code>update()</code> silently handled.")
-        // throw "This error was thrown during init()"
     }
 
+    update(_: HTMLElement) {
+        throw "This error was thrown during update()"
+    }
 }
 
 

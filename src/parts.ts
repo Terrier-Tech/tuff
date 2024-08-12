@@ -255,6 +255,8 @@ export abstract class Part<StateType> {
         return this._initialized
     }
 
+    protected _initError: any = null
+
     private _init() {
         const root = this.root
         this._context = root._context
@@ -273,6 +275,10 @@ export abstract class Part<StateType> {
                     this.load()
                     this._loadPlugins()
                 })
+            }).catch(ex => {
+                log.error(`Error initializing ${this.name}`, ex)
+                this._initError = ex
+                this._initialized = true // act like it's initialized, the error will be rendered
             })
         }
         this.eachChild(child => {
@@ -742,6 +748,30 @@ export abstract class Part<StateType> {
         return 'div'
     }
 
+    /**
+     * Wraps render around a try/catch block to catch and log errors.
+     * @param parent the parent element to render the part into
+     */
+    safeRender(parent: PartTag) {
+        try {
+            if (this._initError) {
+                this.renderError(parent, this._initError)
+            }
+            else {
+                this.render(parent)
+            }
+        }
+        catch (ex) {
+            log.error(`Error rendering ${this.name}`, ex)
+            this.renderError(parent, ex)
+        }
+    }
+
+    /**
+     * Render an error in the parent.
+     * @param parent 
+     * @param ex 
+     */
     renderError(parent: PartTag, ex: any) {
         parent.div(`.tuff-part-error`).text(ex.toString())
     }
@@ -756,13 +786,7 @@ export abstract class Part<StateType> {
             parent.class(...this.parentClasses)
             if (this.isInitialized) {
                 this._renderState = "clean"
-                try {
-                    this.render(parent)
-                }
-                catch (ex) {
-                    log.error(`Error rendering ${this.name}`, ex)
-                    this.renderError(parent, ex)
-                }
+                this.safeRender(parent)
             }
         })
     }
@@ -787,6 +811,7 @@ export abstract class Part<StateType> {
         if (!this.isInitialized) {
             return
         }
+
         if (this._renderState == "dirty") {
             // get the exiting container element
             const elem = this.element
@@ -801,7 +826,7 @@ export abstract class Part<StateType> {
                 let parent = new DivTag('div')
                 parent.class(...this.parentClasses)
                 this._context.frame = frame
-                this.render(parent)
+                this.safeRender(parent)
                 let output = Array<string>()
                 parent.buildInner(output)
                 elem.innerHTML = output.join('')
@@ -843,18 +868,27 @@ export abstract class Part<StateType> {
             // it's fine to silently skip it for now
             return
         }
-        this.update(elem)
-        this._renderState = "clean"
-        this.mapPlugins(plugin => {
-            plugin.update(elem!)
-        })
-        this.eachChild(child => {
-            // attach any child parts to their corresponding elements, regardless of renderState
-            child._attach()
-
-            // if the child part is dirty, don't bother to call update on it because presumably it will be rerendered shortly
-            if (child._renderState != "dirty") child._update()
-        })
+        if (this._initError) {
+            // there was an error during init, don't bother updating
+            return
+        }
+        try {
+            this.update(elem)
+            this._renderState = "clean"
+            this.mapPlugins(plugin => {
+                plugin.update(elem!)
+            })
+            this.eachChild(child => {
+                // attach any child parts to their corresponding elements, regardless of renderState
+                child._attach()
+    
+                // if the child part is dirty, don't bother to call update on it because presumably it will be rerendered shortly
+                if (child._renderState != "dirty") child._update()
+            })
+        }
+        catch (ex) {
+            log.error(`Error updating ${this.name}`, ex)
+        }
     }
 
     /**
