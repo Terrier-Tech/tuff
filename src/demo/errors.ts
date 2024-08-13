@@ -31,7 +31,7 @@ class RenderErrorPart extends Part<{}> {
  */
 class UpdateErrorPart extends Part<{}> {
     render(parent: PartTag) {
-        parent.p().text("Exceptions thrown during <code>update()</code> silently handled.")
+        parent.p().text("Exceptions thrown during <code>update()</code> are appended to the element")
     }
 
     update(_: HTMLElement) {

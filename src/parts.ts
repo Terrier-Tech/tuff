@@ -888,6 +888,11 @@ export abstract class Part<StateType> {
         }
         catch (ex) {
             log.error(`Error updating ${this.name}`, ex)
+            Html.removeElements(elem, '.tuff-part-error')
+            const errorMessage = Html.createElement('div', div => {
+                this.renderError(div, ex)
+            })
+            elem.appendChild(errorMessage)
         }
     }
 

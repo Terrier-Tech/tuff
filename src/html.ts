@@ -45,10 +45,21 @@ function escape(s: string): string {
         .replaceAll(/>/g, '&gt;')
 }
 
+/**
+ * Removes all elements matching the given selector from the parent element.
+ * @param parent 
+ * @param selector 
+ */
+function removeElements(parent: HTMLElement, selector: string) {
+    const elements = parent.querySelectorAll(selector);
+    elements.forEach(element => element.remove());
+}
+
 const Html = {
     getTextContent,
     escape,
-    createElement
+    createElement,
+    removeElements
 }
 export default Html
 
