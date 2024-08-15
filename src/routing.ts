@@ -1,15 +1,11 @@
-import {Logger} from './logging'
+import { pathToRegexp } from 'path-to-regexp'
 import {
-    route,
-    ExtractParserReturnTypes,
-    RouteNode,
-    Parser,
-    stringParser, floatParser, intParser, dateParser, booleanParser
+    booleanParser, dateParser, floatParser, intParser, Parser, route, RouteNode, stringParser
 } from "typesafe-routes"
 import { AllParamNames, InferParamFromPath } from "typesafe-routes/build/route"
-import {pathToRegexp} from 'path-to-regexp'
-import {Part, PartConstructor, PartTag, StatelessPart} from './parts'
-import {QueryParams} from "./urls";
+import { Logger } from './logging'
+import { Part, PartConstructor, PartTag, StatelessPart } from './parts'
+import { QueryParams } from "./urls"
 
 const log = new Logger('Routing')
 
@@ -30,20 +26,28 @@ export interface IRoute {
 export declare type ParserMap<K extends string> = Record<K, Parser<any>>;
 
 /**
+ * Given a record, produces the type of a parser map to parse each field in the record
+ */
+type RecordToParserMap<T extends Record<string, any>> = {
+    [K in keyof T]: Parser<T[K]>
+}
+
+/**
  * Base class for routes, which parse and match against paths.
  */
-export class Route<PartType extends Part<StateType>, 
-        StateType extends ExtractParserReturnTypes<PM, keyof PM>, 
-        T extends string,
-        PM extends ParserMap<AllParamNames<InferParamFromPath<T>>> >
-        implements IRoute {
+export class Route<
+    PartType extends Part<StateType>,
+    StateType extends Record<string, any>,
+    Template extends string,
+    PM extends RecordToParserMap<StateType> & ParserMap<AllParamNames<InferParamFromPath<Template>>>
+> implements IRoute {
 
     readonly routeNode!: RouteNode<string,PM,{},false>
     readonly regExp!: RegExp
     readonly paramNames!: Array<string>
     readonly requiredParamNames!: Array<string>
 
-    constructor(readonly destination: PartConstructor<PartType,StateType>, template: T, parserMap: PM) {
+    constructor(readonly destination: PartConstructor<PartType,StateType>, template: Template, parserMap: PM) {
         this.routeNode = route(template, parserMap, {})
         this.regExp = pathToRegexp(template.replace(/&.*/, ""))
 
@@ -84,7 +88,7 @@ export class Route<PartType extends Part<StateType>,
             throw `Missing ${missingParams.length} params in path '${window.location.href}': ${missingParams.map(s => `"${s}"`)}`
         }
 
-        return this.routeNode.parseParams(raw as Record<T, string>) as StateType
+        return this.routeNode.parseParams(raw as Record<Template, string>) as StateType
     }
 
     path(state: StateType): string {
@@ -103,11 +107,16 @@ export class Route<PartType extends Part<StateType>,
  * @param parserMap a map of state fields to parsers
  * @returns 
  */
-export function partRoute<PartType extends Part<StateType>, 
-        StateType extends ExtractParserReturnTypes<PM, keyof PM>, 
-        T extends string,
-        PM extends ParserMap<AllParamNames<InferParamFromPath<T>>> >
-        (partType: PartConstructor<PartType,StateType>, template: T, parserMap: PM): Route<PartType, StateType, T, PM> {
+export function partRoute<
+    PartType extends Part<StateType>,
+    StateType extends Record<string, any>,
+    Template extends string,
+    PM extends RecordToParserMap<StateType> & ParserMap<AllParamNames<InferParamFromPath<Template>>>
+>(
+    partType: PartConstructor<PartType, StateType>,
+    template: Template,
+    parserMap: PM
+): Route<PartType, StateType, Template, PM> {
     return new Route(partType, template, parserMap)
 }
 
@@ -206,7 +215,7 @@ export abstract class RouterPart extends Part<{}> {
  * @param parser a concrete parser
  * @returns the optional equivalent
  */
-function makeOptionalParser<T>(parser: Parser<T>): Parser<T | undefined> {
+export function makeOptionalParser<T>(parser: Parser<T>): Parser<T | undefined> {
     return {
         parse: (s: string) => s.length ? parser.parse(s) : undefined,
         serialize: (x: T | undefined) => x ? parser.serialize(x) : '',
@@ -218,3 +227,19 @@ export const optionalFloatParser: Parser<number | undefined> = makeOptionalParse
 export const optionalIntParser: Parser<number | undefined> = makeOptionalParser(intParser)
 export const optionalDateParser: Parser<Date | undefined> = makeOptionalParser(dateParser)
 export const optionalBooleanParser: Parser<boolean | undefined> = makeOptionalParser(booleanParser)
+
+/**
+ * Creates a parser that parses a specific subset of values from a string
+ * @param enumVals
+ */
+export function enumParser<T extends string>(enumVals: readonly T[]): Parser<T> {
+    return {
+        parse: (s: string) => {
+            if (enumVals.includes(s as T)) {
+                return s as T
+            }
+            throw new Error(`Unknown enum value: ${s}`)
+        },
+        serialize: (x: T) => x,
+    }
+}

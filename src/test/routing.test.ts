@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 import { Part, PartTag } from '../parts'
-import {optionalIntParser} from "../routing";
+import { enumParser, optionalIntParser } from "../routing"
 import * as routing from '../routing'
 import * as state from '../state'
 import {QueryParams} from "../urls";
@@ -50,7 +50,7 @@ test("route parsing", () => {
     expect(barState?.num).eq(123)
 })
 
-class OptionalPart extends Part<{ my_num: number | undefined }> {
+class OptionalPart extends Part<{ my_num?: number }> {
     render(_: PartTag) {
         throw new Error('Method not implemented.')
     }
@@ -70,4 +70,12 @@ test("query string route parsing", () => {
     expect(queryRoute.match("/opt")).eq(true)
 
     expect(queryRoute.parse("/opt", new QueryParams({ my_num: '42' }))?.my_num).eq(42)
+})
+
+test("enumParser", () => {
+    const parser = enumParser(['foo', 'bar', 'baz'])
+    expect(parser.parse('foo')).eq('foo')
+    expect(() => {
+        parser.parse('bad')
+    }).toThrowError('Unknown enum value: bad')
 })
