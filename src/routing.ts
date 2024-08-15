@@ -227,3 +227,19 @@ export const optionalFloatParser: Parser<number | undefined> = makeOptionalParse
 export const optionalIntParser: Parser<number | undefined> = makeOptionalParser(intParser)
 export const optionalDateParser: Parser<Date | undefined> = makeOptionalParser(dateParser)
 export const optionalBooleanParser: Parser<boolean | undefined> = makeOptionalParser(booleanParser)
+
+/**
+ * Creates a parser that parses a specific subset of values from a string
+ * @param enumVals
+ */
+export function enumParser<T extends string>(enumVals: readonly T[]): Parser<T> {
+    return {
+        parse: (s: string) => {
+            if (enumVals.includes(s as T)) {
+                return s as T
+            }
+            throw new Error(`Unknown enum value: ${s}`)
+        },
+        serialize: (x: T) => x,
+    }
+}
