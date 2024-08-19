@@ -13,6 +13,7 @@ import {
 } from './html'
 import Arrays from "./arrays"
 import Messages, {ListenOptions, Message, TypedKey} from "./messages"
+import Strings from "./strings"
 
 const log = new Logger("Forms")
 
@@ -373,72 +374,6 @@ export function numericAdapter<ElementType extends Element>(fieldConstructor: Fi
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
-// Select Options
-////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Represents a single <option> tag.
- */
-export type SelectOption = {
-    value: string | null
-    title: string
-}
-
-export type SelectOptGroup = {
-    group: string
-    options: SelectOption[]
-}
-
-/**
- * An array of `SelectOption`s that can be passed to `optionsForSelect`.
- */
-export type SelectOptions = (SelectOption | SelectOptGroup)[]
-
-/**
- * Adds options to a select tag
- * @param tag the select tag
- * @param options the options to add
- * @param selected the currently selected option value
- */
-export function optionsForSelect(tag: SelectTag | OptGroupTag, options: SelectOptions, selected?: string) {
-    for (const opt of options) {
-        if ('group' in opt) {
-            const optgroup = tag.optgroup({ label: opt.group })
-            optionsForSelect(optgroup, opt.options, selected)
-        } else {
-            const attrs: OptionTagAttrs = {
-                value: opt.value == null ? undefined : opt.value
-            }
-            if (selected == opt.value) {
-                attrs.selected = true
-            }
-            tag.option(attrs).text(opt.title)
-        }
-    }
-}
-
-/**
- * Transforms a rails-style options array to a tuff SelectOptions
- * @param options
- */
-export function toSelectOptions(options: readonly [string, string][]) : SelectOption[]
-export function toSelectOptions(options: readonly [string, [string, string][]][]) : SelectOptions
-export function toSelectOptions(options: readonly [string, string][] | readonly [string, [string, string][]][]) : SelectOptions {
-    const results: SelectOptions = []
-    for (const option of options) {
-        const value = option[1]
-        if (Array.isArray(value)) {
-            results.push({ group: option[0], options: toSelectOptions(value)})
-        } else {
-            results.push({ title: option[0], value })
-        }
-    }
-
-    return results
-}
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Form Fields
@@ -695,3 +630,127 @@ export class FormFields<DataType extends FormPartData> {
         this.part.emit("datachanged", this.dataChangedKey, evt, data, {scope: "bubble"})
     }
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Select Options
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Represents a single <option> tag.
+ */
+export type SelectOption = {
+    value: string | null
+    title: string
+}
+
+export type SelectOptGroup = {
+    group: string
+    options: SelectOption[]
+}
+
+/**
+ * An array of `SelectOption`s that can be passed to `optionsForSelect`.
+ */
+export type SelectOptions = (SelectOption | SelectOptGroup)[]
+
+/**
+ * Adds options to a select tag
+ * @param tag the select tag
+ * @param options the options to add
+ * @param selected the currently selected option value
+ */
+export function optionsForSelect(tag: SelectTag | OptGroupTag, options: SelectOptions, selected?: string | null) {
+    for (const opt of options) {
+        if ('group' in opt) {
+            const optgroup = tag.optgroup({ label: opt.group })
+            optionsForSelect(optgroup, opt.options, selected)
+        } else {
+            const attrs: OptionTagAttrs = {
+                value: opt.value == null ? undefined : opt.value
+            }
+            if (selected === opt.value) {
+                attrs.selected = true
+            }
+            tag.option(attrs).text(opt.title)
+        }
+    }
+}
+
+/**
+ * Transforms a rails-style options array to a tuff SelectOptions
+ * @param options
+ */
+export function toSelectOptions(options: readonly [string, string | null][]) : SelectOption[]
+export function toSelectOptions(options: readonly [string, [string, string | null][]][]) : SelectOptions
+export function toSelectOptions(options: readonly [string, string | null][] | readonly [string, [string, string | null][]][]) : SelectOptions {
+    const results: SelectOptions = []
+    for (const option of options) {
+        const value = option[1]
+        if (Array.isArray(value)) {
+            results.push({ group: option[0], options: toSelectOptions(value)})
+        } else {
+            results.push({ title: option[0], value })
+        }
+    }
+
+    return results
+}
+
+/**
+ * Transforms an object of key-value pairs into an array of select options
+ */
+export function objectToSelectOptions(obj: Record<string, string>): SelectOptions {
+    return Object.entries(obj).map(([value, title]) => ({ value, title }))
+}
+
+/**
+ * Prepends a collection of select options with a blank option with an optional specified title.
+ * This does not modify the original collection.
+ * @param options the existing options to append to.
+ * @param blankTitle the title of the blank option. Default is an empty string.
+ * @return A new {@link SelectOptions} collection with a blank option in the first position.
+ */
+export function withBlankOption<T extends SelectOptions | SelectOption[]>(options: T, blankTitle = ""): T {
+    return [{ value: "", title: blankTitle } as SelectOption, ...options] as T
+}
+
+/**
+ * Prepends a collection of select options with a blank option that uses null for a value and the specified title.
+ * This does not modify the original collection.
+ * @param options the existing options to append to.
+ * @param blankTitle the title of the blank option. Default is an empty string.
+ * @return A new {@link SelectOptions} collection with a blank option in the first position.
+ */
+export function withNullBlankOption<T extends SelectOptions | SelectOption[]>(options: T, blankTitle = ""): T {
+    return [{ value: null, title: blankTitle } as SelectOption, ...options] as T
+}
+
+/**
+ * Transforms an array of strings into an array of SelectOptions
+ * @param options an array of strings to convert into SelectOptions
+ * @param blankTitle title of the blank option. If null, no blank option will be included
+ */
+export function titleizeOptions(options: string[] | readonly string[], blankTitle: string | null = null): SelectOption[] {
+    const selectOptions = options.map(o => ({ value: o, title: Strings.titleize(o) }))
+    if (blankTitle != null) {
+        selectOptions.unshift({ value: "", title: blankTitle })
+    }
+    return selectOptions
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Export
+////////////////////////////////////////////////////////////////////////////////
+
+const Forms = {
+    optionsForSelect,
+    toSelectOptions,
+    objectToSelectOptions,
+    withBlankOption,
+    withNullBlankOption,
+    titleizeOptions,
+}
+
+export default Forms

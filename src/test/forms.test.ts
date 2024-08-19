@@ -1,5 +1,5 @@
 import {expect, test, describe} from "vitest"
-import {SelectOptions, toSelectOptions} from "../forms"
+import Forms, {SelectOptions} from "../forms"
 
 describe("toSelectOptions", () => {
     test("converts ungrouped array", () => {
@@ -8,7 +8,7 @@ describe("toSelectOptions", () => {
             ["Title 2", "value 2"],
         ]
 
-        const selectOpts = toSelectOptions(array)
+        const selectOpts = Forms.toSelectOptions(array)
 
         const expected: SelectOptions = [
             {title: "Title 1", value: "value 1"},
@@ -30,7 +30,7 @@ describe("toSelectOptions", () => {
 
         ]
 
-        const selectOpts = toSelectOptions(array)
+        const selectOpts = Forms.toSelectOptions(array)
 
         const expected: SelectOptions = [
             {

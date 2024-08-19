@@ -358,6 +358,17 @@ function findIndex<T>(array: T[], callback: (element: T, index: number, array: T
     return null;
 }
 
+/**
+ * If the given object is a member of the given array, returns the object casted to the type of the array, otherwise undefined
+ * @param obj
+ * @param arr
+ */
+export function isMemberOf<TArray extends readonly any[], T extends (TArray extends readonly (infer T)[] ? T : never)>(obj: any, arr: TArray): T | undefined {
+    if (arr.includes(obj as T)) return obj as T
+
+    return undefined
+}
+
 
 /// Stream
 
@@ -500,6 +511,7 @@ const Arrays = {
     without,
     replaceBy,
     sortByFunction,
-    sortBy
+    sortBy,
+    isMemberOf,
 }
 export default Arrays

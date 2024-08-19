@@ -61,6 +61,32 @@ function intersectMut<T>(a: Set<T>, b: Iterable<T>): Set<T> {
     return a
 }
 
+/**
+ * Toggles the presence of the given value in the given set.
+ * @param set the set to add or remove from
+ * @param value the value to add or remove to the set
+ * @param force if defined, forces the value to be added or removed from the given set
+ * @returns the presence of the given value in the set after toggling
+ */
+export function toggleValue<T>(set: Set<T>, value: T, force?: boolean): boolean {
+    if (force !== undefined) {
+        if (force) {
+            set.add(value)
+        } else {
+            set.delete(value)
+        }
+        return force
+    } else {
+        if (set.has(value)) {
+            set.delete(value)
+            return false
+        } else {
+            set.add(value)
+            return true
+        }
+    }
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Export
@@ -72,7 +98,8 @@ const Sets = {
     intersect,
     intersectMut,
     union,
-    unionMut
+    unionMut,
+    toggleValue,
 }
 
 export default Sets
