@@ -41,145 +41,126 @@ export interface EventMap {
 
 export abstract class FormPart<DataType extends FormPartData> extends Part<DataType> {
 
-    fields: {[name: string]: Field<any,Element>} = {}
-    files: {[name: string]: FileList | null} = {}
+    formFields!: FormFields<DataType>
 
-    readonly dataChangedKey = Messages.typedKey<DataType>()
+    get fields(): {[name: string]: Field<any,Element>} {
+        return this.formFields.fields
+    }
+
+    get files(): {[name: string]: FileList | null} {
+        return this.formFields.files
+    }
+
+    get dataChangedKey() {
+        return this.formFields.dataChangedKey
+    }
 
     async init() {
-        this.onDataChanged(this.dataChangedKey, m => {
-            const field = m.event.target as HTMLInputElement
-            if (field.type == 'file') {
-                this.files[field.name] = field.files
-            }
-        })
+        this.formFields = new FormFields(this, this.state)
+    }
+
+    assignState(state: DataType): boolean {
+        const changed = super.assignState(state)
+        if (changed) {
+            this.formFields.data = state
+        }
+        return changed
     }
 
     get className(): string {
         return `form-${this.id}`
     }
 
-    protected input<Key extends KeyOfType<DataType,any> & string>(parent: PartTag, type: InputType, name: Key, serializerType: (new (name: string)=> Field<any, Element>), attrs: InputTagAttrs={}): InputTag {
-        attrs.type = type
-        attrs.name = `${this.id}-${name}`
-        if (!this.fields[attrs.name]) {
-            this.fields[attrs.name] = new serializerType(name)
-        }
-        if (type == 'file' && !this.files[attrs.name]) {
-            this.files[attrs.name] = null
-        }
-        this.fields[attrs.name].assignAttrValue(attrs, this.state[name])
-        return parent.input(attrs, this.className)
+    input<Key extends KeyOfType<DataType,any> & string>(parent: PartTag, type: InputType, name: Key, serializerType: FieldConstructor<any, Element>, attrs: InputTagAttrs={}): InputTag {
+        return this.formFields.input(parent, type, name, serializerType, attrs)
     }
 
-    hiddenInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "hidden", name, TextInputField, attrs)
+    hiddenInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        return this.formFields.hiddenInput(parent, name, attrs, serializerType)
     }
 
-    textInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "text", name, TextInputField, attrs)
+    textInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        return this.formFields.textInput(parent, name, attrs, serializerType)
     }
 
-    numberInput<Key extends KeyOfType<DataType,number> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "number", name, NumberInputField, attrs)
+    numberInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        return this.formFields.numberInput(parent, name, attrs, serializerType)
     }
 
     fileInput<Key extends KeyOfType<DataType,File> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "file", name, FileInputField, attrs)
+        return this.formFields.fileInput(parent, name, attrs)
     }
 
-    emailInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "email", name, TextInputField, attrs)
+    emailInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        return this.formFields.emailInput(parent, name, attrs, serializerType)
     }
 
-    phoneInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "tel", name, TextInputField, attrs)
+    phoneInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        return this.formFields.phoneInput(parent, name, attrs, serializerType)
     }
 
-    passwordInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "password", name, TextInputField, attrs)
+    passwordInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        return this.formFields.passwordInput(parent, name, attrs, serializerType)
     }
 
-    searchInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "search", name, TextInputField, attrs)
+    searchInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        return this.formFields.searchInput(parent, name, attrs, serializerType)
     }
 
-    urlInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "url", name, TextInputField, attrs)
+    urlInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        return this.formFields.urlInput(parent, name, attrs, serializerType)
     }
 
-    textArea<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: TextAreaTagAttrs={}): TextAreaTag {
-        attrs.name = `${this.id}-${name}`
-        if (!this.fields[attrs.name]) {
-            this.fields[attrs.name] = new TextAreaField(name)
-        }
-        this.fields[attrs.name].assignAttrValue(attrs, this.state[name])
-        return parent.textarea(attrs, this.className)
+    textArea<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLTextAreaElement>>(parent: PartTag, name: Key, attrs: TextAreaTagAttrs={}, serializerType?: TSerializer): TextAreaTag {
+        return this.formFields.textArea(parent, name, attrs, serializerType)
     }
 
-    dateInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "date", name, TextInputField, attrs)
+    dateInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        return this.formFields.dateInput(parent, name, attrs, serializerType)
     }
 
-    timeInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "time", name, TextInputField, attrs)
+    timeInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        return this.formFields.timeInput(parent, name, attrs, serializerType)
     }
 
-    dateTimeInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "datetime-local", name, TextInputField, attrs)
+    dateTimeInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        return this.formFields.dateTimeInput(parent, name, attrs, serializerType)
     }
 
-    monthInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "month", name, TextInputField, attrs)
+    monthInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        return this.formFields.monthInput(parent, name, attrs, serializerType)
     }
 
-    weekInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "week", name, TextInputField, attrs)
+    weekInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        return this.formFields.weekInput(parent, name, attrs, serializerType)
     }
 
-    checkbox<Key extends KeyOfType<DataType,boolean> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "checkbox", name, CheckboxField, attrs)
+    checkbox<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        return this.formFields.checkbox(parent, name, attrs, serializerType)
     }
 
-    radio<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, value: string, attrs: InputTagAttrs={}): InputTag {
-        attrs.value = value
-        return this.input<Key>(parent, "radio", name, RadioField, attrs)
+    radio<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, value: DataType[Key], attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        return this.formFields.radio(parent, name, value, attrs, serializerType)
     }
 
-    select<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, options?: SelectOptions, attrs: SelectTagAttrs={}): SelectTag {
-        attrs.name = `${this.id}-${name}`
-        if (!this.fields[attrs.name]) {
-            this.fields[attrs.name] = new SelectField(name)
-        }
-        this.fields[attrs.name].assignAttrValue(attrs, this.state[name])
-        const tag = parent.select(attrs, this.className)
-        if (options) {
-            optionsForSelect(tag, options, this.state[name])
-        }
-        return tag
+    select<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLSelectElement>>(parent: PartTag, name: Key, options?: SelectOptions, attrs: SelectTagAttrs={}, serializerType?: TSerializer): SelectTag {
+        return this.formFields.select(parent, name, options, attrs, serializerType)
     }
 
-    colorInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "color", name, TextInputField, attrs)
+    colorInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        return this.formFields.colorInput(parent, name, attrs, serializerType)
     }
 
     update(elem: HTMLElement) {
-        if (Object.keys(this.files).length) {
-            for (const fieldName in this.files) {
-                if (this.files[fieldName]) {
-                    const field = elem.querySelector(`input[name=${fieldName}]`) as HTMLInputElement
-                    field.files = this.files[fieldName]
-                }
-            }
-        }
+        super.update(elem)
+        this.formFields.update(elem)
     }
 
     /**
      *  Create a form tag in the given parent.
      */
     formTag(parent: PartTag, fun: ((n: FormTag) => any)) {
-        const tag = parent.form({id: `${this.id}_tag`}, this.className)
-        fun(tag)
+        this.formFields.formTag(parent, fun)
     }
 
     /**
@@ -187,21 +168,7 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
      * This is async so that subclasses can override it and do async things.
      */
     async serialize(): Promise<DataType> {
-        const root = this.element
-        if (!root) {
-            return {} as DataType
-        }
-        const data: DataType = {...this.state}
-        const allElems = Array.from(root.getElementsByClassName(this.className))
-        // there may be more than one actual element for any given key, so group them together and let the Field determine the value
-        Arrays.eachGroupByFunction(allElems, e => (e.getAttribute('name')||undefined), (name, elems) => {
-            const field = this.fields[name]
-            if (field) {
-                const value = field.getValue(elems)
-                Object.assign(data, {[field.name]: value})
-            }
-        })
-        return data
+        return this.formFields.serialize()
     }
 
     /**
@@ -212,19 +179,7 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
      * @returns FormData    contains files
      */
     async serializeFileInput(input: HTMLInputElement, key?: string): Promise<FormData> {
-        const root = this.element
-        const data: FormData = new FormData()
-
-        if (!root || input.type != 'file' || !(input.files instanceof FileList)) {
-            return data
-        }
-
-        const fileList: FileList = input.files
-        key = key ?? 'files'
-        for (let i = 0; i < fileList.length; i++) {
-            data.append(key, fileList[i])
-        }
-        return data
+        return this.formFields.serializeFileInput(input, key)
     }
 
     /**
@@ -237,19 +192,13 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
             return
         }
         const elem = this.element
-        if (!elem) {
-            return
-        }
-        const part = this
-        elem.addEventListener("change", async function(this: HTMLElement, evt: Event) {
-            if ((evt.target as HTMLElement).classList.contains(part.className)) {
-                const data = await part.serialize()
-                log.debug("Data Changed", part, evt, data)
-                if (part.shouldUpdateState(data)) {
-                    Object.assign(part.state, data)
-                    part.emitDataChanged(evt, data)
-                }
+        if (!elem) return
+        this.formFields.registerChangeListener(elem, data => {
+            const shouldUpdateState = this.shouldUpdateState(data)
+            if (shouldUpdateState) {
+                Object.assign(this.state, data)
             }
+            return shouldUpdateState
         })
     }
 
@@ -258,14 +207,6 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
      */
     shouldUpdateState(_: DataType): boolean {
         return true
-    }
-
-    /** 
-     * Emits the datachanged event for this form and the given data
-     */
-    emitDataChanged(evt: Event, data: DataType) {
-        log.debug("Emitting datachanged event", this, evt, data)
-        this.emit("datachanged", this.dataChangedKey, evt, data, {scope: "bubble"})
     }
 
     /**
@@ -280,6 +221,10 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
 
 
 }
+
+
+type FieldConstructor<FieldType, ElementType extends Element> = new (name: string) => Field<FieldType, ElementType>
+
 
 /**
  * Base class for classes that get and set values for concrete form elements.
@@ -495,6 +440,10 @@ export class FormFields<DataType extends FormPartData> {
         // hijack the part's onChange listener to emit the datachanged message for the fields themselves
         this.part.onChange(this.fieldChangeKey, async m => {
             log.info(`FormFields ${this.id} field changed`, m)
+            const field = m.event.target as HTMLInputElement
+            if (field.type == 'file') {
+                this.files[field.name] = field.files
+            }
             const data = await this.serialize()
             this.data = data
             this.emitDataChanged(m.event, data)
@@ -508,15 +457,15 @@ export class FormFields<DataType extends FormPartData> {
         return `form-${this.id}`
     }
 
+    inputName<Key extends keyof DataType & string>(name: Key) {
+        return `${this.id}-${name}`
+    }
 
-    protected input<Key extends KeyOfType<DataType,any> & string>(parent: PartTag, type: InputType, name: Key, serializerType: (new (name: string)=> Field<any, Element>), attrs: InputTagAttrs={}): InputTag {
+    input<Key extends KeyOfType<DataType,any> & string>(parent: PartTag, type: InputType, name: Key, serializerType: FieldConstructor<any, Element>, attrs: InputTagAttrs={}): InputTag {
         attrs.type = type
-        attrs.name = `${this.id}-${name}`
+        attrs.name = this.inputName(name)
         if (!this.fields[attrs.name]) {
             this.fields[attrs.name] = new serializerType(name)
-        }
-        if (type == 'file' && !this.files[attrs.name]) {
-            this.files[attrs.name] = null
         }
         this.fields[attrs.name].assignAttrValue(attrs, this.data[name])
         const input = parent.input(attrs, this.className)
@@ -524,46 +473,59 @@ export class FormFields<DataType extends FormPartData> {
         return input
     }
 
-    hiddenInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "hidden", name, TextInputField, attrs)
+    hiddenInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        serializerType ??= TextInputField as TSerializer
+        return this.input<Key>(parent, "hidden", name, serializerType, attrs)
     }
 
-    textInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "text", name, TextInputField, attrs)
+    textInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        serializerType ??= TextInputField as TSerializer
+        return this.input<Key>(parent, "text", name, serializerType, attrs)
     }
 
-    numberInput<Key extends KeyOfType<DataType,number> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "number", name, NumberInputField, attrs)
+    numberInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        serializerType ??= NumberInputField as TSerializer
+        return this.input<Key>(parent, "number", name, serializerType, attrs)
     }
 
     fileInput<Key extends KeyOfType<DataType,File> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+        const inputName = this.inputName(name)
+        if (!this.files[inputName]) {
+            this.files[inputName] = null
+        }
         return this.input<Key>(parent, "file", name, FileInputField, attrs)
     }
 
-    emailInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "email", name, TextInputField, attrs)
+    emailInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        serializerType ??= TextInputField as TSerializer
+        return this.input<Key>(parent, "email", name, serializerType, attrs)
     }
 
-    phoneInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "tel", name, TextInputField, attrs)
+    phoneInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        serializerType ??= TextInputField as TSerializer
+        return this.input<Key>(parent, "tel", name, serializerType, attrs)
     }
 
-    passwordInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "password", name, TextInputField, attrs)
+    passwordInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        serializerType ??= TextInputField as TSerializer
+        return this.input<Key>(parent, "password", name, serializerType, attrs)
     }
 
-    searchInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "search", name, TextInputField, attrs)
+    searchInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        serializerType ??= TextInputField as TSerializer
+        return this.input<Key>(parent, "search", name, serializerType, attrs)
     }
 
-    urlInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "url", name, TextInputField, attrs)
+    urlInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        serializerType ??= TextInputField as TSerializer
+        return this.input<Key>(parent, "url", name, serializerType, attrs)
     }
 
-    textArea<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: TextAreaTagAttrs={}): TextAreaTag {
+    textArea<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLTextAreaElement>>(parent: PartTag, name: Key, attrs: TextAreaTagAttrs={}, serializerType?: TSerializer): TextAreaTag {
+        serializerType ??= TextAreaField as TSerializer
         attrs.name = `${this.id}-${name}`
         if (!this.fields[attrs.name]) {
-            this.fields[attrs.name] = new TextAreaField(name)
+            this.fields[attrs.name] = new serializerType(name)
         }
         this.fields[attrs.name].assignAttrValue(attrs, this.data[name])
         const tag = parent.textarea(attrs, this.className)
@@ -571,39 +533,47 @@ export class FormFields<DataType extends FormPartData> {
         return tag
     }
 
-    dateInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "date", name, TextInputField, attrs)
+    dateInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        serializerType ??= TextInputField as TSerializer
+        return this.input<Key>(parent, "date", name, serializerType, attrs)
     }
 
-    timeInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "time", name, TextInputField, attrs)
+    timeInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        serializerType ??= TextInputField as TSerializer
+        return this.input<Key>(parent, "time", name, serializerType, attrs)
     }
 
-    dateTimeInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "datetime-local", name, TextInputField, attrs)
+    dateTimeInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        serializerType ??= TextInputField as TSerializer
+        return this.input<Key>(parent, "datetime-local", name, serializerType, attrs)
     }
 
-    monthInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "month", name, TextInputField, attrs)
+    monthInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        serializerType ??= TextInputField as TSerializer
+        return this.input<Key>(parent, "month", name, serializerType, attrs)
     }
 
-    weekInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "week", name, TextInputField, attrs)
+    weekInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        serializerType ??= TextInputField as TSerializer
+        return this.input<Key>(parent, "week", name, serializerType, attrs)
     }
 
-    checkbox<Key extends KeyOfType<DataType,boolean> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "checkbox", name, CheckboxField, attrs)
+    checkbox<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        serializerType ??= CheckboxField as TSerializer
+        return this.input<Key>(parent, "checkbox", name, serializerType, attrs)
     }
 
-    radio<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, value: string, attrs: InputTagAttrs={}): InputTag {
+    radio<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, value: DataType[Key], attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        serializerType ??= RadioField as TSerializer
         attrs.value = value
-        return this.input<Key>(parent, "radio", name, RadioField, attrs)
+        return this.input<Key>(parent, "radio", name, serializerType, attrs)
     }
 
-    select<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, options?: SelectOptions, attrs: SelectTagAttrs={}): SelectTag {
+    select<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLSelectElement>>(parent: PartTag, name: Key, options?: SelectOptions, attrs: SelectTagAttrs={}, serializerType?: TSerializer): SelectTag {
+        serializerType ??= SelectField as TSerializer
         attrs.name = `${this.id}-${name}`
         if (!this.fields[attrs.name]) {
-            this.fields[attrs.name] = new SelectField(name)
+            this.fields[attrs.name] = new serializerType(name)
         }
         this.fields[attrs.name].assignAttrValue(attrs, this.data[name])
         const tag = parent.select(attrs, this.className)
@@ -614,8 +584,9 @@ export class FormFields<DataType extends FormPartData> {
         return tag
     }
 
-    colorInput<Key extends KeyOfType<DataType,string> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.input<Key>(parent, "color", name, TextInputField, attrs)
+    colorInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        serializerType ??= TextInputField as TSerializer
+        return this.input<Key>(parent, "color", name, serializerType, attrs)
     }
 
     /**
@@ -641,6 +612,20 @@ export class FormFields<DataType extends FormPartData> {
         }
     }
 
+    registerChangeListener(elem: Element, shouldUpdateState: (data: DataType) => boolean) {
+        const _this = this
+        elem.addEventListener("change", async function(this: HTMLElement, evt: Event) {
+            if (evt.target === elem) {
+                const data = await _this.serialize()
+                log.debug("Data Changed", _this, evt, data)
+                if (shouldUpdateState(data)) {
+                    Object.assign(_this.data, data)
+                    _this.emitDataChanged(evt, data)
+                }
+            }
+        })
+    }
+
     /**
      * Serializes the form fields into a new copy of `this.data`.
      * This is async so that subclasses can override it and do async things.
@@ -660,6 +645,22 @@ export class FormFields<DataType extends FormPartData> {
                 Object.assign(data, {[field.name]: value})
             }
         })
+        return data
+    }
+
+    serializeFileInput(input: HTMLInputElement, key?: string): FormData {
+        const root = this.part.element
+        const data: FormData = new FormData()
+
+        if (!root || input.type != 'file' || !(input.files instanceof FileList)) {
+            return data
+        }
+
+        const fileList: FileList = input.files
+        key ??= 'files'
+        for (let i = 0; i < fileList.length; i++) {
+            data.append(key, fileList[i])
+        }
         return data
     }
 
