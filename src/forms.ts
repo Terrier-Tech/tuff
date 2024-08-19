@@ -348,6 +348,29 @@ export class RadioField extends Field<string, HTMLInputElement> {
     }
 }
 
+/**
+ * Returns a new field that interprets the field value as a number
+ * @param fieldConstructor
+ */
+export function numericAdapter<ElementType extends Element>(fieldConstructor: FieldConstructor<string, ElementType>): FieldConstructor<number, ElementType> {
+    return class extends Field<number, ElementType> {
+        private readonly inner: Field<string, ElementType>
+        constructor(name: string) {
+            super(name)
+            this.inner = new fieldConstructor(name)
+        }
+
+        assignAttrValue(attrs: InputTagAttrs, value?: number) {
+            this.inner.assignAttrValue(attrs, value?.toString())
+        }
+
+        getValue(elems: ElementType[]): number | null {
+            const val = this.inner.getValue(elems)
+            if (!val?.length) return null
+            return parseFloat(val)
+        }
+    }
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////
