@@ -224,7 +224,7 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
 }
 
 
-type FieldConstructor<FieldType, ElementType extends Element> = new (name: string) => Field<FieldType, ElementType>
+export type FieldConstructor<FieldType, ElementType extends Element> = new (name: string) => Field<FieldType, ElementType>
 
 
 /**
