@@ -146,7 +146,15 @@ export abstract class Part<StateType> {
             elem.remove()
         }
         child.onRemoved()
+        child._removeHierarchy()
         delete this.children[child.id]
+    }
+
+    _removeHierarchy() {
+        this.eachChild(child => {
+            child.onRemoved()
+            child._removeHierarchy()
+        })
     }
 
     /**
