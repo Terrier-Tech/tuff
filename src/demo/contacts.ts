@@ -113,10 +113,8 @@ class ContactFormPart extends forms.FormPart<ContactState> {
     }
 
     addPhone() {
-        const fields = new FormFields(this, {
-            type: "home",
-            number: demo.randomPhone()
-        })
+        const newPhone: PhoneState = { type: "home", number: demo.randomPhone() }
+        const fields = new FormFields(this, newPhone)
         this.phoneForms[fields.id] = fields
         this.onDataChanged(fields.dataChangedKey, m => {
             log.info("Phone data changed", m)

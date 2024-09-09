@@ -388,7 +388,7 @@ let _formCount = 0
 export class FormFields<DataType extends FormPartData> {
 
     readonly id!: string
-    readonly fieldChangeKey = Messages.untypedKey()
+    readonly fieldChangeKey = Messages.typedKey<{ key: keyof DataType }>()
     readonly dataChangedKey = Messages.typedKey<DataType>()
 
     constructor(readonly part: StatelessPart, public data: DataType) {
@@ -427,7 +427,7 @@ export class FormFields<DataType extends FormPartData> {
         }
         this.fields[attrs.name].assignAttrValue(attrs, this.data[name])
         const input = parent.input(attrs, this.className)
-        input.emitChange(this.fieldChangeKey)
+        input.emitChange(this.fieldChangeKey, { key: name })
         return input
     }
 
@@ -487,7 +487,7 @@ export class FormFields<DataType extends FormPartData> {
         }
         this.fields[attrs.name].assignAttrValue(attrs, this.data[name])
         const tag = parent.textarea(attrs, this.className)
-        tag.emitChange(this.fieldChangeKey)
+        tag.emitChange(this.fieldChangeKey, { key: name })
         return tag
     }
 
@@ -538,7 +538,7 @@ export class FormFields<DataType extends FormPartData> {
         if (options) {
             optionsForSelect(tag, options, this.data[name])
         }
-        tag.emitChange(this.fieldChangeKey)
+        tag.emitChange(this.fieldChangeKey, { key: name })
         return tag
     }
 
