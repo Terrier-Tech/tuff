@@ -1,18 +1,11 @@
-import {Part, PartTag, StatelessPart} from './parts'
-import {Logger} from './logging'
+import Arrays from "./arrays"
 import {
-    FormTag,
-    InputTag,
-    InputTagAttrs,
-    OptGroupTag,
-    OptionTagAttrs,
-    SelectTag,
-    SelectTagAttrs,
-    TextAreaTag,
+    FormTag, InputTag, InputTagAttrs, OptGroupTag, OptionTagAttrs, SelectTag, SelectTagAttrs, TextAreaTag,
     TextAreaTagAttrs
 } from './html'
-import Arrays from "./arrays"
-import Messages, {ListenOptions, Message, TypedKey} from "./messages"
+import { Logger } from './logging'
+import Messages, { ListenOptions, Message, TypedKey } from "./messages"
+import { Part, PartTag, StatelessPart } from './parts'
 import Strings from "./strings"
 
 const log = new Logger("Forms")
@@ -382,13 +375,23 @@ export function numericAdapter<ElementType extends Element>(fieldConstructor: Fi
 let _formCount = 0
 
 /**
+ * A message key for a field change event.
+ * The value included in the message data is the value of the field after being serialized by the field serializer.
+ */
+type FieldChangeKey<
+    DataType extends FormPartData,
+    Key extends KeyOfType<DataType, any> & string,
+    ValueType extends DataType[Key]
+> = TypedKey<{ key: Key, value: ValueType }>
+
+/**
  * A lightweight alternative to `FormPart` that exposes the same field helper methods
  * but maintains the form data separate from a part's state.
  */
 export class FormFields<DataType extends FormPartData> {
 
     readonly id!: string
-    readonly fieldChangeKey = Messages.typedKey<{ key: keyof DataType }>()
+    readonly fieldChangeKey = Messages.typedKey<{ key: keyof DataType & string }>()
     readonly dataChangedKey = Messages.typedKey<DataType>()
 
     constructor(readonly part: StatelessPart, public data: DataType) {
@@ -398,18 +401,35 @@ export class FormFields<DataType extends FormPartData> {
         // hijack the part's onChange listener to emit the datachanged message for the fields themselves
         this.part.onChange(this.fieldChangeKey, async m => {
             log.info(`FormFields ${this.id} field changed`, m)
-            const field = m.event.target as HTMLInputElement
-            if (field.type == 'file') {
-                this.files[field.name] = field.files
+
+            const fieldElement = m.event.target as HTMLInputElement
+
+            // emit specific field change event
+            const value = this.fields[fieldElement.name]?.getValue([fieldElement])
+            this.part.emit('change', this.changeKeyForField(m.data.key), m.event, { key: m.data.key, value }, { scope: 'bubble' })
+
+            // populate cached files
+            if (fieldElement.type == 'file') {
+                this.files[fieldElement.name] = fieldElement.files
             }
+
+            // get full data and emit data changed
             const data = await this.serialize()
             this.data = data
             this.emitDataChanged(m.event, data)
         })
     }
 
-    fields: {[name: string]: Field<any,Element>} = {}
-    files: {[name: string]: FileList | null} = {}
+    fields: { [name: string]: Field<any, Element> } = {}
+    files: { [name: string]: FileList | null } = {}
+    fieldChangeKeys: { [name: string]: FieldChangeKey<DataType, any, any> } = {}
+
+    /** Gets a message key for `change` events for the specified field. */
+    changeKeyForField<Key extends KeyOfType<DataType,any> & string, ValueType extends DataType[Key]>(key: Key): FieldChangeKey<DataType, Key, ValueType> {
+        const fieldName = this.inputName(key)
+        this.fieldChangeKeys[fieldName] ??= Messages.typedKey<{ key: Key, value: ValueType }>()
+        return this.fieldChangeKeys[fieldName] as FieldChangeKey<DataType, Key, ValueType>
+    }
 
     get className(): string {
         return `form-${this.id}`
@@ -483,7 +503,7 @@ export class FormFields<DataType extends FormPartData> {
         serializerType ??= TextAreaField as TSerializer
         attrs.name = `${this.id}-${name}`
         if (!this.fields[attrs.name]) {
-            this.fields[attrs.name] = new serializerType(name)
+            this.fields[attrs.name] ??= new serializerType(name)
         }
         this.fields[attrs.name].assignAttrValue(attrs, this.data[name])
         const tag = parent.textarea(attrs, this.className)
