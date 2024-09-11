@@ -87,6 +87,15 @@ class ContactFormPart extends forms.FormPart<ContactState> {
             this.dirty()
         })
 
+        this.onChange(this.formFields.fieldChangeKey, m => {
+            log.info("Contact field changed", m)
+        })
+
+        this.onChange(this.formFields.changeKeyForField('isAdmin'), m => {
+            const value = m.data.value
+            log.info(`Is Admin? ${value}`)
+        })
+
         this.onDataChanged(this.dataChangedKey, m => {
             log.info("Contact form data changed", m)
         })
