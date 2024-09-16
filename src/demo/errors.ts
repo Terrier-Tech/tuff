@@ -1,4 +1,5 @@
 import { Part, PartTag } from "../parts"
+import Time from "../time"
 import * as styles from './styles.css'
 
 /**
@@ -7,6 +8,7 @@ import * as styles from './styles.css'
 class InitErrorPart extends Part<{}> {
 
     async init() {
+        await Time.wait(500)
         throw "This error was thrown during init(). This part's render() method will never get called."
     }
 
