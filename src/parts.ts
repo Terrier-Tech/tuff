@@ -106,6 +106,23 @@ export type MountOptions = {
 }
 
 /**
+ * TuffError is a type of error that has custom behavior for being rendered in a part.
+ */
+export class TuffError extends Error {
+    render(parent: HtmlParentTag) {
+        parent.text(this.toString())
+    }
+}
+
+export function renderErrorInTag(parent: HtmlParentTag, ex: any) {
+    if (ex instanceof TuffError) {
+        ex.render(parent)
+    } else {
+        parent.text(ex.toString())
+    }
+}
+
+/**
  * Base class for all parts.
  */
 export abstract class Part<StateType> {
@@ -287,6 +304,7 @@ export abstract class Part<StateType> {
                 log.error(`Error initializing ${this.name}`, ex)
                 this._initError = ex
                 this._initialized = true // act like it's initialized, the error will be rendered
+                this.dirty()
             })
         }
         this.eachChild(child => {
@@ -781,7 +799,9 @@ export abstract class Part<StateType> {
      * @param ex 
      */
     renderError(parent: PartTag, ex: any) {
-        parent.div(`.tuff-part-error`).text(ex.toString())
+        parent.div(`.tuff-part-error`, container => {
+            renderErrorInTag(container, ex)
+        })
     }
 
     renderInTag(container: HtmlParentTag, ...classes: string[]) {

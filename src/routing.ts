@@ -3,8 +3,9 @@ import {
     booleanParser, dateParser, floatParser, intParser, Parser, route, RouteNode, stringParser
 } from "typesafe-routes"
 import { AllParamNames, InferParamFromPath } from "typesafe-routes/build/route"
+import { HtmlParentTag } from "./html"
 import { Logger } from './logging'
-import { Part, PartConstructor, PartTag, StatelessPart } from './parts'
+import { Part, PartConstructor, PartTag, StatelessPart, TuffError } from './parts'
 import { QueryParams } from "./urls"
 
 const log = new Logger('Routing')
@@ -85,7 +86,7 @@ export class Route<
         }
 
         if (missingParams.length) {
-            throw `Missing ${missingParams.length} params in path '${window.location.href}': ${missingParams.map(s => `"${s}"`)}`
+            throw new MissingParamsError(path, missingParams)
         }
 
         return this.routeNode.parseParams(raw as Record<Template, string>) as StateType
@@ -166,6 +167,10 @@ export abstract class RouterPart extends Part<{}> {
 
     abstract defaultPart: PartConstructor<StatelessPart,{}>
 
+    get defaultErrorPart(): PartConstructor<RouteErrorPart, { error: any }> {
+        return RouteErrorPart
+    }
+
     currentPart?: Part<any>
 
     load(): void {
@@ -189,7 +194,19 @@ export abstract class RouterPart extends Part<{}> {
                 }
                 else {
                     // it's a proper part route
-                    const state = route.parse(path, this.context.queryParams)
+                    let state: Record<string, string | number | boolean | Date | undefined> | null
+
+                    try {
+                        state = route.parse(path, this.context.queryParams)
+                    } catch (ex) {
+                        log.error(`Error parsing path:`, ex)
+                        if (ex instanceof RouteParseError) {
+                            this.currentPart = this.makePart(this.defaultErrorPart, { error: ex })
+                            this.dirty()
+                            return
+                        }
+                        throw ex
+                    }
                     this.currentPart = this.makePart(route.destination, state)
                     log.debug(`Routed ${path} to part: ${this.currentPart.name}`, this.currentPart)
                     this.dirty()
@@ -208,6 +225,38 @@ export abstract class RouterPart extends Part<{}> {
         }
     }
 
+}
+
+export class RouteParseError extends TuffError {
+    constructor(message: string, public path: string) {
+        super(message)
+        this.name = "RouteParseError"
+    }
+}
+
+export class MissingParamsError extends RouteParseError {
+    constructor(path: string, public missingParams: string[]) {
+        super(`Route '${path}' has missing parameters: '${missingParams.join("', '")}'`, path)
+        this.name = "MissingParamsError"
+    }
+
+    render(parent: HtmlParentTag) {
+        parent.p(p => {
+            p.span().text("Please include the following required parameters:")
+            p.ul(ul => {
+                for (const missingParam of this.missingParams) {
+                    ul.li().text(missingParam)
+                }
+            })
+        })
+    }
+}
+
+export class RouteErrorPart extends Part<{ error: any }> {
+
+    render(parent: PartTag) {
+        this.renderError(parent, this.state.error)
+    }
 }
 
 /**
