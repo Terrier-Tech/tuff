@@ -287,6 +287,7 @@ export abstract class Part<StateType> {
                 log.error(`Error initializing ${this.name}`, ex)
                 this._initError = ex
                 this._initialized = true // act like it's initialized, the error will be rendered
+                this.dirty()
             })
         }
         this.eachChild(child => {
