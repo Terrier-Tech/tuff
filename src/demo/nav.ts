@@ -62,6 +62,7 @@ const routes = {
     foo: partRoute(IdChildPart, "/foo/:id", {
         id: stringParser
     }),
+    requiredFoo: partRoute(IdChildPart, "/required_foo&:id", { id: stringParser }),
     hola: redirectRoute('/hola', '/hello'),
     withOptional: partRoute(OptionalParamPart, "/alpha/:bravo?/charlie&:delta?", { bravo: optionalIntParser, delta: optionalStringParser })
 }
