@@ -1,6 +1,6 @@
 import Arrays from "./arrays"
 import {
-    FormTag, InputTag, InputTagAttrs, OptGroupTag, OptionTagAttrs, SelectTag, SelectTagAttrs, TextAreaTag,
+    FormTag, InputTag, InputTagAttrs, LabelTag, OptGroupTag, OptionTagAttrs, SelectTag, SelectTagAttrs, TextAreaTag,
     TextAreaTagAttrs
 } from './html'
 import { Logger } from './logging'
@@ -437,6 +437,10 @@ export class FormFields<DataType extends FormPartData> {
 
     inputName<Key extends keyof DataType & string>(name: Key) {
         return `${this.id}-${name}`
+    }
+
+    labelFor<Key extends KeyOfType<DataType,any> & string>(parent: PartTag, name: Key, text: string, ...classes: string[]): LabelTag {
+        return parent.label({ htmlFor: this.inputName(name), text, classes })
     }
 
     input<Key extends KeyOfType<DataType,any> & string>(parent: PartTag, type: InputType, name: Key, serializerType: FieldConstructor<any, Element>, attrs: InputTagAttrs={}): InputTag {
