@@ -560,7 +560,7 @@ export class FormFields<DataType extends FormPartData> {
         this.fields[attrs.name].assignAttrValue(attrs, this.data[name])
         const tag = parent.select(attrs, this.className)
         if (options) {
-            optionsForSelect(tag, options, this.data[name])
+            optionsForSelect(tag, options, attrs.value)
         }
         tag.emitChange(this.fieldChangeKey, { key: name })
         return tag
