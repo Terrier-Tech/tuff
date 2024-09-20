@@ -13,7 +13,7 @@ export type DataAttrs = {[key: string]: any}
 /**
  * An object containing inline style declarations.
  */
-export type InlineStyle = Partial<CSSStyleDeclaration>
+export type InlineStyle = Partial<CSSStyleDeclaration> & Record<`--${string}`, string>
 
 /**
  * General rectangle interface, used in place of SVGAnimatedRect.
@@ -32,7 +32,11 @@ export interface IRect {
  */
 const buildStyleAttr = (styles: InlineStyle): string => {
     return Object.entries(styles).map(([k, v]): string => {
-        return `${Strings.ropeCase(k)}: ${v};`
+        if (k.startsWith('--')) {
+            return `${k}: ${v}`
+        } else {
+            return `${Strings.ropeCase(k)}: ${v}`
+        }
     }).join('; ')
 }
 
@@ -129,6 +133,12 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
         else {
             this._css = {...s}
         }
+        return this
+    }
+
+    cssVar(key: `--${string}`, value: string) {
+        this._css ??= {}
+        this._css[key] = value
         return this
     }
 
