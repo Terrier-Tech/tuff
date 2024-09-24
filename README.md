@@ -416,7 +416,7 @@ Nav.visit("/other")
 
 ### Messages
 
-Event handling in Tuff is done with its [messages system](pages/Messages.md).
+Event handling in Tuff is done with its [messages system](pages/messages.md).
 
 
 ### Logging
