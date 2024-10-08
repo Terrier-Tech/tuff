@@ -538,6 +538,14 @@ export abstract class Part<StateType> {
             options: options,
             callback: handler
         })
+
+        if (this.element) {
+            // If the element has already been rendered, attach the event listener
+            this.addDomListener(this.element, type as EventKey)
+        } else {
+            // Otherwise, make sure that the part is marked to add event listeners after it is rendered
+            this._needsEventListeners = true
+        }
     }
 
     /**
@@ -591,11 +599,16 @@ export abstract class Part<StateType> {
         })
     }
 
+    _attachedListenerTypes = new Set<keyof EventMap>()
+
     /**
      * Attaches an event listener for a particular type of HTML event.
      * Only event types with Tuff listeners will have HTML listeners attached.
      */
     private addDomListener(elem: HTMLElement, type: EventKey) {
+        if (this._attachedListenerTypes.has(type)) return
+        this._attachedListenerTypes.add(type)
+
         const part = this
         let opts: AddEventListenerOptions | undefined = undefined
         if (nonBubblingEvents.includes(type)) {
