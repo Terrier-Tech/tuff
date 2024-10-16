@@ -571,6 +571,7 @@ export abstract class Part<StateType> {
     private _setNeedsEventListeners(includeMe: boolean) {
         if (includeMe) {
             this._needsEventListeners = true
+            this._attachedListenerTypes.clear()
         }
         this.eachChild(child => {
             child._setNeedsEventListeners(true)
@@ -583,7 +584,6 @@ export abstract class Part<StateType> {
      */
     protected _attachEventListeners() {
         if (this._initialized && this._needsEventListeners) {
-            this._attachedListenerTypes.clear()
             this._needsEventListeners = false
             let elem = this.element
             if (elem) {
