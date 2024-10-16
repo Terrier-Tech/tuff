@@ -583,6 +583,7 @@ export abstract class Part<StateType> {
      */
     protected _attachEventListeners() {
         if (this._initialized && this._needsEventListeners) {
+            this._attachedListenerTypes.clear()
             this._needsEventListeners = false
             let elem = this.element
             if (elem) {
