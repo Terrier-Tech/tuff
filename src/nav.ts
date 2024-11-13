@@ -68,15 +68,23 @@ function initCapture(part: StatelessPart, path: string = '/') {
 }
 
 /**
+ * Returns true if the given path is currently captured.
+ * @param path
+ */
+export function isPathCaptured(path: string): boolean {
+    return !!capturePart && path.toLocaleLowerCase().startsWith(capturePath)
+}
+
+/**
  * Navigates to a new page with the given path an query parameters.
- * @throws an exception unless `Nav.initCapture` has been called first.
+ * @throws Error unless `Nav.initCapture` has been called first.
  * If the path hasn't been captured, performs a tradition navigation with window.location.href.
  * @param path the destination path
  * @param params the (optional) query parameters to append to the path
  */
 export function visit(path: string, params?: QueryParams) {
     if (!capturePart) {
-        throw "Trying to navigate with no captured part, call `Nav.initCapture` first!"
+        throw new Error("Trying to navigate with no captured part, call `Nav.initCapture` first!")
     }
     let href = path
     if (params) {
@@ -93,9 +101,24 @@ export function visit(path: string, params?: QueryParams) {
     }
 }
 
+/**
+ * Navigates to a new page with the given path and query parameters, if the given path is captured.
+ * If the given path is not captured, does nothing.
+ * @param path the destination path
+ * @param params the (optional) query parameters to append to the path
+ * @return true if the navigation was successful or false if no navigation was performed
+ */
+export function tryVisit(path: string, params?: QueryParams) {
+    if (!isPathCaptured(path)) return false
+    visit(path, params)
+    return true
+}
+
 const Nav = {
     initCapture,
-    visit
+    isPathCaptured,
+    visit,
+    tryVisit,
 }
 
 export default Nav
