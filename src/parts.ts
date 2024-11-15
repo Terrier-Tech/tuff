@@ -228,10 +228,9 @@ export abstract class Part<StateType> {
     makePart<
         PartType extends Part<PartStateType>,
         PartStateType,
-        InferredPartStateType extends PartStateType
     >(
         constructor: {new (p: PartParent, id: string, state: PartStateType): PartType},
-        state: InferredPartStateType,
+        state: NoInfer<PartStateType>,
         name?: string
     ): PartType {
         let part = this.root._makeParentedPart(constructor, this, state)
@@ -247,12 +246,11 @@ export abstract class Part<StateType> {
 
     private _makeParentedPart<
         PartType extends Part<PartStateType>,
-        PartStateType,
-        InferredPartStateType extends PartStateType
+        PartStateType
     >(
         constructor: {new (p: PartParent, id: string, state: PartStateType): PartType}, 
         parent: PartParent, 
-        state: InferredPartStateType
+        state: NoInfer<PartStateType>
     ): PartType {
         _idCount += 1
         let part = new constructor(parent || this, `tuff-part-${ _idCount.toString() }`, state)
@@ -461,7 +459,10 @@ export abstract class Part<StateType> {
      * @param state the plugin state
      * @return the new plugin
      */
-    makePlugin<PluginType extends PartPlugin<PluginStateType>, PluginStateType>(pluginClass: PluginConstructor<PluginType, PluginStateType>, state: PluginStateType): PluginType {
+    makePlugin<PluginType extends PartPlugin<PluginStateType>, PluginStateType>(
+        pluginClass: PluginConstructor<PluginType, PluginStateType>,
+        state: NoInfer<PluginStateType>
+    ): PluginType {
         const plugin = new pluginClass(this, state)
         this._plugins[plugin.id] = plugin
 
