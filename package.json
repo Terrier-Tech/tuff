@@ -22,20 +22,20 @@
     "typedoc": "typedoc --plugin typedoc-plugin-extras --footerDate"
   },
   "devDependencies": {
-    "@types/node": "^20.2.1",
-    "@vanilla-extract/css": "^1.9.2",
-    "@vanilla-extract/vite-plugin": "^3.7.0",
+    "@types/node": "^22.9.0",
+    "@vanilla-extract/css": "^1.16.0",
+    "@vanilla-extract/vite-plugin": "^4.0.17",
     "rollup-plugin-folder-input": "^1.0.1",
-    "sass": "^1.62.1",
-    "ts-node": "^10.7.0",
-    "typedoc": "^0.24.7",
-    "typedoc-plugin-extras": "^2.3.3",
-    "typescript": "^4.9.5",
-    "vite": "^4.3.8",
-    "vitest": "^0.31.1"
+    "sass": "^1.81.0",
+    "ts-node": "^10.9.2",
+    "typedoc": "^0.26.11",
+    "typedoc-plugin-extras": "^3.1.0",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.5"
   },
   "dependencies": {
-    "path-to-regexp": "^6.2.0",
-    "typesafe-routes": "^10.0.2"
+    "path-to-regexp": "^6.3.0",
+    "typesafe-routes": "^10.0.6"
   }
 }
