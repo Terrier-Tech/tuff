@@ -17,7 +17,7 @@ import { ErrorsPart } from './errors'
 const log = new Logger("Demo")
 log.level = 'debug'
 
-class OutputPart extends Part<demo.OutputData> {
+class OutputPart extends Part<OutputData> {
 
     constructor(parent: PartParent, id: string, state: OutputData) {
         super(parent, id, state)
@@ -31,14 +31,14 @@ class OutputPart extends Part<demo.OutputData> {
         }, {attach: "passive"})
     }
 
-    write(t: string) {
+    write(t: string | undefined) {
         log.debug(`Writing output: ${t}`)
         this.state.output = t
         this.dirty()
     }
     
     render(parent: PartTag) {
-        parent.div(styles.output, styles.fixedBottom).text(this.state.output)
+        parent.div(styles.output, styles.fixedBottom).text(this.state.output ?? "")
     }
 
 }
@@ -48,7 +48,7 @@ class App extends Part<{}> {
     parts: {[name: string]: StatelessPart} = {}
 
     async init() {
-        this.output = this.makePart(OutputPart, {output: ""})
+        this.output = this.makePart(OutputPart, { output: undefined })
         this.parts['Counter'] = this.makeStatelessPart(counter.CounterApp)
         this.parts['Contacts'] = this.makeStatelessPart(contacts.ContactsApp)
         this.parts['Shapes'] = this.makeStatelessPart(shapes.ShapesApp)

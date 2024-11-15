@@ -9,7 +9,7 @@ export function newId() {
 }
 
 export type OutputData = {
-    output: string
+    output?: string
 }
 
 export function randomPhone(): string {
