@@ -22,7 +22,7 @@ type CounterState = {
 class Counter extends Part<CounterState> {
 
     async init() {
-        this.makePlugin(HighlighterPlugin, {targetClass: styles.output, color: "#0aa"})
+        this.makePlugin(HighlighterPlugin, {targetClass: styles.output, color: "#0aa", thickness: "2px"})
     }
 
     change(data: ChangeData) {

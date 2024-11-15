@@ -7,7 +7,7 @@ const log = new Logger("Highlighter")
 /**
  * Highlights all elements with the given target class with a border of the given color.
  */
-export default class HighlighterPlugin extends PartPlugin<{ targetClass: string, color: string }> {
+export default class HighlighterPlugin extends PartPlugin<{ targetClass: string, color: string, thickness?: string }> {
 
     async init() {
         log.info(`Initializing HighlighterPlugin plugin ${this.id}`, this.state)
@@ -24,7 +24,7 @@ export default class HighlighterPlugin extends PartPlugin<{ targetClass: string,
 
         elem.querySelectorAll('.' + this.state.targetClass).forEach(target => {
             if (target instanceof HTMLElement) {
-                target.style.border = `1px solid ${this.state.color}`
+                target.style.border = `${this.state.thickness ?? '1px'} solid ${this.state.color}`
             }
         })
     }
