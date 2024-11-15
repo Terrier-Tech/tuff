@@ -23,6 +23,7 @@ class StaticChildPart extends Part<{}> {
         log.info("Before wait")
         await new Promise((resolve) => setTimeout(resolve, 100))
         log.info("After wait")
+        this.dirty()
     }
 
     load() {
