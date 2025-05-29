@@ -70,6 +70,12 @@ export class PartPlugin<StateType> {
     }
 
     /**
+     * Override this method to provide functionality that will run when this plugin is removed from its parent part.
+     */
+    remove() {
+    }
+
+    /**
      * Override this method to provide functionality that runs after each render and can interact directly with the part's DOM.
      * @param _elem the part's DOM element
      */

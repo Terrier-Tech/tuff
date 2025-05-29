@@ -483,6 +483,7 @@ export abstract class Part<StateType> {
     removePlugin(id: string): StatelessPlugin | undefined {
         const plugin = this._plugins[id]
         if (plugin) {
+            plugin.remove()
             delete this._plugins[id]
         }
         return plugin
