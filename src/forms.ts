@@ -41,7 +41,7 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
         return this.formFields.fields
     }
 
-    get files(): {[name: string]: FileList | null} {
+    get files(): {[name: string]: FileList | File | null} {
         return this.formFields.files
     }
 
@@ -81,8 +81,8 @@ export abstract class FormPart<DataType extends FormPartData> extends Part<DataT
         return this.formFields.numberInput(parent, name, attrs, serializerType)
     }
 
-    fileInput<Key extends KeyOfType<DataType,File> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
-        return this.formFields.fileInput(parent, name, attrs)
+    fileInput<Key extends KeyOfType<DataType,File | FileList> & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
+        return this.formFields.fileInput(parent, name, attrs, serializerType)
     }
 
     emailInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
@@ -275,7 +275,7 @@ export class NumberInputField extends Field<number, HTMLInputElement> {
 
 }
 
-export class FileInputField extends Field<FileList, HTMLInputElement> {
+export class FileListInputField extends Field<FileList, HTMLInputElement> {
 
     assignAttrValue(_attrs: InputTagAttrs, _value?: FileList) {
         // FileList is assigned to HTMLInputElement's .files attribute by FormPart#update
@@ -283,6 +283,21 @@ export class FileInputField extends Field<FileList, HTMLInputElement> {
 
     getValue(elem: HTMLInputElement[]): FileList | null {
         return elem[0].files ?? null
+    }
+
+}
+
+export class FileInputField extends Field<File, HTMLInputElement> {
+
+    assignAttrValue(_attrs: InputTagAttrs, _value?: File) {
+        // FileList is assigned to HTMLInputElement's .files attribute by FormPart#update
+    }
+
+    getValue(elem: HTMLInputElement[]): File | null {
+        if (elem[0].files) {
+            return elem[0].files[0]
+        }
+        return null
     }
 
 }
@@ -410,7 +425,7 @@ export class FormFields<DataType extends FormPartData> {
 
             // populate cached files
             if (fieldElement.type == 'file') {
-                this.files[fieldElement.name] = fieldElement.files
+                this.files[fieldElement.name] = value ?? null
             }
 
             // get full data and emit data changed
@@ -421,7 +436,7 @@ export class FormFields<DataType extends FormPartData> {
     }
 
     fields: { [name: string]: Field<any, Element> } = {}
-    files: { [name: string]: FileList | null } = {}
+    files: { [name: string]: FileList | File | null } = {}
     fieldChangeKeys: { [name: string]: FieldChangeKey<DataType, any, any> } = {}
 
     /** Gets a message key for `change` events for the specified field. */
@@ -470,12 +485,17 @@ export class FormFields<DataType extends FormPartData> {
         return this.input<Key>(parent, "number", name, serializerType, attrs)
     }
 
-    fileInput<Key extends KeyOfType<DataType,File> & string>(parent: PartTag, name: Key, attrs: InputTagAttrs={}): InputTag {
+    fileInput<Key extends KeyOfType<DataType,File | FileList> & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
         const inputName = this.inputName(name)
         if (!this.files[inputName]) {
             this.files[inputName] = null
         }
-        return this.input<Key>(parent, "file", name, FileInputField, attrs)
+        if ('multiple' in attrs && !attrs.multiple) {
+            serializerType ??= FileInputField as TSerializer
+        } else {
+            serializerType ??= FileListInputField as TSerializer
+        }
+        return this.input<Key>(parent, "file", name, serializerType, attrs)
     }
 
     emailInput<Key extends keyof DataType & string, TSerializer extends FieldConstructor<DataType[Key], HTMLInputElement>>(parent: PartTag, name: Key, attrs: InputTagAttrs={}, serializerType?: TSerializer): InputTag {
@@ -588,7 +608,13 @@ export class FormFields<DataType extends FormPartData> {
             for (const fieldName in this.files) {
                 if (this.files[fieldName]) {
                     const field = elem.querySelector(`input[name=${fieldName}]`) as HTMLInputElement
-                    field.files = this.files[fieldName]
+                    if (this.files[fieldName] instanceof File) {
+                        const dataTransfer = new DataTransfer()
+                        dataTransfer.items.add(this.files[fieldName])
+                        field.files = dataTransfer.files
+                    } else {
+                        field.files = this.files[fieldName]
+                    }
                 }
             }
         }
