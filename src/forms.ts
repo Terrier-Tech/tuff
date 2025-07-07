@@ -727,21 +727,46 @@ export function optionsForSelect(tag: SelectTag | OptGroupTag, options: SelectOp
     }
 }
 
+// an array of tuples, the first element of which is the title, and the second element of which is the value
+export type TupleSelectOptions = readonly [string, string | null][]
+
+// an array of tuples, the first element of which is the group title, the second element of which is the options in that group
+export type GroupedTupleSelectOptions = readonly [string, TupleSelectOptions][]
+
 /**
  * Transforms a rails-style options array to a tuff SelectOptions
  * @param options
+ * @param blankTitle if provided, added to the start of th e
  */
-export function toSelectOptions(options: readonly [string, string | null][]) : SelectOption[]
-export function toSelectOptions(options: readonly [string, [string, string | null][]][]) : SelectOptions
-export function toSelectOptions(options: readonly [string, string | null][] | readonly [string, [string, string | null][]][]) : SelectOptions {
+export function toSelectOptions(options: TupleSelectOptions, blankTitle?: string | SelectOption) : SelectOption[]
+export function toSelectOptions(options: GroupedTupleSelectOptions, blankTitle?: string | SelectOption) : SelectOptions
+export function toSelectOptions(options: TupleSelectOptions | GroupedTupleSelectOptions, blankTitle?: string | SelectOption) : SelectOptions {
     const results: SelectOptions = []
+
+    let isGrouped = false
     for (const option of options) {
         const value = option[1]
         if (Array.isArray(value)) {
+            isGrouped = true
             results.push({ group: option[0], options: toSelectOptions(value)})
         } else {
-            results.push({ title: option[0], value })
+            results.push({ title: option[0], value: value as string | null })
         }
+    }
+
+    if (blankTitle === undefined) return results
+
+    let blankOption: SelectOption
+    if (typeof blankTitle === 'string') {
+        blankOption = { title: blankTitle, value: null }
+    } else {
+        blankOption = blankTitle
+    }
+
+    if (isGrouped) {
+        results.unshift({ group: "", options: [blankOption]})
+    } else {
+        results.unshift(blankOption)
     }
 
     return results
