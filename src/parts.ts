@@ -1023,18 +1023,9 @@ export abstract class Part<StateType> {
                 const part = this.makePart(partType, state)
                 parts.push(part)
                 if (container) {
-                    // if the collection has already been rendered,
-                    // add a new container for this part and attach it
-                    const elem = Html.createElement(part.renderAsElement, div => {
-                        div.id(part.id)
-                        const classes = part.parentClasses || []
-                        classes.push(`tuff-part-${part.name}`)
-                        div.class(...classes)
-                    })
-                    container.append(elem)
+                    // if the collection has already been rendered, append this part directly to the existing container
+                    const elem = part.appendIntoContainer(container)
                     log.debug(`Created new ${name} collection part (${i}) element`, elem)
-                    part._attachedElement = elem
-                    part.dirty()
                 }
 
             }
@@ -1054,6 +1045,23 @@ export abstract class Part<StateType> {
 
         // return the updated parts collection
         return this._collectionParts[name]
+    }
+
+    /**
+     * Renders this part directly into the dom inside the given container element.
+     * @param container
+     */
+    appendIntoContainer(container: HTMLElement) {
+        const elem = Html.createElement(this.renderAsElement, div => {
+            div.id(this.id)
+            const classes = this.parentClasses || []
+            classes.push(`tuff-part-${this.name}`)
+            div.class(...classes)
+        }) as HTMLElement
+        container.append(elem)
+        this._attachedElement = elem
+        this.dirty()
+        return elem
     }
 
     /**
