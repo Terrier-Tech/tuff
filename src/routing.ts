@@ -89,7 +89,19 @@ export class Route<
             throw new MissingParamsError(path, missingParams)
         }
 
-        return this.routeNode.parseParams(raw as Record<Template, string>) as StateType
+        try {
+            return this.routeNode.parseParams(raw as Record<Template, string>) as StateType
+        } catch (e) {
+            if (e instanceof RouteParseError) {
+                throw e
+            } else if (e instanceof Error) {
+                const parseError = new RouteParseError(e.message, path)
+                parseError.cause = e
+                throw parseError
+            } else {
+                throw e
+            }
+        }
     }
 
     path(state: StateType): string {
