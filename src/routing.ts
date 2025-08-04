@@ -6,6 +6,7 @@ import { AllParamNames, InferParamFromPath } from "typesafe-routes/build/route"
 import { HtmlParentTag } from "./html"
 import { Logger } from './logging'
 import { Part, PartConstructor, PartTag, StatelessPart, TuffError } from './parts'
+import Strings from "./strings"
 import { QueryParams } from "./urls"
 
 const log = new Logger('Routing')
@@ -289,17 +290,35 @@ export const optionalIntParser: Parser<number | undefined> = makeOptionalParser(
 export const optionalDateParser: Parser<Date | undefined> = makeOptionalParser(dateParser)
 export const optionalBooleanParser: Parser<boolean | undefined> = makeOptionalParser(booleanParser)
 
+
+const listFormatter = new Intl.ListFormat('en', { style: 'long', type: 'disjunction' })
+
+/**
+ * Thrown when an enum route param can't be
+ */
+export class EnumParseError<T extends string> extends Error {
+    constructor(public value: string, public enumVals: readonly T[], public paramName?: string) {
+        const targetString = paramName ? `for ${Strings.titleize(paramName)}: ` : ''
+        const validValsString = listFormatter.format(enumVals.map(v => `'${v}'`))
+        const message = `Unrecognized value ${targetString}'${value}'. Must be one of ${validValsString}.`
+
+        super(message)
+        this.name = "EnumParseError"
+    }
+}
+
 /**
  * Creates a parser that parses a specific subset of values from a string
  * @param enumVals
+ * @param paramName used to create
  */
-export function enumParser<T extends string>(enumVals: readonly T[]): Parser<T> {
+export function enumParser<T extends string>(enumVals: readonly T[], paramName?: string): Parser<T> {
     return {
         parse: (s: string) => {
             if (enumVals.includes(s as T)) {
                 return s as T
             }
-            throw new Error(`Unknown enum value: ${s}`)
+            throw new EnumParseError(s, enumVals, paramName)
         },
         serialize: (x: T) => x,
     }
