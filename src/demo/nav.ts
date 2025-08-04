@@ -2,7 +2,7 @@ import {stringParser} from 'typesafe-routes'
 import {Logger} from '../logging'
 import Nav from '../nav'
 import {Part, PartTag} from '../parts'
-import {optionalIntParser, optionalStringParser, partRoute, redirectRoute, RouterPart} from '../routing'
+import { enumParser, makeOptionalParser, optionalIntParser, partRoute, redirectRoute, RouterPart } from '../routing'
 import * as styles from './styles.css'
 import Messages from "../messages"
 
@@ -51,12 +51,16 @@ class IdChildPart extends Part<IdState> {
     }
 }
 
-class OptionalParamPart extends Part<{ bravo: number | undefined, delta: string | undefined }> {
+
+const deltaValues = ['terrier', 'clypboard', 'lycensed', 'tuff'] as const
+
+class OptionalParamPart extends Part<{ bravo: number | undefined, delta: typeof deltaValues[number] | undefined }> {
     render(parent: PartTag) {
         parent.div(styles.output).text(`Bravo: ${this.state.bravo}, Delta: ${this.state.delta}`)
     }
 }
 
+const deltaParser = makeOptionalParser(enumParser(deltaValues, 'delta'))
 const routes = {
     root: partRoute(StaticChildPart, "/", {}),
     hello: partRoute(StaticChildPart, "/hello", {}),
@@ -65,7 +69,7 @@ const routes = {
     }),
     requiredFoo: partRoute(IdChildPart, "/required_foo&:id", { id: stringParser }),
     hola: redirectRoute('/hola', '/hello'),
-    withOptional: partRoute(OptionalParamPart, "/alpha/:bravo?/charlie&:delta?", { bravo: optionalIntParser, delta: optionalStringParser })
+    withOptional: partRoute(OptionalParamPart, "/alpha/:bravo?/charlie&:delta?", { bravo: optionalIntParser, delta: deltaParser })
 }
 
 const navKey = Messages.typedKey<{path: string}>()
@@ -98,6 +102,7 @@ export class NavApp extends RouterPart {
                     routes.hola.path({}),
                     routes.withOptional.path({ bravo: undefined, delta: undefined }),
                     routes.withOptional.path({ bravo: 42, delta: 'terrier' }),
+                    routes.withOptional.path({ bravo: 42, delta: 'not-valid' as any }),
                 ]
                 for (let text of urls) {
                     col.a(styles.button, {href: text}).div(styles.buttonTitle).text(text)
