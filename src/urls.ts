@@ -48,17 +48,18 @@ export class QueryParams {
         })
         const query = vals.join('&')
         if (path) {
+            if (!query.length) return path
+
             if (path.endsWith('/')) {
                 path = path.substring(0, path.length-1)
             }
+
             if (path.includes('?')) {
                 return `${path}&${query}`
-            }
-            else {
+            } else {
                 return `${path}?${query}`
             }
-        }
-        else {
+        } else {
             return query
         }
     }
