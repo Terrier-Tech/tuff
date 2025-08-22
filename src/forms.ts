@@ -461,6 +461,7 @@ export class FormFields<DataType extends FormPartData> {
     input<Key extends KeyOfType<DataType,any> & string>(parent: PartTag, type: InputType, name: Key, serializerType: FieldConstructor<any, Element>, attrs: InputTagAttrs={}): InputTag {
         attrs.type = type
         attrs.name = this.inputName(name)
+        attrs.id = attrs.name
         if (!this.fields[attrs.name]) {
             this.fields[attrs.name] = new serializerType(name)
         }
