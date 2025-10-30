@@ -663,7 +663,11 @@ export abstract class Part<StateType> {
 
         if ('target' in evt && evt.target && 'value' in evt.target) {
             if (type === 'change' || type === 'input') {
-                (message as ValueMessage<ValueEvents, DataType>).value = evt.target.value as string
+                let value = evt.target.value as string
+                if ('type' in evt.target && evt.target.type === 'checkbox') {
+                    value = (evt.target as HTMLInputElement).checked.toString()
+                }
+                (message as ValueMessage<ValueEvents, DataType>).value = value
             }
         }
 
