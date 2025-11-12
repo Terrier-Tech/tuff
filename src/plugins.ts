@@ -16,7 +16,7 @@ export type PluginConstructor<PluginType extends PartPlugin<StateType>, StateTyp
 }
 
 /**
- * Plugins can be mixed into parts with `makePlugin` and are able to integrate into the part's lifecyle.
+ * Plugins can be mixed into parts with `makePlugin` and are able to integrate into the part's lifecycle.
  */
 export class PartPlugin<StateType> {
 

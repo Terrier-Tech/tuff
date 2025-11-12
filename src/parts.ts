@@ -1076,6 +1076,7 @@ export abstract class Part<StateType> {
      * @return the collection container tag
      */
     renderCollection(parent: PartTag, name: string): DivTag
+
     /**
      * Renders a named collection into the given parent as the given tag.
      * Note: you should call `assignCollection()` with this name first.
