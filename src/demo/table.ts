@@ -22,7 +22,7 @@ export class Table extends Part<{ people?: Person[] }> {
             table.thead().tr(tr => {
                 tr.th().text("ID")
                 tr.th().text("Name")
-                tr.th().text("Birthday")
+                tr.th({colSpan: 2}).text("Birthday")
             })
             this.renderCollection(table, 'rows', 'tbody')
         })
@@ -39,7 +39,7 @@ class TableRow extends Part<Person> {
     render(parent: PartTag) {
         parent.td().text(this.state.id)
         parent.td().text(this.state.name)
-        parent.td().text(this.state.birthday ?? "Birthdayless")
+        parent.td({colSpan: 2}).text(this.state.birthday ?? "Birthdayless")
     }
 
 }
