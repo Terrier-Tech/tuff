@@ -568,7 +568,8 @@ npm run gen
 1. Increment version number in package.json
 2. Run `npm i` (this updates package-lock.json with the new version number)
 3. Commit and push changes
-4. Run `npm run pub`
+4. If there is no `./dist` directory in your local repository, create one manually.
+5. Run `npm run pub`
 
 Due to reasons that I cannot fathom, `npm publish` doesn't seem to support publishing just the `dist` directory in a reasonable way,
 so we use a custom publish script instead (`npm run pub`).
