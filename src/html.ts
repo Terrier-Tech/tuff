@@ -91,7 +91,14 @@ export abstract class HtmlTagBase<AttrsType extends Attrs,ElementType extends HT
 
         // The `for` attribute on a label element is a special case since it's a reserved keyword.
         // In the DOM API it's aliased as `htmlFor`, so we need to unalias it when serializing.
-        if (name == 'htmlFor') name = 'for'
+        // Likewise for `colSpan` and `rowSpan`
+        const serializeNameMap: Record<string, string> = {
+            htmlFor: 'for',
+            colSpan: 'colspan',
+            rowSpan: 'rowspan',
+        }
+
+        if (name in serializeNameMap) name = serializeNameMap[name]
 
         return `${Strings.ropeCase(name)}="${this.escapeAttrValue(value.toString())}"`
     }
