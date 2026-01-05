@@ -17,6 +17,7 @@ import Html, {
 import Nav from './nav'
 import {PartPlugin, PluginConstructor, StatelessPlugin} from "./plugins"
 import Strings from "./strings"
+import {ScopeMessageKeys, Scopes, ScopeToken, typedScopeUpdate} from "./scope"
 
 const log = new Logger('Part')
 
@@ -1099,6 +1100,92 @@ export abstract class Part<StateType> {
         })
     }
 
+    /**
+     * Initialize a scope, a data store that can be accessed by a tree of parts.
+     * @param token The token of the scope being created
+     * @param value The full scope value. Must be an object.
+     */
+    initScope<T extends object>(token: ScopeToken<T>, value: T) {
+        Scopes.set(token, value)
+    }
+
+    private getUpdatedScopeKey<T extends object>(token: ScopeToken<T>) {
+        if (!ScopeMessageKeys.has(token)) {
+            ScopeMessageKeys.set(token, typedScopeUpdate<T>())
+        }
+        return ScopeMessageKeys.get(token) as TypedKey<{ token: ScopeToken<T> }>
+    }
+
+    /**
+     * Attach an event listener to mark the part as dirty when a specified scope changes
+     * @param token The token of the scope being listened for
+     */
+    useScope<T extends object>(token: ScopeToken<T>): T {
+        const value = Scopes.get(token)
+        if (!value) throw new Error('Scope not found')
+
+        const messageKey = this.getUpdatedScopeKey(token)
+        this.listenMessage(messageKey, m => {
+            if (m.data.token == token) {
+                const current = Scopes.get(token)
+                if (!current) throw new Error('Scope not found')
+
+                this.dirty()
+            }
+        }, { attach: 'passive' })
+
+        return value as T
+    }
+
+    /**
+     * Retrieve a single scope value. Should not be used unless useScope() has been called
+     * by this part or by one of its ancestors.
+     * @param token
+     * @param key
+     */
+    getScopeValue<T extends object>(token: ScopeToken<T>, key: keyof T): T[keyof T] {
+        const current = Scopes.get(token)
+        if (!current) throw new Error('Scope not found')
+        return (current as T)[key]
+    }
+
+    /**
+     * Updates the full scope value to the new value
+     * @param token
+     * @param newScope
+     */
+    assignScope<T extends object>(token: ScopeToken<T>, newScope: T) {
+        const current = Scopes.get(token)
+        if (!current) throw new Error('Scope not found')
+
+        Scopes.set(token, newScope)
+
+        const messageKey = this.getUpdatedScopeKey(token)
+        this.emitMessage(messageKey, { token })
+    }
+
+    /**
+     * Updates a single specified key on a scope
+     * @param token
+     * @param key
+     * @param value
+     */
+    assignScopeKey<T extends object, K extends keyof T>(
+        token: ScopeToken<T>,
+        key: K,
+        value: T[K]
+    ) {
+        const current = Scopes.get(token)
+        if (!current) throw new Error('Scope not found')
+
+        Scopes.set(token, {
+            ...(current as T),
+            [key]: value
+        })
+
+        const messageKey = this.getUpdatedScopeKey(token)
+        this.emitMessage(messageKey, { token })
+    }
 
 
     //// Begin Listen Methods
