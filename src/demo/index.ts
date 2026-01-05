@@ -3,6 +3,7 @@ import {Logger} from '../logging'
 import { AddedContactKey, ContactsApp } from "./contacts"
 import * as styles from './styles.css'
 import * as theme from './theme'
+import * as scopedTheme from './scoped-theme'
 import * as counter from './counter'
 import * as contacts from './contacts'
 import * as shapes from './shapes'
@@ -51,6 +52,7 @@ class App extends Part<{}> {
     async init() {
         this.output = this.makePart(OutputPart, { output: undefined })
         this.parts['Theme'] = this.makeStatelessPart(theme.ThemeApp)
+        this.parts['Scoped Theme'] = this.makeStatelessPart(scopedTheme.ScopedThemeApp)
         this.parts['Counter'] = this.makeStatelessPart(counter.CounterApp)
         this.parts['Contacts'] = this.makeStatelessPart(contacts.ContactsApp)
         this.parts['Shapes'] = this.makeStatelessPart(shapes.ShapesApp)
