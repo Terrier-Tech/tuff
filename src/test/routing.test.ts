@@ -77,5 +77,5 @@ test("enumParser", () => {
     expect(parser.parse('foo')).eq('foo')
     expect(() => {
         parser.parse('bad')
-    }).toThrowError('Unknown enum value: bad')
+    }).toThrowError("Unrecognized value 'bad'. Must be one of 'foo', 'bar', or 'baz'.")
 })

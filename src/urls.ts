@@ -1,11 +1,24 @@
+import Arrays from "./arrays"
 
+/**
+ * The possible types of a raw query param value.
+ */
+export type RawQueryParamValue = string | number | boolean | undefined
+
+/**
+ * A set of query params serialized as a raw record.
+ */
+export type RawQueryParams = Record<string, RawQueryParamValue>
+
+
+const truthyStrings = ['true', '1', 'on']
 
 /**
  * Wraps a URL's query parameters in an object with type conversion accessors.
  */
 export class QueryParams {
 
-    constructor(readonly raw: Record<string,string>) {
+    constructor(readonly raw: RawQueryParams) {
 
     }
 
@@ -14,7 +27,7 @@ export class QueryParams {
      * @param key the param key
      * @returns the param value
      */
-    get(key: string): string|undefined {
+    get(key: string): RawQueryParamValue {
         return this.raw[key]
     }
 
@@ -23,9 +36,32 @@ export class QueryParams {
      * @param key the param key
      * @returns the converted param value
      */
-    getNumber(key: string): number|undefined {
-        if (this.raw[key]?.length) {
-            return parseFloat(this.raw[key])
+    getNumber(key: string): number | undefined {
+        const val = this.raw[key]
+        if (typeof val === 'number') {
+            return val
+        }
+        if (typeof val === 'string') {
+            return parseFloat(val)
+        }
+        return undefined
+    }
+
+    /**
+     * Gets a boolean value by key, returning `undefined` if the key isn't present.
+     * @param key the param key
+     * @returns the converted param value
+     */
+    getBoolean(key: string): boolean | undefined {
+        const val = this.raw[key]
+        if (typeof val === 'boolean') {
+            return val
+        }
+        if (typeof val === 'number') {
+            return val > 0
+        }
+        if (typeof val === 'string') {
+            return truthyStrings.includes(val.toLowerCase())
         }
         return undefined
     }
@@ -43,9 +79,10 @@ export class QueryParams {
      * @param path the (optional) root path to prepend to the query string
      */
     serialize(path?: string): string {
-        const vals = Object.entries(this.raw).map(kv => {
+        const vals = Arrays.compact(Object.entries(this.raw).map(kv => {
+            if (kv[1] == undefined) return undefined
             return `${kv[0]}=${encodeURIComponent(kv[1])}`
-        })
+        }))
         const query = vals.join('&')
         if (path) {
             if (!query.length) return path
