@@ -55,16 +55,17 @@ function initCapture(part: StatelessPart, path: string = '/') {
     })
 
     // handle popstate events so that the back button works
-    window.addEventListener("popstate", _ => {
+    window.addEventListener("popstate", evt => {
         const href = location.pathname
         if (href.toLowerCase().startsWith(capturePath)) {
             log.debug(`Popped to captured path ${href}, reloading captured part`)
             part.loadAll()
+            evt.stopImmediatePropagation()
         }
         else {
             log.debug(`Popped to non-captured path ${href}, doing nothing`)
         }
-    })
+    }, { capture: true })
 }
 
 /**
