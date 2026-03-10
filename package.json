@@ -14,7 +14,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "prepub": "tsc && rm -rf dist/* && cp -a ./src/*.ts ./dist/ && node --loader ts-node/esm src/gen/publish.ts ",
+    "prepub": "tsc && mkdir -p ./dist/ && rm -rf dist/* && cp -a ./src/*.ts ./dist/ && node --loader ts-node/esm src/gen/publish.ts ",
     "pub": "npm publish ./dist",
     "check": "tsc",
     "gen": "node --loader ts-node/esm  --experimental-modules --experimental-specifier-resolution=node src/gen/dom.ts",
