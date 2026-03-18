@@ -807,6 +807,19 @@ export function withNullBlankOption<T extends SelectOptions | SelectOption[]>(op
  * @param options an array of strings to convert into SelectOptions
  * @param blankTitle title of the blank option. If null, no blank option will be included
  */
+export function arrayToSelectOptions(options: string[] | readonly string[], blankTitle: string | null = null): SelectOption[] {
+    const selectOptions = options.map(o => ({ value: o, title: o }))
+    if (blankTitle != null) {
+        selectOptions.unshift({ value: "", title: blankTitle })
+    }
+    return selectOptions
+}
+
+/**
+ * Transforms an array of strings into an array of SelectOptions and formats the title
+ * @param options an array of strings to convert into SelectOptions
+ * @param blankTitle title of the blank option. If null, no blank option will be included
+ */
 export function titleizeOptions(options: string[] | readonly string[], blankTitle: string | null = null): SelectOption[] {
     const selectOptions = options.map(o => ({ value: o, title: Strings.titleize(o) }))
     if (blankTitle != null) {
@@ -826,6 +839,7 @@ const Forms = {
     objectToSelectOptions,
     withBlankOption,
     withNullBlankOption,
+    arrayToSelectOptions,
     titleizeOptions,
 }
 
