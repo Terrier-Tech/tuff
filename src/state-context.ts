@@ -1,5 +1,5 @@
-import Messages from "./messages"
 import {Part, PartConstructor} from "./parts"
+import Messages from "./messages"
 
 type ArrayKeys<T> = {
     [P in keyof T]: T[P] extends readonly unknown[] | undefined ? P : never
@@ -34,12 +34,13 @@ export class StateContext<T extends object> {
      * @param part The part to mark as dirty
      * @param key The context key
      */
-    selectiveBind<K extends keyof T>(part: Part<unknown>, key: K) {
+    selectiveBind<K extends keyof T>(part: Part<unknown>, key: K, beforeRender?: () => void) {
         part.listenMessage(
             this.changeMessageKey,
             m => {
-                // if key is null, then full state was assigned
+                // if the key is null, then the full state was assigned
                 if (m.data.key === key || m.data.key === null) {
+                    beforeRender?.()
                     part.dirty()
                 }
             },
@@ -49,43 +50,41 @@ export class StateContext<T extends object> {
 
     /**
      * Bind a context key to a tuff collection
-     * @param part The parent part. Will be rerendered on context key change.
      * @param contextKey
+     * @param parentPart The parent part. Will be rerendered on context key change.
      * @param collectionName
-     * @param collectionPartKey
-     * @param partType
+     * @param collectionPart
+     * @param stateBuilder
      */
     bindKeyToCollection<
         K extends ArrayKeys<T>,
         Item extends ElementOf<NonNullable<T[K]>>,
-        CollectionKey extends string,
-        State extends Record<CollectionKey, Item>
+        ElementState extends object,
     >(
-        part: Part<unknown>,
         contextKey: K,
+        parentPart: Part<unknown>,
         collectionName: string,
-        collectionPartKey: CollectionKey,
-        partType: PartConstructor<Part<State>, State>
+        collectionPart: PartConstructor<Part<ElementState>, ElementState>,
+        stateBuilder: (item: Item, context: StateContext<T>) => ElementState
     ) {
-        part.listenMessage(
+        const items = this.data[contextKey] as Item[]
+        const initialStates = items?.map(item => stateBuilder(item, this))
+        if (initialStates?.length) {
+            parentPart.assignCollection(collectionName, collectionPart, initialStates)
+        }
+
+        parentPart.listenMessage(
             this.changeMessageKey,
             m => {
                 if (m.data.key === contextKey || m.data.key === null) {
-                    const existingCollectionStates = (part.getCollectionParts(collectionName) as Part<State>[])
-                        .map(part => part.state)
-
                     const items = this.data[contextKey] as Item[]
 
-                    const newStates: State[] = items.map((item, index) => {
-                        const existingState = existingCollectionStates[index]
-                        return {
-                            ...(existingState ?? {}),
-                            [collectionPartKey]: item,
-                        } as State
+                    const newStates: ElementState[] = items.map(item => {
+                        return stateBuilder(item, this)
                     })
 
-                    part.assignCollection(collectionName, partType, newStates)
-                    part.dirty()
+                    parentPart.assignCollection(collectionName, collectionPart, newStates)
+                    parentPart.dirty()
                 }
             }, { attach: 'passive' }
         )
