@@ -1,8 +1,8 @@
-import Strings from "../strings"
+import Strings from "../strings.js"
 import * as fs from 'fs'
-import TypescriptTree from './ts-tree'
-import * as meta from './dom-meta'
-import SourceFile from './source-file'
+import TypescriptTree from './ts-tree.js'
+import * as meta from './dom-meta.js'
+import SourceFile from './source-file.js'
 
 export {}
 

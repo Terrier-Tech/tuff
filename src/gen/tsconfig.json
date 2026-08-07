@@ -2,11 +2,12 @@
     "compilerOptions": {
         "target": "esnext",
         "useDefineForClassFields": true,
-        "module": "ESNext",
+        "module": "Node16",
         "lib": [
             "ES2015"
         ],
-        "moduleResolution": "Node",
+        "types": ["node"],
+        "moduleResolution": "node16",
         "strict": true,
         "sourceMap": true,
         "resolveJsonModule": true,
