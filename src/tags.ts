@@ -470,6 +470,30 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
         return this
     }
     
+    emitBeforematch<DataType extends object>(key: UntypedKey): Tag<AttrsType,ElementType>
+    emitBeforematch<DataType extends object>(key: TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitBeforematch<DataType extends object>(key: TypedKey<DataType> | UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
+        if (data) {
+            this.emit('beforematch', key, data)
+        }
+        else {
+            this.emit('beforematch', key as UntypedKey)
+        }
+        return this
+    }
+    
+    emitBeforetoggle<DataType extends object>(key: UntypedKey): Tag<AttrsType,ElementType>
+    emitBeforetoggle<DataType extends object>(key: TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitBeforetoggle<DataType extends object>(key: TypedKey<DataType> | UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
+        if (data) {
+            this.emit('beforetoggle', key, data)
+        }
+        else {
+            this.emit('beforetoggle', key as UntypedKey)
+        }
+        return this
+    }
+    
     emitBlur<DataType extends object>(key: UntypedKey): Tag<AttrsType,ElementType>
     emitBlur<DataType extends object>(key: TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
     emitBlur<DataType extends object>(key: TypedKey<DataType> | UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
@@ -554,6 +578,18 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
         return this
     }
     
+    emitCommand<DataType extends object>(key: UntypedKey): Tag<AttrsType,ElementType>
+    emitCommand<DataType extends object>(key: TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitCommand<DataType extends object>(key: TypedKey<DataType> | UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
+        if (data) {
+            this.emit('command', key, data)
+        }
+        else {
+            this.emit('command', key as UntypedKey)
+        }
+        return this
+    }
+    
     emitCompositionEnd<DataType extends object>(key: UntypedKey): Tag<AttrsType,ElementType>
     emitCompositionEnd<DataType extends object>(key: TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
     emitCompositionEnd<DataType extends object>(key: TypedKey<DataType> | UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
@@ -590,6 +626,18 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
         return this
     }
     
+    emitContextlost<DataType extends object>(key: UntypedKey): Tag<AttrsType,ElementType>
+    emitContextlost<DataType extends object>(key: TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitContextlost<DataType extends object>(key: TypedKey<DataType> | UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
+        if (data) {
+            this.emit('contextlost', key, data)
+        }
+        else {
+            this.emit('contextlost', key as UntypedKey)
+        }
+        return this
+    }
+    
     emitContextMenu<DataType extends object>(key: UntypedKey): Tag<AttrsType,ElementType>
     emitContextMenu<DataType extends object>(key: TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
     emitContextMenu<DataType extends object>(key: TypedKey<DataType> | UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
@@ -598,6 +646,18 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
         }
         else {
             this.emit('contextmenu', key as UntypedKey)
+        }
+        return this
+    }
+    
+    emitContextrestored<DataType extends object>(key: UntypedKey): Tag<AttrsType,ElementType>
+    emitContextrestored<DataType extends object>(key: TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitContextrestored<DataType extends object>(key: TypedKey<DataType> | UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
+        if (data) {
+            this.emit('contextrestored', key, data)
+        }
+        else {
+            this.emit('contextrestored', key as UntypedKey)
         }
         return this
     }
@@ -1190,6 +1250,18 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
         return this
     }
     
+    emitPointerrawUpdate<DataType extends object>(key: UntypedKey): Tag<AttrsType,ElementType>
+    emitPointerrawUpdate<DataType extends object>(key: TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitPointerrawUpdate<DataType extends object>(key: TypedKey<DataType> | UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
+        if (data) {
+            this.emit('pointerrawupdate', key, data)
+        }
+        else {
+            this.emit('pointerrawupdate', key as UntypedKey)
+        }
+        return this
+    }
+    
     emitPointerUp<DataType extends object>(key: UntypedKey): Tag<AttrsType,ElementType>
     emitPointerUp<DataType extends object>(key: TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
     emitPointerUp<DataType extends object>(key: TypedKey<DataType> | UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
@@ -1258,6 +1330,18 @@ export abstract class Tag<AttrsType extends Attrs, ElementType extends Element> 
         }
         else {
             this.emit('scroll', key as UntypedKey)
+        }
+        return this
+    }
+    
+    emitScrollEnd<DataType extends object>(key: UntypedKey): Tag<AttrsType,ElementType>
+    emitScrollEnd<DataType extends object>(key: TypedKey<DataType>, data: DataType): Tag<AttrsType,ElementType>
+    emitScrollEnd<DataType extends object>(key: TypedKey<DataType> | UntypedKey, data?: DataType): Tag<AttrsType,ElementType> {
+        if (data) {
+            this.emit('scrollend', key, data)
+        }
+        else {
+            this.emit('scrollend', key as UntypedKey)
         }
         return this
     }
