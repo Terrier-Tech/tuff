@@ -1145,21 +1145,33 @@ export abstract class Part<StateType> {
         this.listen<"beforeinput",DataType>("beforeinput", key, listener, options)
     }
     
+    onBeforematch<DataType extends object>(key: UntypedKey, listener: (m: EventMessageTypeMap<"beforematch", DataType>["beforematch"]) => void, options?: ListenOptions): void
+    onBeforematch<DataType extends object>(key: TypedKey<DataType>, listener: (m: EventMessageTypeMap<"beforematch", DataType>["beforematch"]) => void, options?: ListenOptions): void
+    onBeforematch<DataType extends object>(key: UntypedKey | TypedKey<DataType>, listener: (m: EventMessageTypeMap<"beforematch", DataType>["beforematch"]) => void, options?: ListenOptions): void {
+        this.listen<"beforematch",DataType>("beforematch", key, listener, options)
+    }
+    
+    onBeforetoggle<DataType extends object>(key: UntypedKey, listener: (m: EventMessageTypeMap<"beforetoggle", DataType>["beforetoggle"]) => void, options?: ListenOptions): void
+    onBeforetoggle<DataType extends object>(key: TypedKey<DataType>, listener: (m: EventMessageTypeMap<"beforetoggle", DataType>["beforetoggle"]) => void, options?: ListenOptions): void
+    onBeforetoggle<DataType extends object>(key: UntypedKey | TypedKey<DataType>, listener: (m: EventMessageTypeMap<"beforetoggle", DataType>["beforetoggle"]) => void, options?: ListenOptions): void {
+        this.listen<"beforetoggle",DataType>("beforetoggle", key, listener, options)
+    }
+    
     onBlur<DataType extends object>(key: UntypedKey, listener: (m: EventMessageTypeMap<"blur", DataType>["blur"]) => void, options?: ListenOptions): void
     onBlur<DataType extends object>(key: TypedKey<DataType>, listener: (m: EventMessageTypeMap<"blur", DataType>["blur"]) => void, options?: ListenOptions): void
     onBlur<DataType extends object>(key: UntypedKey | TypedKey<DataType>, listener: (m: EventMessageTypeMap<"blur", DataType>["blur"]) => void, options?: ListenOptions): void {
         this.listen<"blur",DataType>("blur", key, listener, options)
     }
     
-    onCancel<DataType extends object>(key: UntypedKey, listener: (m: Message<"cancel",DataType>) => void, options?: ListenOptions): void
-    onCancel<DataType extends object>(key: TypedKey<DataType>, listener: (m: Message<"cancel",DataType>) => void, options?: ListenOptions): void
-    onCancel<DataType extends object>(key: UntypedKey | TypedKey<DataType>, listener: (m: Message<"cancel",DataType>) => void, options?: ListenOptions): void {
+    onCancel<DataType extends object>(key: UntypedKey, listener: (m: EventMessageTypeMap<"cancel", DataType>["cancel"]) => void, options?: ListenOptions): void
+    onCancel<DataType extends object>(key: TypedKey<DataType>, listener: (m: EventMessageTypeMap<"cancel", DataType>["cancel"]) => void, options?: ListenOptions): void
+    onCancel<DataType extends object>(key: UntypedKey | TypedKey<DataType>, listener: (m: EventMessageTypeMap<"cancel", DataType>["cancel"]) => void, options?: ListenOptions): void {
         this.listen<"cancel",DataType>("cancel", key, listener, options)
     }
-
-    onCanPlay<DataType extends object>(key: UntypedKey, listener: (m: Message<"canplay",DataType>) => void, options?: ListenOptions): void
-    onCanPlay<DataType extends object>(key: TypedKey<DataType>, listener: (m: Message<"canplay",DataType>) => void, options?: ListenOptions): void
-    onCanPlay<DataType extends object>(key: UntypedKey | TypedKey<DataType>, listener: (m: Message<"canplay",DataType>) => void, options?: ListenOptions): void {
+    
+    onCanPlay<DataType extends object>(key: UntypedKey, listener: (m: EventMessageTypeMap<"canplay", DataType>["canplay"]) => void, options?: ListenOptions): void
+    onCanPlay<DataType extends object>(key: TypedKey<DataType>, listener: (m: EventMessageTypeMap<"canplay", DataType>["canplay"]) => void, options?: ListenOptions): void
+    onCanPlay<DataType extends object>(key: UntypedKey | TypedKey<DataType>, listener: (m: EventMessageTypeMap<"canplay", DataType>["canplay"]) => void, options?: ListenOptions): void {
         this.listen<"canplay",DataType>("canplay", key, listener, options)
     }
     
@@ -1187,6 +1199,12 @@ export abstract class Part<StateType> {
         this.listen<"close",DataType>("close", key, listener, options)
     }
     
+    onCommand<DataType extends object>(key: UntypedKey, listener: (m: EventMessageTypeMap<"command", DataType>["command"]) => void, options?: ListenOptions): void
+    onCommand<DataType extends object>(key: TypedKey<DataType>, listener: (m: EventMessageTypeMap<"command", DataType>["command"]) => void, options?: ListenOptions): void
+    onCommand<DataType extends object>(key: UntypedKey | TypedKey<DataType>, listener: (m: EventMessageTypeMap<"command", DataType>["command"]) => void, options?: ListenOptions): void {
+        this.listen<"command",DataType>("command", key, listener, options)
+    }
+    
     onCompositionEnd<DataType extends object>(key: UntypedKey, listener: (m: EventMessageTypeMap<"compositionend", DataType>["compositionend"]) => void, options?: ListenOptions): void
     onCompositionEnd<DataType extends object>(key: TypedKey<DataType>, listener: (m: EventMessageTypeMap<"compositionend", DataType>["compositionend"]) => void, options?: ListenOptions): void
     onCompositionEnd<DataType extends object>(key: UntypedKey | TypedKey<DataType>, listener: (m: EventMessageTypeMap<"compositionend", DataType>["compositionend"]) => void, options?: ListenOptions): void {
@@ -1205,10 +1223,22 @@ export abstract class Part<StateType> {
         this.listen<"compositionupdate",DataType>("compositionupdate", key, listener, options)
     }
     
+    onContextlost<DataType extends object>(key: UntypedKey, listener: (m: EventMessageTypeMap<"contextlost", DataType>["contextlost"]) => void, options?: ListenOptions): void
+    onContextlost<DataType extends object>(key: TypedKey<DataType>, listener: (m: EventMessageTypeMap<"contextlost", DataType>["contextlost"]) => void, options?: ListenOptions): void
+    onContextlost<DataType extends object>(key: UntypedKey | TypedKey<DataType>, listener: (m: EventMessageTypeMap<"contextlost", DataType>["contextlost"]) => void, options?: ListenOptions): void {
+        this.listen<"contextlost",DataType>("contextlost", key, listener, options)
+    }
+    
     onContextMenu<DataType extends object>(key: UntypedKey, listener: (m: EventMessageTypeMap<"contextmenu", DataType>["contextmenu"]) => void, options?: ListenOptions): void
     onContextMenu<DataType extends object>(key: TypedKey<DataType>, listener: (m: EventMessageTypeMap<"contextmenu", DataType>["contextmenu"]) => void, options?: ListenOptions): void
     onContextMenu<DataType extends object>(key: UntypedKey | TypedKey<DataType>, listener: (m: EventMessageTypeMap<"contextmenu", DataType>["contextmenu"]) => void, options?: ListenOptions): void {
         this.listen<"contextmenu",DataType>("contextmenu", key, listener, options)
+    }
+    
+    onContextrestored<DataType extends object>(key: UntypedKey, listener: (m: EventMessageTypeMap<"contextrestored", DataType>["contextrestored"]) => void, options?: ListenOptions): void
+    onContextrestored<DataType extends object>(key: TypedKey<DataType>, listener: (m: EventMessageTypeMap<"contextrestored", DataType>["contextrestored"]) => void, options?: ListenOptions): void
+    onContextrestored<DataType extends object>(key: UntypedKey | TypedKey<DataType>, listener: (m: EventMessageTypeMap<"contextrestored", DataType>["contextrestored"]) => void, options?: ListenOptions): void {
+        this.listen<"contextrestored",DataType>("contextrestored", key, listener, options)
     }
     
     onCopy<DataType extends object>(key: UntypedKey, listener: (m: EventMessageTypeMap<"copy", DataType>["copy"]) => void, options?: ListenOptions): void
@@ -1505,6 +1535,12 @@ export abstract class Part<StateType> {
         this.listen<"pointerover",DataType>("pointerover", key, listener, options)
     }
     
+    onPointerrawUpdate<DataType extends object>(key: UntypedKey, listener: (m: EventMessageTypeMap<"pointerrawupdate", DataType>["pointerrawupdate"]) => void, options?: ListenOptions): void
+    onPointerrawUpdate<DataType extends object>(key: TypedKey<DataType>, listener: (m: EventMessageTypeMap<"pointerrawupdate", DataType>["pointerrawupdate"]) => void, options?: ListenOptions): void
+    onPointerrawUpdate<DataType extends object>(key: UntypedKey | TypedKey<DataType>, listener: (m: EventMessageTypeMap<"pointerrawupdate", DataType>["pointerrawupdate"]) => void, options?: ListenOptions): void {
+        this.listen<"pointerrawupdate",DataType>("pointerrawupdate", key, listener, options)
+    }
+    
     onPointerUp<DataType extends object>(key: UntypedKey, listener: (m: EventMessageTypeMap<"pointerup", DataType>["pointerup"]) => void, options?: ListenOptions): void
     onPointerUp<DataType extends object>(key: TypedKey<DataType>, listener: (m: EventMessageTypeMap<"pointerup", DataType>["pointerup"]) => void, options?: ListenOptions): void
     onPointerUp<DataType extends object>(key: UntypedKey | TypedKey<DataType>, listener: (m: EventMessageTypeMap<"pointerup", DataType>["pointerup"]) => void, options?: ListenOptions): void {
@@ -1539,6 +1575,12 @@ export abstract class Part<StateType> {
     onScroll<DataType extends object>(key: TypedKey<DataType>, listener: (m: EventMessageTypeMap<"scroll", DataType>["scroll"]) => void, options?: ListenOptions): void
     onScroll<DataType extends object>(key: UntypedKey | TypedKey<DataType>, listener: (m: EventMessageTypeMap<"scroll", DataType>["scroll"]) => void, options?: ListenOptions): void {
         this.listen<"scroll",DataType>("scroll", key, listener, options)
+    }
+    
+    onScrollEnd<DataType extends object>(key: UntypedKey, listener: (m: EventMessageTypeMap<"scrollend", DataType>["scrollend"]) => void, options?: ListenOptions): void
+    onScrollEnd<DataType extends object>(key: TypedKey<DataType>, listener: (m: EventMessageTypeMap<"scrollend", DataType>["scrollend"]) => void, options?: ListenOptions): void
+    onScrollEnd<DataType extends object>(key: UntypedKey | TypedKey<DataType>, listener: (m: EventMessageTypeMap<"scrollend", DataType>["scrollend"]) => void, options?: ListenOptions): void {
+        this.listen<"scrollend",DataType>("scrollend", key, listener, options)
     }
     
     onSecurityPolicyViolation<DataType extends object>(key: UntypedKey, listener: (m: EventMessageTypeMap<"securitypolicyviolation", DataType>["securitypolicyviolation"]) => void, options?: ListenOptions): void

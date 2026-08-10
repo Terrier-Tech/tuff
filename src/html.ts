@@ -392,6 +392,10 @@ export abstract class HtmlTagBase<AttrsType extends Attrs,ElementType extends HT
         return this.child(DefaultTag, 'mark', ...args)
     }
 
+    menu(...args: TagArgs<MenuTag,MenuTagAttrs>[]) : MenuTag {
+        return this.child(MenuTag, 'menu', ...args)
+    }
+
     meta(...args: TagArgs<MetaTag,MetaTagAttrs>[]) : MetaTag {
         return this.child(MetaTag, 'meta', ...args)
     }
@@ -470,6 +474,10 @@ export abstract class HtmlTagBase<AttrsType extends Attrs,ElementType extends HT
 
     script(...args: TagArgs<ScriptTag,ScriptTagAttrs>[]) : ScriptTag {
         return this.child(ScriptTag, 'script', ...args)
+    }
+
+    search(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
+        return this.child(DefaultTag, 'search', ...args)
     }
 
     section(...args: TagArgs<DefaultTag,DefaultTagAttrs>[]) : DefaultTag {
@@ -643,6 +651,8 @@ export class BodyTag extends HtmlTagBase<BodyTagAttrs,HTMLBodyElement> {}
 
 /** HTMLButtonElement Attributes */
 export type ButtonTagAttrs = DefaultTagAttrs & {
+    command?: string
+    commandForElement?: Element | null
     disabled?: boolean
     formAction?: string
     formEnctype?: string
@@ -650,7 +660,7 @@ export type ButtonTagAttrs = DefaultTagAttrs & {
     formNoValidate?: boolean
     formTarget?: string
     name?: string
-    type?: string
+    type?: "submit" | "reset" | "button"
     value?: string
 }
 
@@ -690,6 +700,7 @@ export class DataListTag extends HtmlTagBase<DataListTagAttrs,HTMLDataListElemen
 
 /** HTMLDetailsElement Attributes */
 export type DetailsTagAttrs = DefaultTagAttrs & {
+    name?: string
     open?: boolean
 }
 
@@ -698,6 +709,7 @@ export class DetailsTag extends HtmlTagBase<DetailsTagAttrs,HTMLDetailsElement> 
 
 /** HTMLDialogElement Attributes */
 export type DialogTagAttrs = DefaultTagAttrs & {
+    closedBy?: string
     open?: boolean
     returnValue?: string
 }
@@ -716,16 +728,19 @@ export class DivTag extends HtmlTagBase<DivTagAttrs,HTMLDivElement> {}
 export type DefaultTagAttrs = HtmlBaseAttrs & {
     accessKey?: string
     autocapitalize?: string
+    autocorrect?: boolean
     dir?: string
     draggable?: boolean
-    hidden?: boolean
+    hidden?: boolean | "until-found"
     inert?: boolean
     innerText?: string
     lang?: string
     outerText?: string
+    popover?: string | null
     spellcheck?: boolean
     title?: string
     translate?: boolean
+    writingSuggestions?: string
 }
 
 /** HTMLElement Tag */
@@ -755,12 +770,13 @@ export class FieldSetTag extends HtmlTagBase<FieldSetTagAttrs,HTMLFieldSetElemen
 export type FormTagAttrs = DefaultTagAttrs & {
     acceptCharset?: string
     action?: string
-    autocomplete?: string
+    autocomplete?: AutoFillBase
     encoding?: string
     enctype?: string
     method?: string
     name?: string
     noValidate?: boolean
+    rel?: string
     target?: string
 }
 
@@ -800,6 +816,7 @@ export type IFrameTagAttrs = DefaultTagAttrs & {
     allow?: string
     allowFullscreen?: boolean
     height?: string
+    loading?: "eager" | "lazy"
     name?: string
     referrerPolicy?: ReferrerPolicy
     src?: string
@@ -815,6 +832,7 @@ export type ImageTagAttrs = DefaultTagAttrs & {
     alt?: string
     crossOrigin?: string | null
     decoding?: "async" | "sync" | "auto"
+    fetchPriority?: "high" | "low" | "auto"
     height?: number
     isMap?: boolean
     loading?: "eager" | "lazy"
@@ -833,7 +851,7 @@ export class ImageTag extends HtmlTagBase<ImageTagAttrs,HTMLImageElement> {}
 export type InputTagAttrs = DefaultTagAttrs & {
     accept?: string
     alt?: string
-    autocomplete?: string
+    autocomplete?: AutoFill
     capture?: string
     checked?: boolean
     defaultChecked?: boolean
@@ -858,7 +876,7 @@ export type InputTagAttrs = DefaultTagAttrs & {
     placeholder?: string
     readOnly?: boolean
     required?: boolean
-    selectionDirection?: "forward" | "backward" | "none" | null
+    selectionDirection?: SelectionDirection | null
     selectionEnd?: number | null
     selectionStart?: number | null
     size?: number
@@ -903,6 +921,7 @@ export type LinkTagAttrs = DefaultTagAttrs & {
     as?: string
     crossOrigin?: string | null
     disabled?: boolean
+    fetchPriority?: "high" | "low" | "auto"
     href?: string
     hreflang?: string
     imageSizes?: string
@@ -948,6 +967,13 @@ export type MediaTagAttrs = DefaultTagAttrs & {
 
 /** HTMLMediaElement Tag */
 export class MediaTag extends HtmlTagBase<MediaTagAttrs,HTMLMediaElement> {}
+
+/** HTMLMenuElement Attributes */
+export type MenuTagAttrs = DefaultTagAttrs & {
+}
+
+/** HTMLMenuElement Tag */
+export class MenuTag extends HtmlTagBase<MenuTagAttrs,HTMLMenuElement> {}
 
 /** HTMLMetaElement Attributes */
 export type MetaTagAttrs = DefaultTagAttrs & {
@@ -998,7 +1024,6 @@ export type ObjectTagAttrs = DefaultTagAttrs & {
     height?: string
     name?: string
     type?: string
-    useMap?: string
     width?: string
 }
 
@@ -1080,6 +1105,7 @@ export type ScriptTagAttrs = DefaultTagAttrs & {
     async?: boolean
     crossOrigin?: string | null
     defer?: boolean
+    fetchPriority?: "high" | "low" | "auto"
     integrity?: string
     noModule?: boolean
     referrerPolicy?: string
@@ -1093,7 +1119,7 @@ export class ScriptTag extends HtmlTagBase<ScriptTagAttrs,HTMLScriptElement> {}
 
 /** HTMLSelectElement Attributes */
 export type SelectTagAttrs = DefaultTagAttrs & {
-    autocomplete?: string
+    autocomplete?: AutoFill
     disabled?: boolean
     length?: number
     multiple?: boolean
@@ -1198,6 +1224,11 @@ export class TableSectionTag extends HtmlTagBase<TableSectionTagAttrs,HTMLTableS
 
 /** HTMLTemplateElement Attributes */
 export type TemplateTagAttrs = DefaultTagAttrs & {
+    shadowRootClonable?: boolean
+    shadowRootCustomElementRegistry?: string
+    shadowRootDelegatesFocus?: boolean
+    shadowRootMode?: string
+    shadowRootSerializable?: boolean
 }
 
 /** HTMLTemplateElement Tag */
@@ -1205,7 +1236,7 @@ export class TemplateTag extends HtmlTagBase<TemplateTagAttrs,HTMLTemplateElemen
 
 /** HTMLTextAreaElement Attributes */
 export type TextAreaTagAttrs = DefaultTagAttrs & {
-    autocomplete?: string
+    autocomplete?: AutoFill
     cols?: number
     defaultValue?: string
     dirName?: string
@@ -1217,7 +1248,7 @@ export type TextAreaTagAttrs = DefaultTagAttrs & {
     readOnly?: boolean
     required?: boolean
     rows?: number
-    selectionDirection?: "forward" | "backward" | "none"
+    selectionDirection?: SelectionDirection
     selectionEnd?: number
     selectionStart?: number
     value?: string
@@ -1336,6 +1367,7 @@ export interface HtmlTagMap {
     "main": DefaultTag
     "map": MapTag
     "mark": DefaultTag
+    "menu": MenuTag
     "meta": MetaTag
     "meter": MeterTag
     "nav": DefaultTag
@@ -1356,6 +1388,7 @@ export interface HtmlTagMap {
     "s": DefaultTag
     "samp": DefaultTag
     "script": ScriptTag
+    "search": DefaultTag
     "section": DefaultTag
     "select": SelectTag
     "slot": SlotTag
@@ -1450,6 +1483,7 @@ export const htmlTagMap: Record<HtmlTagName, {new (tag: HtmlTagName): HtmlTagMap
     main: DefaultTag,
     map: MapTag,
     mark: DefaultTag,
+    menu: MenuTag,
     meta: MetaTag,
     meter: MeterTag,
     nav: DefaultTag,
@@ -1470,6 +1504,7 @@ export const htmlTagMap: Record<HtmlTagName, {new (tag: HtmlTagName): HtmlTagMap
     s: DefaultTag,
     samp: DefaultTag,
     script: ScriptTag,
+    search: DefaultTag,
     section: DefaultTag,
     select: SelectTag,
     slot: SlotTag,

@@ -1,6 +1,6 @@
 import ts from 'typescript'
-import TypescriptTree from './ts-tree'
-import Strings from '../strings'
+import TypescriptTree from './ts-tree.js'
+import Strings from '../strings.js'
 import {info} from 'console'
 
 const capitalize = (s: string) => s = s.charAt(0).toUpperCase() + s.slice(1)

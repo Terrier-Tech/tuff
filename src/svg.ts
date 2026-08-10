@@ -371,9 +371,13 @@ export abstract class SvgTagBase<AttrsType extends Attrs,ElementType extends Ele
 
 /** SVGAElement Attributes */
 export type ATagAttrs = GraphicsTagAttrs & {
+    download?: string
+    hreflang?: string
+    ping?: string
+    referrerPolicy?: string
     rel?: string
-    relList?: DOMTokenList
     target?: string
+    type?: string
 }
 
 /** SVGAElement Tag */
@@ -415,12 +419,12 @@ export type ComponentTransferFunctionTagAttrs = DefaultTagAttrs & {
     slope?: number
     tableValues?: Array<number>
     type?: string|number
-    SVG_FECOMPONENTTRANSFER_TYPE_DISCRETE?: number
-    SVG_FECOMPONENTTRANSFER_TYPE_GAMMA?: number
-    SVG_FECOMPONENTTRANSFER_TYPE_IDENTITY?: number
-    SVG_FECOMPONENTTRANSFER_TYPE_LINEAR?: number
-    SVG_FECOMPONENTTRANSFER_TYPE_TABLE?: number
-    SVG_FECOMPONENTTRANSFER_TYPE_UNKNOWN?: number
+    SVG_FECOMPONENTTRANSFER_TYPE_UNKNOWN?: 0
+    SVG_FECOMPONENTTRANSFER_TYPE_IDENTITY?: 1
+    SVG_FECOMPONENTTRANSFER_TYPE_TABLE?: 2
+    SVG_FECOMPONENTTRANSFER_TYPE_DISCRETE?: 3
+    SVG_FECOMPONENTTRANSFER_TYPE_LINEAR?: 4
+    SVG_FECOMPONENTTRANSFER_TYPE_GAMMA?: 5
 }
 
 /** SVGComponentTransferFunctionElement Tag */
@@ -465,23 +469,23 @@ export type FEBlendTagAttrs = DefaultTagAttrs & {
     in1?: string
     in2?: string
     mode?: string|number
-    SVG_FEBLEND_MODE_COLOR?: number
-    SVG_FEBLEND_MODE_COLOR_BURN?: number
-    SVG_FEBLEND_MODE_COLOR_DODGE?: number
-    SVG_FEBLEND_MODE_DARKEN?: number
-    SVG_FEBLEND_MODE_DIFFERENCE?: number
-    SVG_FEBLEND_MODE_EXCLUSION?: number
-    SVG_FEBLEND_MODE_HARD_LIGHT?: number
-    SVG_FEBLEND_MODE_HUE?: number
-    SVG_FEBLEND_MODE_LIGHTEN?: number
-    SVG_FEBLEND_MODE_LUMINOSITY?: number
-    SVG_FEBLEND_MODE_MULTIPLY?: number
-    SVG_FEBLEND_MODE_NORMAL?: number
-    SVG_FEBLEND_MODE_OVERLAY?: number
-    SVG_FEBLEND_MODE_SATURATION?: number
-    SVG_FEBLEND_MODE_SCREEN?: number
-    SVG_FEBLEND_MODE_SOFT_LIGHT?: number
-    SVG_FEBLEND_MODE_UNKNOWN?: number
+    SVG_FEBLEND_MODE_UNKNOWN?: 0
+    SVG_FEBLEND_MODE_NORMAL?: 1
+    SVG_FEBLEND_MODE_MULTIPLY?: 2
+    SVG_FEBLEND_MODE_SCREEN?: 3
+    SVG_FEBLEND_MODE_DARKEN?: 4
+    SVG_FEBLEND_MODE_LIGHTEN?: 5
+    SVG_FEBLEND_MODE_OVERLAY?: 6
+    SVG_FEBLEND_MODE_COLOR_DODGE?: 7
+    SVG_FEBLEND_MODE_COLOR_BURN?: 8
+    SVG_FEBLEND_MODE_HARD_LIGHT?: 9
+    SVG_FEBLEND_MODE_SOFT_LIGHT?: 10
+    SVG_FEBLEND_MODE_DIFFERENCE?: 11
+    SVG_FEBLEND_MODE_EXCLUSION?: 12
+    SVG_FEBLEND_MODE_HUE?: 13
+    SVG_FEBLEND_MODE_SATURATION?: 14
+    SVG_FEBLEND_MODE_COLOR?: 15
+    SVG_FEBLEND_MODE_LUMINOSITY?: 16
 }
 
 /** SVGFEBlendElement Tag */
@@ -492,11 +496,11 @@ export type FEColorMatrixTagAttrs = DefaultTagAttrs & {
     in1?: string
     type?: string|number
     values?: Array<number>
-    SVG_FECOLORMATRIX_TYPE_HUEROTATE?: number
-    SVG_FECOLORMATRIX_TYPE_LUMINANCETOALPHA?: number
-    SVG_FECOLORMATRIX_TYPE_MATRIX?: number
-    SVG_FECOLORMATRIX_TYPE_SATURATE?: number
-    SVG_FECOLORMATRIX_TYPE_UNKNOWN?: number
+    SVG_FECOLORMATRIX_TYPE_UNKNOWN?: 0
+    SVG_FECOLORMATRIX_TYPE_MATRIX?: 1
+    SVG_FECOLORMATRIX_TYPE_SATURATE?: 2
+    SVG_FECOLORMATRIX_TYPE_HUEROTATE?: 3
+    SVG_FECOLORMATRIX_TYPE_LUMINANCETOALPHA?: 4
 }
 
 /** SVGFEColorMatrixElement Tag */
@@ -519,13 +523,13 @@ export type FECompositeTagAttrs = DefaultTagAttrs & {
     k3?: number
     k4?: number
     operator?: string|number
-    SVG_FECOMPOSITE_OPERATOR_ARITHMETIC?: number
-    SVG_FECOMPOSITE_OPERATOR_ATOP?: number
-    SVG_FECOMPOSITE_OPERATOR_IN?: number
-    SVG_FECOMPOSITE_OPERATOR_OUT?: number
-    SVG_FECOMPOSITE_OPERATOR_OVER?: number
-    SVG_FECOMPOSITE_OPERATOR_UNKNOWN?: number
-    SVG_FECOMPOSITE_OPERATOR_XOR?: number
+    SVG_FECOMPOSITE_OPERATOR_UNKNOWN?: 0
+    SVG_FECOMPOSITE_OPERATOR_OVER?: 1
+    SVG_FECOMPOSITE_OPERATOR_IN?: 2
+    SVG_FECOMPOSITE_OPERATOR_OUT?: 3
+    SVG_FECOMPOSITE_OPERATOR_ATOP?: 4
+    SVG_FECOMPOSITE_OPERATOR_XOR?: 5
+    SVG_FECOMPOSITE_OPERATOR_ARITHMETIC?: 6
 }
 
 /** SVGFECompositeElement Tag */
@@ -545,10 +549,10 @@ export type FEConvolveMatrixTagAttrs = DefaultTagAttrs & {
     preserveAlpha?: boolean
     targetX?: number
     targetY?: number
-    SVG_EDGEMODE_DUPLICATE?: number
-    SVG_EDGEMODE_NONE?: number
-    SVG_EDGEMODE_UNKNOWN?: number
-    SVG_EDGEMODE_WRAP?: number
+    SVG_EDGEMODE_UNKNOWN?: 0
+    SVG_EDGEMODE_DUPLICATE?: 1
+    SVG_EDGEMODE_WRAP?: 2
+    SVG_EDGEMODE_NONE?: 3
 }
 
 /** SVGFEConvolveMatrixElement Tag */
@@ -573,11 +577,11 @@ export type FEDisplacementMapTagAttrs = DefaultTagAttrs & {
     scale?: number
     xChannelSelector?: string|number
     yChannelSelector?: string|number
-    SVG_CHANNEL_A?: number
-    SVG_CHANNEL_B?: number
-    SVG_CHANNEL_G?: number
-    SVG_CHANNEL_R?: number
-    SVG_CHANNEL_UNKNOWN?: number
+    SVG_CHANNEL_UNKNOWN?: 0
+    SVG_CHANNEL_R?: 1
+    SVG_CHANNEL_G?: 2
+    SVG_CHANNEL_B?: 3
+    SVG_CHANNEL_A?: 4
 }
 
 /** SVGFEDisplacementMapElement Tag */
@@ -650,9 +654,9 @@ export type FEMorphologyTagAttrs = DefaultTagAttrs & {
     operator?: string|number
     radiusX?: number
     radiusY?: number
-    SVG_MORPHOLOGY_OPERATOR_DILATE?: number
-    SVG_MORPHOLOGY_OPERATOR_ERODE?: number
-    SVG_MORPHOLOGY_OPERATOR_UNKNOWN?: number
+    SVG_MORPHOLOGY_OPERATOR_UNKNOWN?: 0
+    SVG_MORPHOLOGY_OPERATOR_ERODE?: 1
+    SVG_MORPHOLOGY_OPERATOR_DILATE?: 2
 }
 
 /** SVGFEMorphologyElement Tag */
@@ -722,12 +726,12 @@ export type FETurbulenceTagAttrs = DefaultTagAttrs & {
     seed?: number
     stitchTiles?: string|number
     type?: string|number
-    SVG_STITCHTYPE_NOSTITCH?: number
-    SVG_STITCHTYPE_STITCH?: number
-    SVG_STITCHTYPE_UNKNOWN?: number
-    SVG_TURBULENCE_TYPE_FRACTALNOISE?: number
-    SVG_TURBULENCE_TYPE_TURBULENCE?: number
-    SVG_TURBULENCE_TYPE_UNKNOWN?: number
+    SVG_TURBULENCE_TYPE_UNKNOWN?: 0
+    SVG_TURBULENCE_TYPE_FRACTALNOISE?: 1
+    SVG_TURBULENCE_TYPE_TURBULENCE?: 2
+    SVG_STITCHTYPE_UNKNOWN?: 0
+    SVG_STITCHTYPE_STITCH?: 1
+    SVG_STITCHTYPE_NOSTITCH?: 2
 }
 
 /** SVGFETurbulenceElement Tag */
@@ -777,10 +781,10 @@ export type GradientTagAttrs = SvgBaseAttrs & {
     gradientTransform?: string
     gradientUnits?: string|number
     spreadMethod?: string|number
-    SVG_SPREADMETHOD_PAD?: number
-    SVG_SPREADMETHOD_REFLECT?: number
-    SVG_SPREADMETHOD_REPEAT?: number
-    SVG_SPREADMETHOD_UNKNOWN?: number
+    SVG_SPREADMETHOD_UNKNOWN?: 0
+    SVG_SPREADMETHOD_PAD?: 1
+    SVG_SPREADMETHOD_REFLECT?: 2
+    SVG_SPREADMETHOD_REPEAT?: 3
 }
 
 /** SVGGradientElement Tag */
@@ -796,6 +800,7 @@ export class GraphicsTag extends SvgTagBase<GraphicsTagAttrs,SVGGraphicsElement>
 
 /** SVGImageElement Attributes */
 export type ImageTagAttrs = GraphicsTagAttrs & {
+    crossOrigin?: string | null
     height?: number
     preserveAspectRatio?: string
     width?: number
@@ -844,12 +849,13 @@ export type MarkerTagAttrs = DefaultTagAttrs & {
     orientType?: string|number
     refX?: number
     refY?: number
-    SVG_MARKERUNITS_STROKEWIDTH?: number
-    SVG_MARKERUNITS_UNKNOWN?: number
-    SVG_MARKERUNITS_USERSPACEONUSE?: number
-    SVG_MARKER_ORIENT_ANGLE?: number
-    SVG_MARKER_ORIENT_AUTO?: number
-    SVG_MARKER_ORIENT_UNKNOWN?: number
+    SVG_MARKERUNITS_UNKNOWN?: 0
+    SVG_MARKERUNITS_USERSPACEONUSE?: 1
+    SVG_MARKERUNITS_STROKEWIDTH?: 2
+    SVG_MARKER_ORIENT_UNKNOWN?: 0
+    SVG_MARKER_ORIENT_AUTO?: 1
+    SVG_MARKER_ORIENT_ANGLE?: 2
+    SVG_MARKER_ORIENT_AUTO_START_REVERSE?: 3
     preserveAspectRatio?: string
     viewBox?: IRect
 }
@@ -879,6 +885,7 @@ export class MetadataTag extends SvgTagBase<MetadataTagAttrs,SVGMetadataElement>
 
 /** SVGPathElement Attributes */
 export type PathTagAttrs = GeometryTagAttrs & {
+    pathLength?: number
 }
 
 /** SVGPathElement Tag */
@@ -1012,9 +1019,9 @@ export class TSpanTag extends SvgTagBase<TSpanTagAttrs,SVGTSpanElement> {}
 export type TextContentTagAttrs = GraphicsTagAttrs & {
     lengthAdjust?: string|number
     textLength?: number
-    LENGTHADJUST_SPACING?: number
-    LENGTHADJUST_SPACINGANDGLYPHS?: number
-    LENGTHADJUST_UNKNOWN?: number
+    LENGTHADJUST_UNKNOWN?: 0
+    LENGTHADJUST_SPACING?: 1
+    LENGTHADJUST_SPACINGANDGLYPHS?: 2
 }
 
 /** SVGTextContentElement Tag */

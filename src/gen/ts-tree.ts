@@ -102,6 +102,9 @@ export default class TypescriptTree {
                 case 'UnionType':
                     type = t
                     break
+                case 'LiteralType':
+                    type = t
+                    break
                 default:
                     console.log(`ignoring property sig child ${t} (${kind})`)
             }
