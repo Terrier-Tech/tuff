@@ -6,8 +6,13 @@ function wait(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+function nextFrame() {
+    return new Promise((resolve) => requestAnimationFrame(resolve))
+}
+
 const Time = {
-    wait
+    wait,
+    nextFrame,
 }
 
 export default Time
