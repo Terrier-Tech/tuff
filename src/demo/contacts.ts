@@ -1,6 +1,6 @@
 import {Part, PartTag} from '../parts'
 import * as forms from '../forms'
-import { FormFields, SelectOptions } from '../forms'
+import { CheckboxSetField, FormFields, SelectOptions } from '../forms'
 import Messages from '../messages'
 import Time from "../time"
 import * as styles from './styles.css'
@@ -50,6 +50,8 @@ const statuses = ['active', 'inactive'] as const
 
 type Status = typeof statuses[number]
 
+type CommChannel = 'billing' | 'reminders' | 'notifications'
+
 type ContactState = {
     id: string
     name: string
@@ -58,6 +60,7 @@ type ContactState = {
     role?: Role
     status: Status
     isAdmin: boolean
+    commChannels: Set<CommChannel>
     birthday?: string
     notes?: string
     phones: PhoneState[]
@@ -203,6 +206,19 @@ class ContactFormPart extends forms.FormPart<ContactState> {
                 this.renderPhoneFields(form, phoneFields)
             }
 
+            form.div(row => {
+                row.label({ text: 'Comm Channels' })
+                row.label({ text: "Billing" }, label => {
+                    this.checkbox(label, 'commChannels', { value: 'billing' satisfies CommChannel }, CheckboxSetField)
+                })
+                row.label({ text: "Reminders" }, label => {
+                    this.checkbox(label, 'commChannels', { value: 'reminders' satisfies CommChannel }, CheckboxSetField)
+                })
+                row.label({ text: "Notifications" }, label => {
+                    this.checkbox(label, 'commChannels', { value: 'notifications' satisfies CommChannel }, CheckboxSetField)
+                })
+            })
+
             this.textArea(form, "notes", {placeholder: 'Notes', rows: 3})
         })
     }
@@ -253,6 +269,7 @@ export class ContactsApp extends Part<{}> {
             status: 'active',
             birthday: '2021-12-01',
             phones: [],
+            commChannels: new Set<CommChannel>(),
             notes: "Pre-filled notes"
         })
         this.assignCollection('contacts', ContactFormPart, this.contacts)
