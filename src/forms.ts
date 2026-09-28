@@ -1,6 +1,14 @@
 import Arrays from "./arrays"
 import {
-    FormTag, InputTag, InputTagAttrs, LabelTag, OptGroupTag, OptionTagAttrs, SelectTag, SelectTagAttrs, TextAreaTag,
+    FormTag,
+    InputTag,
+    InputTagAttrs,
+    LabelTag,
+    OptGroupTag,
+    OptionTagAttrs,
+    SelectTag,
+    SelectTagAttrs,
+    TextAreaTag,
     TextAreaTagAttrs
 } from './html'
 import { Logger } from './logging'
@@ -338,6 +346,18 @@ export class CheckboxField extends Field<boolean, HTMLInputElement> {
 
     getValue(elems: HTMLInputElement[]): boolean | null {
         return elems[0].checked
+    }
+}
+
+export class CheckboxSetField<T extends string> extends Field<Set<T>, HTMLInputElement> {
+    assignAttrValue(attrs: InputTagAttrs, value?: Set<T>) {
+        if (!attrs.value) throw new Error("Checkbox does not have a value")
+        attrs.checked = value?.has(attrs.value as T)
+    }
+
+    getValue(elems: HTMLInputElement[]): Set<T> | null {
+        const checkedElems = elems.filter(x => x.checked && x.value?.length)
+        return new Set<T>(checkedElems.map(x => x.value as T))
     }
 }
 
