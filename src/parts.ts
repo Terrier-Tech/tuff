@@ -162,16 +162,17 @@ export abstract class Part<StateType> {
             log.debug(`Deleting DOM node for part ${child.name} ${child.id}`, elem)
             elem.remove()
         }
-        child.onRemoved()
         child._removeHierarchy()
         delete this.children[child.id]
     }
 
+    /**
+     * Removes this part and all parts under it, recursively, depth-first
+     */
     _removeHierarchy() {
-        this.eachChild(child => {
-            child.onRemoved()
-            child._removeHierarchy()
-        })
+        keyboard.deregisterPart(this)
+        this.onRemoved()
+        this.eachChild(child => child._removeHierarchy())
     }
 
     /**
