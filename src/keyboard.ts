@@ -93,14 +93,14 @@ class GlobalHandler {
 
 }
 
-let _gloablHandler: GlobalHandler | null = null
+let _globalHandler: GlobalHandler | null = null
 
 // Singleton method for obtaining the global handler.
 const getGlobalHandler = () => {
-    if (!_gloablHandler) {
-        _gloablHandler = new GlobalHandler()
+    if (!_globalHandler) {
+        _globalHandler = new GlobalHandler()
     }
-    return _gloablHandler
+    return _globalHandler
 }
 
 /**
