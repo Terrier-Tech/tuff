@@ -170,6 +170,7 @@ export abstract class Part<StateType> {
      * Removes this part and all parts under it, recursively, depth-first
      */
     _removeHierarchy() {
+        keyboard.deregisterPart(this)
         this.onRemoved()
         this.eachChild(child => child._removeHierarchy())
     }

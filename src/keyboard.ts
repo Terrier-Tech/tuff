@@ -19,25 +19,26 @@ class GlobalHandler {
     isApple: boolean
 
     /**
-     * Registers the part's root to receive global keyboard events.
+     * Registers the given part to receive global keyboard events
      * @param part A part that wishes to receive global keyboard events
      * @param listener
      */
     addPart(part: parts.StatelessPart, listener?: Listener) {
-        const root = part.root
-        if (!root.isAttached) {
-            log.warn(`Trying to listen for keyboard events on an unattached part`)
-            return
-        }
-        if (!this.parts[root.id]) { // not already registered
-            this.parts[root.id] = {
-                part: root,
-                listeners: []
-            }
+        if (!this.parts[part.id]) { // not already registered
+            this.parts[part.id] = { part, listeners: [] }
         }
         if (listener) {
-            this.parts[root.id].listeners.push(listener)
+            this.parts[part.id].listeners.push(listener)
         }
+    }
+
+    /**
+     * Removes a part that was previously receiving global keyboard events.
+     * If the given part was not receiving events, does nothing.
+     * @param part
+     */
+    removePart(part: parts.StatelessPart) {
+        delete this.parts[part.id]
     }
 
     constructor() {
@@ -78,15 +79,12 @@ class GlobalHandler {
 
         const press = Messages.keyPress(key, ...modifiers)
         const message = {data: press, event: evt, type: 'keypress'} as const
-        for (let [id, reg] of Object.entries(this.parts)) {
-            if (reg.part.isAttached) {
-                reg.part.emit("keypress", press, evt, press)
-                for (const listener of reg.listeners) {
-                    listener(message)
-                }
-            }
-            else {
-                delete this.parts[id]
+        for (let { part, listeners } of Object.values(this.parts)) {
+            if (!part.isAttached) continue
+
+            part.emit("keypress", press, evt, press)
+            for (const listener of listeners) {
+                listener(message)
             }
         }
     }
@@ -104,10 +102,18 @@ const getGlobalHandler = () => {
 }
 
 /**
- * Registers the part's root to receive global keyboard events.
+ * Registers the given part to receive global keyboard events.
  * @param part A part that wishes to receive global keyboard events
  * @param listener An optional wildcard listener
  */
-export const registerPart = (part: parts.StatelessPart, listener?: Listener) => {
+export function registerPart(part: parts.StatelessPart, listener?: Listener) {
     getGlobalHandler().addPart(part, listener)
+}
+
+/**
+ * Removes the given part from receiving global keyboard events.
+ * @param part
+ */
+export function deregisterPart(part: parts.StatelessPart) {
+    getGlobalHandler().removePart(part)
 }
